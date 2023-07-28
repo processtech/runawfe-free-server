@@ -1,13 +1,12 @@
 package ru.runa.wf.web.ftl.component;
 
+import freemarker.template.TemplateModelException;
 import java.util.List;
-
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.var.dto.WfVariable;
-import freemarker.template.TemplateModelException;
 
 /**
  * @deprecated code moved to {@link InputVariable}.
@@ -34,7 +33,7 @@ public class ChooseGroup extends FormComponent {
             }
             html.append("</select>");
             return html.toString();
-        } else if ("selectName".equals(view)) {
+        } else if ("selectId".equals(view)) {
             WfVariable variable = variableProvider.getVariableNotNull(varName);
             return ViewUtil.createExecutorSelect(user, variable);
         } else {

@@ -13,9 +13,8 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.Borders;
 import org.apache.poi.xwpf.usermodel.LineSpacingRule;
@@ -48,8 +47,8 @@ import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
+@CommonsLog
 public class DocxUtils {
-    private static final Log log = LogFactory.getLog(DocxUtils.class);
     private static final String GROOVY = "groovy:";
     private static final String LINE_DELIMITER = "\n";
     private static final String ITERATOR_NAME_DELIMITER = " as ";
@@ -305,7 +304,7 @@ public class DocxUtils {
     }
 
     public static void replaceInParagraphs(DocxConfig config, MapDelegableVariableProvider variableProvider, List<XWPFParagraph> paragraphs) {
-        Stack<Operation> operations = new Stack<Operation>();
+        Stack<Operation> operations = new Stack<>();
         for (XWPFParagraph paragraph : Lists.newArrayList(paragraphs)) {
             String paragraphText = paragraph.getText();
             LoopOperation loopOperation = parseIterationOperation(config, variableProvider, paragraphText, new LoopOperation());
@@ -830,5 +829,4 @@ public class DocxUtils {
             }
         }
     }
-
 }

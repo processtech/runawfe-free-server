@@ -21,7 +21,7 @@ public class GetExecutorInfoHandler extends CommonParamBasedHandler {
 
     private void validateOutputVariableDataType(HandlerData handlerData) {
         String outputVariableName = handlerData.getOutputParamNotNull("result").getVariableName();
-        VariableFormat outputVariableFormat = handlerData.getExecutionContext().getProcessDefinition().getVariable(outputVariableName, false)
+        VariableFormat outputVariableFormat = handlerData.getExecutionContext().getParsedProcessDefinition().getVariable(outputVariableName, false)
                 .getFormatNotNull();
         if (!(outputVariableFormat instanceof StringFormat)) {
             throw new InternalApplicationException("Not supported since v4.4.3");

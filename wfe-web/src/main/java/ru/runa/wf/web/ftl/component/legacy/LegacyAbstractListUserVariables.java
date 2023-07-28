@@ -5,9 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
 import org.json.simple.JSONArray;
-
 import ru.runa.wf.web.ftl.component.GenerateHtmlForVariable;
 import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -73,7 +71,7 @@ public abstract class LegacyAbstractListUserVariables extends FormComponent {
     }
 
     public static final String getUserTypeListTable(User user, WebHelper webHelper, WfVariable variable, WfVariable dectSelectVariable,
-            Long processId, String sortFieldName, boolean isMultiDim) {
+            String sortFieldName, boolean isMultiDim) {
         if (!(variable.getValue() instanceof List)) {
             return "";
         }

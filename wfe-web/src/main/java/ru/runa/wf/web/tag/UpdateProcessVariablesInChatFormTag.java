@@ -1,17 +1,17 @@
 package ru.runa.wf.web.tag;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.tldgen.annotations.BodyContent;
 import org.tldgen.annotations.Tag;
 import ru.runa.wfe.var.VariableDefinition;
-import java.util.ArrayList;
-import java.util.List;
 
 @Tag(bodyContent = BodyContent.EMPTY, name = "updateProcessVariablesInChat")
 public class UpdateProcessVariablesInChatFormTag extends UpdateProcessVariablesFormTag {
     @Override
-    protected List<VariableDefinition> getVariableDefinitions(Long definitionId) {
+    protected List<VariableDefinition> getVariableDefinitions(Long processDefinitionId) {
         List<VariableDefinition> variables = new ArrayList<>();
-        for (VariableDefinition variable : super.getVariableDefinitions(definitionId)) {
+        for (VariableDefinition variable : super.getVariableDefinitions(processDefinitionId)) {
             if (variable.isEditableInChat()) {
                 variables.add(variable);
             }

@@ -7,19 +7,13 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Index;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-/**
- * DTO for parameters data storage. These parameters must be input by the user in order to build report.
- */
-
 @Entity
-@Table(name = "REPORT_PARAMETER", indexes = { @Index(name = "IX_PARAMETER_REPORT_ID", columnList = "REPORT_ID") })
+@Table(name = "REPORT_PARAMETER")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ReportParameter {
     private Long id;

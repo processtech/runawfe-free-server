@@ -14,6 +14,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.dao.ChatFileDao;
 import ru.runa.wfe.chat.dao.ChatFileIo;
@@ -35,6 +36,7 @@ public class ChatUnusedFilesCleanerJob {
     private ChatUnusedFilesCleanerJob self;
 
     @SneakyThrows
+    @Scheduled(fixedDelayString = "${timertask.period.millis.clean.unused.chat.files}")
     public void execute() {
         log.debug("Job started");
 

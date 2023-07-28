@@ -5,7 +5,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.datasource.DataSourceStorage;

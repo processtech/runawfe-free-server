@@ -5,7 +5,6 @@ import org.apache.ecs.html.Div;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.Label;
-import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
@@ -88,8 +87,8 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
         }
     }
 
-    protected List<VariableDefinition> getVariableDefinitions(Long definitionId) {
-        return Delegates.getDefinitionService().getVariableDefinitions(getUser(), definitionId);
+    protected List<VariableDefinition> getVariableDefinitions(Long processDefinitionId) {
+        return Delegates.getDefinitionService().getVariableDefinitions(getUser(), processDefinitionId);
     }
 
     protected boolean isAvailable() {

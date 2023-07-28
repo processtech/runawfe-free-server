@@ -10,7 +10,7 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
 public class MapDelegableVariableProvider extends DelegableVariableProvider {
     protected final Map<String, Object> values = Maps.newHashMap();
 
-    public MapDelegableVariableProvider(Map<String, ? extends Object> variables, VariableProvider delegate) {
+    public MapDelegableVariableProvider(Map<String, ?> variables, VariableProvider delegate) {
         super(delegate);
         for (Map.Entry<String, Object> entry : ((Map<String, Object>) variables).entrySet()) {
             add(entry.getKey(), entry.getValue());
@@ -113,10 +113,10 @@ public class MapDelegableVariableProvider extends DelegableVariableProvider {
     private void mergeListVariable(String variableName, List<Object> list, VariableDefinition variableDefinition) {
         // TODO sneaky code
         if (variableDefinition == null) {
-            if (getProcessDefinition() == null) {
+            if (getParsedProcessDefinition() == null) {
                 return;
             }
-            variableDefinition = getProcessDefinition().getVariable(variableName, false);
+            variableDefinition = getParsedProcessDefinition().getVariable(variableName, false);
             if (variableDefinition == null) {
                 // for MultiTask
                 return;

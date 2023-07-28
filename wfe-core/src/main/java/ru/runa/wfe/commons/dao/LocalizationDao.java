@@ -3,6 +3,7 @@ package ru.runa.wfe.commons.dao;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
+import lombok.val;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,6 +16,10 @@ import org.springframework.stereotype.Component;
 public class LocalizationDao extends GenericDao<Localization> {
 
     private Map<String, String> localizations = Maps.newHashMap();
+
+    public LocalizationDao() {
+        super(Localization.class);
+    }
 
     public void init() {
         for (Localization localization : getAll()) {
@@ -62,7 +67,7 @@ public class LocalizationDao extends GenericDao<Localization> {
      *            rewrite existing localization
      */
     private void saveLocalization(String name, String value, boolean rewrite) {
-        QLocalization l = QLocalization.localization;
+        val l = QLocalization.localization;
         Localization localization = queryFactory.selectFrom(l).where(l.name.eq(name)).fetchFirst();
         if (localization == null || rewrite) {
             localizations.put(name, value);

@@ -16,7 +16,7 @@ public interface CacheInitializationContext<CacheImpl extends CacheImplementatio
      * @param initializedCache
      *            Initialized cache instance.
      */
-    public void onComplete(CacheImpl initializedCache);
+    void onComplete(CacheImpl initializedCache);
 
     /**
      * Must be called if initialization throws exception.
@@ -24,5 +24,5 @@ public interface CacheInitializationContext<CacheImpl extends CacheImplementatio
      * @param e
      *            Exception, thrown during initialization.
      */
-    public void onError(Throwable e);
+    void onError(Throwable e);
 }

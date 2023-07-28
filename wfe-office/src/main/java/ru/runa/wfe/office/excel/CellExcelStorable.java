@@ -21,8 +21,6 @@ public class CellExcelStorable extends ExcelStorable<CellConstraints, Object> {
     private Cell getCell(Workbook workbook) {
         Sheet sheet = ExcelHelper.getSheet(workbook, constraints.getSheetName(), constraints.getSheetIndex());
         Row row = ExcelHelper.getRow(sheet, constraints.getRowIndex(), true);
-        Cell cell = ExcelHelper.getCell(row, constraints.getColumnIndex(), true);
-        return cell;
+        return ExcelHelper.getCell(row, constraints.getColumnIndex(), true);
     }
-
 }

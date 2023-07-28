@@ -19,19 +19,8 @@ public class TransitionOrdererContext {
     /**
      * Creates context for transition reordering.
      */
-    public TransitionOrdererContext() {
-        super();
-        reordering = true;
-    }
-
-    /**
-     * Creates context for searching following parallel node.
-     * 
-     * @param context
-     */
-    public TransitionOrdererContext(TransitionOrdererContext context) {
-        super();
-        reordering = false;
+    public TransitionOrdererContext(boolean reordering) {
+        this.reordering = reordering;
     }
 
     /**

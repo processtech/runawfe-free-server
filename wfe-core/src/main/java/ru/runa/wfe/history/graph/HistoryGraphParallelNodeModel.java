@@ -8,8 +8,8 @@ import ru.runa.wfe.lang.Node;
  * History graph node for parallel gateway.
  */
 public class HistoryGraphParallelNodeModel extends HistoryGraphBaseNodeModel {
-    public HistoryGraphParallelNodeModel(ProcessLog processLog, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
-        super(processLog, node, definitionModel, nodeFactory);
+    public HistoryGraphParallelNodeModel(Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
+        super(node, definitionModel, nodeFactory);
     }
 
     public HistoryGraphParallelNodeModel(ProcessLog processLog, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {

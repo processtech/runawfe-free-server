@@ -45,6 +45,18 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>wfe-restapi</artifactId>
+			<version>${project.version}</version>
+			<type>war</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>wfe-chat-socket</artifactId>
+			<version>${project.version}</version>
+			<type>war</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>wfe-bots</artifactId>
 			<version>${project.version}</version>
 			<type>ejb</type>
@@ -67,56 +79,29 @@
 			<artifactId>commons-collections</artifactId>
 			<version>3.2.2</version>
 		</dependency>
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib</artifactId>
-		</dependency>
 	</dependencies>
 
 	<profiles>
 		<profile>
-			<id>jboss7</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-				<property>
-					<name>appserver</name>
-				</property>
-			</activation>
+			<id>spa</id>
+			<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>wfe-spa</artifactId>
+					<version>${project.version}</version>
+					<type>war</type>
+				</dependency>
+			</dependencies>
 			<build>
 				<plugins>
 					<plugin>
 						<artifactId>maven-ear-plugin</artifactId>
 						<configuration>
-							<finalName>runawfe</finalName>
-							<displayName>RunaWFE application</displayName>
-							<version>6</version>
-							<defaultLibBundleDir>lib</defaultLibBundleDir>
-							<initializeInOrder>true</initializeInOrder>
-							<modules>
-								<jarModule>
-									<groupId>dom4j</groupId>
-									<artifactId>dom4j</artifactId>
-								</jarModule>
-								<jarModule>
-									<groupId>${project.groupId}</groupId>
-									<artifactId>wfe-core</artifactId>
-								</jarModule>
-								<jarModule>
-									<groupId>${project.groupId}</groupId>
-									<artifactId>wfe-office</artifactId>
-								</jarModule>
-								<ejbModule>
-									<groupId>${project.groupId}</groupId>
-									<artifactId>wfe-service</artifactId>
-								</ejbModule>
-								<ejbModule>
-									<groupId>${project.groupId}</groupId>
-									<artifactId>wfe-bots</artifactId>
-								</ejbModule>
+							<modules combine.children="append">
 								<webModule>
 									<groupId>${project.groupId}</groupId>
-									<artifactId>wfe-web</artifactId>
-									<contextRoot>/wfe</contextRoot>
+									<artifactId>wfe-spa</artifactId>
+									<contextRoot>/spa</contextRoot>
 								</webModule>
 							</modules>
 						</configuration>
@@ -128,6 +113,53 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<artifactId>maven-ear-plugin</artifactId>
+				<configuration>
+					<finalName>runawfe</finalName>
+					<displayName>RunaWFE application</displayName>
+					<version>6</version>
+					<defaultLibBundleDir>lib</defaultLibBundleDir>
+					<initializeInOrder>true</initializeInOrder>
+					<modules>
+						<jarModule>
+							<groupId>dom4j</groupId>
+							<artifactId>dom4j</artifactId>
+						</jarModule>
+						<jarModule>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>wfe-core</artifactId>
+						</jarModule>
+						<jarModule>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>wfe-office</artifactId>
+						</jarModule>
+						<ejbModule>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>wfe-service</artifactId>
+						</ejbModule>
+						<ejbModule>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>wfe-bots</artifactId>
+						</ejbModule>
+						<webModule>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>wfe-chat-socket</artifactId>
+							<contextRoot>/wfe/chatSocket</contextRoot>
+						</webModule>
+						<webModule>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>wfe-web</artifactId>
+							<contextRoot>/wfe</contextRoot>
+						</webModule>
+						<webModule>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>wfe-restapi</artifactId>
+							<contextRoot>/restapi</contextRoot>
+						</webModule>
+					</modules>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>

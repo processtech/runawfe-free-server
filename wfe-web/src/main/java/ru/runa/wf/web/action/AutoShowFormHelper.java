@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.web.action;
 
 import java.util.HashMap;
@@ -30,18 +13,21 @@ import ru.runa.wfe.presentation.filter.LongFilterCriteria;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskClassPresentation;
 import ru.runa.wfe.task.dto.WfTask;
-import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 
 public class AutoShowFormHelper {
     private static final String LOCAL_FORWARD_TASKS_LIST = "tasksList";
     private static final String LOCAL_FORWARD_SUBMIT_TASK = "submitTask";
 
-    public static ActionForward getNextActionForward(User user, ActionMapping mapping, Profile profile, Long processId) {
+    public static List<WfTask> getTasks(User user, Long processId) {
         BatchPresentation batchPresentation = BatchPresentationFactory.TASKS.createDefault("getNextActionForward");
         int fieldIndex = batchPresentation.getType().getFieldIndex(TaskClassPresentation.PROCESS_ID);
         batchPresentation.getFilteredFields().put(fieldIndex, new LongFilterCriteria(processId));
-        List<WfTask> tasks = Delegates.getTaskService().getMyTasks(user, batchPresentation);
+        return Delegates.getTaskService().getMyTasks(user, batchPresentation);
+    }
+
+    public static ActionForward getNextActionForward(User user, ActionMapping mapping, Long processId) {
+        List<WfTask> tasks = getTasks(user, processId);
         if (tasks.size() == 1) {
         	WfTask task = tasks.get(0);
             Map<String, Object> params = new HashMap<>();

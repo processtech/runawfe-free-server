@@ -2,7 +2,7 @@ package ru.runa.wfe.var.dao;
 
 import java.util.Map;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
 
@@ -13,7 +13,7 @@ public class LoadVariableOfTypeContext {
     /**
      * Process definition for loading variable process.
      */
-    public final ProcessDefinition processDefinition;
+    public final ParsedProcessDefinition parsedProcessDefinition;
 
     /**
      * Process instance loading variable from.
@@ -33,12 +33,12 @@ public class LoadVariableOfTypeContext {
     /**
      * If this map is not null then we use do not load data from DB.
      */
-    private Map<String, Variable<?>> preloadedVariables;
+    private Map<String, Variable> preloadedVariables;
 
     /**
      * Creates operation context for {@link LoadVariableOfType}.
      * 
-     * @param processDefinition
+     * @param parsedProcessDefinition
      *            Process definition for loading variable process.
      * @param process
      *            Process instance loading variable from.
@@ -47,9 +47,9 @@ public class LoadVariableOfTypeContext {
      * @param variableDefinition
      *            Loading variable definition.
      */
-    public LoadVariableOfTypeContext(ProcessDefinition processDefinition, Process process, VariableLoader variableLoader,
-            Map<String, Variable<?>> preloadedVariables, VariableDefinition variableDefinition) {
-        this.processDefinition = processDefinition;
+    public LoadVariableOfTypeContext(ParsedProcessDefinition parsedProcessDefinition, Process process, VariableLoader variableLoader,
+            Map<String, Variable> preloadedVariables, VariableDefinition variableDefinition) {
+        this.parsedProcessDefinition = parsedProcessDefinition;
         this.process = process;
         this.variableLoader = variableLoader;
         this.variableDefinition = variableDefinition;
@@ -63,10 +63,10 @@ public class LoadVariableOfTypeContext {
      * @return Returns context copy for loading variable.
      */
     public LoadVariableOfTypeContext createFor(VariableDefinition variableDefinition) {
-        return new LoadVariableOfTypeContext(processDefinition, process, variableLoader, preloadedVariables, variableDefinition);
+        return new LoadVariableOfTypeContext(parsedProcessDefinition, process, variableLoader, preloadedVariables, variableDefinition);
     }
 
-    public Variable<?> getVariable() {
+    public Variable getVariable() {
         if (preloadedVariables != null) {
             return preloadedVariables.get(variableDefinition.getName());
         }

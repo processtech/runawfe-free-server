@@ -11,4 +11,8 @@ import ru.runa.wfe.commons.dao.GenericDao;
  */
 @Component
 public class SystemLogDao extends GenericDao<SystemLog> {
+
+    public SystemLogDao() {
+        super(SystemLog.class);
+    }
 }

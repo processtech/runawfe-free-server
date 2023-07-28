@@ -1,6 +1,6 @@
 package ru.runa.wfe.commons;
 
-import ru.runa.wfe.audit.NodeInfoLog;
+import ru.runa.wfe.audit.CurrentNodeInfoLog;
 import ru.runa.wfe.audit.Severity;
 import ru.runa.wfe.execution.ExecutionContext;
 
@@ -12,10 +12,10 @@ public class GroovyNodeInfoLogExecutor {
     }
 
     public void debug(String message) {
-        executionContext.addLog(new NodeInfoLog(executionContext.getNode(), Severity.DEBUG, message));
+        executionContext.addLog(new CurrentNodeInfoLog(executionContext.getNode(), Severity.DEBUG, message));
     }
 
     public void info(String message) {
-        executionContext.addLog(new NodeInfoLog(executionContext.getNode(), Severity.INFO, message));
+        executionContext.addLog(new CurrentNodeInfoLog(executionContext.getNode(), Severity.INFO, message));
     }
 }

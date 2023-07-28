@@ -1,21 +1,20 @@
 package ru.runa.common.web.action;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.AdminScriptForm;
 import ru.runa.wfe.InternalApplicationException;
@@ -24,9 +23,6 @@ import ru.runa.wfe.service.ScriptingService;
 import ru.runa.wfe.service.client.AdminScriptClient;
 import ru.runa.wfe.service.client.AdminScriptClient.Handler;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
 
 public class AdminkitScriptsAction extends ActionBase {
     public static final String PATH = "/admin_scripts";
@@ -75,7 +71,7 @@ public class AdminkitScriptsAction extends ActionBase {
             }
         } catch (Throwable th) {
             log.error("admin scripts action", th);
-            setErrors(ajaxRequest, errors, request, response, th.toString());
+            setErrors(ajaxRequest, errors, response, th.toString());
         }
         if (ajaxRequest) {
             return null;
@@ -125,7 +121,7 @@ public class AdminkitScriptsAction extends ActionBase {
         throw new InternalApplicationException("No script parameter found");
     }
 
-    private void setErrors(boolean ajaxRequest, ActionMessages errors, HttpServletRequest request, HttpServletResponse response, String text) {
+    private void setErrors(boolean ajaxRequest, ActionMessages errors, HttpServletResponse response, String text) {
         if (ajaxRequest) {
             writeResponse(response, text.getBytes(Charsets.UTF_8));
         } else {

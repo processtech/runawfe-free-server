@@ -1,21 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
-
 package ru.runa.af.web.tag;
 
 import java.io.InputStream;
@@ -25,8 +7,7 @@ import java.util.List;
 import java.util.TreeMap;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
@@ -53,14 +34,14 @@ import ru.runa.wfe.service.delegate.Delegates;
  * @author: petrmikheev Date: 26.08.2012
  */
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "editSettings")
+@CommonsLog
 public class EditSettingsTag extends TitledFormTag {
     private static final long serialVersionUID = -426375016105456L;
-    private static final Log log = LogFactory.getLog(EditSettingsTag.class);
 
     private static class Setting {
         public String title;
         public String pattern = null;
-        public List<String> values = new LinkedList<String>();
+        public List<String> values = new LinkedList<>();
 
         public Setting(String title) {
             this.title = title;
@@ -69,7 +50,7 @@ public class EditSettingsTag extends TitledFormTag {
 
     private static class SettingsFile {
         Setting defaultSetting = new Setting(null);
-        List<Setting> settings = new ArrayList<Setting>();
+        List<Setting> settings = new ArrayList<>();
     }
 
     public static final TreeMap<String, SettingsFile> settingsList;
@@ -78,19 +59,17 @@ public class EditSettingsTag extends TitledFormTag {
         settingsList = readSettingsList("settingsList.xml");
     }
 
-    @SuppressWarnings("unchecked")
     private static void parseSettingType(Setting p, Element el) {
         p.pattern = el.attributeValue("pattern");
         List<Element> vlist = el.elements();
         for (Element v : vlist) {
-            if (v.getName() != "value") {
+            if (!"value".equals(v.getName())) {
                 continue;
             }
             p.values.add(v.getText());
         }
     }
 
-    @SuppressWarnings("unchecked")
     private static TreeMap<String, SettingsFile> readSettingsList(String path) {
         TreeMap<String, SettingsFile> result = new TreeMap<>();
         try (InputStream is = ClassLoaderUtil.getAsStreamNotNull(path, EditSettingsTag.class)) {
@@ -102,7 +81,7 @@ public class EditSettingsTag extends TitledFormTag {
                 parseSettingType(pf.defaultSetting, f);
                 List<Element> plist = f.elements();
                 for (Element p : plist) {
-                    if (p.getName() != "property") {
+                    if (!"property".equals(p.getName())) {
                         continue;
                     }
                     Setting np = new Setting(p.attributeValue("title"));

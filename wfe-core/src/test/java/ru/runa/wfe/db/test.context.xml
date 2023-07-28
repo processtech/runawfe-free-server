@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jee="http://www.springframework.org/schema/jee" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/jee
+       http://www.springframework.org/schema/jee/spring-jee.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/task
+       http://www.springframework.org/schema/task/spring-task.xsd">
+
+
+	<bean id="systemPropertiesConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders">
+			<value>true</value>
+		</property>
+		<property name="locations">
+			<list>
+				<value>classpath:system.properties</value>
+				<value>classpath*:wfe.custom.system.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<tx:annotation-driven proxy-target-class="true" />
+
+	<context:annotation-config />
+	<context:component-scan base-package="ru.runa.wfe" />
+
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<property name="url" value="jdbc:postgresql://localhost:5435/runawfe2681" />
+		<property name="username" value="runawfe" />
+		<property name="password" value="1" />
+	</bean>
+
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<!-- property name="hibernateProperties" ref="hibernateProperties" / -->
+		<!-- property name="entityInterceptor">
+			<bean class="ru.runa.wfe.commons.hibernate.WfeInterceptor" />
+		</property -->
+		<property name="packagesToScan">
+			<list>
+				<value>ru.runa.wfe</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- converters -->
+	<bean id="stringToByteArrayConverter" class="ru.runa.wfe.var.converter.StringToByteArrayConverter" />
+	<bean id="booleanToStringConverter" class="ru.runa.wfe.var.converter.BooleanToStringConverter" />
+	<bean id="intToLongConverter" class="ru.runa.wfe.var.converter.IntegerToLongConverter" />
+	<bean id="serializableToByteArrayConverter" class="ru.runa.wfe.var.converter.SerializableToByteArrayConverter" />
+	<bean id="executorToLongConverter" class="ru.runa.wfe.var.converter.ExecutorToLongConverter" />
+	<bean id="fileToByteArrayConverter" class="ru.runa.wfe.var.converter.FileVariableToByteArrayConverter">
+		<property name="storage">
+			<bean class="ru.runa.wfe.var.file.LocalFileSystemStorage" />
+		</property>
+	</bean>
+
+	<bean id="converters" class="ru.runa.wfe.commons.hibernate.Converters">
+		<property name="mappings">
+			<map>
+				<entry key="B" value-ref="booleanToStringConverter" />
+				<entry key="I" value-ref="intToLongConverter" />
+				<entry key="R" value-ref="serializableToByteArrayConverter" />
+				<entry key="S" value-ref="stringToByteArrayConverter" />
+				<entry key="E" value-ref="executorToLongConverter" />
+				<entry key="F" value-ref="fileToByteArrayConverter" />
+			</map>
+		</property>
+	</bean>
+
+	<!-- java.lang.String (<= 1024 symbols) -->
+	<bean id="stringVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.StringMatcher">
+				<property name="large" value="false" />
+			</bean>
+		</property>
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentStringVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedStringVariable" />
+	</bean>
+	<!-- java.lang.String (> 1024 symbols) -->
+	<bean id="largeStringVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.StringMatcher">
+				<property name="large" value="true" />
+			</bean>
+		</property>
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentByteArrayVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedByteArrayVariable" />
+		<property name="converter" ref="stringToByteArrayConverter" />
+	</bean>
+	<!-- java.lang.Boolean -->
+	<bean id="booleanVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.ClassNameMatcher">
+				<property name="className" value="java.lang.Boolean" />
+			</bean>
+		</property>
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentStringVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedStringVariable" />
+		<property name="converter" ref="booleanToStringConverter" />
+	</bean>
+	<!-- java.lang.Long -->
+	<bean id="longVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.ClassNameMatcher">
+				<property name="className" value="java.lang.Long" />
+			</bean>
+		</property>
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentLongVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedLongVariable" />
+	</bean>
+	<!-- java.lang.Integer -->
+	<bean id="integerVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.ClassNameMatcher">
+				<property name="className" value="java.lang.Integer" />
+			</bean>
+		</property>
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentLongVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedLongVariable" />
+		<property name="converter" ref="intToLongConverter" />
+	</bean>
+	<!-- java.lang.Double -->
+	<bean id="doubleVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.ClassNameMatcher">
+				<property name="className" value="java.lang.Double" />
+			</bean>
+		</property>
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentDoubleVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedDoubleVariable" />
+	</bean>
+	<!-- java.util.Date -->
+	<bean id="dateVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.ClassNameMatcher">
+				<property name="className" value="java.util.Date" />
+			</bean>
+		</property>
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentDateVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedDateVariable" />
+	</bean>
+	<!-- byte[] -->
+	<bean id="bytesVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.ClassNameMatcher">
+				<property name="className" value="[B" />
+			</bean>
+		</property>
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentByteArrayVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedByteArrayVariable" />
+	</bean>
+	<!-- ru.runa.wfe.user.Executor -->
+	<bean id="executorVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.ClassNameMatcher">
+				<property name="className" value="ru.runa.wfe.user.Executor" />
+			</bean>
+		</property>
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentLongVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedLongVariable" />
+		<property name="converter" ref="executorToLongConverter" />
+	</bean>
+	<!-- ru.runa.wfe.var.FileVariable -->
+	<bean id="fileVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.FileVariableMatcher" />
+		</property>
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentByteArrayVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedByteArrayVariable" />
+		<property name="converter" ref="fileToByteArrayConverter" />
+	</bean>
+	<!-- java.io.Serializable -->
+	<bean id="serializableVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.SerializableMatcher" />
+		</property>
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentByteArrayVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedByteArrayVariable" />
+		<property name="converter" ref="serializableToByteArrayConverter" />
+	</bean>
+
+	<bean id="variableCreator" class="ru.runa.wfe.var.VariableCreator">
+		<property name="types">
+			<list>
+				<ref bean="stringVariableType" />
+				<ref bean="largeStringVariableType" />
+				<ref bean="booleanVariableType" />
+				<ref bean="longVariableType" />
+				<ref bean="integerVariableType" />
+				<ref bean="doubleVariableType" />
+				<ref bean="dateVariableType" />
+				<ref bean="bytesVariableType" />
+				<ref bean="executorVariableType" />
+				<ref bean="fileVariableType" />
+				<ref bean="serializableVariableType" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="taskListBuilder" class="ru.runa.wfe.task.logic.TaskListBuilderImpl">
+		<constructor-arg ref="taskCache" />
+	</bean>
+
+	<bean id="commonLogic" class="ru.runa.wfe.commons.logic.CommonLogic" />
+	<bean id="digitalSignatureLogic" class="ru.runa.wfe.digitalsignature.logic.DigitalSignatureLogic" />
+	<bean id="loginModuleConfiguration" class="ru.runa.wfe.security.auth.LoginModuleConfiguration">
+		<property name="loginModuleClassNames">
+			<list>
+				<value>ru.runa.wfe.security.auth.InternalDbPasswordLoginModule</value>
+				<value>ru.runa.wfe.security.auth.KerberosLoginModule</value>
+				<value>ru.runa.wfe.security.auth.TrustedLoginModule</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="authenticationLogic" class="ru.runa.wfe.security.logic.AuthenticationLogic">
+		<property name="loginHandlers">
+			<list>
+			</list>
+		</property>
+	</bean>
+	<bean id="executorLogic" class="ru.runa.wfe.user.logic.ExecutorLogic">
+		<property name="setStatusHandlers">
+			<list>
+			</list>
+		</property>
+	</bean>
+	<bean id="assignmentHelper" class="ru.runa.wfe.extension.assign.AssignmentHelper" />
+	<bean id="adminScriptRunner" class="ru.runa.wfe.script.AdminScriptRunner" />
+
+	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />
+
+	<bean id="executionContextFactory" class="ru.runa.wfe.execution.ExecutionContextFactory" />
+
+	<bean id="batchPresentationCompilerFactory" class="ru.runa.wfe.presentation.hibernate.BatchPresentationHibernateCompilerFactory" />
+
+	<bean id="nodeAsyncExecutor" class="ru.runa.wfe.execution.async.JmsNodeAsyncExecutor" />
+
+	<bean id="taskAssigner" class="ru.runa.wfe.task.logic.TaskAssigner" />
+
+</beans>

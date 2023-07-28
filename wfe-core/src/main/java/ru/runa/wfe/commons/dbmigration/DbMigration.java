@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.CacheMode;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.dialect.Dialect;
@@ -33,6 +34,7 @@ public abstract class DbMigration {
     protected final Log log = LogFactory.getLog(getClass());
     protected final Dialect dialect = ApplicationContextFactory.getDialect();
     protected final DbType dbType = ApplicationContextFactory.getDbType();
+    protected final String schemaPrefix = ApplicationContextFactory.getSchemaPrefix();
 
     private final ThreadLocal<String> currentCategory = new ThreadLocal<>();
     private final ThreadLocal<Session> currentSession = new ThreadLocal<>();
@@ -73,7 +75,13 @@ public abstract class DbMigration {
      */
     @Deprecated
     public void executeDML(Session session) throws Exception {
-        executeDML(session.connection());
+        session.doWork(connection -> {
+            try {
+                executeDML(connection);
+            } catch (Exception e) {
+                throw new HibernateException(e);
+            }
+        });
     }
 
     public void executeDML(Connection conn) throws Exception {
@@ -122,7 +130,7 @@ public abstract class DbMigration {
             case ORACLE:
                 return "seq_" + tableName + ".nextval, ";
             case POSTGRESQL:
-                return "nextval('seq_" + tableName + "'), ";
+                return "nextval('" + schemaPrefix + "seq_" + tableName + "'), ";
             default:
                 return "";
         }
@@ -144,8 +152,7 @@ public abstract class DbMigration {
      * @return Result of last update.
      */
     protected final int executeUpdates(String... queries) {
-        try {
-            val conn = currentSession.get().connection();
+        return currentSession.get().doReturningWork(conn -> {
             val category = currentCategory.get();
             try (val stmt = conn.createStatement()) {
                 int result = 0;
@@ -154,9 +161,7 @@ public abstract class DbMigration {
                 }
                 return result;
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
 
     /**
@@ -166,8 +171,7 @@ public abstract class DbMigration {
      */
     @SafeVarargs
     protected final int executeUpdates(List<String>... queries) {
-        try {
-            val conn = currentSession.get().connection();
+        return currentSession.get().doReturningWork(conn -> {
             val category = currentCategory.get();
             try (val stmt = conn.createStatement()) {
                 int result = 0;
@@ -180,9 +184,7 @@ public abstract class DbMigration {
                 }
                 return result;
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
 
     /**
@@ -214,7 +216,7 @@ public abstract class DbMigration {
         switch (dbType) {
             case ORACLE:
             case POSTGRESQL:
-                return list("create sequence " + sequenceName);
+                return list("create sequence " + schemaPrefix + sequenceName);
             default:
                 return null;
         }
@@ -225,7 +227,7 @@ public abstract class DbMigration {
         switch (dbType) {
             case ORACLE:
             case POSTGRESQL:
-                return list("create sequence " + sequenceName + " start with " + nextValue);
+                return list("create sequence " + schemaPrefix + sequenceName + " start with " + nextValue);
             default:
                 return null;
         }
@@ -235,7 +237,7 @@ public abstract class DbMigration {
         switch (dbType) {
             case ORACLE:
             case POSTGRESQL:
-                return list("drop sequence " + sequenceName);
+                return list("drop sequence " + schemaPrefix + sequenceName);
             default:
                 return null;
         }
@@ -247,7 +249,7 @@ public abstract class DbMigration {
             case ORACLE:
                 return list("rename " + sequenceName + " to " + newName);
             case POSTGRESQL:
-                return list("alter sequence " + sequenceName + " rename to " + newName);
+                return list("alter sequence " + schemaPrefix + sequenceName + " rename to " + newName);
             default:
                 return null;
         }
@@ -255,7 +257,7 @@ public abstract class DbMigration {
 
     protected final List<String> getDDLCreateTable(String tableName, List<ColumnDef> columnDefinitions) {
         val query = new StringBuilder();
-        query.append("CREATE TABLE ").append(tableName).append(" (");
+        query.append("CREATE TABLE ").append(schemaPrefix).append(tableName).append(" (");
         for (ColumnDef columnDef : columnDefinitions) {
             if (columnDefinitions.indexOf(columnDef) > 0) {
                 query.append(", ");
@@ -321,12 +323,12 @@ public abstract class DbMigration {
             case MYSQL:
                 return list("RENAME TABLE " + oldTableName + " TO " + newTableName);
             default:
-                return list("ALTER TABLE " + oldTableName + " RENAME TO " + newTableName);
+                return list("ALTER TABLE " + schemaPrefix + oldTableName + " RENAME TO " + newTableName);
         }
     }
 
     protected final List<String> getDDLDropTable(String tableName) {
-        return list("DROP TABLE " + tableName);
+        return list("DROP TABLE " + schemaPrefix + tableName);
     }
 
     protected final List<String> getDDLCreateIndex(String tableName, String indexName, String... columnNames) {
@@ -335,7 +337,7 @@ public abstract class DbMigration {
             checkIndentifierLength(cn);
         }
         String conjunctedColumnNames = Joiner.on(", ").join(columnNames);
-        return list("CREATE INDEX " + indexName + " ON " + tableName + " (" + conjunctedColumnNames + ")");
+        return list("CREATE INDEX " + indexName + " ON " + schemaPrefix + tableName + " (" + conjunctedColumnNames + ")");
     }
 
     protected final List<String> getDDLCreateUniqueKey(String tableName, String constraintName, String... columnNames) {
@@ -344,7 +346,7 @@ public abstract class DbMigration {
             checkIndentifierLength(cn);
         }
         String conjunctedColumnNames = Joiner.on(", ").join(columnNames);
-        return list("ALTER TABLE " + tableName + " ADD CONSTRAINT " + constraintName + " UNIQUE (" + conjunctedColumnNames + ")");
+        return list("ALTER TABLE " + schemaPrefix + tableName + " ADD CONSTRAINT " + constraintName + " UNIQUE (" + conjunctedColumnNames + ")");
     }
 
     protected final List<String> getDDLRenameIndex(String tableName, String indexName, String newIndexName) {
@@ -355,7 +357,7 @@ public abstract class DbMigration {
             case H2:
             case ORACLE:
             case POSTGRESQL:
-                return list("alter index " + indexName + " rename to " + newIndexName);
+                return list("alter index " + schemaPrefix + indexName + " rename to " + newIndexName);
             case MYSQL:
                 return list("alter table " + tableName + " rename index " + indexName + " to " + newIndexName);
             default:
@@ -368,7 +370,7 @@ public abstract class DbMigration {
             case H2:
             case ORACLE:
             case POSTGRESQL:
-                return list("DROP INDEX " + indexName);
+                return list("DROP INDEX " + schemaPrefix + indexName);
             default:
                 return list("DROP INDEX " + indexName + " ON " + tableName);
         }
@@ -376,13 +378,14 @@ public abstract class DbMigration {
 
     protected final List<String> getDDLCreateForeignKey(String tableName, String keyName, String columnName, String refTableName, String refColumnName) {
         checkIndentifierLength(keyName);
-        return list("ALTER TABLE " + tableName + " ADD CONSTRAINT " + keyName + " FOREIGN KEY (" + columnName + ") REFERENCES " + refTableName +
+        return list("ALTER TABLE " + schemaPrefix + tableName + " ADD CONSTRAINT " + keyName + " FOREIGN KEY (" + columnName + ") REFERENCES "
+                + schemaPrefix + refTableName +
                 " (" + refColumnName + ")");
     }
 
     protected final List<String> getDDLCreatePrimaryKey(String tableName, String keyName, String columnName) {
         checkIndentifierLength(keyName);
-        return list("ALTER TABLE " + tableName + " ADD CONSTRAINT " + keyName + " PRIMARY KEY (" + columnName + ")");
+        return list("ALTER TABLE " + schemaPrefix + tableName + " ADD CONSTRAINT " + keyName + " PRIMARY KEY (" + columnName + ")");
     }
 
     protected final List<String> getDDLRenameForeignKey(String keyName, String newKeyName) {
@@ -405,7 +408,7 @@ public abstract class DbMigration {
                 constraint = "CONSTRAINT";
                 break;
         }
-        return list("ALTER TABLE " + tableName + " DROP " + constraint + " " + keyName);
+        return list("ALTER TABLE " + schemaPrefix + tableName + " DROP " + constraint + " " + keyName);
     }
 
     protected final List<String> getDDLCreateColumn(String tableName, ColumnDef columnDef) {
@@ -416,7 +419,7 @@ public abstract class DbMigration {
             rBraced = ")";
         }
         val query = new StringBuilder();
-        query.append("ALTER TABLE ").append(tableName).append(" ADD ").append(lBraced);
+        query.append("ALTER TABLE ").append(schemaPrefix).append(tableName).append(" ADD ").append(lBraced);
         query.append(columnDef.name).append(" ").append(columnDef.sqlTypeName);
         if (columnDef.defaultValue != null) {
             query.append(" DEFAULT ").append(columnDef.defaultValue);
@@ -432,7 +435,7 @@ public abstract class DbMigration {
         switch (dbType) {
             case ORACLE:
             case POSTGRESQL:
-                return list("ALTER TABLE " + tableName + " RENAME COLUMN " + oldColumnName + " TO " + newColumnDef.name);
+                return list("ALTER TABLE " + schemaPrefix + tableName + " RENAME COLUMN " + oldColumnName + " TO " + newColumnDef.name);
             case MSSQL:
                 return list("sp_rename '" + tableName + "." + oldColumnName + "', '" + newColumnDef.name + "', 'COLUMN'");
             case MYSQL:
@@ -449,7 +452,7 @@ public abstract class DbMigration {
             case ORACLE:
                 return list("ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + sqlTypeName + ")");
             case POSTGRESQL:
-                return list("ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " TYPE " + sqlTypeName);
+                return list("ALTER TABLE " + schemaPrefix + tableName + " ALTER COLUMN " + columnName + " TYPE " + sqlTypeName);
             case MYSQL:
                 return list("ALTER TABLE " + tableName + " MODIFY COLUMN " + columnName + " " + sqlTypeName);
             default:
@@ -470,22 +473,23 @@ public abstract class DbMigration {
             case ORACLE:
                 return list("ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + (isNullable ? "NULL" : "NOT NULL") + ")");
             case POSTGRESQL:
-                return list("ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + (isNullable ? "DROP" : "SET") + " NOT NULL");
+                return list(
+                    "ALTER TABLE " + schemaPrefix + tableName + " ALTER COLUMN " + columnName + " " + (isNullable ? "DROP" : "SET") + " NOT NULL");
             default:
                 return list("ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + currentSqlTypeName + " " + (isNullable ? "NULL" : "NOT NULL"));
         }
     }
 
     protected final List<String> getDDLDropColumn(String tableName, String columnName) {
-        return list("ALTER TABLE " + tableName + " DROP COLUMN " + columnName);
+        return list("ALTER TABLE " + schemaPrefix + tableName + " DROP COLUMN " + columnName);
     }
 
     protected final List<String> getDDLTruncateTable(String tableName) {
-        return list("TRUNCATE TABLE " + tableName);
+        return list("TRUNCATE TABLE " + schemaPrefix + tableName);
     }
 
     protected final List<String> getDDLTruncateTableUsingDelete(@SuppressWarnings("SameParameterValue") String tableName) {
-        return list("DELETE FROM " + tableName);
+        return list("DELETE FROM " + schemaPrefix + tableName);
     }
 
     @Override

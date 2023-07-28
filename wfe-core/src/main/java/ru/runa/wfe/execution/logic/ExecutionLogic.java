@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.execution.logic;
 
 import com.google.common.base.Objects;
@@ -23,39 +6,58 @@ import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import lombok.val;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.AdminActionLog;
-import ru.runa.wfe.audit.CreateTimerLog;
-import ru.runa.wfe.audit.NodeErrorLog;
-import ru.runa.wfe.audit.ProcessActivateLog;
+import ru.runa.wfe.audit.BaseProcessLog;
+import ru.runa.wfe.audit.CurrentAdminActionLog;
+import ru.runa.wfe.audit.CurrentCreateTimerLog;
+import ru.runa.wfe.audit.CurrentNodeErrorLog;
+import ru.runa.wfe.audit.CurrentProcessActivateLog;
+import ru.runa.wfe.audit.CurrentProcessCancelLog;
+import ru.runa.wfe.audit.CurrentProcessEndLog;
+import ru.runa.wfe.audit.CurrentProcessSuspendLog;
+import ru.runa.wfe.audit.CurrentTaskEndLog;
 import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.ProcessLog.Type;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
-import ru.runa.wfe.audit.ProcessSuspendLog;
-import ru.runa.wfe.audit.TaskEndLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.audit.dao.CurrentProcessLogDao;
+import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
+import ru.runa.wfe.commons.email.EmailErrorNotifier;
 import ru.runa.wfe.commons.error.dto.WfTokenError;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
-import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.ProcessDefinition;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.definition.update.ProcessDefinitionUpdateManager;
+import ru.runa.wfe.execution.CurrentNodeProcess;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentProcessClassPresentation;
+import ru.runa.wfe.execution.CurrentSwimlane;
+import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.EventSubprocessTrigger;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
@@ -63,14 +65,18 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFactory;
 import ru.runa.wfe.execution.ProcessFilter;
+import ru.runa.wfe.execution.ProcessHierarchyUtils;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.async.NodeAsyncExecutor;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
+import ru.runa.wfe.execution.dao.EventSubprocessTriggerDao;
 import ru.runa.wfe.execution.dto.RestoreProcessStatus;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.extension.AssignmentHandler;
+import ru.runa.wfe.extension.ProcessEndHandler;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.history.GraphHistoryBuilder;
@@ -79,25 +85,36 @@ import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.ProcessGraphInfoVisitor;
 import ru.runa.wfe.job.Job;
+import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.job.dto.WfJob;
+import ru.runa.wfe.lang.AsyncCompletionMode;
+import ru.runa.wfe.lang.BaseTaskNode;
+import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.NodeType;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.lang.Synchronizable;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.BatchPresentationFactory;
+import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
+import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
+import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
+import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.Variable;
@@ -110,6 +127,7 @@ import ru.runa.wfe.var.dto.WfVariable;
  * @author Dofs
  * @since 2.0
  */
+@Component
 public class ExecutionLogic extends WfCommonLogic {
     private static final SecuredObjectType[] PROCESS_EXECUTION_CLASSES = { SecuredObjectType.PROCESS };
     @Autowired
@@ -119,11 +137,15 @@ public class ExecutionLogic extends WfCommonLogic {
     @Autowired
     private NodeAsyncExecutor nodeAsyncExecutor;
     @Autowired
-    private ProcessLogDao processLogDao;
+    private CurrentProcessDao currentProcessDao;
     @Autowired
     private JobDao jobDao;
     @Autowired
     private ProcessDefinitionUpdateManager processDefinitionUpdateManager;
+    @Autowired
+    private CurrentProcessLogDao currentProcessLogDao;
+    @Autowired
+    private EventSubprocessTriggerDao eventSubprocessTriggerDao;
 
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
@@ -137,27 +159,283 @@ public class ExecutionLogic extends WfCommonLogic {
     }
 
     public List<WfProcess> getProcesses(User user, BatchPresentation batchPresentation) {
-        List<Process> data = getPersistentObjects(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES, true);
-        return toWfProcesses(data, batchPresentation.getDynamicFieldsToDisplay(true));
+        List<? extends Process> pp = getPersistentObjects(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES, true);
+        return toWfProcesses(pp, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 
     public void deleteProcesses(User user, final ProcessFilter filter) {
-        List<Process> processes = getProcessesInternal(user, filter);
-        // TODO add ProcessPermission.DELETE_PROCESS
-        processes = filterSecuredObject(user, processes, Permission.CANCEL);
-        for (Process process : processes) {
+        List<CurrentProcess> processes = getCurrentProcessesInternal(user, filter);
+        processes = filterSecuredObject(user, processes, Permission.DELETE);
+        for (CurrentProcess process : processes) {
             deleteProcess(user, process);
         }
     }
 
     public void cancelProcesses(User user, final ProcessFilter filter) {
-        List<Process> processes = getProcessesInternal(user, filter);
+        List<CurrentProcess> processes = getCurrentProcessesInternal(user, filter);
         processes = filterSecuredObject(user, processes, Permission.CANCEL);
-        for (Process process : processes) {
-            ProcessDefinition processDefinition = getDefinition(process);
-            ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
-            process.end(executionContext, user.getActor());
+        for (CurrentProcess process : processes) {
+            ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
+            ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process);
+            endProcess(process, executionContext, user.getActor());
             log.info(process + " was cancelled by " + user);
+        }
+    }
+
+    @Transactional
+    public boolean failProcessExecution(Long tokenId, Throwable throwable) {
+        final AtomicBoolean needReprocessing = new AtomicBoolean(false);
+        CurrentToken token = ApplicationContextFactory.getCurrentTokenDao().getNotNull(tokenId);
+        if (token.hasEnded()) {
+            return false;
+        }
+        boolean stateChanged = failToken(token, Throwables.getRootCause(throwable));
+        if (stateChanged && token.getProcess().getExecutionStatus() == ExecutionStatus.ACTIVE) {
+            token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
+            needReprocessing.set(true);
+        }
+        return needReprocessing.get();
+    }
+
+    /**
+     * Ends specified process and all the tokens in it.
+     *
+     * @param canceller
+     *            actor who cancels process (if any), can be <code>null</code>
+     */
+    public void endProcess(CurrentProcess process, ExecutionContext executionContext, Actor canceller) {
+        if (process.hasEnded()) {
+            log.debug(process + " already ended");
+            return;
+        }
+        log.info("Ending " + process + " by " + canceller);
+        if (canceller != null) {
+            executionContext.addLog(new CurrentProcessCancelLog(canceller));
+        } else {
+            executionContext.addLog(new CurrentProcessEndLog());
+        }
+        TaskCompletionInfo taskCompletionInfo = TaskCompletionInfo.createForProcessEnd(process.getId());
+        List<CurrentToken> tokens = currentTokenDao.findByProcessIdAndParentId(process.getId());
+        for (CurrentToken token : tokens) {
+            endToken(token, executionContext.getParsedProcessDefinition(), canceller, taskCompletionInfo, true);
+        }
+        eventSubprocessTriggerDao.deleteByProcess(process);
+        // mark this process as ended
+        process.setEndDate(new Date());
+        process.setExecutionStatus(ExecutionStatus.ENDED);
+        // check if this process was started as a subprocess of a super
+        // process
+        CurrentNodeProcess parentNodeProcess = executionContext.getCurrentParentNodeProcess();
+        if (parentNodeProcess != null && !parentNodeProcess.getParentToken().hasEnded()) {
+            ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
+            ParsedProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentNodeProcess.getProcess());
+            Node node = parentProcessDefinition.getNodeNotNull(parentNodeProcess.getNodeId());
+            Synchronizable synchronizable = (Synchronizable) node;
+            if (!synchronizable.isAsync()) {
+                log.debug("Signalling to parent " + parentNodeProcess.getProcess());
+                endSubprocessSignalToken(parentNodeProcess.getParentToken(), executionContext);
+            }
+        }
+
+        // make sure all the timers for this process are canceled
+        // after the process end updates are posted to the database
+        JobDao jobDao = ApplicationContextFactory.getJobDao();
+        jobDao.deleteByProcess(process);
+        // flush just created tasks
+        ApplicationContextFactory.getTaskDao().flushPendingChanges();
+        endAsyncActivitiesRecursively(executionContext, taskCompletionInfo, canceller);
+        for (CurrentSwimlane swimlane : ApplicationContextFactory.getCurrentSwimlaneDao().findByProcess(process)) {
+            if (swimlane.getExecutor() instanceof TemporaryGroup) {
+                swimlane.setExecutor(null);
+            }
+        }
+        for (String processEndHandlerClassName : SystemProperties.getProcessEndHandlers()) {
+            try {
+                ProcessEndHandler handler = ClassLoaderUtil.instantiate(processEndHandlerClassName);
+                ApplicationContextFactory.autowireBean(handler);
+                handler.execute(executionContext);
+            } catch (Throwable th) {
+                Throwables.propagate(th);
+            }
+        }
+        if (SystemProperties.deleteTemporaryGroupsOnProcessEnd()) {
+            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
+            List<TemporaryGroup> groups = executorDao.getTemporaryGroups(process.getId());
+            for (TemporaryGroup temporaryGroup : groups) {
+                if (ApplicationContextFactory.getCurrentProcessDao().getDependentProcessIds(temporaryGroup, 1).isEmpty()) {
+                    log.debug("Cleaning " + temporaryGroup);
+                    executorDao.remove(temporaryGroup);
+                } else {
+                    log.debug("Group " + temporaryGroup + " deletion postponed");
+                }
+            }
+        }
+    }
+
+    protected void endAsyncActivitiesRecursively(ExecutionContext executionContext, TaskCompletionInfo taskCompletionInfo, Actor canceller) {
+        boolean mainProcessForAsyncActivitiesIsActive = isMainProcessForAsyncActivitiesIsActive(executionContext);
+        endAsyncTasks(executionContext, taskCompletionInfo, mainProcessForAsyncActivitiesIsActive);
+        endAsyncSubprocesses(executionContext, canceller, mainProcessForAsyncActivitiesIsActive);
+        // we should handle case of active subprocesses in ended ones
+        for (CurrentProcess subProcess : executionContext.getCurrentSubprocessesRecursively()) {
+            if (subProcess.hasEnded()) {
+                ParsedProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
+                ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);
+                endAsyncActivitiesRecursively(subExecutionContext, taskCompletionInfo, canceller);
+            }
+        }
+    }
+
+    private boolean isMainProcessForAsyncActivitiesIsActive(ExecutionContext executionContext) {
+        final List<Long> processIdsReversed = Lists.newArrayList(ProcessHierarchyUtils.getProcessIds(executionContext.getCurrentProcess()
+                .getHierarchyIds()));
+        Collections.reverse(processIdsReversed);
+        for (Long processId : processIdsReversed) {
+            CurrentNodeProcess nodeProcess = ApplicationContextFactory.getCurrentNodeProcessDao().findBySubProcessId(processId);
+            if (nodeProcess != null) {
+                ParsedProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(
+                        nodeProcess.getProcess());
+                SubprocessNode subprocessNode = (SubprocessNode) processDefinition.getNode(nodeProcess.getNodeId());
+                if (subprocessNode == null) {
+                    // rm2834 can cause this
+                    return false;
+                }
+                if (subprocessNode.isAsync() && subprocessNode.getCompletionMode() == AsyncCompletionMode.NEVER) {
+                    return !nodeProcess.getSubProcess().hasEnded();
+                }
+            }
+        }
+        Long rootProcessId = ProcessHierarchyUtils.getRootProcessId(executionContext.getCurrentProcess().getHierarchyIds());
+        return !ApplicationContextFactory.getCurrentProcessDao().get(rootProcessId).hasEnded();
+    }
+
+    private void endAsyncTasks(ExecutionContext executionContext, TaskCompletionInfo taskCompletionInfo, boolean mainProcessForAsyncActivitiesIsActive) {
+        for (Task task : ApplicationContextFactory.getTaskDao().findByProcess(executionContext.getCurrentProcess())) {
+            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getParsedProcessDefinition().getNode(task.getNodeId());
+            if (taskNode == null) {
+                continue;
+            }
+            if (taskNode.isAsync()) {
+                switch (taskNode.getCompletionMode()) {
+                case NEVER:
+                    continue;
+                case ON_MAIN_PROCESS_END:
+                    if (mainProcessForAsyncActivitiesIsActive) {
+                        continue;
+                    }
+                case ON_PROCESS_END:
+                }
+                task.end(executionContext, taskNode, taskCompletionInfo);
+            }
+        }
+    }
+
+    private void endAsyncSubprocesses(ExecutionContext executionContext, Actor canceller, boolean mainProcessForAsyncActivitiesIsActive) {
+        for (CurrentProcess subProcess : executionContext.getCurrentSubprocesses()) {
+            if (!subProcess.hasEnded()) {
+                CurrentNodeProcess nodeProcess = ApplicationContextFactory.getCurrentNodeProcessDao().findBySubProcessId(subProcess.getId());
+                SubprocessNode subprocessNode = (SubprocessNode) executionContext.getParsedProcessDefinition()
+                        .getNodeNotNull(nodeProcess.getNodeId());
+                if (subprocessNode.isAsync()) {
+                    switch (subprocessNode.getCompletionMode()) {
+                    case NEVER:
+                        continue;
+                    case ON_MAIN_PROCESS_END:
+                        if (mainProcessForAsyncActivitiesIsActive) {
+                            continue;
+                        }
+                    case ON_PROCESS_END:
+                    }
+                    ParsedProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
+                    ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);
+                    endProcess(subProcess, subExecutionContext, canceller);
+                }
+            }
+        }
+    }
+
+    private void endSubprocessSignalToken(CurrentToken token, ExecutionContext subExecutionContext) {
+        if (!token.hasEnded()) {
+            if (token.getNodeType() != NodeType.SUBPROCESS && token.getNodeType() != NodeType.MULTI_SUBPROCESS) {
+                throw new InternalApplicationException(
+                        "Unexpected token node " + token.getNodeId() + " of type " + token.getNodeType() + " on subprocess end"
+                );
+            }
+            CurrentNodeProcess parentNodeProcess = subExecutionContext.getCurrentParentNodeProcess();
+            ParsedProcessDefinition superDefinition = processDefinitionLoader.getDefinition(parentNodeProcess.getProcess());
+            token.getNodeNotNull(superDefinition).leave(subExecutionContext, null);
+        }
+    }
+
+    /**
+     * Ends specified token and all of its children (if recursive).
+     *
+     * @param canceller
+     *            actor who cancels process (if any), can be <code>null</code>
+     */
+    public void endToken(
+            CurrentToken token, ParsedProcessDefinition processDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive
+    ) {
+        ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
+        ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
+
+        ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+        if (token.hasEnded()) {
+            log.debug(token + " already ended");
+        } else {
+            log.info("Ending " + token + " by " + canceller);
+            token.setEndDate(new Date());
+            token.setExecutionStatus(ExecutionStatus.ENDED);
+            removeTokenError(token);
+            Node node = processDefinition.getNode(token.getNodeId());
+            if (node instanceof SubprocessNode) {
+                for (CurrentProcess subProcess : executionContext.getCurrentTokenSubprocesses()) {
+                    ParsedProcessDefinition subProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
+                    executionLogic.endProcess(subProcess, new ExecutionContext(subProcessDefinition, subProcess), canceller);
+                }
+            } else if (node instanceof BaseTaskNode) {
+                ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
+            } else if (node instanceof BoundaryEvent) {
+                log.info("Cancelling " + node + " with " + token);
+                ((BoundaryEvent) node).cancelBoundaryEvent(token);
+            } else if (node == null) {
+                log.warn("Node is null");
+            }
+        }
+        if (recursive) {
+            for (CurrentToken child : token.getChildren()) {
+                executionLogic.endToken(child, executionContext.getParsedProcessDefinition(), canceller, taskCompletionInfo, true);
+            }
+        }
+    }
+
+    public void removeTokenError(CurrentToken token) {
+        token.setErrorDate(null);
+        token.setErrorMessage(null);
+    }
+
+    public boolean failToken(CurrentToken token, Throwable throwable) {
+        return failToken(token, Utils.getErrorMessage(throwable), Throwables.getStackTraceAsString(throwable));
+    }
+
+    public boolean failToken(CurrentToken token, String errorMessage, String stackTrace) {
+        boolean stateChanged = token.getExecutionStatus() != ExecutionStatus.FAILED;
+        token.setExecutionStatus(ExecutionStatus.FAILED);
+        token.setErrorDate(new Date());
+        stateChanged |= !Objects.equal(errorMessage, token.getErrorMessage());
+        token.setErrorMessage(errorMessage);
+
+        if (stateChanged) {
+            logError(token, errorMessage, stackTrace);
+            EmailErrorNotifier.sendNotification(token.getProcess().getId(), token.getNodeId(), errorMessage, stackTrace);
+        }
+        return stateChanged;
+    }
+
+    private void logError(CurrentToken token, String errorMessage, String stackTrace) {
+        final Node node = processDefinitionLoader.getDefinition(token.getProcess()).getNode(token.getNodeId());
+        if (node != null) {
+            processLogDao.addLog(new CurrentNodeErrorLog(node, errorMessage, stackTrace.getBytes()), token.getProcess(), token);
         }
     }
 
@@ -172,46 +450,52 @@ public class ExecutionLogic extends WfCommonLogic {
         if (nodeProcess == null) {
             return null;
         }
-        Process resultProcess = nodeProcess.getProcess();
-        return new WfProcess(resultProcess, getProcessErrors(resultProcess));
+        Process parentProcess = nodeProcess.getProcess();
+        permissionDao.checkAllowed(user, Permission.READ, parentProcess);
+        return new WfProcess(parentProcess, getProcessErrors(parentProcess));
     }
 
     public List<WfProcess> getSubprocesses(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
         Process process = processDao.getNotNull(processId);
-        List<Process> subprocesses;
-        if (recursive) {
-            subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
-        } else {
-            subprocesses = nodeProcessDao.getSubprocesses(process);
-        }
-        subprocesses = filterSecuredObject(user, subprocesses, Permission.READ);
+        List<? extends Process> subprocesses = recursive
+                ? nodeProcessDao.getSubprocessesRecursive(process)
+                : nodeProcessDao.getSubprocesses(process);
+        subprocesses = filterSecuredObject(user, subprocesses, Permission.READ); // TODO Should also check permission on parent process?
         return toWfProcesses(subprocesses, null);
     }
 
     public List<WfJob> getJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
-        Process process = processDao.getNotNull(processId);
-        permissionDao.checkAllowed(user, Permission.READ, process);
-        List<Job> jobs = jobDao.findByProcess(process);
+        Process p = processDao.getNotNull(processId);
+        permissionDao.checkAllowed(user, Permission.READ, p);
+        if (p.isArchived()) {
+            return Collections.emptyList();
+        }
+        val cp = (CurrentProcess) p;
+        List<TimerJob> jobs = jobDao.findByProcess(cp);
         if (recursive) {
-            List<Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
-            for (Process subProcess : subprocesses) {
+            List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocessesRecursive(cp);
+            for (CurrentProcess subProcess : subprocesses) {
                 jobs.addAll(jobDao.findByProcess(subProcess));
             }
         }
-        List<WfJob> result = Lists.newArrayList();
-        for (Job job : jobs) {
-            result.add(new WfJob(job));
-        }
-        return result;
+        return jobs.stream().map(job -> new WfJob(job)).collect(Collectors.toList());
     }
 
-    public List<WfToken> getTokens(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
+    public List<WfToken> getTokens(User user, Long processId, boolean recursive, boolean toPopulateExecutionErrors)
+            throws ProcessDoesNotExistException
+    {
+        // Search both current and archive even if toPopulateExecutionErrors == true, to check permissions.
         Process process = processDao.getNotNull(processId);
         permissionDao.checkAllowed(user, Permission.READ, process);
-        List<WfToken> result = Lists.newArrayList();
-        result.addAll(getTokens(process));
+
+        // Optimization: erroneous processes don't go to archive.
+        if (toPopulateExecutionErrors && process.isArchived()) {
+            return Collections.emptyList();
+        }
+
+        val result = new ArrayList<WfToken>(getTokens(process));
         if (recursive) {
-            List<Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
+            List<? extends Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
             for (Process subProcess : subprocesses) {
                 result.addAll(getTokens(subProcess));
             }
@@ -220,35 +504,46 @@ public class ExecutionLogic extends WfCommonLogic {
     }
 
     public Long startProcess(User user, String definitionName, Map<String, Object> variables) {
-        return startProcess(user, getLatestDefinition(definitionName).getId(), variables);
+        val def = getLatestDefinition(definitionName);
+        return startProcessImpl(user, def, def.getManualStartStateNotNull(), user.getActor(), variables).getId();
     }
 
-    public Long startProcess(User user, Long definitionId, Map<String, Object> variables) {
+    public Long startProcess(User user, Long processDefinitionId, Map<String, Object> variables) {
+        val def = getDefinition(processDefinitionId);
+        return startProcessImpl(user, def, def.getManualStartStateNotNull(), user.getActor(), variables).getId();
+    }
+
+    public CurrentProcess startProcess(User user, ParsedProcessDefinition parsedProcessDefinition, StartNode startNode, Actor actor,
+            Map<String, Object> variables) {
+        return startProcessImpl(user, parsedProcessDefinition, startNode, null, variables);
+    }
+
+    private CurrentProcess startProcessImpl(User user, ParsedProcessDefinition parsedProcessDefinition, StartNode startNode, Actor actor,
+            Map<String, Object> variables) {
         if (variables == null) {
             variables = Maps.newHashMap();
         }
-        ProcessDefinition processDefinition = getDefinition(definitionId);
         if (SystemProperties.isCheckProcessStartPermissions()) {
-            permissionDao.checkAllowed(user, Permission.START_PROCESS, processDefinition.getDeployment());
+            permissionDao.checkAllowed(user, Permission.START_PROCESS, parsedProcessDefinition.getSecuredObject());
         }
         String transitionName = (String) variables.remove(WfProcess.SELECTED_TRANSITION_KEY);
-        Map<String, Object> extraVariablesMap = Maps.newHashMap();
+        val extraVariablesMap = new HashMap<String, Object>();
         extraVariablesMap.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
-        VariableProvider variableProvider = new MapDelegableVariableProvider(extraVariablesMap, new DefinitionVariableProvider(processDefinition));
-        StartNode startNode = processDefinition.getStartStateNotNull();
-        validateVariables(null, variableProvider, processDefinition, startNode.getNodeId(), variables);
+        VariableProvider variableProvider = new MapDelegableVariableProvider(extraVariablesMap, new DefinitionVariableProvider(parsedProcessDefinition));
+        validateVariables(null, variableProvider, parsedProcessDefinition, startNode.getNodeId(), variables);
         // transient variables
         Map<String, Object> transientVariables = (Map<String, Object>) variables.remove(WfProcess.TRANSIENT_VARIABLES);
-        Process process = processFactory.startProcess(processDefinition, variables, user.getActor(), transitionName, transientVariables);
+        CurrentProcess process = processFactory
+                .startProcess(parsedProcessDefinition, startNode, variables, actor, transitionName, transientVariables);
         log.info(process + " was successfully started by " + user);
-        return process.getId();
+        return process;
     }
 
     public byte[] getProcessDiagram(User user, Long processId, Long taskId, Long childProcessId, String subprocessId) {
         try {
             Process process = processDao.getNotNull(processId);
             permissionDao.checkAllowed(user, Permission.READ, process);
-            ProcessDefinition processDefinition = getDefinition(process);
+            ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
             Token highlightedToken = null;
             if (taskId != null) {
                 Task task = taskDao.get(taskId);
@@ -261,13 +556,13 @@ public class ExecutionLogic extends WfCommonLogic {
                 highlightedToken = nodeProcessDao.findBySubProcessId(childProcessId).getParentToken();
             }
             if (subprocessId != null) {
-                processDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(subprocessId);
+                parsedProcessDefinition = parsedProcessDefinition.getEmbeddedSubprocessByIdNotNull(subprocessId);
             }
-            ProcessLogs processLogs = new ProcessLogs(processId);
-            processLogs.addLogs(processLogDao.get(processId, processDefinition), false);
-            GraphImageBuilder builder = new GraphImageBuilder(processDefinition);
+            val processLogs = new ProcessLogs(processId);
+            processLogs.addLogs(processLogDao.get(process, parsedProcessDefinition), false);
+            GraphImageBuilder builder = new GraphImageBuilder(parsedProcessDefinition);
             builder.setHighlightedToken(highlightedToken);
-            List<Token> activeTokens = tokenDao.findByProcessAndExecutionStatusIsNotEnded(process);
+            List<? extends Token> activeTokens = tokenDao.findByProcessAndExecutionStatusIsNotEnded(process);
             Set<String> activeNodeIds = new HashSet<>();
             for (Token token : activeTokens) {
                 activeNodeIds.add(token.getNodeId());
@@ -280,11 +575,11 @@ public class ExecutionLogic extends WfCommonLogic {
 
     public List<NodeGraphElement> getProcessDiagramElements(User user, Long processId, String subprocessId) {
         Process process = processDao.getNotNull(processId);
-        ProcessDefinition definition = getDefinition(process.getDeployment().getId());
+        ParsedProcessDefinition definition = getDefinition(process);
         if (subprocessId != null) {
             definition = definition.getEmbeddedSubprocessByIdNotNull(subprocessId);
         }
-        List<NodeProcess> nodeProcesses = nodeProcessDao.getNodeProcesses(process, null, null, null);
+        List<? extends NodeProcess> nodeProcesses = nodeProcessDao.getNodeProcesses(process, null, null, null);
         ProcessLogs processLogs = null;
         if (DrawProperties.isLogsInGraphEnabled()) {
             processLogs = new ProcessLogs(process.getId());
@@ -293,13 +588,13 @@ public class ExecutionLogic extends WfCommonLogic {
             processLogs.addLogs(processLogDao.getAll(filter), false);
         }
         ProcessGraphInfoVisitor visitor = new ProcessGraphInfoVisitor(user, definition, process, processLogs, nodeProcesses);
-        return getDefinitionGraphElements(user, definition, visitor);
+        return getDefinitionGraphElements(definition, visitor);
     }
 
     public NodeGraphElement getProcessDiagramElement(User user, Long processId, String nodeId) {
         Process process = processDao.getNotNull(processId);
-        ProcessDefinition definition = getDefinition(process.getDeployment().getId());
-        List<NodeProcess> nodeProcesses = nodeProcessDao.getNodeProcesses(process, null, nodeId, null);
+        ParsedProcessDefinition definition = getDefinition(process);
+        List<? extends NodeProcess> nodeProcesses = nodeProcessDao.getNodeProcesses(process, null, nodeId, null);
         ProcessLogs processLogs = null;
         if (DrawProperties.isLogsInGraphEnabled()) {
             processLogs = new ProcessLogs(process.getId());
@@ -319,50 +614,52 @@ public class ExecutionLogic extends WfCommonLogic {
         return element;
     }
 
-    public byte[] getProcessHistoryDiagram(User user, Long processId, Long taskId, String subprocessId) throws ProcessDoesNotExistException {
+    public byte[] getProcessHistoryDiagram(User user, Long processId, String subprocessId) throws ProcessDoesNotExistException {
         try {
             Process process = processDao.getNotNull(processId);
             permissionDao.checkAllowed(user, Permission.READ, process);
-            ProcessDefinition processDefinition = getDefinition(process);
-            List<ProcessLog> logs = processLogDao.getAll(processId);
-            return new GraphHistoryBuilder(process, processDefinition, logs, subprocessId).createDiagram();
+            ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
+            List<? extends BaseProcessLog> logs = processLogDao.getAll(process);
+            return new GraphHistoryBuilder(process, parsedProcessDefinition, logs, subprocessId).createDiagram();
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
     }
 
-    public List<NodeGraphElement> getProcessHistoryDiagramElements(User user, Long processId, Long taskId, String subprocessId)
+    public List<NodeGraphElement> getProcessHistoryDiagramElements(User user, Long processId, String subprocessId)
             throws ProcessDoesNotExistException {
         try {
             Process process = processDao.getNotNull(processId);
             permissionDao.checkAllowed(user, Permission.READ, process);
-            ProcessDefinition processDefinition = getDefinition(process);
-            List<ProcessLog> logs = processLogDao.getAll(processId);
-            return new GraphHistoryBuilder(process, processDefinition, logs, subprocessId).getElements();
+            ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
+            List<? extends BaseProcessLog> logs = processLogDao.getAll(process);
+            return new GraphHistoryBuilder(process, parsedProcessDefinition, logs, subprocessId).getElements();
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
     }
 
-    public int upgradeProcessesToDefinitionVersion(User user, Long definitionId, Long newVersion) {
+    public int upgradeProcessesToDefinitionVersion(User user, Long processDefinitionId, long newVersion) {
         if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             throw new ConfigurationException(
-                    "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
+                    "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' " +
+                    "to 'true' in system.properties or wfe.custom.system.properties"
+            );
         }
-        Deployment deployment = deploymentDao.getNotNull(definitionId);
-        if (Objects.equal(newVersion, deployment.getVersion())) {
+        ProcessDefinition d = processDefinitionDao.get(processDefinitionId);
+        ProcessDefinition nextDefinition = processDefinitionDao.getByNameAndVersion(d.getPack().getName(), newVersion);
+        if (Objects.equal(newVersion, d.getVersion())) {
             return 0;
         }
-        Deployment nextDeployment = deploymentDao.findDeployment(deployment.getName(), newVersion);
-        ProcessDefinition oldDefinition = getDefinition(deployment.getId());
-        ProcessDefinition newDefinition = getDefinition(nextDeployment.getId());
-        List<Process> processes = processDefinitionUpdateManager.findApplicableProcesses(oldDefinition);
-        Set<Process> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, newDefinition, processes);
-        for (Process process : processes) {
-            process.setDeployment(nextDeployment);
-            processDao.update(process);
-            processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
-                    newVersion), process, null);
+        ParsedProcessDefinition oldDefinition = getDefinition(d.getId());
+        ParsedProcessDefinition newDefinition = getDefinition(nextDefinition.getId());
+        List<CurrentProcess> processes = processDefinitionUpdateManager.findApplicableProcesses(oldDefinition);
+        Set<CurrentProcess> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, newDefinition, processes);
+        for (CurrentProcess process : processes) {
+            process.setDefinition(nextDefinition);
+            currentProcessDao.update(process);
+            processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION,
+                    d.getVersion(), newVersion), process, null);
         }
         processDefinitionUpdateManager.after(newDefinition, affectedProcesses);
         return processes.size();
@@ -371,32 +668,34 @@ public class ExecutionLogic extends WfCommonLogic {
     public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version) {
         if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             throw new ConfigurationException(
-                    "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
+                    "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' " +
+                    "to 'true' in system.properties or wfe.custom.system.properties"
+            );
         }
-        Process process = processDao.getNotNull(processId);
-        // TODO checkPermissionAllowed(user, process, ProcessPermission.UPDATE);
-        Deployment deployment = process.getDeployment();
-        long newDeploymentVersion = version != null ? version : deployment.getVersion() + 1;
-        if (newDeploymentVersion == deployment.getVersion()) {
+        CurrentProcess process = currentProcessDao.getNotNull(processId);
+        permissionDao.checkAllowed(user, Permission.UPDATE, process);
+        ParsedProcessDefinition d = processDefinitionLoader.getDefinition(process);
+        long newVersion = version != null ? version : d.getVersion() + 1;
+        if (newVersion == d.getVersion()) {
             return false;
         }
-        Deployment nextDeployment = deploymentDao.findDeployment(deployment.getName(), newDeploymentVersion);
-        ProcessDefinition newDefinition = getDefinition(nextDeployment.getId());
-        Set<Process> affectedProcesses = processDefinitionUpdateManager.before(getDefinition(deployment.getId()), newDefinition,
+        ProcessDefinition nextDefinition = processDefinitionDao.getByNameAndVersion(d.getName(), newVersion);
+        ParsedProcessDefinition newDefinition = getDefinition(nextDefinition.getId());
+        Set<CurrentProcess> affectedProcesses = processDefinitionUpdateManager.before(getDefinition(d.getId()), newDefinition,
                 Collections.singletonList(process));
-        process.setDeployment(nextDeployment);
-        processDao.update(process);
-        processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
-                newDeploymentVersion), process, null);
+        process.setDefinition(nextDefinition);
+        currentProcessDao.update(process);
+        processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, d.getVersion(),
+                newVersion), process, null);
         processDefinitionUpdateManager.after(newDefinition, affectedProcesses);
         return true;
     }
 
     public List<WfSwimlane> getProcessSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {
         Process process = processDao.getNotNull(processId);
-        ProcessDefinition processDefinition = getDefinition(process);
+        ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
         permissionDao.checkAllowed(user, Permission.READ, process);
-        List<SwimlaneDefinition> swimlanes = processDefinition.getSwimlanes();
+        List<SwimlaneDefinition> swimlanes = parsedProcessDefinition.getSwimlanes();
         List<WfSwimlane> result = Lists.newArrayListWithExpectedSize(swimlanes.size());
         for (SwimlaneDefinition swimlaneDefinition : swimlanes) {
             Swimlane swimlane = swimlaneDao.findByProcessAndName(process, swimlaneDefinition.getName());
@@ -414,10 +713,10 @@ public class ExecutionLogic extends WfCommonLogic {
     }
 
     public List<WfSwimlane> getActiveProcessesSwimlanes(User user, String namePattern) {
-        List<Swimlane> list = swimlaneDao.findByNamePatternInActiveProcesses(namePattern);
+        List<CurrentSwimlane> list = currentSwimlaneDao.findByNamePatternInActiveProcesses(namePattern);
         List<WfSwimlane> listSwimlanes = Lists.newArrayList();
         for (Swimlane swimlane : list) {
-            ProcessDefinition processDefinition = getDefinition(swimlane.getProcess());
+            ParsedProcessDefinition processDefinition = getDefinition(swimlane.getProcess());
             SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlane.getName());
             Executor assignedExecutor = swimlane.getExecutor();
             if (assignedExecutor == null || !permissionDao.isAllowed(user, Permission.READ, assignedExecutor)) {
@@ -428,10 +727,19 @@ public class ExecutionLogic extends WfCommonLogic {
         return listSwimlanes;
     }
 
+    public boolean reassignSwimlane(User user, Long processId, String name) {
+        CurrentProcess process = currentProcessDao.getNotNull(processId);
+        CurrentSwimlane swimlane = currentSwimlaneDao.findByProcessAndName(process, name);
+        if (swimlane == null) {
+            return false;
+        }
+        return reassignSwimlane(user, swimlane.getId());
+    }
+
     public boolean reassignSwimlane(User user, Long id) {
-        Swimlane swimlane = swimlaneDao.get(id);
-        Process process = swimlane.getProcess();
-        ProcessDefinition processDefinition = getDefinition(process);
+        CurrentSwimlane swimlane = currentSwimlaneDao.get(id);
+        CurrentProcess process = swimlane.getProcess();
+        ParsedProcessDefinition processDefinition = getDefinition(process);
         Delegation delegation = processDefinition.getSwimlaneNotNull(swimlane.getName()).getDelegation();
         Executor oldExecutor = swimlane.getExecutor();
         try {
@@ -444,19 +752,23 @@ public class ExecutionLogic extends WfCommonLogic {
     }
 
     public void assignSwimlane(User user, Long processId, String swimlaneName, Executor executor) {
-        Process process = processDao.getNotNull(processId);
-        ProcessDefinition processDefinition = getDefinition(process);
-        SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlaneName);
-        Swimlane swimlane = swimlaneDao.findOrCreate(process, swimlaneDefinition);
+        CurrentProcess process = currentProcessDao.getNotNull(processId);
+        ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
+        SwimlaneDefinition swimlaneDefinition = parsedProcessDefinition.getSwimlaneNotNull(swimlaneName);
+        CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(process, swimlaneDefinition);
         List<Executor> executors = executor != null ? Lists.newArrayList(executor) : null;
-        AssignmentHelper.assign(new ExecutionContext(processDefinition, process), swimlane, executors);
+        AssignmentHelper.assign(new ExecutionContext(parsedProcessDefinition, process), swimlane, executors);
+    }
+
+    public void assignSwimlane(User user, Long processId, String swimlaneName, Long executorId) {
+        assignSwimlane(user, processId, swimlaneName, executorLogic.getExecutor(user, executorId));
     }
 
     public boolean activateProcess(User user, Long processId) {
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException("Only administrator can activate process");
         }
-        Process process = processDao.getNotNull(processId);
+        CurrentProcess process = currentProcessDao.getNotNull(processId);
         boolean resetCaches = process.getExecutionStatus() == ExecutionStatus.SUSPENDED;
         boolean result = activateProcessWithSubprocesses(user, process);
         if (resetCaches) {
@@ -475,21 +787,29 @@ public class ExecutionLogic extends WfCommonLogic {
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException("Only administrator can suspend process");
         }
-        suspendProcessWithSubprocesses(user, processDao.getNotNull(processId));
+        suspendProcessWithSubprocesses(user, currentProcessDao.getNotNull(processId));
         TransactionListeners.addListener(new CacheResetTransactionListener(Task.class), true);
         log.info("Process " + processId + " suspended");
     }
 
-    public void failToken(User user, Long tokenId, Throwable th) {
-        tokenDao.getNotNull(tokenId).fail(th);
+    public List<WfProcess> getFailedProcesses(User user) {
+        BatchPresentation batchPresentation = BatchPresentationFactory.CURRENT_PROCESSES.createNonPaged();
+        int index = batchPresentation.getType().getFieldIndex(CurrentProcessClassPresentation.PROCESS_EXECUTION_STATUS);
+        batchPresentation.getFilteredFields().put(index, new StringFilterCriteria(ExecutionStatus.FAILED.name()));
+        List<CurrentProcess> processes = getPersistentObjects(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES, false);
+        return toWfProcesses(processes, null);
     }
 
-    public void failToken(User user, Long tokenId,String errorMessage, String stackTrace) {
-        tokenDao.getNotNull(tokenId).fail(errorMessage, stackTrace);
+    public void failToken(Long tokenId, Throwable th) {
+        failToken(currentTokenDao.getNotNull(tokenId), th);
     }
 
-    public void removeTokenError(User user, Long tokenId) {
-        tokenDao.getNotNull(tokenId).removeError();
+    public void failToken(Long tokenId, String errorMessage, String stackTrace) {
+        failToken(currentTokenDao.getNotNull(tokenId), errorMessage, stackTrace);
+    }
+
+    public void removeTokenError(Long tokenId) {
+        removeTokenError(currentTokenDao.getNotNull(tokenId));
     }
 
     public List<WfTokenError> getTokenErrors(User user, BatchPresentation batchPresentation) {
@@ -503,12 +823,11 @@ public class ExecutionLogic extends WfCommonLogic {
 
     public List<WfTokenError> getTokenErrors(User user, Long processId) {
         List<WfTokenError> errors = Lists.newArrayList();
-        Process process = processDao.get(processId);
-        if (process == null) {
-            throw new ProcessDoesNotExistException(processId);
-        }
-        for (Token token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
-            errors.add(new WfTokenError(token, getStackTrace(token)));
+        CurrentProcess process = currentProcessDao.get(processId);
+        if (process != null) {
+            for (Token token : currentTokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
+                errors.add(new WfTokenError(token, getStackTrace(token)));
+            }
         }
         return errors;
     }
@@ -522,8 +841,8 @@ public class ExecutionLogic extends WfCommonLogic {
         ProcessLogFilter filter = new ProcessLogFilter(token.getProcess().getId());
         filter.setTokenId(token.getId());
         filter.setNodeId(token.getNodeId());
-        filter.setRootClassName(NodeErrorLog.class.getName());
-        List<ProcessLog> nodeErrorLogs = processLogDao.getAll(filter);
+        filter.setType(Type.NODE_ERROR);
+        List<BaseProcessLog> nodeErrorLogs = processLogDao.getAll(filter);
         if (!nodeErrorLogs.isEmpty()) {
             ProcessLog lastLog = nodeErrorLogs.get(nodeErrorLogs.size() - 1);
             return lastLog.getBytes() != null ? new String(lastLog.getBytes()) : null;
@@ -535,12 +854,16 @@ public class ExecutionLogic extends WfCommonLogic {
         return getPersistentObjectCount(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES);
     }
 
+    @SuppressWarnings("rawtypes")
     public RestoreProcessStatus restoreProcess(User user, Long processId) throws ProcessDoesNotExistException {
         log.info("Restoring process " + processId + " by " + user.getActor());
         if (!executorDao.isAdministrator(user.getActor())) {
             throw new AuthorizationException("Only administrator can restore process");
         }
         Process process = processDao.getNotNull(processId);
+        if (process.isArchived()) {
+            throw new InternalApplicationException("Archived processes cannot be restored");
+        }
         ProcessLogs processLogs = new ProcessLogs();
         processLogs.addLogs(processLogDao.getAll(process.getId()), false);
         ProcessEndLog lastProcessEndLog = processLogs.getLastOrNull(ProcessEndLog.class);
@@ -555,9 +878,9 @@ public class ExecutionLogic extends WfCommonLogic {
             }
             processEndDate = lastProcessCancelLog.getCreateDate();
         } else {
-            Process parentPocess = processDao.getNotNull(process.getParentId());
-            ProcessDefinition parentProcessDefinition = getDefinition(parentPocess);
-            NodeProcess nodeProcess = nodeProcessDao.findBySubProcessId(processId);
+            CurrentProcess parentPocess = currentProcessDao.getNotNull(process.getParentId());
+            ParsedProcessDefinition parentProcessDefinition = getDefinition(parentPocess);
+            CurrentNodeProcess nodeProcess = currentNodeProcessDao.findBySubProcessId(processId);
             SubprocessNode subprocessNode = (SubprocessNode) parentProcessDefinition.getNodeNotNull(nodeProcess.getNodeId());
             if (!subprocessNode.isAsync()) {
                 return RestoreProcessStatus.ONLY_ASYNC_SUBPROCESS_CAN_BE_RESTORED;
@@ -567,22 +890,23 @@ public class ExecutionLogic extends WfCommonLogic {
                 processEndDate = lastProcessCancelLog.getCreateDate();
             }
         }
-        if (tokenDao.findByProcessAndEndDateGreaterThanOrEquals(process, processEndDate).isEmpty()) {
+        if (currentTokenDao.findByProcessAndEndDateGreaterThanOrEquals((CurrentProcess) process, processEndDate).isEmpty()) {
             return RestoreProcessStatus.UNABLE_TO_FIND_ACTIVE_TOKENS_BY_PROCESS_END_DATE;
         }
-        restoreProcessWithSubProcesses(user, process, processEndDate);
+        restoreProcessWithSubProcesses(user, (CurrentProcess) process, processEndDate);
         log.info(process + " was restored by " + user);
         return RestoreProcessStatus.OK;
     }
 
+    @SuppressWarnings("unchecked")
     @MonitoredWithSpring
     public <T extends Executor> Set<T> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups) {
         Set<T> result = new HashSet<>();
-        Process process = processDao.getNotNull(processId);
-        List<Process> subProcesses = nodeProcessDao.getSubprocessesRecursive(process);
+        CurrentProcess process = currentProcessDao.getNotNull(processId);
+        List<CurrentProcess> subProcesses = currentNodeProcessDao.getSubprocessesRecursive(process);
         // select user from active tasks
         List<Task> tasks = new ArrayList<>(taskDao.findByProcess(process));
-        for (Process subProcess : subProcesses) {
+        for (CurrentProcess subProcess : subProcesses) {
             tasks.addAll(taskDao.findByProcess(subProcess));
         }
         for (Task task : tasks) {
@@ -594,14 +918,14 @@ public class ExecutionLogic extends WfCommonLogic {
         }
         // select user from completed tasks
         ProcessLogFilter filter = new ProcessLogFilter(processId);
-        filter.setRootClassName(TaskEndLog.class.getName());
-        List<ProcessLog> processLogs = new ArrayList<>(processLogDao.getAll(filter));
-        for (Process subProcess : subProcesses) {
+        filter.setType(ProcessLog.Type.TASK_END);
+        List<BaseProcessLog> processLogs = new ArrayList<>(currentProcessLogDao.getAll(filter));
+        for (CurrentProcess subProcess : subProcesses) {
             filter.setProcessId(subProcess.getId());
-            processLogs.addAll(processLogDao.getAll(filter));
+            processLogs.addAll(currentProcessLogDao.getAll(filter));
         }
         for (ProcessLog processLog : processLogs) {
-            String actorName = ((TaskEndLog) processLog).getActorName();
+            String actorName = ((CurrentTaskEndLog) processLog).getActorName();
             try {
                 if (!Strings.isNullOrEmpty(actorName)) {
                     result.add((T) executorDao.getActor(actorName));
@@ -622,6 +946,7 @@ public class ExecutionLogic extends WfCommonLogic {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Executor> void expandGroup(Executor executor, Set<T> result) {
         if (executor instanceof Group) {
             result.addAll((Set<T>) executorDao.getGroupActors((Group) executor));
@@ -630,41 +955,41 @@ public class ExecutionLogic extends WfCommonLogic {
         }
     }
 
-    private void restoreProcessWithSubProcesses(User user, Process process, Date processEndDate) {
-        processLogDao.addLog(new ProcessActivateLog(user.getActor()), process, null);
-        List<Token> tokens = tokenDao.findByProcessAndEndDateGreaterThanOrEquals(process, processEndDate);
+    private void restoreProcessWithSubProcesses(User user, CurrentProcess process, Date processEndDate) {
+        processLogDao.addLog(new CurrentProcessActivateLog(user.getActor()), process, null);
+        List<CurrentToken> tokens = currentTokenDao.findByProcessAndEndDateGreaterThanOrEquals(process, processEndDate);
         if (tokens.isEmpty()) {
             // this can be in cases:
             // some multisubprocesses already completed but not all
             // cycled token execution in subprocesses node
             return;
         }
-        ProcessDefinition processDefinition = getDefinition(process);
+        ParsedProcessDefinition processDefinition = getDefinition(process);
         process.setEndDate(null);
         process.setExecutionStatus(ExecutionStatus.ACTIVE);
-        for (Token token : tokens) {
+        for (CurrentToken token : tokens) {
             Node node = processDefinition.getNode(token.getNodeId());
             token.setEndDate(null);
             token.setExecutionStatus(ExecutionStatus.ACTIVE);
             if (node instanceof SubprocessNode) {
-                List<Process> subprocesses = nodeProcessDao.getSubprocesses(token);
+                List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocesses(token);
                 if (subprocesses.isEmpty()) {
                     // may be due to NodeAsyncExecutionBean ignores messages for ended processes
                     node.handle(new ExecutionContext(processDefinition, token));
                 }
-                for (Process subprocess : subprocesses) {
+                for (CurrentProcess subprocess : subprocesses) {
                     restoreProcessWithSubProcesses(user, subprocess, processEndDate);
                 }
             } else if (node instanceof TimerNode) {
                 ProcessLogFilter processLogFilter = new ProcessLogFilter(process.getId());
-                processLogFilter.setRootClassName(CreateTimerLog.class.getName());
+                processLogFilter.setType(Type.CREATE_TIMER);
                 // BoundaryEvent token does not saved before CreateTimerLog inserted
                 // so for more backward compatibility condition commented now
                 // processLogFilter.setTokenId(token.getId());
                 processLogFilter.setNodeId(node.getNodeId());
                 ProcessLogs processLogs = new ProcessLogs();
                 processLogs.addLogs(processLogDao.getAll(processLogFilter), false);
-                CreateTimerLog createTimerLog = processLogs.getLastOrNull(CreateTimerLog.class);
+                CurrentCreateTimerLog createTimerLog = processLogs.getLastOrNull(CurrentCreateTimerLog.class);
                 if (createTimerLog == null) {
                     throw new InternalApplicationException("Unable to find CreateTimerLog for " + process.getId() + "|" + token.getId()+"|"+node.getNodeId());
                 }
@@ -691,26 +1016,40 @@ public class ExecutionLogic extends WfCommonLogic {
         return String.join(", ", processErrors);
     }
 
-    public List<Token> findTokensForMessageSelector(Map<String, String> routingData) {
+    public List<CurrentToken> findTokensForMessageSelector(Map<String, String> routingData) {
         if (SystemProperties.isProcessExecutionMessagePredefinedSelectorEnabled()) {
             if (SystemProperties.isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling()) {
                 String messageSelector = Utils.getObjectMessageStrictSelector(routingData);
-                return tokenDao.findByMessageSelectorInActiveProcesses(messageSelector);
+                return currentTokenDao.findByMessageSelectorInActiveProcesses(messageSelector);
             } else {
                 Set<String> messageSelectors = Utils.getObjectMessageCombinationSelectors(routingData);
-                return tokenDao.findByMessageSelectorInActiveProcesses(messageSelectors);
+                return currentTokenDao.findByMessageSelectorInActiveProcesses(messageSelectors);
             }
         } else {
             throw new InternalApplicationException("Method not implemented for process.execution.message.predefined.selector.enabled = false");
         }
     }
 
-    public List<WfVariable> getVariables(List<String> variableNamesToInclude, Map<Process, Map<String, Variable<?>>> variables, Process process) {
+    public List<EventSubprocessTrigger> findEventTriggersForMessageSelector(Map<String, String> routingData) {
+        if (SystemProperties.isEventSubprocessMessagePredefinedSelectorEnabled()) {
+            if (SystemProperties.isEventSubprocessMessagePredefinedSelectorOnlyStrictComplianceHandling()) {
+                String messageSelector = Utils.getObjectMessageStrictSelector(routingData);
+                return eventSubprocessTriggerDao.findByMessageSelector(messageSelector);
+            } else {
+                Set<String> messageSelectors = Utils.getObjectMessageCombinationSelectors(routingData);
+                return eventSubprocessTriggerDao.findByMessageSelector(messageSelectors);
+            }
+        } else {
+            throw new InternalApplicationException("Method not implemented for event.subprocess.message.predefined.selector.enabled = false");
+        }
+    }
+
+    public List<WfVariable> getVariables(List<String> variableNamesToInclude, Map<Process, Map<String, Variable>> variables, Process process) {
         List<WfVariable> wfVariables = Lists.newArrayList();
         if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
             try {
-                ProcessDefinition processDefinition = getDefinition(process);
-                ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
+                ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
+                ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process, variables, false);
                 for (String variableName : variableNamesToInclude) {
                     try {
                         wfVariables.add(executionContext.getVariableProvider().getVariable(variableName));
@@ -727,23 +1066,24 @@ public class ExecutionLogic extends WfCommonLogic {
 
     private List<WfToken> getTokens(Process process) throws ProcessDoesNotExistException {
         List<WfToken> result = Lists.newArrayList();
-        List<Token> tokens = tokenDao.findByProcessAndExecutionStatusIsNotEnded(process);
-        ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process);
+        List<? extends Token> tokens = tokenDao.findByProcessAndExecutionStatusIsNotEnded(process);
+        ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(process);
         for (Token token : tokens) {
-            result.add(new WfToken(token, processDefinition));
+            result.add(new WfToken(token, parsedProcessDefinition));
         }
         return result;
     }
 
-    private List<Process> getProcessesInternal(User user, ProcessFilter filter) {
-        List<Process> processes = processDao.getProcesses(filter);
+    private List<CurrentProcess> getCurrentProcessesInternal(User user, ProcessFilter filter) {
+        List<CurrentProcess> processes = currentProcessDao.getProcesses(filter);
         processes = filterSecuredObject(user, processes, Permission.READ);
         return processes;
     }
 
-    private List<WfProcess> toWfProcesses(List<Process> processes, List<String> variableNamesToInclude) {
+    @SuppressWarnings("rawtypes")
+    private List<WfProcess> toWfProcesses(List<? extends Process> processes, List<String> variableNamesToInclude) {
         List<WfProcess> result = Lists.newArrayListWithExpectedSize(processes.size());
-        Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
+        Map<Process, Map<String, Variable>> variables = variableDao.getVariables(processes, variableNamesToInclude);
         for (Process process : processes) {
             WfProcess wfProcess = new WfProcess(process, getProcessErrors(process));
             wfProcess.addAllVariables(getVariables(variableNamesToInclude, variables, process));
@@ -752,7 +1092,7 @@ public class ExecutionLogic extends WfCommonLogic {
         return result;
     }
 
-    private boolean activateProcessWithSubprocesses(User user, Process process) {
+    private boolean activateProcessWithSubprocesses(User user, CurrentProcess process) {
         if (process.getExecutionStatus() == ExecutionStatus.ENDED) {
             log.debug(process + "is already ended");
             return false;
@@ -761,22 +1101,27 @@ public class ExecutionLogic extends WfCommonLogic {
             log.debug(process + "is already activated");
             return false;
         }
-        ProcessDefinition processDefinition = getDefinition(process);
-        for (Token token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
-            Node node = processDefinition.getNode(token.getNodeId());
-            // may be this behaviour should be changed to non-marking task as FAILED (see rm2464#note-11)
-            node.cancel(new ExecutionContext(processDefinition, token));
+        ParsedProcessDefinition parsedPocessDefinition = getDefinition(process);
+        for (CurrentToken token : currentTokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
+            Node node = parsedPocessDefinition.getNode(token.getNodeId());
+            // may be this behavior should be changed to non-marking task as FAILED (see rm2464#note-11)
+            node.cancel(new ExecutionContext(parsedPocessDefinition, token));
             nodeAsyncExecutor.execute(token, false);
         }
-        for (Token token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.SUSPENDED)) {
+        for (CurrentToken token : currentTokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.SUSPENDED)) {
             token.setExecutionStatus(ExecutionStatus.ACTIVE);
+            if (token.getNodeType() == NodeType.RECEIVE_MESSAGE) {
+                // search in accumulated signals
+                Node node = parsedPocessDefinition.getNode(token.getNodeId());
+                node.handle(new ExecutionContext(parsedPocessDefinition, token));
+            }
         }
         if (process.getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             process.setExecutionStatus(ExecutionStatus.ACTIVE);
         }
-        processLogDao.addLog(new ProcessActivateLog(user.getActor()), process, null);
-        List<Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
-        for (Process subprocess : subprocesses) {
+        processLogDao.addLog(new CurrentProcessActivateLog(user.getActor()), process, null);
+        List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocessesRecursive(process);
+        for (CurrentProcess subprocess : subprocesses) {
             if (subprocess.getExecutionStatus() != ExecutionStatus.ACTIVE) {
                 activateProcessWithSubprocesses(user, subprocess);
             }
@@ -784,7 +1129,7 @@ public class ExecutionLogic extends WfCommonLogic {
         return true;
     }
 
-    private void suspendProcessWithSubprocesses(User user, Process process) {
+    private void suspendProcessWithSubprocesses(User user, CurrentProcess process) {
         if (process.getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             throw new InternalApplicationException(process + " already suspended");
         }
@@ -792,21 +1137,20 @@ public class ExecutionLogic extends WfCommonLogic {
             return;
         }
         process.setExecutionStatus(ExecutionStatus.SUSPENDED);
-        for (Token token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.ACTIVE)) {
+        for (CurrentToken token : currentTokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.ACTIVE)) {
             token.setExecutionStatus(ExecutionStatus.SUSPENDED);
         }
-        processLogDao.addLog(new ProcessSuspendLog(user.getActor()), process, null);
-        ProcessDefinition definition = getDefinition(process);
-        for (NodeProcess subprocessNode : nodeProcessDao.getNodeProcesses(process, null, null, null)) {
-            Process subprocess = subprocessNode.getSubProcess();
-            if (subprocess.getExecutionStatus() != ExecutionStatus.SUSPENDED && subprocess.getExecutionStatus() != ExecutionStatus.ENDED
-                    && !isDisableCascadingSuspension(definition, subprocessNode)) {
+        processLogDao.addLog(new CurrentProcessSuspendLog(user.getActor()), process, null);
+        ParsedProcessDefinition definition = getDefinition(process);
+        for (CurrentNodeProcess subprocessNode : currentNodeProcessDao.getNodeProcesses(process, null, null, null)) {
+            CurrentProcess subprocess = subprocessNode.getSubProcess();
+            if (subprocess.getExecutionStatus() != ExecutionStatus.SUSPENDED && subprocess.getExecutionStatus() != ExecutionStatus.ENDED && !isDisableCascadingSuspension(definition, subprocessNode)) {
                 suspendProcessWithSubprocesses(user, subprocess);
             }
         }
     }
 
-    private boolean isDisableCascadingSuspension(ProcessDefinition parentProcessDefinition, NodeProcess nodeProcess) {
+    private boolean isDisableCascadingSuspension(ParsedProcessDefinition parentProcessDefinition, CurrentNodeProcess nodeProcess) {
         return ((SubprocessNode) parentProcessDefinition.getNodeNotNull(nodeProcess.getNodeId())).isDisableCascadingSuspension();
     }
 }

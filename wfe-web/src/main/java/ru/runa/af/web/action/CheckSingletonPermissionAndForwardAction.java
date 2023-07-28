@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import ru.runa.common.web.Commons;
 import ru.runa.common.web.TabHttpSessionHelper;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.wfe.security.Permission;
@@ -43,7 +42,7 @@ public class CheckSingletonPermissionAndForwardAction extends ActionBase {
         }
 
         try {
-            User user = Commons.getUser(request.getSession());
+            User user = getLoggedUser(request);
             SecuredObjectType securedObjectType = SecuredObjectType.valueOf(mapping.getParameter());
             Config config = configs.get(securedObjectType);
             if (config == null) {

@@ -1,80 +1,28 @@
 package ru.runa.wfe.execution.dao;
 
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDao;
-import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.ExecutionStatus;
+import ru.runa.wfe.commons.dao.ArchiveAwareGenericDao;
+import ru.runa.wfe.execution.ArchivedProcess;
+import ru.runa.wfe.execution.ArchivedSwimlane;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.QSwimlane;
 import ru.runa.wfe.execution.Swimlane;
-import ru.runa.wfe.extension.AssignmentHandler;
-import ru.runa.wfe.extension.assign.AssignmentException;
-import ru.runa.wfe.extension.assign.NoExecutorAssignedException;
-import ru.runa.wfe.lang.SwimlaneDefinition;
 
-/**
- * DAO for {@link Swimlane}.
- *
- * @author dofs
- * @since 4.0
- */
 @Component
-public class SwimlaneDao extends GenericDao<Swimlane> {
+public class SwimlaneDao extends ArchiveAwareGenericDao<Swimlane, CurrentSwimlane, CurrentSwimlaneDao, ArchivedSwimlane, ArchivedSwimlaneDao> {
 
-    public List<Swimlane> findByProcess(Process process) {
-        QSwimlane s = QSwimlane.swimlane;
-        return queryFactory.selectFrom(s).where(s.process.eq(process)).fetch();
+    @Autowired
+    SwimlaneDao(CurrentSwimlaneDao currentDao, ArchivedSwimlaneDao archivedDao) {
+        super(currentDao, archivedDao);
     }
 
     public Swimlane findByProcessAndName(Process process, String name) {
-        QSwimlane s = QSwimlane.swimlane;
-        return queryFactory.selectFrom(s).where(s.process.eq(process).and(s.name.eq(name))).fetchFirst();
-    }
-    
-    public List<Swimlane> findByNamePatternInActiveProcesses(String name) {
-        QSwimlane s = QSwimlane.swimlane;
-        return queryFactory.selectFrom(s).where(s.name.like(name).and(s.process.executionStatus.notIn(ExecutionStatus.ENDED))).fetch();
-    }
-
-    public Swimlane findOrCreate(Process process, SwimlaneDefinition swimlaneDefinition) {
-        Swimlane swimlane = findByProcessAndName(process, swimlaneDefinition.getName());
-        if (swimlane == null) {
-            swimlane = new Swimlane(swimlaneDefinition.getName());
-            swimlane.setProcess(process);
-            create(swimlane);
+        if (process.isArchived()) {
+            return archivedDao.findByProcessAndName((ArchivedProcess) process, name);
+        } else {
+            return currentDao.findByProcessAndName((CurrentProcess) process, name);
         }
-        return swimlane;
-    }
-
-    public Swimlane findOrCreateInitialized(ExecutionContext executionContext, SwimlaneDefinition swimlaneDefinition, boolean reassign) {
-        Swimlane swimlane = findOrCreate(executionContext.getProcess(), swimlaneDefinition);
-        if (reassign || swimlane.getExecutor() == null) {
-            try {
-                AssignmentHandler assignmentHandler = swimlaneDefinition.getDelegation().getInstance();
-                assignmentHandler.assign(executionContext, swimlane);
-                if (swimlane.getExecutor() != null) {
-                    executionContext.getToken().removeError();
-                } else {
-                    executionContext.getToken().fail(new NoExecutorAssignedException());
-                }
-            } catch (Exception e) {
-                if (executionContext.getToken().fail(e)) {
-                    if (e instanceof AssignmentException) {
-                        log.warn("Unable to assign in " + swimlane + " due to " + e);
-                    } else {
-                        log.warn("Unable to assign in " + swimlane, e);
-                    }
-                    swimlane.assignExecutor(executionContext, null, true);
-                }
-            }
-        }
-        return swimlane;
-    }
-
-    public void deleteAll(Process process) {
-        log.debug("deleting swimlanes for process " + process.getId());
-        QSwimlane s = QSwimlane.swimlane;
-        queryFactory.delete(s).where(s.process.eq(process)).execute();
     }
 }

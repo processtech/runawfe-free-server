@@ -1,25 +1,18 @@
 package ru.runa.wfe.service.interceptors;
 
-import javax.annotation.Resource;
-import javax.ejb.EJBContext;
+import com.google.common.base.Throwables;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
-import javax.transaction.UserTransaction;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.StaleObjectStateException;
 import org.springframework.dao.OptimisticLockingFailureException;
-
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.TransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
-import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.security.auth.SubjectPrincipalsHelper;
 import ru.runa.wfe.security.auth.UserHolder;
 import ru.runa.wfe.service.utils.ApiProperties;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Throwables;
 
 /**
  * It is important to understand that in a BMT, the message consumed by the MDB is not part of the transaction. When an MDB uses container-managed
@@ -28,26 +21,23 @@ import com.google.common.base.Throwables;
  * if the BMT is rolled back, the JMS provider will not be aware of the transaction’s failure. However, all is not lost, because the JMS provider can
  * still rely on message acknowledgment to determine whether the message was delivered successfully.
  */
+@CommonsLog
 public class EjbTransactionSupport {
-    private static final Log log = LogFactory.getLog(EjbTransactionSupport.class);
-    @Resource
-    private EJBContext ejbContext;
 
     @AroundInvoke
-    public Object process(InvocationContext ic) throws Exception {
-        UserTransaction transaction = ejbContext.getUserTransaction();
+    public Object process(InvocationContext ic) {
         try {
             if (ic.getParameters() != null && ic.getParameters().length > 0 && ic.getParameters()[0] instanceof User) {
                 User user = (User) ic.getParameters()[0];
                 SubjectPrincipalsHelper.validateUser(user);
                 UserHolder.set(user);
             }
-            return invokeWithRetry(ic, transaction, ApiProperties.getRetriesCount());
+            return invokeWithRetry(ic, ApiProperties.getRetriesCount());
         } finally {
             UserHolder.reset();
             for (TransactionListener listener : TransactionListeners.get()) {
                 try {
-                    listener.onTransactionComplete(transaction);
+                    listener.onTransactionComplete();
                 } catch (Throwable th) {
                     log.error(th);
                 }
@@ -59,27 +49,23 @@ public class EjbTransactionSupport {
     /**
      * Make invocation with retry on optimistic lock failure exception.
      *
-     * @param invocation
-     *            current invocation
      * @param transaction
      *            current transaction
      * @return invocation result.
      */
-    private Object invokeWithRetry(InvocationContext ic, UserTransaction transaction, int retriesCount) {
+    private Object invokeWithRetry(InvocationContext ic, int retriesCount) {
         try {
-            transaction.begin();
-            Object result = ic.proceed();
-            transaction.commit();
-            return result;
+            return ApplicationContextFactory.getTransactionalExecutor().executeWithResult(() -> {
+                return ic.proceed();
+            });
         } catch (Throwable th) {
-            Utils.rollbackTransaction(transaction);
             if (th instanceof StaleObjectStateException || th instanceof OptimisticLockingFailureException) {
                 log.error(th);
                 if (retriesCount > 0) {
                     try {
                         Thread.sleep(ApiProperties.getRetryTimeoutMilliseconds());
                         retriesCount--;
-                        return invokeWithRetry(ic, transaction, retriesCount);
+                        return invokeWithRetry(ic, retriesCount);
                     } catch (InterruptedException e) {
                         log.error(e);
                     }

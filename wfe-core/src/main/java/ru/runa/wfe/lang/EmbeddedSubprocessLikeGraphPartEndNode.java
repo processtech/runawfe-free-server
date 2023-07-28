@@ -1,11 +1,14 @@
 package ru.runa.wfe.lang;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
 
 public class EmbeddedSubprocessLikeGraphPartEndNode extends EmbeddedSubprocessEndNode {
     private static final long serialVersionUID = 1L;
-
+    @Autowired
+    private transient ExecutionLogic executionLogic;
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
         Token enterToken = executionContext.getToken();
@@ -19,9 +22,9 @@ public class EmbeddedSubprocessLikeGraphPartEndNode extends EmbeddedSubprocessEn
                 return;
             }
         }
-        executionContext.getToken().end(executionContext.getProcessDefinition(), null, null, false);
+        executionLogic.endToken(executionContext.getCurrentToken(), executionContext.getParsedProcessDefinition(), null, null, false);
         // continue in token from EmbeddedSubprocessStartNode
-        leave(new ExecutionContext(executionContext.getProcessDefinition(), enterToken));
+        leave(new ExecutionContext(executionContext.getParsedProcessDefinition(), enterToken));
     }
 
 

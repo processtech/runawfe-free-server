@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.execution.dto;
 
 import com.google.common.base.MoreObjects;
@@ -27,8 +10,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.security.SecuredObjectBase;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.var.dto.WfVariable;
 
@@ -37,7 +20,7 @@ import ru.runa.wfe.var.dto.WfVariable;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public class WfProcess extends SecuredObjectBase {
+public class WfProcess extends SecuredObject {
     private static final long serialVersionUID = 4862220986262286596L;
     public static final String SELECTED_TRANSITION_KEY = "RUNAWFE_SELECTED_TRANSITION";
     public static final String TRANSIENT_VARIABLES = "RUNAWFE_TRANSIENT_VARIABLES";
@@ -47,6 +30,7 @@ public class WfProcess extends SecuredObjectBase {
     private Date startDate;
     private Date endDate;
     private int version;
+    private boolean archived;
     private Long definitionId;
     private String hierarchyIds;
     // map is not usable in web services
@@ -60,10 +44,11 @@ public class WfProcess extends SecuredObjectBase {
 
     public WfProcess(Process process, String errors) {
         this.id = process.getId();
-        ProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process.getDeployment().getId());
-        this.name = processDefinition.getName();
-        this.definitionId = processDefinition.getId();
-        this.version = processDefinition.getDeployment().getVersion().intValue();
+        ParsedProcessDefinition parsedProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process);
+        this.name = parsedProcessDefinition.getName();
+        this.definitionId = parsedProcessDefinition.getId();
+        this.version = parsedProcessDefinition.getVersion().intValue();
+        this.archived = process.isArchived();
         this.startDate = process.getStartDate();
         this.endDate = process.getEndDate();
         this.hierarchyIds = process.getHierarchyIds();
@@ -138,6 +123,10 @@ public class WfProcess extends SecuredObjectBase {
         return null;
     }
 
+    public List<WfVariable> getVariables() {
+        return variables;
+    }
+
     public Object getVariableValue(String name) {
         WfVariable variable = getVariable(name);
         if (variable != null) {
@@ -152,6 +141,10 @@ public class WfProcess extends SecuredObjectBase {
 
     public Long getExternalData() {
         return externalData;
+    }
+
+    public boolean isArchived() {
+        return archived;
     }
 
     @Override

@@ -22,19 +22,19 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.lang.BaseMessageNode;
+import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.Node;
+import ru.runa.wfe.lang.StartNode;
+import ru.runa.wfe.lang.bpmn2.EventTrigger;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.UserTypeMap;
@@ -42,9 +42,9 @@ import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.Variables;
 
+@CommonsLog
 public class Utils {
     public static final String CATEGORY_DELIMITER = "/";
-    private static Log log = LogFactory.getLog(Utils.class);
     private static volatile InitialContext initialContext;
     private static TransactionManager transactionManager;
     private static ConnectionFactory connectionFactory;
@@ -59,15 +59,6 @@ public class Utils {
             initialContext = new InitialContext();
         }
         return initialContext;
-    }
-
-    public static synchronized UserTransaction getUserTransaction() {
-        String jndiName = DatabaseProperties.getUserTransactionJndiName();
-        try {
-            return (UserTransaction) getInitialContext().lookup(jndiName);
-        } catch (NamingException e) {
-            throw new InternalApplicationException("Unable to find UserTransaction by name '" + jndiName + "'", e);
-        }
     }
 
     public static synchronized TransactionManager getTransactionManager() {
@@ -171,6 +162,10 @@ public class Utils {
         }
     }
 
+    public static void sendBpmnMessageRest(Map<String, String> routingData, Map<String, ?> payloadData, long ttlInMilliSeconds) {
+        sendBpmnMessage(routingData, payloadData, ttlInMilliSeconds);
+    }
+
     public static void sendBpmnErrorMessage(Long processId, String nodeId, Throwable throwable) {
         Map<String, Object> variables = Maps.newHashMap();
         variables.put(BaseMessageNode.EVENT_TYPE, MessageEventType.error.name());
@@ -190,7 +185,7 @@ public class Utils {
         Utils.sendBpmnMessage(variableMappings, variableProvider, 0);
     }
 
-    public static String getMessageSelectorValue(VariableProvider variableProvider, BaseMessageNode messageNode, VariableMapping mapping) {
+    public static String getMessageSelectorValue(VariableProvider variableProvider, GraphElement messageNode, VariableMapping mapping) {
         String testValue = mapping.getMappedName();
         if (Variables.CURRENT_PROCESS_ID_WRAPPED.equals(testValue) || "${currentInstanceId}".equals(testValue)) {
             return String.valueOf(variableProvider.getProcessId());
@@ -207,15 +202,25 @@ public class Utils {
     }
 
     public static String getReceiveMessageNodeSelector(VariableProvider variableProvider, BaseMessageNode messageNode) {
+        return getMessageSelector(variableProvider, messageNode, messageNode.getEventType(), messageNode.getVariableMappings());
+    }
+
+    public static String getStartNodeMessageSelector(VariableProvider variableProvider, StartNode startNode) {
+        EventTrigger eventTrigger = startNode.getEventTrigger();
+        return getMessageSelector(variableProvider, startNode, eventTrigger.getEventType(), eventTrigger.getVariableMappings());
+    }
+
+    private static String getMessageSelector(VariableProvider variableProvider, GraphElement messageNode, MessageEventType eventType,
+            List<VariableMapping> variableMappings) {
         List<String> selectors = Lists.newArrayList();
-        if (messageNode.getEventType() == MessageEventType.error && messageNode.getParentElement() instanceof Node) {
+        if (eventType == MessageEventType.error && messageNode.getParentElement() instanceof Node) {
             selectors.add(BaseMessageNode.EVENT_TYPE + MESSAGE_SELECTOR_VALUE_DELIMITER + MessageEventType.error.name());
             selectors
                     .add(BaseMessageNode.ERROR_EVENT_PROCESS_ID + MESSAGE_SELECTOR_VALUE_DELIMITER + String.valueOf(variableProvider.getProcessId()));
             selectors.add(
-                    BaseMessageNode.ERROR_EVENT_NODE_ID + MESSAGE_SELECTOR_VALUE_DELIMITER + ((Node) messageNode.getParentElement()).getNodeId());
+                    BaseMessageNode.ERROR_EVENT_NODE_ID + MESSAGE_SELECTOR_VALUE_DELIMITER + messageNode.getParentElement().getNodeId());
         } else {
-            for (VariableMapping mapping : messageNode.getVariableMappings()) {
+            for (VariableMapping mapping : variableMappings) {
                 if (mapping.isPropertySelector()) {
                     selectors.add(
                             mapping.getName() + MESSAGE_SELECTOR_VALUE_DELIMITER + getMessageSelectorValue(variableProvider, messageNode, mapping));
@@ -253,7 +258,7 @@ public class Utils {
         return selectors;
     }
 
-    public static void sendNodeAsyncExecutionMessage(Token token, boolean retry) {
+    public static void sendNodeAsyncExecutionMessage(CurrentToken token, boolean retry) {
         Connection connection = null;
         Session session = null;
         MessageProducer sender = null;
@@ -300,7 +305,7 @@ public class Utils {
     @SuppressWarnings("unchecked")
     public static String toString(ObjectMessage message, boolean html) {
         try {
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             buffer.append(message.getJMSMessageID());
             buffer.append(html ? "<br>" : "\n");
             if (message.getJMSExpiration() != 0) {
@@ -308,7 +313,7 @@ public class Utils {
                 buffer.append(html ? "<br>" : "\n");
             }
             Enumeration<String> propertyNames = message.getPropertyNames();
-            Map<String, String> properties = new HashMap<String, String>();
+            Map<String, String> properties = new HashMap<>();
             while (propertyNames.hasMoreElements()) {
                 String propertyName = propertyNames.nextElement();
                 String propertyValue = message.getStringProperty(propertyName);
@@ -317,29 +322,13 @@ public class Utils {
             buffer.append(properties);
             buffer.append(html ? "<br>" : "\n");
             if (message.getObject() instanceof Map) {
-                buffer.append(TypeConversionUtil.toStringMap((Map<? extends Object, ? extends Object>) message.getObject()));
+                buffer.append(TypeConversionUtil.toStringMap((Map<?, ?>) message.getObject()));
             } else if (message.getObject() != null) {
                 buffer.append(message.getObject());
             }
             return buffer.toString();
         } catch (JMSException e) {
             throw Throwables.propagate(e);
-        }
-    }
-
-    public static void rollbackTransaction(UserTransaction transaction) {
-        int status = -1;
-        try {
-            if (transaction != null) {
-                status = transaction.getStatus();
-                if (status != Status.STATUS_NO_TRANSACTION) {
-                    transaction.rollback();
-                } else {
-                    LogFactory.getLog(Utils.class).warn("Unable to rollback, status: " + status);
-                }
-            }
-        } catch (Exception e) {
-            throw new InternalApplicationException("Unable to rollback, status: " + status, e);
         }
     }
 

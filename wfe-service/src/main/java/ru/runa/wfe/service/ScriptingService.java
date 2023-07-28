@@ -2,9 +2,7 @@ package ru.runa.wfe.service;
 
 import java.util.List;
 import java.util.Map;
-
 import javax.ejb.Remote;
-
 import ru.runa.wfe.script.AdminScriptException;
 import ru.runa.wfe.user.User;
 
@@ -21,18 +19,16 @@ public interface ScriptingService {
      *
      * @param user
      *            authorized user
-     * @param scriptData
-     *            script data
      * @param externalResources
      *            external script data (par files, bot configurations and so one).
      * @throws AdminScriptException
      *             if script execution fails
      */
-    public void executeAdminScript(User user, byte[] configData, Map<String, byte[]> externalResources) throws AdminScriptException;
+    void executeAdminScript(User user, byte[] configData, Map<String, byte[]> externalResources) throws AdminScriptException;
 
-    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue);
+    List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue);
 
-    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue,
+    List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue,
             String dataSourceDefaultPasswordValue);
 
     /**
@@ -43,13 +39,13 @@ public interface ScriptingService {
      * @param script
      *            groovy code
      */
-    public void executeGroovyScript(User user, String script);
+    void executeGroovyScript(User user, String script);
 
-    public List<String> getScriptsNames();
+    List<String> getScriptsNames();
 
-    public void saveScript(String fileName, byte[] script);
+    void saveScript(String fileName, byte[] script);
 
-    public void deleteScript(String fileName);
+    void deleteScript(String fileName);
 
-    public byte[] getScriptSource(String fileName);
+    byte[] getScriptSource(String fileName);
 }

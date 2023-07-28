@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.user.dao;
 
 import com.google.common.base.Objects;
@@ -27,12 +10,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import lombok.val;
 import org.hibernate.SQLQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.dao.CommonDao;
@@ -52,7 +38,7 @@ import ru.runa.wfe.user.QExecutor;
 import ru.runa.wfe.user.QExecutorGroupMembership;
 import ru.runa.wfe.user.QTemporaryGroup;
 import ru.runa.wfe.user.TemporaryGroup;
-import ru.runa.wfe.user.cache.ExecutorCache;
+import ru.runa.wfe.user.cache.ExecutorCacheCtrl;
 
 /**
  * DAO for managing executors.
@@ -66,7 +52,7 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
     private static final String CODE_PROPERTY_NAME = "code";
 
     @Autowired
-    private ExecutorCache executorCacheCtrl;
+    private ExecutorCacheCtrl executorCacheCtrl;
 
     /**
      * Check if executor with given name exists.
@@ -116,7 +102,7 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
      * @return {@linkplain Actor} with specified name (case insensitive).
      */
     public Actor getActorCaseInsensitive(final String name) {
-        QActor a = QActor.actor;
+        val a = QActor.actor;
         Actor actor = queryFactory.selectFrom(a).where(a.name.likeIgnoreCase(name)).fetchFirst();
         return checkExecutorNotNull(actor, name, Actor.class);
     }
@@ -224,7 +210,7 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
     }
 
     public List<TemporaryGroup> getTemporaryGroups(final Long processId) {
-        QTemporaryGroup tg = QTemporaryGroup.temporaryGroup;
+        val tg = QTemporaryGroup.temporaryGroup;
         return queryFactory.selectFrom(tg).where(tg.description.eq(processId.toString())).fetch();
     }
 
@@ -504,12 +490,12 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
     }
 
     private List<ExecutorGroupMembership> getGroupMemberships(Group group) {
-        QExecutorGroupMembership egm = QExecutorGroupMembership.executorGroupMembership;
+        val egm = QExecutorGroupMembership.executorGroupMembership;
         return queryFactory.selectFrom(egm).where(egm.group.eq(group)).fetch();
     }
 
     private ExecutorGroupMembership getMembership(Group group, Executor executor) {
-        QExecutorGroupMembership egm = QExecutorGroupMembership.executorGroupMembership;
+        val egm = QExecutorGroupMembership.executorGroupMembership;
         return queryFactory.selectFrom(egm).where(egm.group.eq(group).and(egm.executor.eq(executor))).fetchFirst();
     }
 
@@ -543,8 +529,8 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
 
     public void remove(Executor executor) {
         Assert.notNull(executor.getId());
-        QExecutorGroupMembership egm = QExecutorGroupMembership.executorGroupMembership;
-        QActorPassword ap = QActorPassword.actorPassword;
+        val egm = QExecutorGroupMembership.executorGroupMembership;
+        val ap = QActorPassword.actorPassword;
         queryFactory.delete(egm).where(egm.executor.eq(executor)).execute();
         if (executor instanceof Group) {
             queryFactory.delete(egm).where(egm.group.eq((Group)executor)).execute();
@@ -552,7 +538,7 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
             queryFactory.delete(ap).where(ap.actorId.eq(executor.getId())).execute();
         }
         // #266#note-18
-        executor = (Executor) sessionFactory.getCurrentSession().get(Executor.class, executor.getId());
+        executor = sessionFactory.getCurrentSession().get(Executor.class, executor.getId());
         sessionFactory.getCurrentSession().delete(executor);
     }
 
@@ -605,7 +591,8 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         }
         result = new HashSet<>();
         SQLQuery sqlQuery = sessionFactory.getCurrentSession().createSQLQuery(
-                "SELECT * FROM EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N')) AND EXECUTOR_ID = :executorId")
+                "SELECT * FROM " + ApplicationContextFactory.getSchemaPrefix() + "EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM "
+                        + ApplicationContextFactory.getSchemaPrefix() + "EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N')) AND EXECUTOR_ID = :executorId")
                 .addEntity(ExecutorGroupMembership.class);
         sqlQuery.setParameter("executorId", executor.getId());
         List<ExecutorGroupMembership> memberships = sqlQuery.list();
@@ -700,7 +687,7 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         if (executor != null) {
             return clazz.isAssignableFrom(executor.getClass()) ? (T) executor : null;
         } else {
-            return (T) sessionFactory.getCurrentSession().get(clazz, id);
+            return sessionFactory.getCurrentSession().get(clazz, id);
         }
     }
 
@@ -709,7 +696,9 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         if (executor != null) {
             return (T) (clazz.isAssignableFrom(executor.getClass()) ? executor : null);
         } else {
-            return findFirstOrNull("from " + clazz.getName() + " where name=?", name);
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("name", name);
+            return findFirstOrNull("from " + clazz.getName() + " where name=:name", parameters);
         }
     }
 
@@ -725,7 +714,7 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
     }
 
     private ActorPassword getActorPassword(Actor actor) {
-        QActorPassword ap = QActorPassword.actorPassword;
+        val ap = QActorPassword.actorPassword;
         return queryFactory.selectFrom(ap).where(ap.actorId.eq(actor.getId())).fetchFirst();
     }
 
@@ -734,7 +723,7 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         if (actor != null) {
             return actor;
         }
-        QActor a = QActor.actor;
+        val a = QActor.actor;
         return queryFactory.selectFrom(a).where(a.code.eq(code)).fetchFirst();
     }
 
@@ -753,7 +742,7 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
     }
 
     public List<Executor> getExecutorsLikeName(String nameTemplate) {
-        QExecutor e = QExecutor.executor;
+        val e = QExecutor.executor;
         return queryFactory.selectFrom(e).where(e.name.like(nameTemplate)).fetch();
     }
 

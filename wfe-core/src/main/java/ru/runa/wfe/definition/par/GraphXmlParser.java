@@ -2,6 +2,7 @@ package ru.runa.wfe.definition.par;
 
 import com.google.common.base.Throwables;
 import java.util.List;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -11,10 +12,11 @@ import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.lang.Bendpoint;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.lang.Transition;
 
+@CommonsLog
 public class GraphXmlParser implements ProcessArchiveParser {
     private static final String NODE_ELEMENT = "node";
     private static final String TRANSITION_ELEMENT = "transition";
@@ -27,31 +29,31 @@ public class GraphXmlParser implements ProcessArchiveParser {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void readFromArchive(ProcessArchive archive, ProcessDefinition processDefinition) {
+    public void readFromArchive(ProcessArchive archive, ParsedProcessDefinition parsedProcessDefinition) {
         try {
             String fileName = FileDataProvider.GPD_XML_FILE_NAME;
-            if (processDefinition instanceof SubprocessDefinition) {
-                fileName = processDefinition.getNodeId() + "." + fileName;
+            if (parsedProcessDefinition instanceof ParsedSubprocessDefinition) {
+                fileName = parsedProcessDefinition.getNodeId() + "." + fileName;
             }
-            byte[] gpdBytes = processDefinition.getFileDataNotNull(fileName);
+            byte[] gpdBytes = parsedProcessDefinition.getFileDataNotNull(fileName);
             Document document = XmlUtils.parseWithoutValidation(gpdBytes);
             Element root = document.getRootElement();
-            processDefinition.setGraphConstraints(0, 0, Integer.parseInt(root.attributeValue("width")),
+            parsedProcessDefinition.setGraphConstraints(0, 0, Integer.parseInt(root.attributeValue("width")),
                     Integer.parseInt(root.attributeValue("height")));
             int xOffset = Integer.parseInt(root.attributeValue("x", "0"));
             int yOffset = Integer.parseInt(root.attributeValue("y", "0"));
-            processDefinition.setGraphActionsEnabled(Boolean.parseBoolean(root.attributeValue("showActions", "true")));
+            parsedProcessDefinition.setGraphActionsEnabled(Boolean.parseBoolean(root.attributeValue("showActions", "true")));
             List<Element> nodeElements = root.elements(NODE_ELEMENT);
             for (Element nodeElement : nodeElements) {
                 String nodeId = nodeElement.attributeValue("name");
                 GraphElement graphElement;
-                Node transitionSource = processDefinition.getNode(nodeId);
+                Node transitionSource = parsedProcessDefinition.getNode(nodeId);
                 if (transitionSource != null) {
                     graphElement = transitionSource;
                 } else {
-                    graphElement = processDefinition.getSwimlaneById(nodeId);
+                    graphElement = parsedProcessDefinition.getSwimlaneById(nodeId);
                     if (graphElement == null) {
-                        LogFactory.getLog(getClass()).warn("Ignored graph element " + graphElement + " in " + processDefinition);
+                        LogFactory.getLog(getClass()).warn("Ignored graph element " + graphElement + " in " + parsedProcessDefinition);
                         continue;
                     }
                 }
@@ -77,7 +79,7 @@ public class GraphXmlParser implements ProcessArchiveParser {
             }
         } catch (Exception e) {
             Throwables.propagateIfInstanceOf(e, InvalidDefinitionException.class);
-            throw new InvalidDefinitionException(processDefinition.getName(), e);
+            throw new InvalidDefinitionException(parsedProcessDefinition.getName(), e);
         }
     }
 }

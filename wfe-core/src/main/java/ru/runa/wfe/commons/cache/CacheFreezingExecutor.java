@@ -6,11 +6,11 @@ public abstract class CacheFreezingExecutor {
 
     public final void execute() {
         try {
-            CachingLogic.setEnabled(false);
+            CachingLogic.disableChangesTracking();
             doExecute();
         } finally {
-            CachingLogic.setEnabled(true);
-            CachingLogic.resetAllCaches();
+            CachingLogic.enableChangesTracking();
+            CachingLogic.dropAllCaches();
         }
     }
 

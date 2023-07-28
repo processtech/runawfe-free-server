@@ -10,7 +10,7 @@ import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatFileDao;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.chat.dao.ChatMessageRecipientDao;
-import ru.runa.wfe.execution.dao.ProcessDao;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.user.Actor;
 
 /**
@@ -25,7 +25,7 @@ public class ChatComponentFacade {
     @Autowired
     private ChatFileDao fileDao;
     @Autowired
-    private ProcessDao processDao;
+    private CurrentProcessDao currentProcessDao;
     @Autowired
     private ChatMessageRecipientDao recipientDao;
 
@@ -39,7 +39,7 @@ public class ChatComponentFacade {
     }
 
     public ChatMessage save(ChatMessage message, Set<Actor> recipients, long processId) {
-        message.setProcess(processDao.getNotNull(processId));
+        message.setProcess(currentProcessDao.getNotNull(processId));
         return messageDao.save(message, recipients);
     }
 

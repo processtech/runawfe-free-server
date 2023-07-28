@@ -10,8 +10,8 @@ import ru.runa.wfe.lang.jpdl.Join;
  */
 public class HistoryGraphJoinNodeModel extends HistoryGraphBaseNodeModel {
 
-    public HistoryGraphJoinNodeModel(ProcessLog processLog, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
-        super(processLog, node, definitionModel, nodeFactory);
+    public HistoryGraphJoinNodeModel(Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
+        super(node, definitionModel, nodeFactory);
     }
 
     public HistoryGraphJoinNodeModel(ProcessLog processLog, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {

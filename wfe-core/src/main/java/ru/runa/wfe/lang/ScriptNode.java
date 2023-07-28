@@ -4,7 +4,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.List;
-import ru.runa.wfe.audit.ActionLog;
+import ru.runa.wfe.audit.CurrentActionLog;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
@@ -36,7 +36,7 @@ public class ScriptNode extends Node implements BoundaryEventContainer {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        executionContext.addLog(new ActionLog(this));
+        executionContext.addLog(new CurrentActionLog(this));
         ActionHandler actionHandler = delegation.getInstance();
         try {
             actionHandler.execute(executionContext);
@@ -56,5 +56,4 @@ public class ScriptNode extends Node implements BoundaryEventContainer {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("id", getNodeId()).toString();
     }
-
 }

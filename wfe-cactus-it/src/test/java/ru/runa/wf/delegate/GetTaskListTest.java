@@ -1,23 +1,9 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.delegate;
 
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.List;
 import lombok.val;
 import org.apache.cactus.ServletTestCase;
@@ -69,7 +55,7 @@ public class GetTaskListTest extends ServletTestCase {
         h.setPermissionsToAuthorizedActor(Lists.newArrayList(Permission.CREATE_DEFINITION), SecuredSingleton.SYSTEM);
 
         val parBytes = WfServiceTestHelper.readBytesFromFile(WfServiceTestHelper.ORGANIZATION_FUNCTION_PAR_FILE_NAME);
-        val def = h.getDefinitionService().deployProcessDefinition(h.getAuthorizedUser(), parBytes, Lists.newArrayList("testProcess"));
+        val def = h.getDefinitionService().deployProcessDefinition(h.getAuthorizedUser(), parBytes, Lists.newArrayList("testProcess"), null);
 
         h.setPermissionsToAuthorizedActorOnDefinition(Lists.newArrayList(Permission.DELETE, Permission.START_PROCESS), def);
     }

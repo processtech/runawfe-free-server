@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -11,16 +12,18 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
-import org.apache.commons.logging.LogFactory;
+import lombok.val;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.SafeIndefiniteLoop;
 
 @XmlAccessorType(XmlAccessType.FIELD)
+@CommonsLog
 public class ProcessLogs implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final List<ProcessLog> logs = Lists.newArrayList();
+    private final List<BaseProcessLog> logs = new ArrayList<>();
     @XmlTransient
-    private final HashMap<Long, Long> subprocessToProcessIds = Maps.newHashMap();
+    private final HashMap<Long, Long> subprocessToProcessIds = new HashMap<>();
 
     public ProcessLogs() {
     }
@@ -29,13 +32,13 @@ public class ProcessLogs implements Serializable {
         subprocessToProcessIds.put(processId, null);
     }
 
-    public void addLogs(List<ProcessLog> processLogs, boolean withSubprocesses) {
+    public void addLogs(List<? extends BaseProcessLog> processLogs, boolean withSubprocesses) {
         logs.addAll(processLogs);
         if (withSubprocesses) {
-            for (ProcessLog log : processLogs) {
-                if (log instanceof SubprocessStartLog) {
-                    Long subprocessId = ((SubprocessStartLog) log).getSubprocessId();
-                    subprocessToProcessIds.put(subprocessId, log.getProcessId());
+            for (BaseProcessLog processLog : processLogs) {
+                if (processLog instanceof SubprocessStartLog) {
+                    Long subprocessId = ((SubprocessStartLog) processLog).getSubprocessId();
+                    subprocessToProcessIds.put(subprocessId, processLog.getProcessId());
                 }
             }
         }
@@ -43,8 +46,8 @@ public class ProcessLogs implements Serializable {
     }
 
     public int getMaxSubprocessLevel() {
-        final Map<Long, Long> tmpIds = Maps.newHashMap(subprocessToProcessIds);
-        final Map<Long, Integer> levels = Maps.newHashMap();
+        val tmpIds = new HashMap<Long, Long>(subprocessToProcessIds);
+        val levels = new HashMap<Long, Integer>();
         new SafeIndefiniteLoop(100) {
 
             @Override
@@ -81,8 +84,8 @@ public class ProcessLogs implements Serializable {
         return level;
     }
 
-    public List<Long> getSubprocessIds(ProcessLog processLog) {
-        List<Long> result = Lists.newArrayList();
+    public List<Long> getSubprocessIds(BaseProcessLog processLog) {
+        val result = new ArrayList<Long>();
         Long processId = processLog.getProcessId();
         while (subprocessToProcessIds.get(processId) != null) {
             result.add(processId);
@@ -92,43 +95,43 @@ public class ProcessLogs implements Serializable {
         return result;
     }
 
-    public List<ProcessLog> getLogs() {
+    public List<BaseProcessLog> getLogs() {
         return logs;
     }
 
     public <T extends ProcessLog> T getFirstOrNull(Class<T> logClass) {
-        for (ProcessLog log : logs) {
-            if (logClass.isAssignableFrom(log.getClass())) {
-                return (T) log;
+        for (ProcessLog processLog : logs) {
+            if (logClass.isAssignableFrom(processLog.getClass())) {
+                return (T) processLog;
             }
         }
         return null;
     }
 
     public <T extends ProcessLog> T getLastOrNull(Class<T> logClass) {
-        for (ProcessLog log : Lists.reverse(logs)) {
-            if (logClass.isAssignableFrom(log.getClass())) {
-                return (T) log;
+        for (ProcessLog processLog : Lists.reverse(logs)) {
+            if (logClass.isAssignableFrom(processLog.getClass())) {
+                return (T) processLog;
             }
         }
         return null;
     }
 
     public <T extends ProcessLog> List<T> getLogs(Class<T> logClass) {
-        List<T> list = Lists.newArrayList();
-        for (ProcessLog log : logs) {
-            if (logClass.isAssignableFrom(log.getClass())) {
-                list.add((T) log);
+        val list = new ArrayList<T>();
+        for (ProcessLog processLog : logs) {
+            if (logClass.isAssignableFrom(processLog.getClass())) {
+                list.add((T) processLog);
             }
         }
         return list;
     }
 
-    public List<ProcessLog> getLogs(String nodeId) {
-        List<ProcessLog> list = Lists.newArrayList();
-        for (ProcessLog log : logs) {
-            if (Objects.equal(log.getNodeId(), nodeId)) {
-                list.add(log);
+    public List<BaseProcessLog> getLogs(String nodeId) {
+        val list = new ArrayList<BaseProcessLog>();
+        for (BaseProcessLog processLog : logs) {
+            if (Objects.equal(processLog.getNodeId(), nodeId)) {
+                list.add(processLog);
             }
         }
         return list;
@@ -137,19 +140,19 @@ public class ProcessLogs implements Serializable {
     public Map<TaskCreateLog, TaskEndLog> getTaskLogs() {
         Map<Long, TaskCreateLog> taskCreateLogByTaskId = Maps.newHashMap();
         Map<TaskCreateLog, TaskEndLog> result = Maps.newHashMap();
-        for (ProcessLog log : logs) {
-            if (log instanceof TaskCreateLog) {
-                TaskCreateLog taskCreateLog = (TaskCreateLog) log;
+        for (BaseProcessLog processLog : logs) {
+            if (processLog instanceof TaskCreateLog) {
+                TaskCreateLog taskCreateLog = (TaskCreateLog) processLog;
                 taskCreateLogByTaskId.put(taskCreateLog.getTaskId(), taskCreateLog);
             }
-            if (log instanceof TaskEndLog) {
-                TaskEndLog taskEndLog = (TaskEndLog) log;
+            if (processLog instanceof TaskEndLog) {
+                TaskEndLog taskEndLog = (TaskEndLog) processLog;
                 TaskCreateLog taskCreateLog = null;
                 if (taskCreateLogByTaskId.containsKey(taskEndLog.getTaskId())) {
                     taskCreateLog = taskCreateLogByTaskId.remove(taskEndLog.getTaskId());
                 }
                 if (taskCreateLog == null) {
-                    LogFactory.getLog(getClass()).warn("No TaskCreateLog for " + log);
+                    log.warn("No TaskCreateLog for " + processLog);
                     continue;
                 }
                 result.put(taskCreateLog, taskEndLog);

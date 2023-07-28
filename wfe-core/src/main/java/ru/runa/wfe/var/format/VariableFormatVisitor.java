@@ -5,7 +5,7 @@ package ru.runa.wfe.var.format;
  * 
  * @param <TResult>
  *            Type of operation result.
- * @param <TResult>
+ * @param <TContext>
  *            Type of operation context (parameter, passed to methods).
  */
 public interface VariableFormatVisitor<TResult, TContext> {
@@ -200,7 +200,7 @@ public interface VariableFormatVisitor<TResult, TContext> {
     /**
      * Called to apply operation to custom format.
      * 
-     * @param userTypeFormat
+     * @param variableFormat
      *            Format, operation applied to.
      * @param context
      *            Operation call context. Contains additional data, passed to operation.

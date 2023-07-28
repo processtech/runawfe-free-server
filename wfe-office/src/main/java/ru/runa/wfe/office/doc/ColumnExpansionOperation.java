@@ -66,5 +66,4 @@ public class ColumnExpansionOperation extends AbstractIteratorOperation {
         }
         return null;
     }
-
 }

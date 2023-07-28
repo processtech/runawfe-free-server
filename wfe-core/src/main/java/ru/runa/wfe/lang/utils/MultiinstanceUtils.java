@@ -1,15 +1,14 @@
 package ru.runa.wfe.lang.utils;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.NodeErrorLog;
+import ru.runa.wfe.audit.CurrentNodeErrorLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -27,11 +26,8 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-
+@CommonsLog
 public class MultiinstanceUtils {
-    private static final Log log = LogFactory.getLog(MultiinstanceUtils.class);
     // back compatibility with processes before version 4.1.1
     private static final String USAGE_MULTIINSTANCE_VARS = "multiinstance-vars";
 
@@ -100,11 +96,11 @@ public class MultiinstanceUtils {
     private static void setDiscriminatorValueByGroup(Parameters parameters, ExecutionContext executionContext, VariableMapping mapping) {
         Group group;
         if (mapping.isText()) {
-            group = ApplicationContextFactory.getExecutorDAO().getGroup(parameters.discriminatorVariableName);
+            group = ApplicationContextFactory.getExecutorDao().getGroup(parameters.discriminatorVariableName);
         } else {
             group = executionContext.getVariableProvider().getValueNotNull(Group.class, parameters.discriminatorVariableName);
         }
-        parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDAO().getGroupActors(group));
+        parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDao().getGroupActors(group));
         parameters.discriminatorTypeGroup();
     }
 
@@ -188,7 +184,7 @@ public class MultiinstanceUtils {
         } else if ("group".equals(miDiscriminatorType) && parameters.discriminatorVariableName != null) {
             Object miVar = ExpressionEvaluator.evaluateVariableNotNull(executionContext.getVariableProvider(), parameters.discriminatorVariableName);
             Group group = TypeConversionUtil.convertTo(Group.class, miVar);
-            parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDAO().getGroupActors(group));
+            parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDao().getGroupActors(group));
             parameters.discriminatorTypeGroup();
         } else if ("relation".equals(miDiscriminatorType) && parameters.discriminatorVariableName != null && miRelationDiscriminatorTypeParam != null) {
             String relationName = (String) ExpressionEvaluator.evaluateVariableNotNull(executionContext.getVariableProvider(),
@@ -220,20 +216,20 @@ public class MultiinstanceUtils {
 
     private static List<Actor> getActorsByRelation(String relationName, Executor paramExecutor, boolean inversed) {
         List<Executor> executors = Lists.newArrayList(paramExecutor);
-        Relation relation = ApplicationContextFactory.getRelationDAO().getNotNull(relationName);
+        Relation relation = ApplicationContextFactory.getRelationDao().getNotNull(relationName);
         List<RelationPair> relationPairs;
         if (inversed) {
-            relationPairs = ApplicationContextFactory.getRelationPairDAO().getExecutorsRelationPairsLeft(relation, executors);
+            relationPairs = ApplicationContextFactory.getRelationPairDao().getExecutorsRelationPairsLeft(relation, executors);
         } else {
-            relationPairs = ApplicationContextFactory.getRelationPairDAO().getExecutorsRelationPairsRight(relation, executors);
+            relationPairs = ApplicationContextFactory.getRelationPairDao().getExecutorsRelationPairsRight(relation, executors);
         }
-        Set<Actor> actors = new HashSet<Actor>();
+        Set<Actor> actors = new HashSet<>();
         for (RelationPair pair : relationPairs) {
             Executor executor = pair.getRight();
             if (executor instanceof Actor) {
                 actors.add((Actor) executor);
             } else if (executor instanceof Group) {
-                actors.addAll(ApplicationContextFactory.getExecutorDAO().getGroupActors((Group) executor));
+                actors.addAll(ApplicationContextFactory.getExecutorDao().getGroupActors((Group) executor));
             }
         }
         return Lists.newArrayList(actors);
@@ -288,7 +284,7 @@ public class MultiinstanceUtils {
         @SuppressWarnings("unchecked")
         protected void logIfDiscriminatorValueEmpty(ExecutionContext executionContext, Node node) {
             if (discriminatorValue instanceof List && ((List<Object>) discriminatorValue).isEmpty()) {
-                executionContext.addLog(new NodeErrorLog(node,
+                executionContext.addLog(new CurrentNodeErrorLog(node,
                         String.format(discriminatorType.getMessage(), relationName != null ? relationName : discriminatorVariableName)));
             }
         }

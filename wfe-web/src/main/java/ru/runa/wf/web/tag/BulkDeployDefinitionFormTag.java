@@ -24,11 +24,14 @@ import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.FileDataProvider;
+import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
+
+import static ru.runa.wf.web.tag.RedeployDefinitionFormTag.TYPE_DAYS_BEFORE_ARCHIVING;
 
 /**
  * Created 26.05.2014 bulkDeployDefinitionControlForm
@@ -41,14 +44,14 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
     public static final String TYPE_APPLYIES_TO_NEW_PROCESSES = "newProcesses";
     public static final String TYPE_APPLYIES_TO_ALL_PROCESSES = "allProcesses";
 
-    public static void fillTD(TD tdFormElement, Form form, String[] definitionTypes, User user, PageContext pageContext, WebHelper strutsWebHelper) {
+    public static void fillTD(TD tdFormElement, Form form, WfDefinition def, User user, PageContext pageContext, WebHelper strutsWebHelper) {
         form.setEncType(Form.ENC_UPLOAD);
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
-        table.addElement(createFileInputRow(MessagesProcesses.LABEL_DEFINITIONS_ARCHIVE.message(pageContext), FileForm.FILE_INPUT_NAME, "", true,
-                true, Input.FILE, strutsWebHelper));
+        table.addElement(createFileInputRow(MessagesProcesses.LABEL_DEFINITIONS_ARCHIVE.message(pageContext), FileForm.FILE_INPUT_NAME,
+                strutsWebHelper));
         DefinitionCategoriesIterator iterator = new DefinitionCategoriesIterator(user);
-        TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, definitionTypes, pageContext);
+        TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, def == null ? null : def.getCategories(), pageContext);
         table.addElement(HTMLUtils.createRow(Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.TYPE, pageContext),
                 hierarchyType));
         tdFormElement.addElement(table);
@@ -57,6 +60,13 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         TD labelTd = new TD(MessagesProcesses.LABEL_DEPLOY_APPLY_TYPE.message(pageContext));
         labelTd.setClass(Resources.CLASS_LIST_TABLE_TD);
         applicationTypeTr.addElement(labelTd);
+
+        Integer secondsBeforeArchiving = def == null ? null : def.getSecondsBeforeArchiving();
+        String daysBeforeArchiving = secondsBeforeArchiving == null ? "" : Integer.toString(secondsBeforeArchiving / 86400);
+        table.addElement(HTMLUtils.createRow(
+                MessagesProcesses.LABEL_DEFINITIONS_DAYS_BEFORE_ARCHIVING.message(pageContext),
+                new Input(Input.TEXT, TYPE_DAYS_BEFORE_ARCHIVING, daysBeforeArchiving).setStyle("width:100px")
+        ));
 
         TD td = new TD();
         Input applyingNewProcessInput = new Input(Input.RADIO, RedeployDefinitionFormTag.TYPE_UPDATE_CURRENT_VERSION, TYPE_APPLYIES_TO_NEW_PROCESSES);
@@ -80,7 +90,7 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected void fillFormData(TD tdFormElement) {
-        fillTD(tdFormElement, getForm(), getDefinition().getCategories(), getUser(), pageContext, new StrutsWebHelper(pageContext));
+        fillTD(tdFormElement, getForm(), getDefinition(), getUser(), pageContext, new StrutsWebHelper(pageContext));
     }
 
     @Override
@@ -118,8 +128,7 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE_DEFINITION, SecuredSingleton.SYSTEM);
     }
 
-    private static TR createFileInputRow(String label, String name, String value, boolean enabled, boolean required, String type,
-            WebHelper strutsWebHelper) {
+    private static TR createFileInputRow(String label, String name, WebHelper strutsWebHelper) {
         TR tr = new TR();
         TD labelTd = new TD(label);
         labelTd.setClass(Resources.CLASS_LIST_TABLE_TD);

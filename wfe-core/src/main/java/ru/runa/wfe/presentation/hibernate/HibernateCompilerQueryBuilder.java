@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.presentation.hibernate;
 
 import java.util.List;
@@ -72,13 +55,19 @@ public class HibernateCompilerQueryBuilder {
     public Query build() {
         hqlBuilder.build();
         String sqlRequest = translateToSQL();
-        if (parameters.isCountQuery() || parameters.isOnlyIdentityLoad()) {
-            return session.createSQLQuery(sqlRequest).setResultTransformer(CountIdResultTransformer.INSTANCE);
-        } else {
-            SQLQuery query = session.createSQLQuery(sqlRequest);
-            query.addEntity(batchPresentation.getType().getPresentationClass());
-            return query;
+        if (parameters.isCountQuery()) {
+            return session.createSQLQuery(sqlRequest).setResultTransformer(SingleValueResultTransformer.INSTANCE);
         }
+        String[] hqlFields = parameters.getOnlySpecificHqlFields();
+        if (hqlFields != null) {
+            return session.createSQLQuery(sqlRequest).setResultTransformer(
+                    hqlFields.length == 1 ? SingleValueResultTransformer.INSTANCE : TupleResultTransformer.INSTANCE
+            );
+        }
+
+        SQLQuery query = session.createSQLQuery(sqlRequest);
+        query.addEntity(batchPresentation.getType().getPresentationClass());
+        return query;
     }
 
     /**
@@ -118,7 +107,7 @@ public class HibernateCompilerQueryBuilder {
      *            SQL request to tune select clause.
      */
     private StringBuilder tuneSelectClause(StringBuilder sqlRequest) {
-        if (parameters.isCountQuery() || parameters.isOnlyIdentityLoad()) {
+        if (parameters.isCountQuery() || parameters.getOnlySpecificHqlFields() != null) {
             return sqlRequest;
         }
         int posDot = sqlRequest.indexOf(".");
@@ -130,14 +119,34 @@ public class HibernateCompilerQueryBuilder {
      * Used to load object's count and object's identities query. Oracle in object's identities query if setFirstResult is not 0 returns tuple:
      * [object id; row id].
      */
-    static class CountIdResultTransformer implements ResultTransformer {
+    static class SingleValueResultTransformer implements ResultTransformer {
         private static final long serialVersionUID = 1L;
 
-        public static final CountIdResultTransformer INSTANCE = new CountIdResultTransformer();
+        public static final SingleValueResultTransformer INSTANCE = new SingleValueResultTransformer();
 
         @Override
         public Object transformTuple(Object[] tuple, String[] aliases) {
             return tuple[0];
+        }
+
+        @Override
+        public List transformList(List collection) {
+            return collection;
+        }
+    }
+
+    /**
+     * Used to load object's count and object's identities query. Oracle in object's identities query if setFirstResult is not 0 returns tuple:
+     * [object id; row id].
+     */
+    static class TupleResultTransformer implements ResultTransformer {
+        private static final long serialVersionUID = 1L;
+
+        public static final TupleResultTransformer INSTANCE = new TupleResultTransformer();
+
+        @Override
+        public Object transformTuple(Object[] tuple, String[] aliases) {
+            return tuple;
         }
 
         @Override

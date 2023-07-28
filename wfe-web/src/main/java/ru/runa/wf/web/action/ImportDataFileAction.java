@@ -121,7 +121,7 @@ public class ImportDataFileAction extends ActionBase {
             data.validate(false);
 
             if (clearBeforeUpload) {
-                List<WfProcess> processes = Delegates.getExecutionService().getProcesses(user, BatchPresentationFactory.PROCESSES.createNonPaged());
+                List<WfProcess> processes = Delegates.getExecutionService().getProcesses(user, BatchPresentationFactory.CURRENT_PROCESSES.createNonPaged());
                 ProcessFilter processFilter = new ProcessFilter();
                 for (WfProcess process : processes) {
                     if (!Strings.isNullOrEmpty(process.getHierarchyIds())) {
@@ -164,7 +164,7 @@ public class ImportDataFileAction extends ActionBase {
                         BatchPresentationFactory.EXECUTORS.createNonPaged());
                 List<Long> ids = new ArrayList<>();
                 for (Executor executor : executors) {
-                    if (ApplicationContextFactory.getPermissionDAO().isPrivilegedExecutor(executor)) {
+                    if (ApplicationContextFactory.getPermissionDao().isPrivilegedExecutor(executor)) {
                         continue;
                     }
                     if (SystemExecutors.PROCESS_STARTER_NAME.equals(executor.getName())) {

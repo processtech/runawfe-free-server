@@ -1,16 +1,11 @@
 package ru.runa.wfe.office.storage.services;
 
-import com.google.common.collect.Maps;
-import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.Properties;
-import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.office.storage.StoreService;
 import ru.runa.wfe.office.storage.binding.DataBinding;
 import ru.runa.wfe.office.storage.binding.DataBindings;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
-import ru.runa.wfe.office.storage.binding.QueryType;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableProvider;
@@ -18,11 +13,7 @@ import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 
-@CommonsLog
 public class StoreHelper {
-
-    private Map<QueryType, Method> invocationMap = Maps.newHashMap();
-
     StoreService storeService;
 
     DataBindings config;

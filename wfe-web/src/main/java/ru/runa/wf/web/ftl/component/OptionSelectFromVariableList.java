@@ -1,15 +1,13 @@
 package ru.runa.wf.web.ftl.component;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionPostProcessor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.SelectableOption;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 public class OptionSelectFromVariableList extends FormComponent implements FormComponentSubmissionPostProcessor {
     private static final long serialVersionUID = 1L;
@@ -38,7 +36,7 @@ public class OptionSelectFromVariableList extends FormComponent implements FormC
                 optionLabel = executor.getLabel();
             } else {
                 optionValue = String.valueOf(option);
-                optionLabel = String.valueOf(option);
+                optionLabel = optionValue;
             }
             html.append("<option value=\"").append(optionValue).append("\"");
             if (Objects.equal(selectedValue, option)) {

@@ -1,29 +1,10 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.graph.view;
 
 import java.io.Serializable;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 
@@ -41,8 +22,11 @@ public class NodeGraphElement implements Serializable {
 
     /**
      * Process logs concerning this node, can be <code>null</code> if not entered yet.
+     *
+     * ATTENTION!!! Must be list of *class* BaseProcessLog, not *interface* ProcessLog,
+     * or it won't be handled by JAX-WS (Apache CXF would fail on startup).
      */
-    private List<ProcessLog> data;
+    private List<BaseProcessLog> data;
     private String label;
 
     /**
@@ -83,14 +67,14 @@ public class NodeGraphElement implements Serializable {
     /**
      * Some additional data, assigned to graph element.
      */
-    public List<ProcessLog> getData() {
+    public List<BaseProcessLog> getData() {
         return data;
     }
 
     /**
      * Some additional data, assigned to graph element.
      */
-    public void setData(List<ProcessLog> data) {
+    public void setData(List<BaseProcessLog> data) {
         this.data = data;
     }
 

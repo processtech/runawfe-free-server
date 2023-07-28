@@ -27,20 +27,20 @@ import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.bot.logic.BotLogic;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.script.AdminScriptOperationErrorHandler;
+import ru.runa.wfe.script.botstation.WfeScriptForBotStations;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.service.decl.BotServiceLocal;
 import ru.runa.wfe.service.decl.BotServiceRemote;
-import ru.runa.wfe.service.delegate.WfeScriptForBotStations;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
+import ru.runa.wfe.springframework4.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.user.User;
 
 /**

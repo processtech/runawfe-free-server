@@ -3,10 +3,10 @@ package ru.runa.wfe.lang;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.runa.wfe.audit.NodeEnterLog;
+import ru.runa.wfe.audit.CurrentNodeEnterLog;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.TokenDao;
+import ru.runa.wfe.execution.dao.CurrentTokenDao;
 
 /**
  * Used for embedded subprocess merging.
@@ -18,7 +18,11 @@ public class EmbeddedSubprocessStartNode extends StartNode implements BoundaryEv
     private static final long serialVersionUID = 1L;
     private SubprocessNode subprocessNode;
     @Autowired
-    private transient TokenDao tokenDao;
+    private transient CurrentTokenDao currentTokenDao;
+
+    public SubprocessNode getSubprocessNode() {
+        return subprocessNode;
+    }
 
     public void setSubprocessNode(SubprocessNode subprocessNode) {
         this.subprocessNode = subprocessNode;
@@ -40,21 +44,21 @@ public class EmbeddedSubprocessStartNode extends StartNode implements BoundaryEv
     @Override
     public void enter(ExecutionContext executionContext) {
         Preconditions.checkNotNull(subprocessNode, "subprocessNode");
-        executionContext.getToken().setNodeId(subprocessNode.getNodeId());
-        executionContext.addLog(new NodeEnterLog(subprocessNode));
+        executionContext.getCurrentToken().setNodeId(subprocessNode.getNodeId());
+        executionContext.addLog(new CurrentNodeEnterLog(subprocessNode));
         super.enter(executionContext);
     }
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
         // leave this token point to declared subprocessNode
-        executionContext.getToken().setNodeId(subprocessNode.getNodeId());
-        executionContext.getToken().setNodeType(subprocessNode.getNodeType());
-        executionContext.getToken().setNodeName(tokenNodeNameExtractor.extract(subprocessNode));
+        executionContext.getCurrentToken().setNodeId(subprocessNode.getNodeId());
+        executionContext.getCurrentToken().setNodeType(subprocessNode.getNodeType());
+        executionContext.getCurrentToken().setNodeName(tokenNodeNameExtractor.extract(subprocessNode));
         // run in child token to prevent boundary event cancellation from embedded subprocess
-        Token token = new Token(executionContext.getToken(), getNodeId());
-        tokenDao.flushPendingChanges();
-        leave(new ExecutionContext(executionContext.getProcessDefinition(), token));
+        CurrentToken token = new CurrentToken(executionContext.getCurrentToken(), getNodeId());
+        currentTokenDao.flushPendingChanges();
+        leave(new ExecutionContext(executionContext.getParsedProcessDefinition(), token));
     }
 
 }

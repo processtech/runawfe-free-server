@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.user.logic;
 
 import com.google.common.base.Strings;
@@ -34,6 +17,7 @@ import org.springframework.beans.factory.annotation.Required;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
+import ru.runa.wfe.digitalsignature.dao.DigitalSignatureDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
@@ -69,6 +53,8 @@ public class ExecutorLogic extends CommonLogic {
     @Autowired
     private SubstitutionDao substitutionDao;
     @Autowired
+    private DigitalSignatureDao digitalSignatureDao;
+    @Autowired
     private AuthorizationLogic authorizationLogic;
 
     @Required
@@ -88,6 +74,10 @@ public class ExecutorLogic extends CommonLogic {
     public Executor update(User user, Executor executor) {
         checkPermissionsOnExecutor(user, executor, Permission.UPDATE);
         return executorDao.update(executor);
+    }
+
+    public List<? extends Executor> getExecutors(User user, List<Long> ids) {
+        return executorDao.getExecutors(ids);
     }
 
     public List<? extends Executor> getExecutors(User user, BatchPresentation batchPresentation) {
@@ -124,6 +114,10 @@ public class ExecutorLogic extends CommonLogic {
         return checkPermissionsOnExecutor(user, executorDao.getActor(name), Permission.READ);
     }
 
+    public Actor getActor(User user, Long id) {
+        return checkPermissionsOnExecutor(user, executorDao.getActor(id), Permission.READ);
+    }
+
     public Actor getActorCaseInsensitive(String login) {
         return executorDao.getActorCaseInsensitive(login);
     }
@@ -132,12 +126,20 @@ public class ExecutorLogic extends CommonLogic {
         return checkPermissionsOnExecutor(user, executorDao.getGroup(name), Permission.READ);
     }
 
+    public Group getGroup(User user, Long id) {
+        return checkPermissionsOnExecutor(user, executorDao.getGroup(id), Permission.READ);
+    }
+
     public Executor getExecutor(User user, String name) {
         return checkPermissionsOnExecutor(user, executorDao.getExecutor(name), Permission.READ);
     }
 
     public boolean isAdministrator(User user) {
         return executorDao.isAdministrator(user.getActor());
+    }
+
+    public boolean isAdministrator(Actor actor) {
+        return executorDao.isAdministrator(actor);
     }
 
     public void remove(User user, List<Long> ids) {
@@ -152,8 +154,8 @@ public class ExecutorLogic extends CommonLogic {
         if (permissionDao.isPrivilegedExecutor(executor) || SystemExecutors.PROCESS_STARTER_NAME.equals(executor.getName())) {
             throw new AuthorizationException(executor.getName() + " can not be removed");
         }
-        Set<Long> processIds = processDao.getDependentProcessIds(executor);
-        if (processIds.size() > 0) {
+        Set<Long> processIds = processDao.getDependentProcessIds(executor, ExecutorParticipatesInProcessesException.LIMIT + 1);
+        if (!processIds.isEmpty()) {
             throw new ExecutorParticipatesInProcessesException(executor.getName(), processIds);
         }
         if (executor instanceof Actor) {
@@ -164,6 +166,8 @@ public class ExecutorLogic extends CommonLogic {
         relationPairDao.removeAllRelationPairs(executor);
         substitutionDao.deleteAllActorSubstitutions(executor.getId());
         executorDao.remove(executor);
+        digitalSignatureDao.remove(executor.getId());
+
     }
 
     public <T extends Executor> T create(User user, T executor) {

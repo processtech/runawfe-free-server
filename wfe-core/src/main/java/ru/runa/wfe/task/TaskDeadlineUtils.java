@@ -2,7 +2,6 @@ package ru.runa.wfe.task;
 
 import java.util.Calendar;
 import java.util.Date;
-
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 
@@ -40,7 +39,7 @@ public class TaskDeadlineUtils {
         Calendar endDateCal = CalendarUtil.dateToCalendar(endDate);
         Calendar startDateCal = CalendarUtil.dateToCalendar(startDate);
 
-        int days = 0;
+        int days;
         long periodMillis = endDateCal.getTimeInMillis() - startDateCal.getTimeInMillis();
 
         boolean isStartDateBeforeEndDate = false;

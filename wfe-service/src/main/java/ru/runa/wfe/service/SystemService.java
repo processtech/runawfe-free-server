@@ -22,10 +22,7 @@ public interface SystemService {
     void initialize();
 
     /**
-     * Logins to the system. Acquires {@link Permission#LOGIN_TO_SYSTEM} permission.
-     * 
-     * @param user
-     * @throws AuthorizationException
+     * Logins to the system. Requires {@link Permission#LOGIN} permission.
      */
     void login(User user) throws AuthorizationException;
 
@@ -36,8 +33,6 @@ public interface SystemService {
 
     /**
      * Get localization of string from database.
-     * 
-     * @param name
      * 
      * @return localized string
      */
@@ -101,7 +96,7 @@ public interface SystemService {
     /**
      * Export system data file
      */
-    byte[] exportDataFile(User user) throws AuthorizationException;
+    byte[] exportDataFile(User user);
 
     boolean isPasswordCheckRequired();
 

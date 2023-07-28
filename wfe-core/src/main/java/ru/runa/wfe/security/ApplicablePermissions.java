@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.security;
 
 import java.util.ArrayList;
@@ -40,8 +23,8 @@ import static ru.runa.wfe.security.Permission.READ_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.READ_PROCESS;
 import static ru.runa.wfe.security.Permission.START_PROCESS;
 import static ru.runa.wfe.security.Permission.UPDATE;
-import static ru.runa.wfe.security.Permission.UPDATE_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.UPDATE_ACTOR_STATUS;
+import static ru.runa.wfe.security.Permission.UPDATE_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.VIEW_LOGS;
 import static ru.runa.wfe.security.Permission.VIEW_TASKS;
 import static ru.runa.wfe.security.Permission.DELEGATE_TASKS;
@@ -213,11 +196,15 @@ public final class ApplicablePermissions {
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.DEFINITION, READ, UPDATE_PERMISSIONS, UPDATE, DELETE, START_PROCESS, READ_PROCESS, CANCEL_PROCESS)
+        add(SecuredObjectType.DEFINITION, READ, UPDATE_PERMISSIONS, READ, UPDATE, DELETE, START_PROCESS, READ_PROCESS, CANCEL_PROCESS)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS);
 
         add(SecuredObjectType.EXECUTOR, READ, UPDATE_PERMISSIONS, UPDATE, UPDATE_ACTOR_STATUS, VIEW_TASKS, DELEGATE_TASKS)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS);
+
+        add(SecuredObjectType.DIGITAL_SIGNATURE, READ, UPDATE_PERMISSIONS, UPDATE)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS);
 

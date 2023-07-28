@@ -2,7 +2,7 @@ package ru.runa.wfe.office.doc;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.AbstractVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
@@ -45,7 +45,7 @@ public class TestVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    public ProcessDefinition getProcessDefinition() {
+    public ParsedProcessDefinition getParsedProcessDefinition() {
         return null;
     }
 
@@ -72,5 +72,4 @@ public class TestVariableProvider extends AbstractVariableProvider {
     public WfVariable getVariable(String variableName) {
         return variables.get(variableName);
     }
-
 }

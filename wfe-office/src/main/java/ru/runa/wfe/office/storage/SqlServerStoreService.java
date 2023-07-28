@@ -71,5 +71,4 @@ public class SqlServerStoreService extends JdbcStoreService {
         }
         return super.adjustValue(value);
     }
-
 }

@@ -50,9 +50,7 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
 
 @CommonsLog
 public class StoreServiceImpl implements StoreService {
-
     private static final int START_ROW_INDEX = 0;
-
     private static final String DEFAULT_TABLE_NAME_PREFIX = "SHEET";
     private static final String XLSX_SUFFIX = ".xlsx";
 

@@ -1,7 +1,6 @@
 package ru.runa.wfe.chat.logic;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -9,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatRoom;
@@ -32,6 +32,7 @@ import ru.runa.wfe.chat.mapper.MessageAddedBroadcastMapper;
 import ru.runa.wfe.chat.utils.RecipientCalculator;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -43,6 +44,7 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.Variable;
 
+@Component
 @MonitoredWithSpring
 public class ChatLogic extends WfCommonLogic {
     @Autowired
@@ -68,9 +70,9 @@ public class ChatLogic extends WfCommonLogic {
 
     public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(User user, AddMessageRequest request) {
         final ChatMessage newMessage = messageRequestMapper.toEntity(request);
-        newMessage.setCreateActor(user.getActor());
+        newMessage.setCreateActor(executorLogic.getActor(user, user.getActor().getName()));
         final long processId = request.getProcessId();
-        final Set<Actor> recipients = recipientCalculator.calculateRecipients(user, request.getIsPrivate(), request.getMessage(), processId);
+        final Set<Actor> recipients = recipientCalculator.calculateRecipients(user, request.getIsPrivate(), request.getText(), processId);
 
         MessageAddedBroadcast messageAddedBroadcast;
         if (request.getFiles() != null) {
@@ -88,8 +90,8 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public WfChatMessageBroadcast<MessageEditedBroadcast> editMessage(User user, EditMessageRequest request) {
-        final ChatMessage message = chatMessageDao.getNotNull(request.getEditMessageId());
-        message.setText(request.getMessage());
+        final ChatMessage message = chatMessageDao.getNotNull(request.getId());
+        message.setText(request.getText());
         if (!message.getCreateActor().equals(user.getActor())) {
             throw new AuthorizationException("Allowed for author only");
         }
@@ -105,12 +107,12 @@ public class ChatLogic extends WfCommonLogic {
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException("Allowed for admin only");
         }
-        final ChatMessage message = chatMessageDao.getNotNull(request.getMessageId());
+        final ChatMessage message = chatMessageDao.getNotNull(request.getId());
         final Set<Actor> recipients = getRecipientsByMessageId(message.getId());
         fileDao.deleteByMessage(message);
         recipientDao.deleteByMessageId(message.getId());
         chatMessageDao.delete(message.getId());
-        return new WfChatMessageBroadcast<>(new MessageDeletedBroadcast(request.getProcessId(), request.getMessageId(), user.getName()), recipients);
+        return new WfChatMessageBroadcast<>(new MessageDeletedBroadcast(request.getProcessId(), request.getId(), user.getName()), recipients);
     }
 
     public ChatMessage getMessageById(User user, Long messageId) {
@@ -170,11 +172,12 @@ public class ChatLogic extends WfCommonLogic {
         return new HashSet<>(recipientDao.getRecipientsByMessageId(messageId));
     }
 
+    @SuppressWarnings("rawtypes")
     private List<WfChatRoom> toWfChatRooms(List<ChatRoom> chatRooms, List<String> variableNamesToInclude) {
-        Map<Process, Map<String, Variable<?>>> variables = getVariables(chatRooms, variableNamesToInclude);
+        Map<Process, Map<String, Variable>> variables = getVariables(chatRooms, variableNamesToInclude);
         List<WfChatRoom> wfChatRooms = Lists.newArrayListWithExpectedSize(chatRooms.size());
         for (ChatRoom room : chatRooms) {
-            Process process = room.getProcess();
+            CurrentProcess process = room.getProcess();
             WfChatRoom wfChatRoom = new WfChatRoom(process, executionLogic.getProcessErrors(process), room.getNewMessagesCount());
             wfChatRoom.getProcess().addAllVariables(executionLogic.getVariables(variableNamesToInclude, variables, process));
             wfChatRooms.add(wfChatRoom);
@@ -182,8 +185,9 @@ public class ChatLogic extends WfCommonLogic {
         return wfChatRooms;
     }
 
-    private Map<Process, Map<String, Variable<?>>> getVariables(List<ChatRoom> chatRooms, List<String> variableNamesToInclude) {
-        Set<Process> processes = Sets.newHashSetWithExpectedSize(chatRooms.size());
+    @SuppressWarnings("rawtypes")
+    private Map<Process, Map<String, Variable>> getVariables(List<ChatRoom> chatRooms, List<String> variableNamesToInclude) {
+        List<CurrentProcess> processes = new ArrayList<>(chatRooms.size());
         for (ChatRoom room : chatRooms) {
             processes.add(room.getProcess());
         }

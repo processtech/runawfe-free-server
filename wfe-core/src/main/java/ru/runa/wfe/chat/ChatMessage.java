@@ -17,7 +17,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.user.Actor;
 
 @Getter
@@ -43,7 +43,7 @@ public class ChatMessage implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn(name = "PROCESS_ID")
     @ForeignKey(name = "FK_CHAT_MESSAGE_PROCESS_ID")
-    private Process process;
+    private CurrentProcess process;
 
     @Column(name = "TEXT", length = 2048)
     private String shortText;

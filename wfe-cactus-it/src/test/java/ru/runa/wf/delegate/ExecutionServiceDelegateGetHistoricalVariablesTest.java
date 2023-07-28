@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.delegate;
 
 import com.google.common.collect.Lists;
@@ -448,7 +431,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
             WfServiceTestHelper th2 = testInstance.h;
             User user = th2.getAuthorizedUser();
             WfProcess process = th2.getExecutionService().getProcess(user, testInstance.processId);
-            UserTypeMap type = new UserTypeMap(th2.getDefinitionService().getUserType(user, process.getDefinitionId(), "UT"));
+            UserTypeMap type = new UserTypeMap(th2.getDefinitionService().getUserType(user, process.getDefinitionVersionId(), "UT"));
             type.put("fieldLong", longVal);
             type.put("fieldString", str);
             type.put("fieldListString", list);
@@ -460,7 +443,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
             WfServiceTestHelper th2 = testInstance.h;
             User user = th2.getAuthorizedUser();
             WfProcess process = th2.getExecutionService().getProcess(user, testInstance.processId);
-            UserTypeMap type = new UserTypeMap(th2.getDefinitionService().getUserType(user, process.getDefinitionId(), "UK"));
+            UserTypeMap type = new UserTypeMap(th2.getDefinitionService().getUserType(user, process.getDefinitionVersionId(), "UK"));
             type.put("fieldStringK", str);
             type.put("fieldLongK", longVal);
             return type;

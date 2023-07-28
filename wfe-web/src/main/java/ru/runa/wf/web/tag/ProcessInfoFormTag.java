@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.web.tag;
 
 import com.google.common.collect.Maps;
@@ -53,8 +36,8 @@ import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.execution.CurrentProcessClassPresentation;
 import ru.runa.wfe.execution.ExecutionStatus;
-import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.security.Permission;
@@ -129,15 +112,15 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
 
         TR nameTR = new TR();
         table.addElement(nameTR);
-        String definitionName = Messages.getMessage(ClassPresentationType.PROCESS, ProcessClassPresentation.DEFINITION_NAME,
+        String definitionName = Messages.getMessage(ClassPresentationType.CURRENT_PROCESS, CurrentProcessClassPresentation.DEFINITION_NAME,
                 pageContext);
         nameTR.addElement(new TD(definitionName).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         Element processDefinitionHref;
         try {
             WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getUser(), process.getDefinitionId());
-            String url = Commons.getActionUrl(ru.runa.common.WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME, definition.getId(),
-                    pageContext, PortletUrlType.Render);
+            String url = Commons.getActionUrl(ru.runa.common.WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME,
+                    definition.getId(), pageContext, PortletUrlType.Render);
             processDefinitionHref = new A(url, process.getName());
         } catch (Exception e) {
             processDefinitionHref = new StringElement(process.getName());
@@ -146,13 +129,13 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
 
         TR processIdTR = new TR();
         table.addElement(processIdTR);
-        String idName = Messages.getMessage(ClassPresentationType.PROCESS, ProcessClassPresentation.PROCESS_ID, pageContext);
+        String idName = Messages.getMessage(ClassPresentationType.CURRENT_PROCESS, CurrentProcessClassPresentation.PROCESS_ID, pageContext);
         processIdTR.addElement(new TD(idName).setClass(Resources.CLASS_LIST_TABLE_TD));
         processIdTR.addElement(new TD(String.valueOf(process.getId())).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         TR versionTR = new TR();
         table.addElement(versionTR);
-        String definitionVersion = Messages.getMessage(ClassPresentationType.PROCESS, ProcessClassPresentation.DEFINITION_VERSION,
+        String definitionVersion = Messages.getMessage(ClassPresentationType.CURRENT_PROCESS, CurrentProcessClassPresentation.DEFINITION_VERSION,
                 pageContext);
         versionTR.addElement(new TD(definitionVersion).setClass(Resources.CLASS_LIST_TABLE_TD));
         Element versionElement = new StringElement(String.valueOf(process.getVersion()));
@@ -161,14 +144,16 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
 
         TR startedTR = new TR();
         table.addElement(startedTR);
-        String startedName = Messages.getMessage(ClassPresentationType.PROCESS, ProcessClassPresentation.PROCESS_START_DATE, pageContext);
+        String startedName = Messages.getMessage(ClassPresentationType.CURRENT_PROCESS, CurrentProcessClassPresentation.PROCESS_START_DATE,
+                pageContext);
         startedTR.addElement(new TD(startedName).setClass(Resources.CLASS_LIST_TABLE_TD));
         startedTR.addElement(new TD(CalendarUtil.formatDateTime(process.getStartDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         if (WebResources.isProcessExternalDataEnabled()) {
             TR externalIdTR = new TR();
             table.addElement(externalIdTR);
-            String definitionExternalId = Messages.getMessage(ClassPresentationType.PROCESS, ProcessClassPresentation.EXTERNAL_ID, pageContext);
+            String definitionExternalId = Messages.getMessage(ClassPresentationType.CURRENT_PROCESS, CurrentProcessClassPresentation.EXTERNAL_ID,
+                    pageContext);
             externalIdTR.addElement(new TD(definitionExternalId).setClass(Resources.CLASS_LIST_TABLE_TD));
             if (WebResources.getExternalDataUrl() != null && process.getExternalData() != null) {
                 String link = WebResources.getExternalDataUrl().replace("{id}", process.getExternalData().toString());
@@ -232,7 +217,8 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
                 throw new InternalApplicationException(String.valueOf(process.getExecutionStatus()));
             }
             TR statusTR = new TR();
-            String statusLabel = Messages.getMessage(ClassPresentationType.PROCESS, ProcessClassPresentation.PROCESS_EXECUTION_STATUS, pageContext);
+            String statusLabel = Messages.getMessage(ClassPresentationType.CURRENT_PROCESS, CurrentProcessClassPresentation.PROCESS_EXECUTION_STATUS,
+                    pageContext);
             statusTR.addElement(new TD(statusLabel).setClass(Resources.CLASS_LIST_TABLE_TD));
             statusTR.addElement(new TD(statusElement).setClass(Resources.CLASS_LIST_TABLE_TD));
             table.addElement(statusTR);

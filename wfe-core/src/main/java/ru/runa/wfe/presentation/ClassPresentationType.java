@@ -9,8 +9,9 @@ import ru.runa.wfe.chat.ChatRoomClassPresentation;
 import ru.runa.wfe.commons.error.TokenErrorClassPresentation;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.DefinitionHistoryClassPresentation;
-import ru.runa.wfe.execution.ProcessClassPresentation;
-import ru.runa.wfe.execution.ProcessWithTasksClassPresentation;
+import ru.runa.wfe.execution.ArchivedProcessClassPresentation;
+import ru.runa.wfe.execution.CurrentProcessClassPresentation;
+import ru.runa.wfe.execution.CurrentProcessWithTasksClassPresentation;
 import ru.runa.wfe.relation.RelationClassPresentation;
 import ru.runa.wfe.relation.RelationPairClassPresentation;
 import ru.runa.wfe.report.ReportClassPresentation;
@@ -22,19 +23,20 @@ import ru.runa.wfe.user.GroupClassPresentation;
 
 public enum ClassPresentationType {
     NONE(null, ""),
-    SYSTEM_LOG(SystemLogClassPresentation.getInstance(), "system_log"),
-    EXECUTOR(ExecutorClassPresentation.getInstance(), "executor"),
-    ACTOR(ActorClassPresentation.getInstance(), ""),
-    GROUP(GroupClassPresentation.getInstance(), "group"),
-    RELATION(RelationClassPresentation.getInstance(), "relation"),
-    RELATIONPAIR(RelationPairClassPresentation.getInstance(), "relationpair"),
-    DEFINITION(DefinitionClassPresentation.getInstance(), "process_definition"),
-    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.getInstance(), "process_definition"),
-    PROCESS(ProcessClassPresentation.getInstance(), "process"),
-    PROCESS_WITH_TASKS(ProcessWithTasksClassPresentation.getInstance(), "process"),
-    TASK(TaskClassPresentation.getInstance(), "task"),
-    TASK_OBSERVABLE(TaskObservableClassPresentation.getInstance(), "task"),
-    REPORTS(ReportClassPresentation.getInstance(), "report"),
+    SYSTEM_LOG(SystemLogClassPresentation.INSTANCE, "system_log"),
+    EXECUTOR(ExecutorClassPresentation.INSTANCE, "executor"),
+    ACTOR(ActorClassPresentation.INSTANCE, ""),
+    GROUP(GroupClassPresentation.INSTANCE, "group"),
+    RELATION(RelationClassPresentation.INSTANCE, "relation"),
+    RELATIONPAIR(RelationPairClassPresentation.INSTANCE, "relationpair"),
+    DEFINITION(DefinitionClassPresentation.INSTANCE, "process_definition"),
+    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.INSTANCE, "process_definition"),
+    ARCHIVED_PROCESS(ArchivedProcessClassPresentation.INSTANCE, "process"),
+    CURRENT_PROCESS(CurrentProcessClassPresentation.INSTANCE, "process"),
+    CURRENT_PROCESS_WITH_TASKS(CurrentProcessWithTasksClassPresentation.INSTANCE, "process"),
+    TASK(TaskClassPresentation.INSTANCE, "task"),
+    TASK_OBSERVABLE(TaskObservableClassPresentation.INSTANCE, "task"),
+    REPORTS(ReportClassPresentation.INSTANCE, "report"),
     TOKEN_ERRORS(TokenErrorClassPresentation.getInstance(), "error"),
     CHAT_ROOM(ChatRoomClassPresentation.getInstance(), "process");
 

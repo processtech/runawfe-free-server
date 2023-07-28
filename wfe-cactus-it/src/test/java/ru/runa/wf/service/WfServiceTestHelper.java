@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.service;
 
 import com.google.common.collect.Lists;
@@ -172,7 +155,7 @@ public class WfServiceTestHelper extends ServiceTestHelper {
     public void deployValidProcessDefinition() {
         try {
             setPermissionsToAuthorizedActor(Lists.newArrayList(Permission.CREATE_DEFINITION), SecuredSingleton.SYSTEM);
-            definitionService.deployProcessDefinition(getAuthorizedUser(), getValidProcessDefinition(), Lists.newArrayList("testProcess"));
+            definitionService.deployProcessDefinition(getAuthorizedUser(), getValidProcessDefinition(), Lists.newArrayList("testProcess"), null);
             setPermissionsToAuthorizedActor(Lists.newArrayList(), SecuredSingleton.SYSTEM);
         } catch (DefinitionAlreadyExistException e) {
             // Ignore.
@@ -188,7 +171,8 @@ public class WfServiceTestHelper extends ServiceTestHelper {
         try {
             setPermissionsToAuthorizedActor(Lists.newArrayList(Permission.CREATE_DEFINITION), SecuredSingleton.SYSTEM);
             definitionService.deployProcessDefinition(getAuthorizedUser(), readBytesFromFile(parResourceName),
-                    Lists.newArrayList("testProcess"));
+ Lists.newArrayList("testProcess"),
+                    null);
             setPermissionsToAuthorizedActor(Lists.newArrayList(), SecuredSingleton.SYSTEM);
         } catch (DefinitionAlreadyExistException e) {
             // Ignore.
@@ -221,11 +205,11 @@ public class WfServiceTestHelper extends ServiceTestHelper {
     }
 
     public BatchPresentation getProcessInstanceBatchPresentation() {
-        return BatchPresentationFactory.PROCESSES.createDefault();
+        return BatchPresentationFactory.CURRENT_PROCESSES.createDefault();
     }
 
     public BatchPresentation getProcessInstanceBatchPresentation(String presentationId) {
-        return BatchPresentationFactory.PROCESSES.createDefault(presentationId);
+        return BatchPresentationFactory.CURRENT_PROCESSES.createDefault(presentationId);
     }
 
     public BatchPresentation getTaskBatchPresentation() {
@@ -233,7 +217,7 @@ public class WfServiceTestHelper extends ServiceTestHelper {
     }
 
     public BatchPresentation getTaskBatchPresentation(String presentationId) {
-        return BatchPresentationFactory.PROCESSES.createDefault(presentationId);
+        return BatchPresentationFactory.CURRENT_PROCESSES.createDefault(presentationId);
     }
 
     @SneakyThrows

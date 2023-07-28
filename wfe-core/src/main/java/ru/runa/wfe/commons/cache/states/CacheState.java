@@ -1,22 +1,46 @@
 package ru.runa.wfe.commons.cache.states;
 
 import javax.transaction.Transaction;
-
+import lombok.NonNull;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.cache.sm.CacheStateMachineContext;
+import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
+import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
 
 /**
  * Interface for every state of cache lifetime state machine.
  */
-public interface CacheState<CacheImpl extends CacheImplementation, StateContext> {
+public abstract class CacheState<CacheImpl extends CacheImplementation> {
+    protected final Log log = LogFactory.getLog(getClass());
+    protected final CacheStateMachine<CacheImpl> owner;
+
+    public CacheState(@NonNull CacheStateMachine<CacheImpl> owner) {
+        this.owner = owner;
+    }
+
+    protected final CacheStateMachine<CacheImpl> getStateMachine() {
+        return owner;
+    }
+
+    protected final SMCacheFactory<CacheImpl> getCacheFactory() {
+        return owner.getCacheFactory();
+    }
+
+    protected final CacheStateFactory<CacheImpl> getStateFactory() {
+        return owner.getStateFactory();
+    }
+
 
     /**
      * Check if dirty transactions exists for cache.
      *
      * @return Return true, if dirty transaction exists and false otherwise.
      */
-    boolean isDirtyTransactionExists();
+    public boolean isDirtyTransactionExists() {
+        return false;
+    }
 
     /**
      * Check if transaction is dirty for cache.
@@ -25,7 +49,9 @@ public interface CacheState<CacheImpl extends CacheImplementation, StateContext>
      *            Transaction to check.
      * @return Return true, if transaction is dirty and false otherwise.
      */
-    boolean isDirtyTransaction(Transaction transaction);
+    public boolean isDirtyTransaction(Transaction transaction) {
+        return false;
+    }
 
     /**
      * Fast attempt to get cache. State may return cache only if it already created. No building is allowed.
@@ -35,101 +61,86 @@ public interface CacheState<CacheImpl extends CacheImplementation, StateContext>
      *
      * @return Returns already builded cache or null, if no cache is builded yet.
      */
-    CacheImpl getCacheQuickNoBuild(Transaction transaction);
+    public abstract CacheImpl getCacheQuickNoBuild(Transaction transaction);
 
     /**
      * Called to get cache. Cache must be created in all case.
      *
-     * @param context
-     *            Cache state machine context with common used data.
      * @param transaction
      *            Transaction, which requested cache.
      * @return Returns next state and cache. Next state may be null if no state change is required.
      */
-    StateCommandResultWithCache<CacheImpl, StateContext> getCache(CacheStateMachineContext<CacheImpl, StateContext> context, Transaction transaction);
+    public abstract StateCommandResultWithCache<CacheImpl> getCache(Transaction transaction);
 
     /**
      * Called to get cache. Must returns null (or already created cache) if cache is locked (has dirty transactions): no cache creation is allowed
      * (return as fast as possible). If cache is not locked, then creates cache.
      *
-     * @param context
-     *            Cache state machine context with common used data.
      * @param transaction
      *            Transaction, which requested cache.
      * @return Returns next state and cache. Next state may be null if no state change is required. Cache may be null, if cache is locked.
      */
-    StateCommandResultWithCache<CacheImpl, StateContext> getCacheIfNotLocked(CacheStateMachineContext<CacheImpl, StateContext> context,
-            Transaction transaction);
+    public abstract StateCommandResultWithCache<CacheImpl> getCacheIfNotLocked(Transaction transaction);
 
     /**
      * Notification about changed object. This method MUST return new state; if new state not created then we have a rise condition: starting
      * initialize process after not completed changing transaction.
      *
-     * @param context
-     *            Cache state machine context with common used data.
      * @param transaction
      *            Transaction, which change persistent object.
      * @param changedObject
      *            Changed object description.
      * @return Returns next state is mandatory.
      */
-    StateCommandResult<CacheImpl, StateContext> onChange(CacheStateMachineContext<CacheImpl, StateContext> context, Transaction transaction,
-            ChangedObjectParameter changedObject);
+    public abstract StateCommandResult<CacheImpl> onChange(Transaction transaction, ChangedObjectParameter changedObject);
 
     /**
      * Notifies about prepare to transaction completion.
      *
-     * @param context
-     *            Cache state machine context with common used data.
      * @param transaction
      *            Transaction, which will be completed.
      * @return Returns next state. Next state may be null if no state change is required.
      */
-    StateCommandResult<CacheImpl, StateContext> beforeTransactionComplete(CacheStateMachineContext<CacheImpl, StateContext> context,
-            Transaction transaction);
+    public abstract StateCommandResult<CacheImpl> onBeforeTransactionComplete(Transaction transaction);
 
     /**
      * Notifies cache about transaction completion. This method MUST return new state. if new state not created then we have a rise condition:
      * changing transaction may switch to new state, where current transaction is not marked as completed.
      *
-     * @param context
-     *            Cache state machine context with common used data.
      * @param transaction
      *            Completed transaction (committed or rollbacked).
      * @return Returns next state and all dirty transaction reset flag. Flag equals true, if no dirty transaction left and false otherwise.
      */
-    StateCommandResultWithData<CacheImpl, Boolean, StateContext> completeTransaction(CacheStateMachineContext<CacheImpl, StateContext> context,
-            Transaction transaction);
+    public abstract StateCommandResultWithData<CacheImpl, Boolean> onAfterTransactionComplete(Transaction transaction);
 
     /**
      * Commits (accept) initialized cache.
      *
-     * @param context
-     *            Cache state machine context with common used data.
      * @param cache
      *            Initialized cache to commit (accept).
      * @return Returns next state. Next state may be null if no state change is required.
      */
-    StateCommandResult<CacheImpl, StateContext> commitCache(CacheStateMachineContext<CacheImpl, StateContext> context, CacheImpl cache);
+    public StateCommandResult<CacheImpl> commitCache(CacheImpl cache) {
+        log.error("commitCache must not be called on " + this);
+        return StateCommandResult.createNoStateSwitch();
+    }
 
     /**
      * Discard this state. All lazy work must not be done - this state and caches from it will not be used.
      */
-    void discard();
+    public void discard() {
+    }
 
     /**
      * Accept this state. Called then state is accepted by state machine. Delayed initialization may be started.
-     *
-     * @param context
-     *            Cache state machine context with common used data.
      */
-    void accept(CacheStateMachineContext<CacheImpl, StateContext> context);
+    public void accept() {
+    }
 
     /**
      * Called to drop cache instance. It must be changed to empty.
-     *
-     * @param context
-     *            Cache state machine context with common used data.
      */
-    StateCommandResult<CacheImpl, StateContext> dropCache(CacheStateMachineContext<CacheImpl, StateContext> context);
+    public StateCommandResult<CacheImpl> dropCache() {
+        return StateCommandResult.create(getStateFactory().createEmptyState(null));
+    }
 }

@@ -42,7 +42,6 @@ public interface ReportService {
      *            parameters.
      * @param reportFileContent
      *            Report file content (jasper file).
-     * @return
      */
     List<WfReportParameter> analyzeReportFile(WfReport report, byte[] reportFileContent);
 

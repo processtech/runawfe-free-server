@@ -24,7 +24,7 @@ import ru.runa.wfe.history.graph.HistoryGraphParallelNodeModel;
 import ru.runa.wfe.history.graph.HistoryGraphTransitionModel;
 import ru.runa.wfe.history.layout.NodeLayoutData;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.user.Actor;
 
@@ -33,9 +33,9 @@ import ru.runa.wfe.user.Actor;
  */
 public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<CreateGraphElementPresentationContext> {
 
-    private final List<NodeGraphElement> elements = new ArrayList<NodeGraphElement>();
+    private final List<NodeGraphElement> elements = new ArrayList<>();
     private final GraphHistoryBuilderData data;
-    private final HashSet<HistoryGraphNode> visited = new HashSet<HistoryGraphNode>();
+    private final HashSet<HistoryGraphNode> visited = new HashSet<>();
 
     public CreateGraphElementPresentation(GraphHistoryBuilderData data) {
         super();
@@ -70,8 +70,8 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
     }
 
     private void addedTooltipOnGraph(HistoryGraphNode historyNode) {
-        NodeEnterLog nodeEnterLog = historyNode.getNodeLog(NodeEnterLog.class);
-        NodeLeaveLog nodeLeaveLog = historyNode.getNodeLog(NodeLeaveLog.class);
+        NodeEnterLog nodeEnterLog = historyNode.getNodeLog(ProcessLog.Type.NODE_ENTER);
+        NodeLeaveLog nodeLeaveLog = historyNode.getNodeLog(ProcessLog.Type.NODE_LEAVE);
         if (nodeEnterLog == null) {
             return;
         }
@@ -82,14 +82,14 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
         case SUBPROCESS:
             element = new SubprocessNodeGraphElement();
             ((SubprocessNodeGraphElement) element).setSubprocessAccessible(true);
-            SubprocessStartLog startSub = historyNode.getNodeLog(SubprocessStartLog.class);
+            SubprocessStartLog startSub = historyNode.getNodeLog(ProcessLog.Type.SUBPROCESS_START);
             if (startSub != null) {
                 ((SubprocessNodeGraphElement) element).setSubprocessId(startSub.getSubprocessId());
                 break;
             }
             if (((SubprocessNode) historyNode.getNode()).isEmbedded()) {
                 NodeEnterLog subprocessLog = null;
-                for (NodeEnterLog candidate : historyNode.getNodeLogs(NodeEnterLog.class)) {
+                for (NodeEnterLog candidate : historyNode.<NodeEnterLog>getNodeLogs(ProcessLog.Type.NODE_ENTER)) {
                     if (candidate.getNodeType() == NodeType.SUBPROCESS) {
                         subprocessLog = candidate;
                         break;
@@ -99,7 +99,7 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
                     return;
                 }
                 ((SubprocessNodeGraphElement) element).setSubprocessId(subprocessLog.getProcessId());
-                SubprocessDefinition subprocessDefinition = data.getEmbeddedSubprocess(((SubprocessNode) historyNode.getNode()).getSubProcessName());
+                ParsedSubprocessDefinition subprocessDefinition = data.getEmbeddedSubprocess(((SubprocessNode) historyNode.getNode()).getSubProcessName());
                 ((SubprocessNodeGraphElement) element).setEmbeddedSubprocessId(subprocessDefinition.getNodeId());
                 ((SubprocessNodeGraphElement) element).setEmbeddedSubprocessGraphWidth(subprocessDefinition.getGraphConstraints()[2]);
                 ((SubprocessNodeGraphElement) element).setEmbeddedSubprocessGraphHeight(subprocessDefinition.getGraphConstraints()[3]);
@@ -114,7 +114,7 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
             break;
         case MULTI_SUBPROCESS:
             element = new MultiSubprocessNodeGraphElement();
-            for (SubprocessStartLog subprocessStartLog : historyNode.getNodeLogs(SubprocessStartLog.class)) {
+            for (SubprocessStartLog subprocessStartLog : historyNode.<SubprocessStartLog>getNodeLogs(ProcessLog.Type.SUBPROCESS_START)) {
                 ((MultiSubprocessNodeGraphElement) element).addSubprocessInfo(subprocessStartLog.getSubprocessId(), true, false);
             }
             break;
@@ -135,11 +135,11 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
         if (nodeType.equals(NodeType.SUBPROCESS) || nodeType.equals(NodeType.MULTI_SUBPROCESS)) {
             element.setLabel("Time period is " + executionPeriodString);
         } else if (nodeType.equals(NodeType.TASK_STATE)) {
-            StringBuffer str = new StringBuffer();
-            TaskEndLog taskEndLog = historyNode.getNodeLog(TaskEndLog.class);
+            StringBuilder str = new StringBuilder();
+            TaskEndLog taskEndLog = historyNode.getNodeLog(ProcessLog.Type.TASK_END);
             if (taskEndLog != null) {
                 String actorName = taskEndLog.getActorName();
-                Actor actor = ApplicationContextFactory.getExecutorDAO().getActor(actorName);
+                Actor actor = ApplicationContextFactory.getExecutorDao().getActor(actorName);
                 if (actor != null) {
                     if (actor.getFullName() != null) {
                         str.append("Full Name is " + actor.getFullName() + ".</br>");
@@ -148,7 +148,7 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
                 }
             }
 
-            str.append("Time period is " + executionPeriodString + ".");
+            str.append("Time period is ").append(executionPeriodString).append(".");
             element.setLabel(str.toString());
         }
         elements.add(element);

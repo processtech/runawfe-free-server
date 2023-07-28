@@ -1,14 +1,13 @@
 package ru.runa.wfe.audit;
 
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
 public class ProcessLogFilter implements Serializable {
     private static final long serialVersionUID = 1L;
-    private String rootClassName = ProcessLog.class.getName();
+    private ProcessLog.Type type;
     private Long idFrom;
     private Long idTo;
     private Date createDateFrom;
@@ -27,7 +26,7 @@ public class ProcessLogFilter implements Serializable {
     }
 
     public ProcessLogFilter(ProcessLogFilter filter) {
-        this.rootClassName = filter.rootClassName;
+        this.type = filter.type;
         this.idFrom = filter.idFrom;
         this.idTo = filter.idTo;
         this.createDateFrom = filter.createDateFrom;
@@ -39,12 +38,15 @@ public class ProcessLogFilter implements Serializable {
         this.severities = filter.severities;
     }
 
-    public String getRootClassName() {
-        return rootClassName;
+    public ProcessLog.Type getType() {
+        if (type == null) {
+            return ProcessLog.Type.ALL;
+        }
+        return type;
     }
 
-    public void setRootClassName(String rootClassName) {
-        this.rootClassName = rootClassName;
+    public void setType(ProcessLog.Type type) {
+        this.type = type;
     }
 
     public Long getIdFrom() {

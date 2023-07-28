@@ -1,25 +1,9 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.relation.logic;
 
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -44,6 +28,7 @@ import ru.runa.wfe.user.User;
  * 
  * @author Konstantinov Aleksey 12.02.2012
  */
+@Component
 public class RelationLogic extends CommonLogic {
     @Autowired
     private RelationDao relationDao;
@@ -67,6 +52,23 @@ public class RelationLogic extends CommonLogic {
         permissionDao.checkAllowed(user, Permission.UPDATE, SecuredObjectType.RELATION, relationId);
         Relation relation = relationDao.getNotNull(relationId);
         return relationPairDao.addRelationPair(relation, left, right);
+    }
+
+    /**
+     * Add {@link RelationPair} to {@link Relation} with specified name.
+     *
+     * @param user
+     *            user, which perform operation.
+     * @param relationId
+     *            Relation id.
+     * @param leftId
+     *            Id of left part of relation pair.
+     * @param rightId
+     *            Id of right part of relation pair.
+     * @return Created relation pair.
+     */
+    public RelationPair addRelationPair(User user, Long relationId, Long leftId, Long rightId) {
+        return addRelationPair(user, relationId, executorDao.getExecutor(leftId), executorDao.getExecutor(rightId));
     }
 
     /**

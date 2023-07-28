@@ -8,14 +8,14 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.security.SecuredObjectBase;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class WfTokenError extends SecuredObjectBase {
+public class WfTokenError extends SecuredObject {
     private static final long serialVersionUID = 1L;
     private Long id;
     private Long processId;
@@ -34,11 +34,10 @@ public class WfTokenError extends SecuredObjectBase {
     public WfTokenError(Token token, String stackTrace) {
         this.id = token.getId();
         this.processId = token.getProcess().getId();
-        ProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader()
-                .getDefinition(token.getProcess().getDeployment().getId());
-        this.processType = processDefinition.getDeployment().getCategory();
+        ParsedProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(token.getProcess());
+        this.processType = processDefinition.getCategory();
         this.processName = processDefinition.getName();
-        this.processVersion = processDefinition.getDeployment().getVersion();
+        this.processVersion = processDefinition.getVersion();
         this.processExecutionStatus = token.getProcess().getExecutionStatus();
         this.nodeId = token.getNodeId();
         this.nodeName = token.getNodeName();

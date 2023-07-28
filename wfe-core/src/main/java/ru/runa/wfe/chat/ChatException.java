@@ -7,4 +7,5 @@ public abstract class ChatException extends RuntimeException {
     }
     
     public abstract int getErrorCode();
+
 }

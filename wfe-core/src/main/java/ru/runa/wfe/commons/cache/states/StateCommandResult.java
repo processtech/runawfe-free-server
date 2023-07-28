@@ -5,20 +5,20 @@ import ru.runa.wfe.commons.cache.CacheImplementation;
 /**
  * Command result on state machine state method call.
  */
-public class StateCommandResult<CacheImpl extends CacheImplementation, StateContext> {
+public class StateCommandResult<CacheImpl extends CacheImplementation> {
     /**
      * Next state for state machine. May be null, if no state change required.
      */
-    private final CacheState<CacheImpl, StateContext> nextState;
+    private final CacheState<CacheImpl> nextState;
 
-    protected StateCommandResult(CacheState<CacheImpl, StateContext> nextState) {
+    protected StateCommandResult(CacheState<CacheImpl> nextState) {
         this.nextState = nextState;
     }
 
     /**
      * Next state for state machine. May be null, if no state change required.
      */
-    public CacheState<CacheImpl, StateContext> getNextState() {
+    public CacheState<CacheImpl> getNextState() {
         return nextState;
     }
 
@@ -29,9 +29,8 @@ public class StateCommandResult<CacheImpl extends CacheImplementation, StateCont
      *            State for switch to.
      * @return Returns command result.
      */
-    public static <CacheImpl extends CacheImplementation, StateContext> StateCommandResult<CacheImpl, StateContext> create(
-            CacheState<CacheImpl, StateContext> nextState) {
-        return new StateCommandResult<CacheImpl, StateContext>(nextState);
+    public static <CacheImpl extends CacheImplementation> StateCommandResult<CacheImpl> create(CacheState<CacheImpl> nextState) {
+        return new StateCommandResult<>(nextState);
     }
 
     /**
@@ -39,7 +38,7 @@ public class StateCommandResult<CacheImpl extends CacheImplementation, StateCont
      *
      * @return Returns command result.
      */
-    public static <CacheImpl extends CacheImplementation, StateContext> StateCommandResult<CacheImpl, StateContext> createNoStateSwitch() {
+    public static <CacheImpl extends CacheImplementation> StateCommandResult<CacheImpl> createNoStateSwitch() {
         return create(null);
     }
 }

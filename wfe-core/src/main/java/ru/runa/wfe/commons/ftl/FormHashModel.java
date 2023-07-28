@@ -1,23 +1,19 @@
 package ru.runa.wfe.commons.ftl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpSession;
-
-import org.apache.commons.logging.LogFactory;
-
-import ru.runa.wfe.commons.web.WebHelper;
-import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.VariableProvider;
-
 import com.google.common.base.Throwables;
-
 import freemarker.template.ObjectWrapper;
 import freemarker.template.SimpleHash;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.http.HttpSession;
+import lombok.extern.apachecommons.CommonsLog;
+import ru.runa.wfe.commons.web.WebHelper;
+import ru.runa.wfe.user.User;
+import ru.runa.wfe.var.VariableProvider;
 
+@CommonsLog
 public class FormHashModel extends SimpleHash {
     private static final long serialVersionUID = 1L;
     private final User user;
@@ -65,7 +61,7 @@ public class FormHashModel extends SimpleHash {
                     String sessionKey = AjaxFormComponent.COMPONENT_SESSION_PREFIX + key;
                     List<AjaxFormComponent> tags = (List<AjaxFormComponent>) session.getAttribute(sessionKey);
                     if (tags == null) {
-                        tags = new ArrayList<AjaxFormComponent>();
+                        tags = new ArrayList<>();
                         session.setAttribute(sessionKey, tags);
                     }
                     tags.add((AjaxFormComponent) component);
@@ -81,7 +77,7 @@ public class FormHashModel extends SimpleHash {
             put(key, wrap(variableValue));
             return super.get(key);
         }
-        LogFactory.getLog(getClass()).warn("Null for " + key);
+        log.warn("Null for " + key);
         return null;
     }
 }

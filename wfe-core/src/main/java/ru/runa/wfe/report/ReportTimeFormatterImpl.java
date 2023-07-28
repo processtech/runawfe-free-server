@@ -3,8 +3,6 @@ package ru.runa.wfe.report;
 import java.text.DateFormat;
 import java.util.Date;
 
-import ru.runa.wfe.commons.ApplicationContextFactory;
-
 public class ReportTimeFormatterImpl implements ReportTimeFormatter {
 
     private final boolean multiline;
@@ -58,24 +56,6 @@ public class ReportTimeFormatterImpl implements ReportTimeFormatter {
 
     @Override
     public String dbSpecificInterval(Number interval) {
-        switch (ApplicationContextFactory.getDbType()) {
-        case H2:
-            break;
-        case HSQL:
-            break;
-        case MSSQL:
-            break;
-        case MYSQL:
-            break;
-        case ORACLE:
-            break;
-        case POSTGRESQL:
-            break;
-        case GENERIC:
-        default:
-            break;
-
-        }
         return null;
     }
 }

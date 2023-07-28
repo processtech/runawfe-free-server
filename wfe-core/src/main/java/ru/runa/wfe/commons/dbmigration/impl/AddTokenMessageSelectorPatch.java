@@ -6,15 +6,15 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 import ru.runa.wfe.commons.dbmigration.DbMigrationPostProcessor;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.TokenDao;
+import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.lang.BaseMessageNode;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 public class AddTokenMessageSelectorPatch extends DbMigration implements DbMigrationPostProcessor {
     @Autowired
-    TokenDao tokenDao;
+    CurrentTokenDao currentTokenDao;
     @Autowired
     ProcessDefinitionLoader processDefinitionLoader;
 
@@ -28,12 +28,12 @@ public class AddTokenMessageSelectorPatch extends DbMigration implements DbMigra
 
     @Override
     public void postExecute() {
-        List<Token> tokens = tokenDao.findByMessageSelectorIsNullAndExecutionStatusIsNotEnded();
+        List<CurrentToken> tokens = currentTokenDao.findByMessageSelectorIsNullAndExecutionStatusIsNotEnded();
         log.info("Updating " + tokens.size() + " tokens message selector");
-        for (Token token : tokens) {
-            ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
-            BaseMessageNode messageNode = (BaseMessageNode) processDefinition.getNodeNotNull(token.getNodeId());
-            ExecutionContext executionContext = new ExecutionContext(processDefinition, token.getProcess());
+        for (CurrentToken token : tokens) {
+            ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(token.getProcess());
+            BaseMessageNode messageNode = (BaseMessageNode) parsedProcessDefinition.getNodeNotNull(token.getNodeId());
+            ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token.getProcess());
             String messageSelector = Utils.getReceiveMessageNodeSelector(executionContext.getVariableProvider(), messageNode);
             token.setMessageSelector(messageSelector);
         }

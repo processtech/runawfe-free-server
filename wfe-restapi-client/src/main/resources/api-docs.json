@@ -1,0 +1,7246 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "runawfe api",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Inferred Url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "audit-controller",
+      "description": "Audit Controller"
+    },
+    {
+      "name": "auth-controller",
+      "description": "Auth Controller"
+    },
+    {
+      "name": "definition-controller",
+      "description": "Definition Controller"
+    },
+    {
+      "name": "executor-controller",
+      "description": "Executor Controller"
+    },
+    {
+      "name": "process-controller",
+      "description": "Process Controller"
+    },
+    {
+      "name": "profile-controller",
+      "description": "Profile Controller"
+    },
+    {
+      "name": "relation-controller",
+      "description": "Relation Controller"
+    },
+    {
+      "name": "report-controller",
+      "description": "Report Controller"
+    },
+    {
+      "name": "task-controller",
+      "description": "Task Controller"
+    }
+  ],
+  "paths": {
+    "/restapi/audit/process/{id}": {
+      "post": {
+        "tags": [
+          "audit-controller"
+        ],
+        "summary": "getProcessLogs",
+        "operationId": "getProcessLogsUsingPOST",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfeProcessLogFilter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeProcessLog"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/audit/process/{id}/variables/snapshot": {
+      "get": {
+        "tags": [
+          "audit-controller"
+        ],
+        "summary": "getProcessVariablesSnapshot",
+        "operationId": "getProcessVariablesSnapshotUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "taskId",
+            "in": "query",
+            "description": "taskId",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeVariablesSnapshot"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "audit-controller"
+        ],
+        "summary": "getProcessVariablesSnapshot",
+        "operationId": "getProcessVariablesSnapshotUsingPOST",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfeProcessLogFilter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeVariablesSnapshot"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/audit/system": {
+      "post": {
+        "tags": [
+          "audit-controller"
+        ],
+        "summary": "getSystemLogs",
+        "operationId": "getSystemLogsUsingPOST",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfePagedListFilter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfePagedListOfWfeSystemLog"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/auth/basic": {
+      "post": {
+        "tags": [
+          "auth-controller"
+        ],
+        "summary": "basic",
+        "operationId": "basicUsingPOST",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfeCredentials"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/restapi/auth/kerberos": {
+      "post": {
+        "tags": [
+          "auth-controller"
+        ],
+        "summary": "kerberos",
+        "operationId": "kerberosUsingPOST",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "byte"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/restapi/auth/trusted": {
+      "post": {
+        "tags": [
+          "auth-controller"
+        ],
+        "summary": "trusted",
+        "operationId": "trustedUsingPOST",
+        "parameters": [
+          {
+            "name": "login",
+            "in": "query",
+            "description": "login",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/auth/validate": {
+      "post": {
+        "tags": [
+          "auth-controller"
+        ],
+        "summary": "validate",
+        "operationId": "validateUsingPOST",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "description": "token",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/": {
+      "put": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "deployProcessDefinition",
+        "operationId": "deployProcessDefinitionUsingPUT",
+        "parameters": [
+          {
+            "name": "categories",
+            "in": "query",
+            "description": "categories",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "secondsBeforeArchiving",
+            "in": "query",
+            "description": "secondsBeforeArchiving",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "byte"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeProcessDefinition"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "undeployProcessDefinition",
+        "operationId": "undeployProcessDefinitionUsingDELETE",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "description": "version",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/history": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionHistory",
+        "operationId": "getProcessDefinitionHistoryUsingGET",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeProcessDefinition"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/latest": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getLatestProcessDefinition",
+        "operationId": "getLatestProcessDefinitionUsingGET",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeProcessDefinition"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/list": {
+      "post": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitions",
+        "operationId": "getProcessDefinitionsUsingPOST",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfePagedListFilter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfePagedListOfWfeProcessDefinition"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/version": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionByNameAndVersion",
+        "operationId": "getProcessDefinitionByNameAndVersionUsingGET",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "description": "version",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeProcessDefinition"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionById",
+        "operationId": "getProcessDefinitionByIdUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeProcessDefinition"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/file": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionFile",
+        "operationId": "getProcessDefinitionFileUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/graph": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionGraph",
+        "operationId": "getProcessDefinitionGraphUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "subprocessId",
+            "in": "query",
+            "description": "subprocessId",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/graph/elements": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionGraphElements",
+        "operationId": "getProcessDefinitionGraphElementsUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "subprocessId",
+            "in": "query",
+            "description": "subprocessId",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeNodeGraphElement"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/interaction/start": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionStartInteraction",
+        "operationId": "getProcessDefinitionStartInteractionUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeTaskNodeInteraction"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/interaction/task": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionTaskNodeInteraction",
+        "operationId": "getProcessDefinitionTaskNodeInteractionUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "nodeId",
+            "in": "query",
+            "description": "nodeId",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeTaskNodeInteraction"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/node": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionNode",
+        "operationId": "getProcessDefinitionNodeUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "nodeId",
+            "in": "query",
+            "description": "nodeId",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeNode"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/nodes": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionNodes",
+        "operationId": "getProcessDefinitionNodesUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "withEmbeddedSubprocesses",
+            "in": "query",
+            "description": "withEmbeddedSubprocesses",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeNode"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/redeploy": {
+      "patch": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "redeployProcessDefinition",
+        "operationId": "redeployProcessDefinitionUsingPATCH",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "categories",
+            "in": "query",
+            "description": "categories",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "secondsBeforeArchiving",
+            "in": "query",
+            "description": "secondsBeforeArchiving",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "byte"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeProcessDefinition"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/swimlanes": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionSwimlanes",
+        "operationId": "getProcessDefinitionSwimlanesUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeSwimlaneDefinition"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/update": {
+      "patch": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "updateProcessDefinition",
+        "operationId": "updateProcessDefinitionUsingPATCH",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "byte"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeProcessDefinition"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/userType": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionUserType",
+        "operationId": "getProcessDefinitionUserTypeUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeVariableUserType"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/userTypes": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionUserTypes",
+        "operationId": "getProcessDefinitionUserTypesUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeVariableUserType"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/variable": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionVariableDefinition",
+        "operationId": "getProcessDefinitionVariableDefinitionUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeVariableDefinition"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/variable/value/file": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionVariableFileDefaultValue",
+        "operationId": "getProcessDefinitionVariableFileDefaultValueUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/definition/{id}/variables": {
+      "get": {
+        "tags": [
+          "definition-controller"
+        ],
+        "summary": "getProcessDefinitionVariableDefinitions",
+        "operationId": "getProcessDefinitionVariableDefinitionsUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeVariableDefinition"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/executor/": {
+      "get": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "getByName",
+        "operationId": "getByNameUsingGET",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExecutor"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "removeExecutors",
+        "operationId": "removeExecutorsUsingDELETE",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/executor/group": {
+      "get": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "getGroup",
+        "operationId": "getGroupUsingGET",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeGroup"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "createGroup",
+        "operationId": "createGroupUsingPUT",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfeGroup"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeGroup"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "updateGroup",
+        "operationId": "updateGroupUsingPATCH",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfeGroup"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/executor/group/users": {
+      "get": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "getGroupUsers",
+        "operationId": "getGroupUsersUsingGET",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeUser"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/executor/isExist": {
+      "get": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "isExecutorExist",
+        "operationId": "isExecutorExistUsingGET",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/executor/list": {
+      "post": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "getExecutors",
+        "operationId": "getExecutorsUsingPOST",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfePagedListFilter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfePagedListOfWfeExecutor"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/executor/user": {
+      "get": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "getUser",
+        "operationId": "getUserUsingGET",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeUser"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "createUser",
+        "operationId": "createUserUsingPUT",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfeUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeUser"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "updateUser",
+        "operationId": "updateUserUsingPATCH",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfeUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/executor/user/status": {
+      "patch": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "updateUserStatus",
+        "operationId": "updateUserStatusUsingPATCH",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "active",
+            "in": "query",
+            "description": "active",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/executor/{code}/byCode": {
+      "get": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "getUserByCode",
+        "operationId": "getUserByCodeUsingGET",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "description": "code",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeUser"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/executor/{groupId}/children": {
+      "post": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "getGroupChildren",
+        "operationId": "getGroupChildrenUsingPOST",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "groupId",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "isExclude",
+            "in": "query",
+            "description": "isExclude",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfePagedListFilter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfePagedListOfWfeExecutor"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/executor/{groupId}/executors": {
+      "put": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "addExecutorsToGroup",
+        "operationId": "addExecutorsToGroupUsingPUT",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "ids",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "groupId",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "removeExecutorsFromGroup",
+        "operationId": "removeExecutorsFromGroupUsingDELETE",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "ids",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "groupId",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/executor/{id}/groups": {
+      "put": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "addExecutorToGroups",
+        "operationId": "addExecutorToGroupsUsingPUT",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "groupIds",
+            "in": "query",
+            "description": "groupIds",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "getExecutorGroups",
+        "operationId": "getExecutorGroupsUsingPOST",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "isExclude",
+            "in": "query",
+            "description": "isExclude",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfePagedListFilter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfePagedListOfWfeGroup"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "removeExecutorFromGroups",
+        "operationId": "removeExecutorFromGroupsUsingDELETE",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "groupIds",
+            "in": "query",
+            "description": "groupIds",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/executor/{id}/isAdministrator": {
+      "get": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "isAdministrator",
+        "operationId": "isAdministratorUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/executor/{id}/isInGroup": {
+      "get": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "isExecutorInGroup",
+        "operationId": "isExecutorInGroupUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "query",
+            "description": "groupId",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/list": {
+      "post": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "getProcesses",
+        "operationId": "getProcessesUsingPOST",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfePagedListFilter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfePagedListOfWfeProcess"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/sendSignal": {
+      "post": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "sendSignal",
+        "operationId": "sendSignalUsingPOST",
+        "parameters": [
+          {
+            "name": "ttlInSeconds",
+            "in": "query",
+            "description": "ttlInSeconds",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/signalReceiverIsActive": {
+      "post": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "signalReceiverIsActive",
+        "operationId": "signalReceiverIsActiveUsingPOST",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/start": {
+      "put": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "startProcessByName",
+        "operationId": "startProcessByNameUsingPUT",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeValidationExceptionResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/swimlane/{id}": {
+      "put": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "assignSwimlane",
+        "operationId": "assignSwimlaneUsingPUT",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "executorId",
+            "in": "query",
+            "description": "executorId",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "reassignSwimlaneById",
+        "operationId": "reassignSwimlaneByIdUsingPATCH",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/swimlanes": {
+      "get": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "getActiveProcessesSwimlanes",
+        "operationId": "getActiveProcessesSwimlanesUsingGET",
+        "parameters": [
+          {
+            "name": "namePattern",
+            "in": "query",
+            "description": "namePattern",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeSwimlane"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/upgrade": {
+      "patch": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "upgradeProcessesToDefinitionVersion",
+        "operationId": "upgradeProcessesToDefinitionVersionUsingPATCH",
+        "parameters": [
+          {
+            "name": "definitionId",
+            "in": "query",
+            "description": "definitionId",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "description": "version",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{definitionId}/start": {
+      "post": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "startProcessById",
+        "operationId": "startProcessByIdUsingPOST",
+        "parameters": [
+          {
+            "name": "definitionId",
+            "in": "path",
+            "description": "definitionId",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeValidationExceptionResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}": {
+      "get": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "getProcess",
+        "operationId": "getProcessUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeProcess"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "deleteProcess",
+        "operationId": "deleteProcessUsingDELETE",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/activate": {
+      "patch": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "activateProcess",
+        "operationId": "activateProcessUsingPATCH",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/cancel": {
+      "patch": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "cancelProcess",
+        "operationId": "cancelProcessUsingPATCH",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/graph": {
+      "get": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "getProcessGraph",
+        "operationId": "getProcessGraphUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "taskId",
+            "in": "query",
+            "description": "taskId",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "childProcessId",
+            "in": "query",
+            "description": "childProcessId",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "subprocessId",
+            "in": "query",
+            "description": "subprocessId",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/graph/element": {
+      "get": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "getProcessGraphElement",
+        "operationId": "getProcessGraphElementUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "nodeId",
+            "in": "query",
+            "description": "nodeId",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeNodeGraphElement"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/graph/elements": {
+      "get": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "getProcessGraphElements",
+        "operationId": "getProcessGraphElementsUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "subprocessId",
+            "in": "query",
+            "description": "subprocessId",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeNodeGraphElement"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/parent": {
+      "get": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "getParentProcess",
+        "operationId": "getParentProcessUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeProcess"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/restore": {
+      "patch": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "restoreProcess",
+        "operationId": "restoreProcessUsingPATCH",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "OK",
+                    "ONLY_ASYNC_SUBPROCESS_CAN_BE_RESTORED",
+                    "PROCESS_HAS_BEEN_COMPLETED",
+                    "UNABLE_TO_FIND_ACTIVE_TOKENS_BY_PROCESS_END_DATE"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/subprocesses": {
+      "get": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "getProcessSubprocesses",
+        "operationId": "getProcessSubprocessesUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "recursive",
+            "in": "query",
+            "description": "recursive",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeProcess"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/suspend": {
+      "patch": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "suspendProcess",
+        "operationId": "suspendProcessUsingPATCH",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/swimlane": {
+      "patch": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "reassignSwimlaneByName",
+        "operationId": "reassignSwimlaneByNameUsingPATCH",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/swimlanes": {
+      "get": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "getProcessSwimlanes",
+        "operationId": "getProcessSwimlanesUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeSwimlane"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/tokens": {
+      "get": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "getProcessTokens",
+        "operationId": "getProcessTokensUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "recursive",
+            "in": "query",
+            "description": "recursive",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeToken"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/upgrade": {
+      "patch": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "upgradeProcessToDefinitionVersion",
+        "operationId": "upgradeProcessToDefinitionVersionUsingPATCH",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "description": "version",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/variable": {
+      "get": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "getProcessVariable",
+        "operationId": "getProcessVariableUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeVariable"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/variable/value/file": {
+      "get": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "getFileVariableValue",
+        "operationId": "getFileVariableValueUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/process/{id}/variables": {
+      "get": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "getProcessVariables",
+        "operationId": "getProcessVariablesUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeVariable"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "process-controller"
+        ],
+        "summary": "updateProcessVariables",
+        "operationId": "updateProcessVariablesUsingPATCH",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/profile": {
+      "get": {
+        "tags": [
+          "profile-controller"
+        ],
+        "summary": "getProfile",
+        "operationId": "getProfileUsingGET",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeProfile"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/profile/password": {
+      "post": {
+        "tags": [
+          "profile-controller"
+        ],
+        "summary": "changePassword",
+        "operationId": "changePasswordUsingPOST",
+        "parameters": [
+          {
+            "name": "password",
+            "in": "query",
+            "description": "password",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/relation/": {
+      "put": {
+        "tags": [
+          "relation-controller"
+        ],
+        "summary": "createRelation",
+        "operationId": "createRelationUsingPUT",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfeRelation"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeRelation"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "relation-controller"
+        ],
+        "summary": "updateRelation",
+        "operationId": "updateRelationUsingPATCH",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfeRelation"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeRelation"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/relation/byName": {
+      "get": {
+        "tags": [
+          "relation-controller"
+        ],
+        "summary": "getRelationByName",
+        "operationId": "getRelationByNameUsingGET",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeRelation"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/relation/list": {
+      "post": {
+        "tags": [
+          "relation-controller"
+        ],
+        "summary": "getRelations",
+        "operationId": "getRelationsUsingPOST",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfePagedListFilter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfePagedListOfWfeRelation"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/relation/pair": {
+      "put": {
+        "tags": [
+          "relation-controller"
+        ],
+        "summary": "createRelationPair",
+        "operationId": "createRelationPairUsingPUT",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "leftId",
+            "in": "query",
+            "description": "leftId",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "rightId",
+            "in": "query",
+            "description": "rightId",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeRelationPair"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "relation-controller"
+        ],
+        "summary": "removeRelationPair",
+        "operationId": "removeRelationPairUsingDELETE",
+        "parameters": [
+          {
+            "name": "pairId",
+            "in": "query",
+            "description": "pairId",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/relation/pair/list": {
+      "post": {
+        "tags": [
+          "relation-controller"
+        ],
+        "summary": "getRelationPairs",
+        "operationId": "getRelationPairsUsingPOST",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfePagedListFilter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfePagedListOfWfeRelationPair"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/relation/{id}": {
+      "get": {
+        "tags": [
+          "relation-controller"
+        ],
+        "summary": "getRelationById",
+        "operationId": "getRelationByIdUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeRelation"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "relation-controller"
+        ],
+        "summary": "removeRelation",
+        "operationId": "removeRelationUsingDELETE",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/report/list": {
+      "post": {
+        "tags": [
+          "report-controller"
+        ],
+        "summary": "getReports",
+        "operationId": "getReportsUsingPOST",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfePagedListFilter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfePagedListOfWfeReport"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/report/{id}": {
+      "get": {
+        "tags": [
+          "report-controller"
+        ],
+        "summary": "getReport",
+        "operationId": "getReportUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeReport"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/report/{id}/build": {
+      "post": {
+        "tags": [
+          "report-controller"
+        ],
+        "summary": "buildReport",
+        "operationId": "buildReportUsingPOST",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfeReportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeReportResult"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/task/delegate": {
+      "patch": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "delegateTasks",
+        "operationId": "delegateTasksUsingPATCH",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "ids",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "currentOwnerName",
+            "in": "query",
+            "description": "currentOwnerName",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "keepCurrentOwner",
+            "in": "query",
+            "description": "keepCurrentOwner",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/task/list": {
+      "post": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "getTasks",
+        "operationId": "getTasksUsingPOST",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfePagedListFilter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfePagedListOfWfeTask"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/task/my": {
+      "post": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "getMyTasks",
+        "operationId": "getMyTasksUsingPOST",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfePagedListFilter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfePagedListOfWfeTask"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/task/process/{processId}": {
+      "get": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "getProcessTasks",
+        "operationId": "getProcessTasksUsingGET",
+        "parameters": [
+          {
+            "name": "processId",
+            "in": "path",
+            "description": "processId",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "includeSubprocesses",
+            "in": "query",
+            "description": "includeSubprocesses",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeTask"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/task/reassign": {
+      "patch": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "reassignTasks",
+        "operationId": "reassignTasksUsingPATCH",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfePagedListFilter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/task/unassigned": {
+      "get": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "getUnassignedTasks",
+        "operationId": "getUnassignedTasksUsingGET",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WfeTask"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/task/{id}": {
+      "get": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "getTask",
+        "operationId": "getTaskUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeTask"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/task/{id}/assign": {
+      "patch": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "assignTask",
+        "operationId": "assignTaskUsingPATCH",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "currentOwnerName",
+            "in": "query",
+            "description": "currentOwnerName",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "newOwnerName",
+            "in": "query",
+            "description": "newOwnerName",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/task/{id}/complete": {
+      "post": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "completeTask",
+        "operationId": "completeTaskUsingPOST",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeTask"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeValidationExceptionResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/task/{id}/delegate": {
+      "patch": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "delegateTask",
+        "operationId": "delegateTaskUsingPATCH",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "currentOwnerName",
+            "in": "query",
+            "description": "currentOwnerName",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "keepCurrentOwner",
+            "in": "query",
+            "description": "keepCurrentOwner",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/task/{id}/markOpened": {
+      "patch": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "markTaskOpened",
+        "operationId": "markTaskOpenedUsingPATCH",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/task/{id}/reassign": {
+      "patch": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "reassignTask",
+        "operationId": "reassignTaskUsingPATCH",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    },
+    "/restapi/task/{id}/variable": {
+      "get": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "getTaskVariable",
+        "operationId": "getTaskVariableUsingGET",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeVariable"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfeExceptionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "token": [
+              "global"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Sorting": {
+        "title": "Sorting",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "order": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          }
+        }
+      },
+      "WfeCredentials": {
+        "title": "WfeCredentials",
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "WfeExceptionResponse": {
+        "title": "WfeExceptionResponse",
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "AUTHENTICATION",
+              "AUTHENTICATION_EXPIRED",
+              "AUTHORIZATION",
+              "DEFINITION_ALREADY_EXISTS",
+              "DEFINITION_ARCHIVE_FORMAT",
+              "DEFINITION_DOES_NOT_EXIST",
+              "DEFINITION_FILE_DOES_NOT_EXIST",
+              "DEFINITION_NAME_MISMATCH",
+              "DEFINITION_NOT_COMPATIBLE",
+              "EXECUTOR_ALREADY_EXISTS",
+              "EXECUTOR_DOES_NOT_EXIST",
+              "EXECUTOR_PARTICIPATES_IN_PROCESSES",
+              "FILTER_FORMAT",
+              "INVALID_DEFINITION",
+              "OTHER",
+              "PARENT_PROCESS_EXISTS",
+              "PROCESS_DOES_NOT_EXIST",
+              "RELATION_ALREADY_EXISTS",
+              "RELATION_DOES_NOT_EXIST",
+              "SUBSTITUTION_DOES_NOT_EXIST",
+              "TASK_ALREADY_ACCEPTED",
+              "TASK_DOES_NOT_EXIST",
+              "VALIDATION",
+              "WEAK_PASSWORD"
+            ]
+          }
+        }
+      },
+      "WfeExecutor": {
+        "title": "WfeExecutor",
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DELEGATION_GROUP",
+              "ESCALATION_GROUP",
+              "GROUP",
+              "TEMPORARY_GROUP",
+              "USER"
+            ]
+          }
+        }
+      },
+      "WfeGroup": {
+        "title": "WfeGroup",
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DELEGATION_GROUP",
+              "ESCALATION_GROUP",
+              "GROUP",
+              "TEMPORARY_GROUP",
+              "USER"
+            ]
+          }
+        }
+      },
+      "WfeNode": {
+        "title": "WfeNode",
+        "type": "object",
+        "properties": {
+          "arrivingTransitions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeTransition"
+            }
+          },
+          "boundaryEvents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeNode"
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "hasErrorEventHandler": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "leavingTransitions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeTransition"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string"
+          },
+          "swimlaneName": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ACTION_NODE",
+              "BUSINESS_RULE",
+              "DECISION",
+              "END_PROCESS",
+              "END_TOKEN",
+              "EXCLUSIVE_GATEWAY",
+              "FORK",
+              "JOIN",
+              "MERGE",
+              "MULTI_SUBPROCESS",
+              "MULTI_TASK_STATE",
+              "PARALLEL_GATEWAY",
+              "RECEIVE_MESSAGE",
+              "SEND_MESSAGE",
+              "START_EVENT",
+              "SUBPROCESS",
+              "TASK_STATE",
+              "TEXT_ANNOTATION",
+              "TIMER",
+              "WAIT_STATE"
+            ]
+          }
+        }
+      },
+      "WfeNodeGraphElement": {
+        "title": "WfeNodeGraphElement",
+        "type": "object",
+        "properties": {
+          "additionalProperties": {
+            "type": "object"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeProcessLog"
+            }
+          },
+          "graphConstraints": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "label": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nodeId": {
+            "type": "string"
+          },
+          "nodeType": {
+            "type": "string",
+            "enum": [
+              "ACTION_NODE",
+              "BUSINESS_RULE",
+              "DECISION",
+              "END_PROCESS",
+              "END_TOKEN",
+              "EXCLUSIVE_GATEWAY",
+              "FORK",
+              "JOIN",
+              "MERGE",
+              "MULTI_SUBPROCESS",
+              "MULTI_TASK_STATE",
+              "PARALLEL_GATEWAY",
+              "RECEIVE_MESSAGE",
+              "SEND_MESSAGE",
+              "START_EVENT",
+              "SUBPROCESS",
+              "TASK_STATE",
+              "TEXT_ANNOTATION",
+              "TIMER",
+              "WAIT_STATE"
+            ]
+          }
+        }
+      },
+      "WfePagedListFilter": {
+        "title": "WfePagedListFilter",
+        "type": "object",
+        "properties": {
+          "filters": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sortings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Sorting"
+            }
+          },
+          "variables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "WfePagedListOfWfeExecutor": {
+        "title": "WfePagedListOfWfeExecutor",
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeExecutor"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WfePagedListOfWfeGroup": {
+        "title": "WfePagedListOfWfeGroup",
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeGroup"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WfePagedListOfWfeProcess": {
+        "title": "WfePagedListOfWfeProcess",
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeProcess"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WfePagedListOfWfeProcessDefinition": {
+        "title": "WfePagedListOfWfeProcessDefinition",
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeProcessDefinition"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WfePagedListOfWfeRelation": {
+        "title": "WfePagedListOfWfeRelation",
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeRelation"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WfePagedListOfWfeRelationPair": {
+        "title": "WfePagedListOfWfeRelationPair",
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeRelationPair"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WfePagedListOfWfeReport": {
+        "title": "WfePagedListOfWfeReport",
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeReport"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WfePagedListOfWfeSystemLog": {
+        "title": "WfePagedListOfWfeSystemLog",
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeSystemLog"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WfePagedListOfWfeTask": {
+        "title": "WfePagedListOfWfeTask",
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeTask"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WfeProcess": {
+        "title": "WfeProcess",
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          },
+          "definitionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "definitionName": {
+            "type": "string"
+          },
+          "definitionVersion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "endDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "executionStatus": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "ENDED",
+              "FAILED",
+              "SUSPENDED"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "startDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "variables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeVariable"
+            }
+          }
+        }
+      },
+      "WfeProcessDefinition": {
+        "title": "WfeProcessDefinition",
+        "type": "object",
+        "properties": {
+          "canBeStarted": {
+            "type": "boolean"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createUser": {
+            "$ref": "#/components/schemas/WfeUser"
+          },
+          "description": {
+            "type": "string"
+          },
+          "hasDisabledImage": {
+            "type": "boolean"
+          },
+          "hasHtmlDescription": {
+            "type": "boolean"
+          },
+          "hasStartImage": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "secondsBeforeArchiving": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subprocessBindingDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "subprocessOnly": {
+            "type": "boolean"
+          },
+          "updateDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "updateUser": {
+            "$ref": "#/components/schemas/WfeUser"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "WfeProcessLog": {
+        "title": "WfeProcessLog",
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "createDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nodeId": {
+            "type": "string"
+          },
+          "processId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "DEBUG",
+              "ERROR",
+              "INFO"
+            ]
+          },
+          "tokenId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ACTION",
+              "ADMIN_ACTION",
+              "ALL",
+              "CREATE_TIMER",
+              "NODE",
+              "NODE_ENTER",
+              "NODE_ERROR",
+              "NODE_LEAVE",
+              "PROCESS_ACTIVATE",
+              "PROCESS_CANCEL",
+              "PROCESS_END",
+              "PROCESS_START",
+              "PROCESS_SUSPEND",
+              "RECEIVED_MESSAGE",
+              "SEND_MESSAGE",
+              "SUBPROCESS_END",
+              "SUBPROCESS_START",
+              "SWIMLANE_ASSIGN",
+              "TASK",
+              "TASK_ASSIGN",
+              "TASK_CANCELLED",
+              "TASK_CREATE",
+              "TASK_DELEGATION",
+              "TASK_END",
+              "TASK_END_BY_ADMIN",
+              "TASK_END_BY_SUBSTITUTOR",
+              "TASK_ESCALATION",
+              "TASK_EXPIRED",
+              "TASK_REMOVED_ON_PROCESS_END",
+              "TRANSITION",
+              "VARIABLE",
+              "VARIABLE_CREATE",
+              "VARIABLE_DELETE",
+              "VARIABLE_UPDATE"
+            ]
+          }
+        }
+      },
+      "WfeProcessLogFilter": {
+        "title": "WfeProcessLogFilter",
+        "type": "object",
+        "properties": {
+          "createDateFrom": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createDateTo": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "idFrom": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "idTo": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "includeSubprocessLogs": {
+            "type": "boolean"
+          },
+          "nodeId": {
+            "type": "string"
+          },
+          "tokenId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ACTION",
+              "ADMIN_ACTION",
+              "ALL",
+              "CREATE_TIMER",
+              "NODE",
+              "NODE_ENTER",
+              "NODE_ERROR",
+              "NODE_LEAVE",
+              "PROCESS_ACTIVATE",
+              "PROCESS_CANCEL",
+              "PROCESS_END",
+              "PROCESS_START",
+              "PROCESS_SUSPEND",
+              "RECEIVED_MESSAGE",
+              "SEND_MESSAGE",
+              "SUBPROCESS_END",
+              "SUBPROCESS_START",
+              "SWIMLANE_ASSIGN",
+              "TASK",
+              "TASK_ASSIGN",
+              "TASK_CANCELLED",
+              "TASK_CREATE",
+              "TASK_DELEGATION",
+              "TASK_END",
+              "TASK_END_BY_ADMIN",
+              "TASK_END_BY_SUBSTITUTOR",
+              "TASK_ESCALATION",
+              "TASK_EXPIRED",
+              "TASK_REMOVED_ON_PROCESS_END",
+              "TRANSITION",
+              "VARIABLE",
+              "VARIABLE_CREATE",
+              "VARIABLE_DELETE",
+              "VARIABLE_UPDATE"
+            ]
+          }
+        }
+      },
+      "WfeProfile": {
+        "title": "WfeProfile",
+        "type": "object",
+        "properties": {
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeGroup"
+            }
+          },
+          "relations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeRelation"
+            }
+          },
+          "user": {
+            "$ref": "#/components/schemas/WfeUser"
+          }
+        }
+      },
+      "WfeRelation": {
+        "title": "WfeRelation",
+        "type": "object",
+        "properties": {
+          "createDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "description": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "WfeRelationPair": {
+        "title": "WfeRelationPair",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "leftId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "relation": {
+            "$ref": "#/components/schemas/WfeRelation"
+          },
+          "rightId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "WfeReport": {
+        "title": "WfeReport",
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeReportParameterRes"
+            }
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "WfeReportParameterReq": {
+        "title": "WfeReportParameterReq",
+        "type": "object",
+        "properties": {
+          "internalName": {
+            "type": "string"
+          },
+          "value": {
+            "type": "object"
+          }
+        }
+      },
+      "WfeReportParameterRes": {
+        "title": "WfeReportParameterRes",
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "internalName": {
+            "type": "string"
+          },
+          "position": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ACTOR_ID",
+              "ACTOR_NAME",
+              "BOOLEAN_CHECKED",
+              "BOOLEAN_UNCHECKED",
+              "DATE",
+              "EXECUTOR_ID",
+              "EXECUTOR_NAME",
+              "GROUP_ID",
+              "GROUP_NAME",
+              "NUMBER",
+              "PROCESS_NAME_OR_NULL",
+              "STRING",
+              "SWIMLANE"
+            ]
+          },
+          "userName": {
+            "type": "string"
+          }
+        }
+      },
+      "WfeReportRequest": {
+        "title": "WfeReportRequest",
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeReportParameterReq"
+            }
+          }
+        }
+      },
+      "WfeReportResult": {
+        "title": "WfeReportResult",
+        "type": "object",
+        "properties": {
+          "errorParameterNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reportData": {
+            "type": "object"
+          },
+          "reportFileName": {
+            "type": "string"
+          }
+        }
+      },
+      "WfeSwimlane": {
+        "title": "WfeSwimlane",
+        "type": "object",
+        "properties": {
+          "definition": {
+            "$ref": "#/components/schemas/WfeSwimlaneDefinition"
+          },
+          "executor": {
+            "$ref": "#/components/schemas/WfeExecutor"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "WfeSwimlaneDefinition": {
+        "title": "WfeSwimlaneDefinition",
+        "type": "object",
+        "properties": {
+          "flowNodeIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "global": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "orgFunctionLabel": {
+            "type": "string"
+          },
+          "scriptingName": {
+            "type": "string"
+          }
+        }
+      },
+      "WfeSystemLog": {
+        "title": "WfeSystemLog",
+        "type": "object",
+        "properties": {
+          "actorId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "WfeTask": {
+        "title": "WfeTask",
+        "type": "object",
+        "properties": {
+          "acquiredBySubstitution": {
+            "type": "boolean"
+          },
+          "assignDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "deadlineDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "deadlineWarningDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "definitionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "definitionName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "escalated": {
+            "type": "boolean"
+          },
+          "firstOpen": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "multitaskIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nodeId": {
+            "type": "string"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/WfeExecutor"
+          },
+          "processHierarchyIds": {
+            "type": "string"
+          },
+          "processId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "readOnly": {
+            "type": "boolean"
+          },
+          "swimlaneName": {
+            "type": "string"
+          },
+          "targetUser": {
+            "$ref": "#/components/schemas/WfeUser"
+          },
+          "tokenId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "variables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeVariable"
+            }
+          }
+        }
+      },
+      "WfeTaskNodeInteraction": {
+        "title": "WfeTaskNodeInteraction",
+        "type": "object",
+        "properties": {
+          "cssData": {
+            "type": "string",
+            "format": "byte"
+          },
+          "description": {
+            "type": "string"
+          },
+          "formData": {
+            "type": "string",
+            "format": "byte"
+          },
+          "formScriptData": {
+            "type": "string",
+            "format": "byte"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nodeId": {
+            "type": "string"
+          },
+          "outputTransitions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeTransition"
+            }
+          },
+          "processScriptData": {
+            "type": "string",
+            "format": "byte"
+          },
+          "requiredVariableNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "swimlaneName": {
+            "type": "string"
+          },
+          "templateData": {
+            "type": "string",
+            "format": "byte"
+          },
+          "type": {
+            "type": "string"
+          },
+          "validationData": {
+            "type": "string",
+            "format": "byte"
+          },
+          "variableDefinitions": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/WfeVariableDefinition"
+            }
+          }
+        }
+      },
+      "WfeToken": {
+        "title": "WfeToken",
+        "type": "object",
+        "properties": {
+          "endDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "errorDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "errorMessage": {
+            "type": "string"
+          },
+          "executionStatus": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "ENDED",
+              "FAILED",
+              "SUSPENDED"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "node": {
+            "$ref": "#/components/schemas/WfeNode"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "processId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "startDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "transitionId": {
+            "type": "string"
+          }
+        }
+      },
+      "WfeTransition": {
+        "title": "WfeTransition",
+        "type": "object",
+        "properties": {
+          "color": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nodeFromId": {
+            "type": "string"
+          },
+          "nodeToId": {
+            "type": "string"
+          }
+        }
+      },
+      "WfeUser": {
+        "title": "WfeUser",
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "department": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DELEGATION_GROUP",
+              "ESCALATION_GROUP",
+              "GROUP",
+              "TEMPORARY_GROUP",
+              "USER"
+            ]
+          }
+        }
+      },
+      "WfeValidationExceptionResponse": {
+        "title": "WfeValidationExceptionResponse",
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fieldErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "globalErrors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "AUTHENTICATION",
+              "AUTHENTICATION_EXPIRED",
+              "AUTHORIZATION",
+              "DEFINITION_ALREADY_EXISTS",
+              "DEFINITION_ARCHIVE_FORMAT",
+              "DEFINITION_DOES_NOT_EXIST",
+              "DEFINITION_FILE_DOES_NOT_EXIST",
+              "DEFINITION_NAME_MISMATCH",
+              "DEFINITION_NOT_COMPATIBLE",
+              "EXECUTOR_ALREADY_EXISTS",
+              "EXECUTOR_DOES_NOT_EXIST",
+              "EXECUTOR_PARTICIPATES_IN_PROCESSES",
+              "FILTER_FORMAT",
+              "INVALID_DEFINITION",
+              "OTHER",
+              "PARENT_PROCESS_EXISTS",
+              "PROCESS_DOES_NOT_EXIST",
+              "RELATION_ALREADY_EXISTS",
+              "RELATION_DOES_NOT_EXIST",
+              "SUBSTITUTION_DOES_NOT_EXIST",
+              "TASK_ALREADY_ACCEPTED",
+              "TASK_DOES_NOT_EXIST",
+              "VALIDATION",
+              "WEAK_PASSWORD"
+            ]
+          }
+        }
+      },
+      "WfeVariable": {
+        "title": "WfeVariable",
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "object"
+          }
+        }
+      },
+      "WfeVariableDefinition": {
+        "title": "WfeVariableDefinition",
+        "type": "object",
+        "properties": {
+          "defaultValue": {
+            "type": "object"
+          },
+          "description": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "formatClassName": {
+            "type": "string"
+          },
+          "formatComponentClassNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "formatComponentUserTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeVariableUserType"
+            }
+          },
+          "formatLabel": {
+            "type": "string"
+          },
+          "global": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "scriptingName": {
+            "type": "string"
+          },
+          "storeType": {
+            "type": "string",
+            "enum": [
+              "BLOB",
+              "DEFAULT",
+              "TRANSIENT"
+            ]
+          },
+          "userType": {
+            "$ref": "#/components/schemas/WfeVariableUserType"
+          }
+        }
+      },
+      "WfeVariableUserType": {
+        "title": "WfeVariableUserType",
+        "type": "object",
+        "properties": {
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeVariableDefinition"
+            }
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "WfeVariablesSnapshot": {
+        "title": "WfeVariablesSnapshot",
+        "type": "object",
+        "properties": {
+          "simpleVariablesChanged": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "startDateRangeVariables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeVariable"
+            }
+          },
+          "variables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WfeVariable"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "token": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

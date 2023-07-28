@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.commons;
 
 import com.google.common.base.Defaults;
@@ -32,8 +15,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -41,12 +22,10 @@ import ru.runa.wfe.user.ExecutorLoader;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.file.FileVariable;
-import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.format.UserTypeFormat;
 
 @SuppressWarnings("unchecked")
 public class TypeConversionUtil {
-    public static ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     public static <T> T convertTo(Class<T> classConvertTo, Object object) {
         return convertTo(classConvertTo, object, null, null);
@@ -144,7 +123,8 @@ public class TypeConversionUtil {
                 }
             }
             if (classConvertTo == FileVariable.class && Map.class.isAssignableFrom(object.getClass())) {
-                return (T) objectMapper.convertValue(object, FileVariableImpl.class);
+                // something like ru.runa.wfe.var.format.FileFormat.convertFromJSONValue(Object)?
+                throw new InternalApplicationException("TODO rm2650");
             }
             if (classConvertTo.isArray()) {
                 List<?> list = convertTo(List.class, object, preConvertor, postConvertor);
@@ -161,8 +141,8 @@ public class TypeConversionUtil {
             if (object instanceof Calendar && classConvertTo == Date.class) {
                 return (T) ((Calendar) object).getTime();
             }
-            if (object instanceof Long && classConvertTo == Date.class) {
-                return (T) new Date((long) object);
+            if (object instanceof Number && classConvertTo == Date.class) {
+                return (T) new Date(((Number) object).longValue());
             }
             if (object instanceof String && (classConvertTo == Calendar.class || classConvertTo == Date.class)) {
                 Date date;
@@ -194,7 +174,7 @@ public class TypeConversionUtil {
                 return (T) date;
             }
             if (Executor.class.isAssignableFrom(classConvertTo)) {
-                return (T) convertToExecutor(object, ApplicationContextFactory.getExecutorDAO());
+                return (T) convertToExecutor(object, ApplicationContextFactory.getExecutorDao());
             }
             if (postConvertor != null) {
                 T result = postConvertor.convertTo(object, classConvertTo);
@@ -268,7 +248,7 @@ public class TypeConversionUtil {
             } else {
                 throw new RuntimeException("List has insufficient size, index = " + index);
             }
-        } else if (container.getClass().isArray()) {
+        } else if (container != null && container.getClass().isArray()) {
             Object[] array = (Object[]) container;
             if (array.length > index) {
                 return array[index];

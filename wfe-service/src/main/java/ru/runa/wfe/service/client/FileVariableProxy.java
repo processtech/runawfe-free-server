@@ -39,12 +39,15 @@ public class FileVariableProxy implements FileVariable, LinkedWithProcessDefinit
     public FileVariableProxy(User user, Long processId, Long definitionId, String variableName, FileVariable fileVariable) {
         this(user, processId, variableName, fileVariable);
         this.definitionId = definitionId;
-
         if (definitionId == null && processId == null) {
             throw new IllegalArgumentException("One of processId or definitionId should not be null");
         }
     }
 
+    /**
+     * Used by TNMS.
+     */
+    @SuppressWarnings("unused")
     public FileVariableProxy(String unproxiedClassName, String stringValue) {
         this.unproxiedClassName = unproxiedClassName;
         this.stringValue = stringValue;
@@ -76,7 +79,8 @@ public class FileVariableProxy implements FileVariable, LinkedWithProcessDefinit
     public FileVariable getUnproxiedFileVariable() {
         return processId != null ?
                 Delegates.getExecutionService().getFileVariableValue(user, processId, variableName) :
-                Delegates.getDefinitionService().getFileVariableDefaultValue(user, definitionId, variableName);
+ Delegates
+                .getDefinitionService().getFileVariableDefaultValue(user, definitionId, variableName);
     }
 
     public String getUnproxiedClassName() {
@@ -92,7 +96,8 @@ public class FileVariableProxy implements FileVariable, LinkedWithProcessDefinit
     public boolean equals(Object obj) {
         if (obj instanceof FileVariableProxy) {
             FileVariableProxy p = (FileVariableProxy) obj;
-            return Objects.equal(processId, p.processId) && Objects.equal(definitionId, p.definitionId) &&
+            return Objects.equal(processId, p.processId) && Objects.equal(definitionId, p.definitionId)
+                    &&
                     Objects.equal(variableName, p.variableName) && Objects.equal(stringValue, p.stringValue);
         }
         return super.equals(obj);

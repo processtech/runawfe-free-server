@@ -269,7 +269,7 @@ public class BatchPresentationFields implements Serializable {
         // which contains indexes of only(!) sorted fields - in order of sorting(!),
         // and synchronized array of sortModes.
         // All based on info from FieldDescriptors in current type ClassPresentation
-        // (e.g. TaskClassPresentation, ProcessClassPresentation... - all can be found in ClassPresentations class).
+        // (e.g. TaskClassPresentation, CurrentProcessClassPresentation... - all can be found in ClassPresentations class).
         int sortedByDefaultFieldsCount = 0;
         for (FieldDescriptor field : fieldDescriptors) {
             if (field.defaultSortOrder > 0) {

@@ -40,9 +40,6 @@ public class NumberToStringRu {
         String answer = "";
         number %= 100;
         if (number / 10 == 1) {
-            if (answer.length() > 0) {
-                answer += " ";
-            }
             answer += word.s[2];
             return answer;
         }

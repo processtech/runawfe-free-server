@@ -1,11 +1,9 @@
 package ru.runa.wf.web;
 
+import com.google.common.base.Throwables;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.struts.upload.FormFile;
-
 import ru.runa.wf.web.servlet.UploadedFile;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -32,13 +30,11 @@ import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 
-import com.google.common.base.Throwables;
-
 /**
  * Try to convert simple object to variable value.
  */
+@CommonsLog
 public class HttpComponentToVariableValue implements VariableFormatVisitor<Object, HttpComponentToVariableValueContext> {
-    private static final Log log = LogFactory.getLog(HttpComponentToVariableValue.class);
 
     /**
      * Component for loading executors.

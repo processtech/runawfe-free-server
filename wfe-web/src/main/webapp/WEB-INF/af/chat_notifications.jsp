@@ -1,5 +1,6 @@
+<%@page import="ru.runa.common.WebResources"%>
 <%@ page import="ru.runa.common.web.Commons" %>
-<%@ page import="ru.runa.common.WebResources" %>
+<%@ page import="ru.runa.wfe.commons.SystemProperties" %>
 <%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 
@@ -16,7 +17,8 @@
             "newMessage": newMessageAlerter,
             "editMessage": editMessageAlerter,
             "deleteMessage": deleteMessageAlerter,
-            "errorMessage": errorMessageAlerter
+            "errorMessage": errorMessageAlerter,
+            "authenticationRequired": tokenRespondent
         }, '<%=Commons.getUser(request.getSession()).getActor().getName()%>'));
     });
     <% }%>

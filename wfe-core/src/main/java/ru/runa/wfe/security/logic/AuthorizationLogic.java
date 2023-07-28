@@ -1,21 +1,6 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.security.logic;
+
+import ru.runa.wfe.definition.QProcessDefinitionPack;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -27,7 +12,6 @@ import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +21,12 @@ import lombok.val;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.QDeployment;
+import ru.runa.wfe.definition.QProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
 import ru.runa.wfe.security.Permission;
@@ -54,16 +39,18 @@ import ru.runa.wfe.security.dao.QPermissionMapping;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.QExecutor;
 import ru.runa.wfe.user.User;
-
 import static ru.runa.wfe.security.SecuredObjectType.DEFINITION;
 import static ru.runa.wfe.security.SecuredObjectType.EXECUTOR;
 
 /**
  * Created on 14.03.2005
  */
+@Component
 public class AuthorizationLogic extends CommonLogic {
+
     @Autowired
     private SecuredObjectFactory securedObjectFactory;
+
     /**
      * Used by addPermissions() and setPermissions(), to avoid duplicated rows in table "permission_mapping".
      */
@@ -100,15 +87,19 @@ public class AuthorizationLogic extends CommonLogic {
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObject object) {
-        return permissionDao.isAllowed(user, permission, object.getSecuredObjectType(), object.getIdentifiableId());
+        return permissionDao.isAllowed(user, permission, object.getSecuredObjectType(), object.getId());
     }
 
-    public boolean isAllowed(User user, Permission permission, SecuredObjectType securedObjectType, Long identifiableId) {
-        return permissionDao.isAllowed(user, permission, securedObjectType, identifiableId);
+    public boolean isAllowed(User user, Permission permission, SecuredObjectType type, Long identifiableId) {
+        return permissionDao.isAllowed(user, permission, type, identifiableId);
     }
 
     public <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, List<T> securedObjects) {
         return permissionDao.isAllowed(user, permission, securedObjects);
+    }
+
+    public boolean[] isAllowed(User user, Permission permission, SecuredObjectType type, List<Long> ids) {
+        return permissionDao.isAllowed(user, permission, type, ids);
     }
 
     public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType) {
@@ -121,7 +112,6 @@ public class AuthorizationLogic extends CommonLogic {
         return permissionDao.getIssuedPermissions(performer, securedObject);
     }
 
-
     /**
      * Exports permissions to xml, see: ExportDataFileAction.
      * <p>
@@ -131,8 +121,8 @@ public class AuthorizationLogic extends CommonLogic {
         // TODO See #1586-5, #1586-6. Looks like v4.3 had no permission checks for this operation at all.
         permissionDao.checkAllowed(user, Permission.READ, SecuredSingleton.SYSTEM);
         Element parentElement = script.getRootElement();
-        QPermissionMapping pm = QPermissionMapping.permissionMapping;
-        QExecutor e = QExecutor.executor;
+        val pm = QPermissionMapping.permissionMapping;
+        val e = QExecutor.executor;
 
         // Export permissions of all singletons.
         {
@@ -160,125 +150,53 @@ public class AuthorizationLogic extends CommonLogic {
 
         // Export DEFINITION permissions.
         {
-            // ********************************************************************************************************************************
-            // ***** !!!!! DON'T MERGE THIS INTO develop !!!!! This is temporary solution, before table BPM_PROCESS_DEFINITION_VER was created.
-            // ********************************************************************************************************************************
-
-            // Table PERMISSION_MAPPING (PM) for TYPE='DEFINITION' stores OBJECT_ID = Deployment.getIdentifiableId() which is name hash.
-            // So we cannot join on (PM.OBJECT_ID = BPM_PROCESS_DEFINITION.ID) on SQL side.
-            val definitionNamesByIdentifiableIds = new HashMap<Long, String>();
-            QDeployment d = QDeployment.deployment;
-            for (val name : queryFactory.selectDistinct(d.name).from(d).fetch()) {
-                definitionNamesByIdentifiableIds.put((long) name.hashCode(), name);
-            }
-
-            val tuples = queryFactory.select(pm.permission, e.name, pm.objectType, pm.objectId)
-                    .from(pm, e)
-                    .where(pm.objectType.eq(DEFINITION).and(pm.executor.eq(e)))
-                    // exportDataFilePermissions() requires that rows are ordered by (object, executor) first, permission last.
-                    .orderBy(pm.objectId.asc(), e.name.asc(), pm.permission.asc())
-                    .fetch();
-            val rows = new ArrayList<ExportDataFilePermissionRow>(tuples.size());
-            for (val t : tuples) {
-                val objectName = definitionNamesByIdentifiableIds.get(t.get(3, Long.class));
-                if (objectName != null) {
-                    rows.add(new ExportDataFilePermissionRow(t, objectName));
-                }
-            }
-
-            exportDataFilePermissions(parentElement, rows);
-        }
-    }
-
-    private static class ExportDataFilePermissionRow {
-        final Permission permission;
-        final String executorName;
-        final SecuredObjectType objectType;
-        String objectName;
-
-        ExportDataFilePermissionRow(Tuple t) {
-            this(t, t.size() == 4 ? t.get(3, String.class) : null);
-        }
-
-        ExportDataFilePermissionRow(Tuple t, String objectName) {
-            permission = t.get(0, Permission.class);
-            executorName = t.get(1, String.class);
-            objectType = t.get(2, SecuredObjectType.class);
-            this.objectName = objectName;
+            val p = QProcessDefinitionPack.processDefinitionPack;
+            exportDataFilePermissions(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, p.name)
+                    .from(pm, e, p)
+                    .where(pm.objectType.eq(DEFINITION).and(pm.objectId.eq(p.id)).and(pm.executor.eq(e)))
+                    .orderBy(p.name.asc(), e.name.asc(), pm.permission.asc()));
         }
     }
 
     /**
+     *
      * @param parentElement  Parent for "addPermissions" elements.
-     * @param query  Must return fields in order: permission, executorName, objectType, [objectName].
+     * @param query  Rows must be ordered by objectType, objectName, executorName, LAST by permission, because of rows grouping algorithm.
+     *               Fields in tuple must go in this order: permission, executorName, objectType, [objectName].
      */
     private void exportDataFilePermissions(Element parentElement, JPQLQuery<Tuple> query) {
-        try (final CloseableIterator<Tuple> it = query.iterate()) {
-            exportDataFilePermissionsImpl(parentElement, new CloseableIterator<ExportDataFilePermissionRow>() {
-                @Override
-                public void close() {
-                    it.close();
-                }
-
-                @Override
-                public boolean hasNext() {
-                    return it.hasNext();
-                }
-
-                @Override
-                public ExportDataFilePermissionRow next() {
-                    return new ExportDataFilePermissionRow(it.next());
-                }
-            });
-        }
-    }
-
-    private void exportDataFilePermissions(Element parentElement, ArrayList<ExportDataFilePermissionRow> rows) {
-        val it = rows.iterator();
-        exportDataFilePermissionsImpl(parentElement, new CloseableIterator<ExportDataFilePermissionRow>() {
-            @Override
-            public void close() {
-            }
-
-            @Override
-            public boolean hasNext() {
-                return it.hasNext();
-            }
-
-            @Override
-            public ExportDataFilePermissionRow next() {
-                return it.next();
-            }
-        });
-    }
-
-    private void exportDataFilePermissionsImpl(Element parentElement, CloseableIterator<ExportDataFilePermissionRow> it) {
         SecuredObjectType lastObjectType = null;
         String lastObjectName = null;
         String lastExecutorName = null;
         Element addPermissionsElement = null;
 
-        while (it.hasNext()) {
-            val row = it.next();
+        try (CloseableIterator<Tuple> i = query.iterate()) {
+            while (i.hasNext()) {
+                Tuple t = i.next();
+                Permission permission = t.get(0, Permission.class);
+                String executorName = t.get(1, String.class);
+                SecuredObjectType objectType = t.get(2, SecuredObjectType.class);
+                String objectName = t.size() == 4 ? t.get(3, String.class) : null;
 
-            // Manually group by objectType, objectName, executorName.
-            if (row.objectType != lastObjectType || !Objects.equals(row.objectName, lastObjectName) || !Objects.equals(row.executorName,
-                    lastExecutorName)) {
-                lastObjectType = row.objectType;
-                lastObjectName = row.objectName;
-                lastExecutorName = row.executorName;
+                // Manually group by objectType, objectName, executorName.
+                if (objectType != lastObjectType || !Objects.equals(objectName, lastObjectName) || !Objects.equals(executorName, lastExecutorName)) {
+                    lastObjectType = objectType;
+                    lastObjectName = objectName;
+                    lastExecutorName = executorName;
 
-                addPermissionsElement = parentElement.addElement("addPermissions", XmlUtils.RUNA_NAMESPACE);
-                //noinspection ConstantConditions
-                addPermissionsElement.addAttribute("type", row.objectType.getName());
-                if (row.objectName != null) {
-                    addPermissionsElement.addAttribute("name", row.objectName);
+                    addPermissionsElement = parentElement.addElement("addPermissions", XmlUtils.RUNA_NAMESPACE);
+                    //noinspection ConstantConditions
+                    addPermissionsElement.addAttribute("type", objectType.getName());
+                    if (objectName != null) {
+                        addPermissionsElement.addAttribute("name", objectName);
+                    }
+                    addPermissionsElement.addAttribute("executor", executorName);
                 }
-                addPermissionsElement.addAttribute("executor", row.executorName);
-            }
 
-            //noinspection ConstantConditions
-            addPermissionsElement.addElement("permission", XmlUtils.RUNA_NAMESPACE).addAttribute("name", row.permission.getName());
+                if (addPermissionsElement != null) {
+                    addPermissionsElement.addElement("permission", XmlUtils.RUNA_NAMESPACE).addAttribute("name", permission.getName());
+                }
+            }
         }
     }
 
@@ -326,7 +244,7 @@ public class AuthorizationLogic extends CommonLogic {
         Executor executor = executorDao.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
         permissionDao.checkAllowed(user, Permission.READ, executor);
 
-        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+        val pm = QPermissionMapping.permissionMapping;
 
         for (Map.Entry<SecuredObjectType, Set<String>> kv : objectNames.entrySet()) {
             SecuredObjectType type = kv.getKey();
@@ -379,9 +297,7 @@ public class AuthorizationLogic extends CommonLogic {
                     for (IdAndPermission ip : existing) {
                         cond.or(pm.objectId.eq(ip.id).and(pm.permission.eq(ip.permission)));
                     }
-                    if (cond != null) {
-                        queryFactory.delete(pm).where(pm.executor.eq(executor).and(pm.objectType.eq(type)).and(cond)).execute();
-                    }
+                    queryFactory.delete(pm).where(pm.executor.eq(executor).and(pm.objectType.eq(type)).and(cond)).execute();
                 }
             }
         }
@@ -429,7 +345,7 @@ public class AuthorizationLogic extends CommonLogic {
         Executor executor = executorDao.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
         permissionDao.checkAllowed(user, Permission.READ, executor);
 
-        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+        val pm = QPermissionMapping.permissionMapping;
 
         for (Map.Entry<SecuredObjectType, Set<String>> kv : objectNames.entrySet()) {
             SecuredObjectType type = kv.getKey();

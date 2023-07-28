@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.graph.view;
 
 import ru.runa.wfe.lang.Node;
@@ -46,6 +29,7 @@ public class SubprocessNodeGraphElement extends NodeGraphElement {
     private String embeddedSubprocessId;
     private int embeddedSubprocessGraphWidth;
     private int embeddedSubprocessGraphHeight;
+    private boolean triggeredByEvent;
 
     @Override
     public void initialize(Node node, int[] graphConstraints) {
@@ -53,6 +37,7 @@ public class SubprocessNodeGraphElement extends NodeGraphElement {
         SubprocessNode subprocessNode = (SubprocessNode) node;
         this.subprocessName = subprocessNode.getSubProcessName();
         this.embedded = subprocessNode.isEmbedded();
+        this.triggeredByEvent = subprocessNode.isTriggeredByEvent();
     }
 
     /**
@@ -119,5 +104,9 @@ public class SubprocessNodeGraphElement extends NodeGraphElement {
     public void setEmbeddedSubprocessGraphHeight(int embeddedSubprocessGraphHeight) {
         this.embeddedSubprocessGraphHeight = embeddedSubprocessGraphHeight;
     }
-    
+
+    public boolean isTriggeredByEvent() {
+        return triggeredByEvent;
+    }
+
 }

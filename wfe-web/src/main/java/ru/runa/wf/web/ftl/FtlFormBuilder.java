@@ -1,5 +1,9 @@
 package ru.runa.wf.web.ftl;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
+import freemarker.ext.beans.BeanModel;
+import freemarker.ext.beans.BeansWrapper;
 import ru.runa.common.web.StrutsWebHelper;
 import ru.runa.wf.web.TaskFormBuilder;
 import ru.runa.wfe.commons.ftl.FormHashModel;
@@ -10,12 +14,6 @@ import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.var.VariableProvider;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Preconditions;
-
-import freemarker.ext.beans.BeanModel;
-import freemarker.ext.beans.BeansWrapper;
 
 public class FtlFormBuilder extends TaskFormBuilder {
 

@@ -42,5 +42,5 @@ public class AdminScriptConstants {
     public final static String VERSION_FROM_ATTRIBUTE_NAME = "versionFrom";
     public final static String VERSION_TO_ATTRIBUTE_NAME = "versionTo";
     public final static String SEQUENTIAL_EXECUTION_ATTRIBUTE_NAME = "sequentialExecution";
-
+    public final static String SECONDS_BEFORE_ARCHIVING = "secondsBeforeArchiving";
 }

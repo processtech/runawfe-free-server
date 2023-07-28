@@ -28,9 +28,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
 import javax.mail.util.ByteArrayDataSource;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -47,8 +46,8 @@ import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.file.FileVariable;
 
+@CommonsLog
 public class EmailUtils {
-    private static final Log log = LogFactory.getLog(EmailUtils.class);
     private static MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
 
     /**
@@ -175,13 +174,26 @@ public class EmailUtils {
         config.setMessage(formMessage);
         log.debug(formMessage);
         for (String variableName : config.getAttachmentVariableNames()) {
-            FileVariable fileVariable = variableProvider.getValue(FileVariable.class, variableName);
-            if (fileVariable != null) {
-                Attachment attachment = new Attachment();
-                attachment.fileName = fileVariable.getName();
-                attachment.content = fileVariable.getData();
-                config.getAttachments().add(attachment);
+            addAttachmentsFromVariable(config.getAttachments(), variableProvider.getValue(variableName));
+        }
+    }
+
+    private static void addAttachmentsFromVariable(List<Attachment> attachments, Object varObj) {
+        if (varObj == null) {
+            return;
+        }
+        if (varObj instanceof FileVariable) {
+            FileVariable fileVariable = (FileVariable) varObj;
+            Attachment attachment = new Attachment();
+            attachment.fileName = fileVariable.getName();
+            attachment.content = fileVariable.getData();
+            attachments.add(attachment);
+        } else if (varObj instanceof Collection) {
+            for (Object object : (Collection<?>) varObj) {
+                addAttachmentsFromVariable(attachments, object);
             }
+        } else {
+            throw new RuntimeException("Couldn't extract file from variable: " + varObj);
         }
     }
 
@@ -193,7 +205,7 @@ public class EmailUtils {
                 emails.add(actor.getEmail().trim());
             }
         } else if (executor instanceof Group) {
-            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
+            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
             Collection<Actor> actors = executorDao.getGroupActors((Group) executor);
             for (Actor actor : actors) {
                 if (actor.isActive() && !Utils.isNullOrEmpty(actor.getEmail())) {

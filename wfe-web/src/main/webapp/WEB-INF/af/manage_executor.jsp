@@ -10,13 +10,23 @@
 <%
 	long id = Long.parseLong(request.getParameter("id"));
 	String returnAction="/manage_executor.do?id=" + id;
-    SecuredObjectType securedObjectType = Delegates.getExecutorService().getExecutor(Commons.getUser(pageContext.getSession()), id).getSecuredObjectType();
+	SecuredObjectType securedObjectType = Delegates.getExecutorService().getExecutor(Commons.getUser(pageContext.getSession()), id).getSecuredObjectType();
 %>
-
 <wf:updateExecutorDetailsForm identifiableId="<%= id %>">
-<table width="100%">
-	<tr>
+    <table width="100%">
+    <tr>
 		<td align="right">
+		</td>
+<%
+	if (id == Commons.getUser(pageContext.getSession()).getActor().getId()) {
+%>
+		<td width="200" align="right">
+			<a href="javascript:void(0);" onclick="location.assign(location.protocol + '//' + location.host + '/spa');" class="link">Рабочий интерфейс</a>
+		</td>
+<%
+    }
+%>
+		<td width="200" align="right">
 			<wf:listExecutorTasksLink identifiableId='<%= id %>' href='<%= "/manage_observable_tasks.do?executorId=" + id %>' />
 		</td>
 		<td width="200" align="right">
@@ -25,6 +35,16 @@
 	</tr>
 </table>
 </wf:updateExecutorDetailsForm>
+
+<wf:updateDigitalSignatureDetailsForm identifiableId="<%= id %>">
+    <table width="100%">
+        <tr>
+		    <td align="left">
+			    <wf:createDigitalSignatureLink identifiableId='<%= id %>' href='<%= "/create_digital_signature.do?executorId=" + id %>' />
+		    </td>
+		</tr>
+    </table>
+</wf:updateDigitalSignatureDetailsForm>
 
 <wf:updateStatusForm identifiableId="<%= id %>"  />
 

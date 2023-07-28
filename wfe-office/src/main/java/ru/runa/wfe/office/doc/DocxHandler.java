@@ -34,5 +34,4 @@ public class DocxHandler extends OfficeFilesSupplierHandler<DocxConfig> {
         document.write(outputStream);
         return result;
     }
-
 }

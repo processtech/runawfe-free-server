@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.dto.WfDefinition;
-import ru.runa.wfe.definition.logic.DefinitionLogic;
+import ru.runa.wfe.definition.logic.ProcessDefinitionLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.user.User;
@@ -27,15 +27,15 @@ import ru.runa.wfe.user.User;
 public class DefinitionDataFileBuilder implements DataFileBuilder {
 
     @Autowired
-    private DefinitionLogic definitionLogic;
+    private ProcessDefinitionLogic processDefinitionLogic;
 
     @Override
     public void build(ZipOutputStream zos, Document script, User user) throws IOException {
         BatchPresentation batchPresentation = BatchPresentationFactory.DEFINITIONS.createNonPaged();
-        List<WfDefinition> definitions = definitionLogic.getProcessDefinitions(user, batchPresentation, false);
+        List<WfDefinition> definitions = processDefinitionLogic.getProcessDefinitions(user, batchPresentation, false);
         for (WfDefinition definition : definitions) {
             String fileName = definition.getName() + "." + FileDataProvider.PAR_FILE;
-            byte[] definitionPar = definitionLogic.getFile(user, definition.getId(), FileDataProvider.PAR_FILE);
+            byte[] definitionPar = processDefinitionLogic.getFile(user, definition.getId(), FileDataProvider.PAR_FILE);
             ZipEntry zipEntry = new ZipEntry(PATH_TO_PROCESS_DEF + fileName);
             zos.putNextEntry(zipEntry);
             zos.write(definitionPar, 0, definitionPar.length);

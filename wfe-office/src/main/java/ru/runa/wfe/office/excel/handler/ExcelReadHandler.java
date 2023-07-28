@@ -3,6 +3,7 @@ package ru.runa.wfe.office.excel.handler;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.val;
 import org.apache.poi.ss.usermodel.Workbook;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.office.excel.ExcelDataStore;
@@ -22,7 +23,7 @@ public class ExcelReadHandler extends OfficeFilesSupplierHandler<ExcelBindings> 
     @SuppressWarnings("rawtypes")
     @Override
     protected Map<String, Object> executeAction(VariableProvider variableProvider, FileDataProvider fileDataProvider) throws Exception {
-        Map<String, Object> result = new HashMap<String, Object>();
+        val result = new HashMap<String, Object>();
         ExcelDataStore dataStore = new ExcelDataStore();
         InputStream templateInputStream = config.getFileInputStream(variableProvider, fileDataProvider, true);
         Workbook workbook = dataStore.loadWorkbook(templateInputStream, config.isInputFileXLSX(variableProvider, false));
@@ -36,5 +37,4 @@ public class ExcelReadHandler extends OfficeFilesSupplierHandler<ExcelBindings> 
         }
         return result;
     }
-
 }

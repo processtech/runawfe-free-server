@@ -1,28 +1,10 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.common.web;
 
 import com.google.common.base.Throwables;
 import java.util.Locale;
 import javax.security.auth.login.LoginException;
 import javax.servlet.jsp.PageContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import ru.runa.wf.web.VariablesFormatException;
@@ -58,8 +40,8 @@ import ru.runa.wfe.validation.ValidationException;
 /**
  * Created 27.05.2005
  */
+@CommonsLog
 public class ActionExceptionHelper {
-    private static final Log log = LogFactory.getLog(ActionExceptionHelper.class);
 
     public static void addException(ActionMessages errors, Throwable e, Locale locale) {
         e = Throwables.getRootCause(e);
@@ -105,7 +87,7 @@ public class ActionExceptionHelper {
             actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_ALREADY_EXISTS.getKey(), exception.getName());
         } else if (e instanceof DefinitionDoesNotExistException) {
             DefinitionDoesNotExistException exception = (DefinitionDoesNotExistException) e;
-            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_DOES_NOT_EXIST.getKey(), exception.getName());
+            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_DOES_NOT_EXIST.getKey(), exception.getQuotedName());
         } else if (e instanceof DefinitionFileDoesNotExistException) {
             actionMessage = new ActionMessage(MessagesException.DEFINITION_FILE_DOES_NOT_EXIST_ERROR.getKey(), e.getMessage());
         } else if (e instanceof DefinitionArchiveFormatException) {
@@ -115,7 +97,7 @@ public class ActionExceptionHelper {
                     ((InvalidDefinitionException) e).getDefinitionName(), e.getMessage());
         } else if (e instanceof DefinitionNameMismatchException) {
             DefinitionNameMismatchException exception = (DefinitionNameMismatchException) e;
-            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NAME_MISMATCH.getKey(), exception.getDeployedProcessDefinitionName(),
+            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NAME_MISMATCH.getKey(), exception.getExpectedProcessDefinitionName(),
                     exception.getGivenProcessDefinitionName());
         } else if (e instanceof ProcessDefinitionNotCompatibleException) {
             ProcessDefinitionNotCompatibleException exception = (ProcessDefinitionNotCompatibleException) e;

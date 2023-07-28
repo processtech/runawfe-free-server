@@ -115,5 +115,4 @@ public class DocxFileChanger {
             paragraphs.clear();
         }
     }
-
 }

@@ -5,25 +5,16 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.transaction.Transaction;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
-import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
 import ru.runa.wfe.commons.cache.states.CacheState;
-import ru.runa.wfe.commons.cache.states.CacheStateFactory;
-import ru.runa.wfe.commons.cache.states.DefaultStateContext;
-import ru.runa.wfe.commons.cache.states.IsolatedCacheStateFactory;
 
 public final class TestLazyCacheCtrl {
-    private final CacheStateMachine<TestCacheIface, DefaultStateContext> stateMachine;
-    private final LazyInitializedCacheFactory<TestCacheIface> factory;
+    private final CacheStateMachine<TestCacheIface> stateMachine;
     private final TestCacheStateMachineAudit<TestCacheIface> audit;
-    private final ThreadLocal<TestTransaction> transactions = new ThreadLocal<TestTransaction>();
+    private final ThreadLocal<TestTransaction> transactions = new ThreadLocal<>();
 
-    public TestLazyCacheCtrl(LazyInitializedCacheFactory<TestCacheIface> factory) {
-        this.factory = factory;
-        audit = new TestCacheStateMachineAudit<TestCacheIface>();
-        CacheStateFactory<TestCacheIface, DefaultStateContext> stateFactory =
-                new IsolatedCacheStateFactory<TestCacheIface>();
-        stateMachine =
-                CacheStateMachine.createStateMachine(factory, stateFactory, TestLazyCacheCtrl.class, new TestCacheTransactionalExecutor(), audit);
+    public TestLazyCacheCtrl(TestLazyCacheFactoryCallback factoryCallback) {
+        audit = new TestCacheStateMachineAudit<>();
+        stateMachine = new CacheStateMachine<>(new TestLazyCacheFactory(factoryCallback), TestLazyCacheCtrl.class, audit);
     }
 
     public TestCacheIface getCacheWithChoise(boolean isWriteTransaction, boolean getCacheIfNotLocked) {
@@ -81,22 +72,18 @@ public final class TestLazyCacheCtrl {
         return getStateMachineState().getCacheQuickNoBuild(transactions.get());
     }
 
-    private CacheState<TestCacheIface, DefaultStateContext> getStateMachineState() {
+    private CacheState<TestCacheIface> getStateMachineState() {
         try {
 
             Field stateField = stateMachine.getClass().getDeclaredField("state");
             stateField.setAccessible(true);
-            AtomicReference<CacheState<TestCacheIface, DefaultStateContext>> state =
-                    (AtomicReference<CacheState<TestCacheIface, DefaultStateContext>>) stateField.get(stateMachine);
+            AtomicReference<CacheState<TestCacheIface>> state =
+                    (AtomicReference<CacheState<TestCacheIface>>) stateField.get(stateMachine);
             return state.get();
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public LazyInitializedCacheFactory<TestCacheIface> getFactory() {
-        return factory;
     }
 
     public TestCacheStateMachineAudit<TestCacheIface> getAudit() {

@@ -7,7 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -24,21 +24,21 @@ public class VariableLoader {
     private static final Log log = LogFactory.getLog(VariableLoader.class);
 
     private final VariableDao dao;
-    private final Map<Process, Map<String, Variable<?>>> preloadedOutsideVariables = new HashMap<>();
+    private final Map<Process, Map<String, Variable>> preloadedOutsideVariables = new HashMap<>();
 
-    public VariableLoader(VariableDao dao, Map<Process, Map<String, Variable<?>>> preloadedVariables) {
+    public VariableLoader(VariableDao dao, Map<Process, Map<String, Variable>> preloadedVariables) {
         this.dao = dao;
         if (preloadedVariables != null) {
             this.preloadedOutsideVariables.putAll(preloadedVariables);
         }
     }
 
-    public VariableLoader(Map<Process, Map<String, Variable<?>>> loadedVariables) {
+    public VariableLoader(Map<Process, Map<String, Variable>> loadedVariables) {
         this(null, loadedVariables);
     }
 
-    public Variable<?> get(Process process, String name) {
-        Map<String, Variable<?>> loadedProcessVariables = preloadedOutsideVariables.get(process);
+    public Variable get(Process process, String name) {
+        Map<String, Variable> loadedProcessVariables = preloadedOutsideVariables.get(process);
         if (loadedProcessVariables != null && loadedProcessVariables.containsKey(name)) {
             return loadedProcessVariables.get(name);
         }
@@ -48,7 +48,7 @@ public class VariableLoader {
         return null;
     }
 
-    public WfVariable getVariable(ProcessDefinition processDefinition, Process process, String variableName) {
+    public WfVariable getVariable(ParsedProcessDefinition processDefinition, Process process, String variableName) {
         VariableDefinition variableDefinition = processDefinition.getVariable(variableName, false);
         if (variableDefinition != null) {
             Object variableValue = getVariableValue(processDefinition, process, variableDefinition);
@@ -71,20 +71,20 @@ public class VariableLoader {
             return new WfVariable(variableDefinition, variableValue);
         }
         if (SystemProperties.isV3CompatibilityMode()) {
-            Variable<?> variable = get(process, variableName);
+            Variable variable = get(process, variableName);
             return new WfVariable(variableName, variable != null ? variable.getValue() : null);
         }
         log.debug("No variable defined by name '" + variableName + "' in " + process + ", returning null");
         return null;
     }
 
-    public Object getVariableValue(ProcessDefinition processDefinition, Process process, VariableDefinition variableDefinition) {
+    public Object getVariableValue(ParsedProcessDefinition processDefinition, Process process, VariableDefinition variableDefinition) {
         VariableFormat format = variableDefinition.getFormatNotNull();
         boolean preloadBatchVariables = dao != null && format.canBePersistedAsComplexVariable();
-        Map<String, Variable<?>> preloadedBatchVariables = new HashMap<>();
+        Map<String, Variable> preloadedBatchVariables = new HashMap<>();
         if (preloadBatchVariables) {
-            final List<Variable<?>> variables = dao.getVariablesByNameStartsWith(process, variableDefinition.getName());
-            for (Variable<?> variable : variables) {
+            final List<? extends Variable> variables = dao.getVariablesByNameStartsWith(process, variableDefinition.getName());
+            for (Variable variable : variables) {
                 preloadedBatchVariables.put(variable.getName(), variable);
             }
         }

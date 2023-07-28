@@ -31,5 +31,4 @@ public abstract class ExcelStorable<C extends ExcelConstraints, Data> {
     public abstract void storeIn(Workbook workbook);
 
     public abstract void load(Workbook workbook);
-
 }

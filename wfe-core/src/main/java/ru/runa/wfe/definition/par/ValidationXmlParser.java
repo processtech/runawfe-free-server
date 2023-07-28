@@ -11,7 +11,7 @@ import org.dom4j.Element;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.InvalidDefinitionException;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.validation.FieldValidator;
 import ru.runa.wfe.validation.ValidatorConfig;
 
@@ -28,7 +28,7 @@ public class ValidationXmlParser {
     private static final String MESSAGE_ELEMENT_NAME = "message";
     private static final String PARAM_ELEMENT_NAME = "param";
 
-    public static List<String> readVariableNames(ProcessDefinition processDefinition, String fileName, byte[] xmlFileBytes) {
+    public static List<String> readVariableNames(ParsedProcessDefinition parsedProcessDefinition, String fileName, byte[] xmlFileBytes) {
         try {
             Document document = XmlUtils.parseWithoutValidation(xmlFileBytes);
             List<Element> fieldElements = document.getRootElement().elements(FIELD_ELEMENT_NAME);
@@ -39,11 +39,11 @@ public class ValidationXmlParser {
             return varNames;
         } catch (Exception e) {
             Throwables.propagateIfInstanceOf(e, InvalidDefinitionException.class);
-            throw new InvalidDefinitionException(processDefinition.getName(), "Error in " + fileName, e);
+            throw new InvalidDefinitionException(parsedProcessDefinition.getName(), "Error in " + fileName, e);
         }
     }
 
-    public static List<String> readRequiredVariableNames(ProcessDefinition processDefinition, byte[] xmlFileBytes) {
+    public static List<String> readRequiredVariableNames(ParsedProcessDefinition parsedProcessDefinition, byte[] xmlFileBytes) {
         try {
             Document document = XmlUtils.parseWithoutValidation(xmlFileBytes);
             List<Element> fieldElements = document.getRootElement().elements(FIELD_ELEMENT_NAME);
@@ -64,7 +64,7 @@ public class ValidationXmlParser {
             return variableNames;
         } catch (Exception e) {
             Throwables.propagateIfInstanceOf(e, InvalidDefinitionException.class);
-            throw new InvalidDefinitionException(processDefinition.getName(), e);
+            throw new InvalidDefinitionException(parsedProcessDefinition.getName(), e);
         }
     }
 

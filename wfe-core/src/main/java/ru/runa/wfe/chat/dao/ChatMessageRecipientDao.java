@@ -13,6 +13,10 @@ import ru.runa.wfe.user.QActor;
 @MonitoredWithSpring
 public class ChatMessageRecipientDao extends GenericDao<ChatMessageRecipient> {
 
+    public ChatMessageRecipientDao() {
+        super(ChatMessageRecipient.class);
+    }
+
     public List<Actor> getRecipientsByMessageId(Long messageId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(cr.actor.as(QActor.class)).from(cr).where(cr.message.id.eq(messageId)).fetch();

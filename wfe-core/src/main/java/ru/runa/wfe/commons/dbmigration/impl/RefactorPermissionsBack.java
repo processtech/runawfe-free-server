@@ -65,13 +65,13 @@ public class RefactorPermissionsBack extends DbMigration {
     @SneakyThrows
     public void executeDML(Session session) {
 //        if (true) throw new Exception("DEBUG STOP");
-        Connection conn = session.connection();
+        session.doWork(conn -> {
 
         // Are we working with RunaWFE 4.3.0 (original RefactorPermissionsStep4 is not yet applied) or 4.4.0?
         boolean isV43;
         try (Statement stmt = conn.createStatement()) {
             // No "limit 1", because Oracle does not understand it.
-            val rs = stmt.executeQuery("select 1 from priveleged_mapping where type='ACTOR'");
+            val rs = stmt.executeQuery("select 1 from " + schemaPrefix + "priveleged_mapping where type='ACTOR'");
             isV43 = rs.next();
         }
 
@@ -83,6 +83,7 @@ public class RefactorPermissionsBack extends DbMigration {
         } else {
             executeDML_fromV44(session, conn);
         }
+        });
     }
 
 
@@ -98,11 +99,11 @@ public class RefactorPermissionsBack extends DbMigration {
         // Refill priveleged_mapping from scratch.
         {
             @SuppressWarnings("unchecked")
-            List<Number> executorIds = session.createSQLQuery("select distinct executor_id from priveleged_mapping order by executor_id").list();
+            List<Number> executorIds = session.createSQLQuery("select distinct executor_id from " + schemaPrefix + "priveleged_mapping order by executor_id").list();
 
-            session.createSQLQuery("delete from priveleged_mapping where 1=1").executeUpdate();
+            session.createSQLQuery("delete from " + schemaPrefix + "priveleged_mapping where 1=1").executeUpdate();
 
-            SQLQuery qInsert = session.createSQLQuery("insert into priveleged_mapping(" + insertPkColumn() + "type, executor_id) values (" +
+            SQLQuery qInsert = session.createSQLQuery("insert into " + schemaPrefix + "priveleged_mapping(" + insertPkColumn() + "type, executor_id) values (" +
                     insertPkNextVal("priveleged_mapping") + ":type, :executorId)");
             for (String t : allTypes) {
                 for (Number e : executorIds) {
@@ -116,9 +117,9 @@ public class RefactorPermissionsBack extends DbMigration {
 
         // Update permission_mapping.type.
         try (val stmt = conn.createStatement()) {
-            stmt.executeUpdate("update permission_mapping set object_type = 'REPORTS' where object_type = 'REPORT' and object_id = 0");
-            stmt.executeUpdate("update permission_mapping set object_type = 'BOTSTATIONS' where object_type = 'BOTSTATION'");
-            stmt.executeUpdate("update permission_mapping set object_type = 'RELATIONS' where object_type = 'RELATIONGROUP'");
+            stmt.executeUpdate("update " + schemaPrefix + "permission_mapping set object_type = 'REPORTS' where object_type = 'REPORT' and object_id = 0");
+            stmt.executeUpdate("update " + schemaPrefix + "permission_mapping set object_type = 'BOTSTATIONS' where object_type = 'BOTSTATION'");
+            stmt.executeUpdate("update " + schemaPrefix + "permission_mapping set object_type = 'RELATIONS' where object_type = 'RELATIONGROUP'");
         }
 
 
@@ -172,11 +173,11 @@ public class RefactorPermissionsBack extends DbMigration {
 
             try (
                     Statement q = conn.createStatement();
-                    PreparedStatement qDelete = conn.prepareStatement("delete from permission_mapping where id = ?");
-                    PreparedStatement qUpdate = conn.prepareStatement("update permission_mapping set permission = ? where id = ?");
+                    PreparedStatement qDelete = conn.prepareStatement("delete from " + schemaPrefix + "permission_mapping where id = ?");
+                    PreparedStatement qUpdate = conn.prepareStatement("update " + schemaPrefix + "permission_mapping set permission = ? where id = ?");
             ) {
                 val rs = q.executeQuery("select id, executor_id, object_type, object_id, permission " +
-                        "from permission_mapping " +
+                        "from " + schemaPrefix + "permission_mapping " +
                         "where object_type in ('" + StringUtils.join(filterObjectTypes, "','") + "') " +
                         "and permission in ('" + StringUtils.join(filterPermissions, "','") + "')");
                 while (rs.next()) {
@@ -209,18 +210,18 @@ public class RefactorPermissionsBack extends DbMigration {
         // Updates without merging:
         {
             String[] specialQueries = new String[] {
-                    "update permission_mapping set permission = 'UPDATE' " +
+                    "update " + schemaPrefix + "permission_mapping set permission = 'UPDATE' " +
                             "where permission in ('BOT_STATION_CONFIGURE', 'REDEPLOY_DEFINITION', 'UPDATE_RELATION', 'DEPLOY_REPORT')",
 
-                    "update permission_mapping set permission = 'DELETE' where object_type = 'DEFINITION' and permission = 'UNDEPLOY_DEFINITION'",
+                    "update " + schemaPrefix + "permission_mapping set permission = 'DELETE' where object_type = 'DEFINITION' and permission = 'UNDEPLOY_DEFINITION'",
 
-                    "update permission_mapping set permission = 'VIEW_TASKS' " +
+                    "update " + schemaPrefix + "permission_mapping set permission = 'VIEW_TASKS' " +
                             "where object_type = 'EXECUTOR' and permission in ('VIEW_ACTOR_TASKS', 'VIEW_GROUP_TASKS')",
 
-                    "update permission_mapping set permission = 'CANCEL' where object_type = 'PROCESS' and permission = 'CANCEL_PROCESS'",
+                    "update " + schemaPrefix + "permission_mapping set permission = 'CANCEL' where object_type = 'PROCESS' and permission = 'CANCEL_PROCESS'",
 
-                    "update permission_mapping set permission = 'LOGIN' where object_type = 'SYSTEM' and permission = 'LOGIN_TO_SYSTEM'",
-                    "update permission_mapping set permission = 'CREATE_DEFINITION' where object_type='SYSTEM' and permission = 'DEPLOY_DEFINITION'",
+                    "update " + schemaPrefix + "permission_mapping set permission = 'LOGIN' where object_type = 'SYSTEM' and permission = 'LOGIN_TO_SYSTEM'",
+                    "update " + schemaPrefix + "permission_mapping set permission = 'CREATE_DEFINITION' where object_type='SYSTEM' and permission = 'DEPLOY_DEFINITION'",
             };
             for (String q : specialQueries) {
                 session.createSQLQuery(q).executeUpdate();
@@ -233,7 +234,7 @@ public class RefactorPermissionsBack extends DbMigration {
 
         // Delete old obsolete batch_permission categories.
         {
-            session.createSQLQuery("delete from batch_presentation where category in (:categories)")
+            session.createSQLQuery("delete from " + schemaPrefix + "batch_presentation where category in (:categories)")
                     .setParameterList("categories", new String[] {
                             "listExecutorsWithoutBotStationPermission",
                             "listExecutorsWithoutPermissionsOnExecutorForm",
@@ -257,12 +258,12 @@ public class RefactorPermissionsBack extends DbMigration {
         // Replace ACTOR and GROUP types with EXECUTOR in permission_mapping
         // Delete ACTOR and GROUP from priveleged_mapping
         {
-            session.createSQLQuery("delete from permission_mapping where object_type = 'EXECUTOR'").executeUpdate();
-            session.createSQLQuery("update permission_mapping set object_type = 'EXECUTOR' where object_type = 'ACTOR' or object_type = 'GROUP'")
+            session.createSQLQuery("delete from " + schemaPrefix + "permission_mapping where object_type = 'EXECUTOR'").executeUpdate();
+            session.createSQLQuery("update " + schemaPrefix + "permission_mapping set object_type = 'EXECUTOR' where object_type = 'ACTOR' or object_type = 'GROUP'")
                     .executeUpdate();
-            session.createSQLQuery("delete from priveleged_mapping where type = 'EXECUTOR'").executeUpdate();
-            session.createSQLQuery("delete from priveleged_mapping where type = 'GROUP'").executeUpdate();
-            session.createSQLQuery("update priveleged_mapping set type = 'EXECUTOR' where type = 'ACTOR'").executeUpdate();
+            session.createSQLQuery("delete from " + schemaPrefix + "priveleged_mapping where type = 'EXECUTOR'").executeUpdate();
+            session.createSQLQuery("delete from " + schemaPrefix + "priveleged_mapping where type = 'GROUP'").executeUpdate();
+            session.createSQLQuery("update " + schemaPrefix + "priveleged_mapping set type = 'EXECUTOR' where type = 'ACTOR'").executeUpdate();
         }
     }
 
@@ -288,7 +289,7 @@ public class RefactorPermissionsBack extends DbMigration {
                 Long objectId;
             }
             val rows = new LinkedHashSet<Row>(1000);
-            val sqlSuffix = "from permission_mapping where object_type in ('DEFINITION', 'EXECUTOR', 'PROCESS') and permission in ('LIST', 'READ')";
+            val sqlSuffix = "from " + schemaPrefix + "permission_mapping where object_type in ('DEFINITION', 'EXECUTOR', 'PROCESS') and permission in ('LIST', 'READ')";
             try (Statement stmt = conn.createStatement()) {
                 val rs = stmt.executeQuery("select executor_id, object_type, object_id " + sqlSuffix);
                 while (rs.next()) {
@@ -299,7 +300,7 @@ public class RefactorPermissionsBack extends DbMigration {
                 stmt.executeUpdate("delete " + sqlSuffix);
             }
 
-            try (PreparedStatement stmt = conn.prepareStatement("insert into permission_mapping (" + insertPkColumn() +
+            try (PreparedStatement stmt = conn.prepareStatement("insert into " + schemaPrefix + "permission_mapping (" + insertPkColumn() +
                     "executor_id, object_type, object_id, permission) values (" + insertPkNextVal("permission_mapping") + "?, ?, ?, 'READ')"
             )) {
                 for (Row r : rows) {
@@ -316,23 +317,23 @@ public class RefactorPermissionsBack extends DbMigration {
         {
             String[] specialQueries = new String[]{
                     // Delete UPDATE_STATUS perission for groups, see #1586-27.
-                    "delete from permission_mapping where permission='UPDATE_STATUS' and object_id in (select id from executor where discriminator='Y')",
+                    "delete from " + schemaPrefix + "permission_mapping where permission='UPDATE_STATUS' and object_id in (select id from " + schemaPrefix + "executor where discriminator='Y')",
 
-                    "update permission_mapping set permission = 'UPDATE' " +
+                    "update " + schemaPrefix + "permission_mapping set permission = 'UPDATE' " +
                             "where object_type in ('BOTSTATIONS', 'RELATIONS', 'REPORT', 'REPORTS') and permission = 'ALL'",
 
-                    "update permission_mapping set permission = 'START_PROCESS' where object_type='DEFINITION' and permission = 'START'",
+                    "update " + schemaPrefix + "permission_mapping set permission = 'START_PROCESS' where object_type='DEFINITION' and permission = 'START'",
 
-                    "update permission_mapping set permission = 'UPDATE_ACTOR_STATUS' where object_type='EXECUTOR' and permission = 'UPDATE_STATUS'",
+                    "update " + schemaPrefix + "permission_mapping set permission = 'UPDATE_ACTOR_STATUS' where object_type='EXECUTOR' and permission = 'UPDATE_STATUS'",
 
-                    "update permission_mapping set object_type = 'SYSTEM' where object_type = 'EXECUTORS' and permission = 'LOGIN'",
+                    "update " + schemaPrefix + "permission_mapping set object_type = 'SYSTEM' where object_type = 'EXECUTORS' and permission = 'LOGIN'",
 
-                    "update permission_mapping set permission = 'READ' where object_type='SYSTEM' and permission = 'ALL'",
-                    "update permission_mapping set permission = 'VIEW_LOGS', object_type = 'SYSTEM' " +
+                    "update " + schemaPrefix + "permission_mapping set permission = 'READ' where object_type='SYSTEM' and permission = 'ALL'",
+                    "update " + schemaPrefix + "permission_mapping set permission = 'VIEW_LOGS', object_type = 'SYSTEM' " +
                             "where object_type='LOGS' and permission = 'ALL'",
-                    "update permission_mapping set permission = 'CREATE_DEFINITION', object_type = 'SYSTEM' " +
+                    "update " + schemaPrefix + "permission_mapping set permission = 'CREATE_DEFINITION', object_type = 'SYSTEM' " +
                             "where object_type='DEFINITIONS' and permission = 'CREATE'",
-                    "update permission_mapping set permission = 'CREATE_EXECUTOR', object_type = 'SYSTEM' " +
+                    "update " + schemaPrefix + "permission_mapping set permission = 'CREATE_EXECUTOR', object_type = 'SYSTEM' " +
                             "where object_type='EXECUTORS' and permission = 'CREATE'",
             };
             try (Statement stmt = conn.createStatement()) {
@@ -347,11 +348,11 @@ public class RefactorPermissionsBack extends DbMigration {
         {
             // fix RELATION if not exists
             String type = "RELATION";
-            Number count = (Number) session.createSQLQuery("select count(*) from priveleged_mapping where type = :type").setParameter("type", type)
+            Number count = (Number) session.createSQLQuery("select count(*) from " + schemaPrefix + "priveleged_mapping where type = :type").setParameter("type", type)
                     .uniqueResult();
             if (count.intValue() == 0) {
-                List<Number> executorIds = session.createSQLQuery("select distinct executor_id from priveleged_mapping order by executor_id").list();
-                SQLQuery qInsert = session.createSQLQuery("insert into priveleged_mapping(" + insertPkColumn() + "type, executor_id) values ("
+                List<Number> executorIds = session.createSQLQuery("select distinct executor_id from " + schemaPrefix + "priveleged_mapping order by executor_id").list();
+                SQLQuery qInsert = session.createSQLQuery("insert into " + schemaPrefix + "priveleged_mapping(" + insertPkColumn() + "type, executor_id) values ("
                         + insertPkNextVal("priveleged_mapping") + ":type, :executorId)");
                 for (Number e : executorIds) {
                     qInsert.setParameter("type", type);
@@ -366,12 +367,12 @@ public class RefactorPermissionsBack extends DbMigration {
      * Delete permission_mapping rows which still contain illegal (object type, permission name) combinations.
      */
     private void deleteBadPermissionMappings(Session session) {
-        session.createSQLQuery("delete from permission_mapping where object_type not in (:types)").setParameterList("types", allTypes).executeUpdate();
-        session.createSQLQuery("delete from priveleged_mapping where        type not in (:types)").setParameterList("types", allTypes).executeUpdate();
+        session.createSQLQuery("delete from " + schemaPrefix + "permission_mapping where object_type not in (:types)").setParameterList("types", allTypes).executeUpdate();
+        session.createSQLQuery("delete from " + schemaPrefix + "priveleged_mapping where        type not in (:types)").setParameterList("types", allTypes).executeUpdate();
 
-        Query qDeleteWithIds = session.createSQLQuery("delete from permission_mapping where (object_type = :type) and object_id <> 0");
-        Query qDeleteWithoutIds = session.createSQLQuery("delete from permission_mapping where (object_type = :type) and object_id = 0");
-        Query qDeleteBadPerms = session.createSQLQuery("delete from permission_mapping where (object_type = :type) and (permission not in (:permissions))");
+        Query qDeleteWithIds = session.createSQLQuery("delete from " + schemaPrefix + "permission_mapping where (object_type = :type) and object_id <> 0");
+        Query qDeleteWithoutIds = session.createSQLQuery("delete from " + schemaPrefix + "permission_mapping where (object_type = :type) and object_id = 0");
+        Query qDeleteBadPerms = session.createSQLQuery("delete from " + schemaPrefix + "permission_mapping where (object_type = :type) and (permission not in (:permissions))");
         for (PMatch pm : pMatches) {
             (pm.hasIds ? qDeleteWithoutIds : qDeleteWithIds).setParameter("type", pm.type).executeUpdate();
             qDeleteBadPerms.setParameter("type", pm.type).setParameterList("permissions", pm.perms).executeUpdate();

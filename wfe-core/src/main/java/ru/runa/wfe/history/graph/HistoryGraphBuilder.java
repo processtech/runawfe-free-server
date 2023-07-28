@@ -1,14 +1,12 @@
 package ru.runa.wfe.history.graph;
 
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.graph.history.ProcessInstanceData;
-
-import com.google.common.collect.Maps;
 
 /**
  * Parse logs and build node graph.
@@ -24,13 +22,13 @@ public final class HistoryGraphBuilder {
      *            Process instance and definition data.
      * @return Returns root node of history graph.
      */
-    public static HistoryGraphNode buildHistoryGraph(List<ProcessLog> logs, ProcessInstanceData definitionModel) {
+    public static HistoryGraphNode buildHistoryGraph(List<BaseProcessLog> logs, ProcessInstanceData definitionModel) {
         Map<String, List<HistoryGraphNode>> currentWorkNodes = Maps.newHashMap();
         HistoryGraphNode root = new HistoryGraphGenericNodeModel(logs.get(0), definitionModel, new HistoryGraphNodeFactoryImpl(currentWorkNodes));
-        ArrayList<HistoryGraphNode> arrayList = new ArrayList<HistoryGraphNode>();
+        ArrayList<HistoryGraphNode> arrayList = new ArrayList<>();
         arrayList.add(root);
         currentWorkNodes.put(logs.get(0).getNodeId(), arrayList);
-        for (ProcessLog log : logs) {
+        for (BaseProcessLog log : logs) {
             if (log.getNodeId() == null) {
                 continue;
             }
@@ -42,7 +40,7 @@ public final class HistoryGraphBuilder {
             if (childNodeModel != null) {
                 List<HistoryGraphNode> nodes = currentWorkNodes.get(childNodeModel.getNodeId());
                 if (nodes == null) {
-                    nodes = new ArrayList<HistoryGraphNode>();
+                    nodes = new ArrayList<>();
                     currentWorkNodes.put(childNodeModel.getNodeId(), nodes);
                 }
                 if (!nodes.contains(childNodeModel)) {
@@ -65,7 +63,7 @@ public final class HistoryGraphBuilder {
      *            Nodes, which currently may generate logs.
      * @return
      */
-    private static HistoryGraphNode getLogNodeModel(ProcessLog log, Map<String, List<HistoryGraphNode>> currentWorkNodes,
+    private static HistoryGraphNode getLogNodeModel(BaseProcessLog log, Map<String, List<HistoryGraphNode>> currentWorkNodes,
             ProcessInstanceData definitionModel) {
         String nodeId = log.getNodeId();
         if (log instanceof TransitionLog) {

@@ -295,4 +295,5 @@ public abstract class JdbcStoreService implements StoreService {
         return variable.getDefinition().isUserType() ? variable.getDefinition().getUserType()
                 : variable.getDefinition().getFormatComponentUserTypes()[0];
     }
+
 }

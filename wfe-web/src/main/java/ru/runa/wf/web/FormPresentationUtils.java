@@ -1,21 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
-
 package ru.runa.wf.web;
 
 import com.google.common.base.Charsets;
@@ -27,8 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.jsp.PageContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -42,21 +23,19 @@ import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.action.LoadProcessDefinitionHtmlFileAction;
 import ru.runa.wf.web.form.DefinitionFileForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.var.VariableProvider;
 
 /**
  * 
  * Created on 21.02.2007
  * 
  */
+@CommonsLog
 public class FormPresentationUtils {
-    private static final Log log = LogFactory.getLog(FormPresentationUtils.class);
-
     private static final String PROTOCOL_SEPARATOR = "//";
     /**
      * This map contains Tag name -> Href attribute name
      */
-    private static final Map<String, String> TAG_NAME_ATTRIBUTE_MAP = new HashMap<String, String>();
+    private static final Map<String, String> TAG_NAME_ATTRIBUTE_MAP = new HashMap<>();
     static {
         TAG_NAME_ATTRIBUTE_MAP.put("a", "href");
         TAG_NAME_ATTRIBUTE_MAP.put("img", "src");
@@ -164,15 +143,10 @@ public class FormPresentationUtils {
     }
 
     private static boolean isHrefRelative(String href) {
-        if (href.contains(PROTOCOL_SEPARATOR) || href.startsWith("/")) {
-            return false;
-        } else {
-            return true;
-        }
+        return !href.contains(PROTOCOL_SEPARATOR) && !href.startsWith("/");
     }
 
-    public static String adjustForm(PageContext pageContext, Long definitionId, String formHtml, VariableProvider variableProvider,
-            List<String> requiredVarNames) {
+    public static String adjustForm(PageContext pageContext, Long definitionId, String formHtml, List<String> requiredVarNames) {
         try {
             Map<String, String> userErrors = FormSubmissionUtils.getUserInputErrors(pageContext.getRequest());
             Document document = HTMLUtils.readHtml(formHtml.getBytes(Charsets.UTF_8));
@@ -248,7 +222,7 @@ public class FormPresentationUtils {
             String errorText = getErrorText(pageContext, errors, inputName);
             if ("file".equalsIgnoreCase(node.getAttribute(TYPE_ATTR)) && WebResources.isAjaxFileInputEnabled()) {
                 try {
-                    node = (Element) ((Element) ((Element) node.getParentNode()).getParentNode()).getParentNode();
+                    node = (Element) node.getParentNode().getParentNode().getParentNode();
                 } catch (Exception e) {
                     log.error("Unexpected file input format", e);
                 }

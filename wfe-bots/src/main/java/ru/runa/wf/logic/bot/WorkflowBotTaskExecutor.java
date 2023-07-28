@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.logic.bot;
 
 import com.google.common.base.Objects;
@@ -23,7 +6,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import lombok.val;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.ConfigurationException;
@@ -34,7 +16,6 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarInterval;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.CoreErrorProperties;
-import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.extension.TaskHandler;
 import ru.runa.wfe.extension.handler.ParamDef;
@@ -148,8 +129,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                     ParamsDef paramsDef = BotTaskConfigurationUtils.getExtendedBotTaskParameters(user, task, botTask.getConfiguration());
                     variableProvider = new ParamBasedVariableProvider(variableProvider, paramsDef);
                 } else if (BotTaskConfigurationUtils.isParameterizedBotTaskConfiguration(botTask.getConfiguration())) {
-                    byte[] configuration = BotTaskConfigurationUtils.substituteParameterizedConfiguration(user, task, botTask.getConfiguration(),
-                            variableProvider);
+                    byte[] configuration = BotTaskConfigurationUtils.substituteParameterizedConfiguration(user, task, botTask.getConfiguration());
                     taskHandler.setConfiguration(configuration, botTask.getEmbeddedFile());
                 } else {
                     taskHandler.setConfiguration(botTask.getConfiguration(), botTask.getEmbeddedFile());
@@ -160,9 +140,12 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                 throw new ConfigurationException(CoreErrorProperties.getMessage(CoreErrorProperties.BOT_TASK_CONFIGURATION_ERROR, botTaskName), th);
             }
             log.info("Starting bot task " + task + " with config \n" + taskHandler.getConfiguration());
-            val executor = new BotTaskTransactionalExecutor(user, taskHandler, variableProvider, task);
-            executor.executeInTransaction(true);
-            Map<String, Object> variables = executor.variables;
+            Map<String, Object> variables = new HashMap<String, Object>();
+            final VariableProvider finalVariableProvider = variableProvider;
+            final TaskHandler finalTaskHandler = taskHandler;
+            ApplicationContextFactory.getTransactionalExecutor().execute(() -> {
+                variables.putAll(finalTaskHandler.handle(user, finalVariableProvider, task));
+            });
             Object skipTaskCompletion = variables.remove(TaskHandler.SKIP_TASK_COMPLETION_VARIABLE_NAME);
             if (Objects.equal(Boolean.TRUE, skipTaskCompletion)) {
                 log.info("Bot task " + task + " postponed (skipTaskCompletion) by task handler " + taskHandler.getClass());
@@ -221,13 +204,9 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             executionStatus = WorkflowBotTaskExecutionStatus.FAILED;
             WfNode node = Delegates.getDefinitionService().getNode(botExecutor.getUser(), task.getDefinitionId(), task.getNodeId());
             if (node != null && node.hasErrorEventHandler() && !(th instanceof ConfigurationException)) {
-                new TransactionalExecutor(ApplicationContextFactory.getTransaction()) {
-
-                    @Override
-                    protected void doExecuteInTransaction() throws Exception {
-                        Utils.sendBpmnErrorMessage(task.getProcessId(), task.getNodeId(), th);
-                    }
-                }.executeInTransaction(false);
+                ApplicationContextFactory.getTransactionalExecutor().execute(() -> {
+                    Utils.sendBpmnErrorMessage(task.getProcessId(), task.getNodeId(), th);
+                });
             } else {
                 String errorMessage = Utils.getErrorMessage(th);
                 String stackTrace = Throwables.getStackTraceAsString(th);
@@ -271,30 +250,5 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             return;
         }
         botLogger.logError(task, th);
-    }
-
-    class BotTaskTransactionalExecutor extends TransactionalExecutor {
-        final User user;
-        final TaskHandler taskHandler;
-        final VariableProvider variableProvider;
-        final WfTask task;
-        Map<String, Object> variables;
-
-        public BotTaskTransactionalExecutor(User user, TaskHandler taskHandler, VariableProvider variableProvider, WfTask task) {
-            super(ApplicationContextFactory.getTransaction());
-            this.user = user;
-            this.taskHandler = taskHandler;
-            this.variableProvider = variableProvider;
-            this.task = task;
-        }
-
-        @Override
-        protected void doExecuteInTransaction() throws Exception {
-            variables = taskHandler.handle(user, variableProvider, task);
-            if (variables == null) {
-                variables = new HashMap<String, Object>();
-            }
-        }
-
     }
 }

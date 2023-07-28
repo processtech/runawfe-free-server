@@ -16,6 +16,10 @@ import ru.runa.wfe.commons.dao.GenericDao;
 @MonitoredWithSpring
 public class ChatFileDao extends GenericDao<ChatMessageFile> {
 
+    public ChatFileDao() {
+        super(ChatMessageFile.class);
+    }
+
     public List<ChatMessageFile> save(List<ChatMessageFile> files) {
         for (ChatMessageFile file : files) {
             sessionFactory.getCurrentSession().save(file);

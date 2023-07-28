@@ -8,6 +8,7 @@ import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailConfigParser;
 import ru.runa.wfe.commons.email.EmailUtils;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.user.Actor;
 
@@ -23,9 +24,9 @@ public class ChatEmailNotificationBuilder {
 
     private int newMessagesCount;
     private Actor actor;
-    private Map<Process, List<ChatMessage>> messages = new HashMap<>();
-    private Map<Process, String> processesNames = new HashMap<>();
-    private Map<Process, Boolean> permissions = new HashMap<>();
+    private Map<Process<CurrentToken>, List<ChatMessage>> messages = new HashMap<>();
+    private Map<Process<CurrentToken>, String> processesNames = new HashMap<>();
+    private Map<Process<CurrentToken>, Boolean> permissions = new HashMap<>();
     private Map<ChatMessage, List<ChatMessageFile>> files = new HashMap<>();
 
     public ChatEmailNotificationBuilder baseUrl(String baseUrl) {
@@ -43,17 +44,17 @@ public class ChatEmailNotificationBuilder {
         return this;
     }
 
-    public ChatEmailNotificationBuilder messages(Map<Process, List<ChatMessage>> messages) {
+    public ChatEmailNotificationBuilder messages(Map<Process<CurrentToken>, List<ChatMessage>> messages) {
         this.messages = messages;
         return this;
     }
 
-    public ChatEmailNotificationBuilder processesNames(Map<Process, String> processesNames) {
+    public ChatEmailNotificationBuilder processesNames(Map<Process<CurrentToken>, String> processesNames) {
         this.processesNames = processesNames;
         return this;
     }
 
-    public ChatEmailNotificationBuilder permissions(Map<Process, Boolean> permissions) {
+    public ChatEmailNotificationBuilder permissions(Map<Process<CurrentToken>, Boolean> permissions) {
         this.permissions = permissions;
         return this;
     }
@@ -74,7 +75,7 @@ public class ChatEmailNotificationBuilder {
         config.getHeaderProperties().put(EmailConfig.HEADER_TO, emails);
         config.getHeaderProperties().put("Subject", getSubjectDependingNumber(newMessagesCount));
         StringBuilder result = new StringBuilder();
-        for (Process process : messages.keySet()) {
+        for (Process<CurrentToken> process : messages.keySet()) {
             result.append(createTableForProcess(process));
         }
         config.setMessage(result.toString());
@@ -95,7 +96,7 @@ public class ChatEmailNotificationBuilder {
         }
     }
 
-    private String createTableForProcess(Process process) {
+    private String createTableForProcess(Process<CurrentToken> process) {
         return "<table style='margin-bottom: 10px; border-spacing: 0.5em 0.5em; width: 100%;'>" +
                 "   <tbody>" +
                 "       <tr>" +
@@ -108,7 +109,7 @@ public class ChatEmailNotificationBuilder {
                 "</table>\n";
     }
 
-    private String createProcessField(Process process) {
+    private String createProcessField(Process<CurrentToken> process) {
         String text = "#" + process.getId() + ": " + processesNames.get(process);
         if (baseUrl != null && permissions.get(process)) {
             return "<a href='" + baseUrl + "/wfe/manage_process.do?id=" + process.getId() + "'>" + text + "</a>";
@@ -116,7 +117,7 @@ public class ChatEmailNotificationBuilder {
         return text;
     }
 
-    private String createMessageRows(Process process) {
+    private String createMessageRows(Process<CurrentToken> process) {
         StringBuilder result = new StringBuilder();
         Map<ChatMessage, List<ChatMessageFile>> messagesByProcess = getMessagesByProcess(process);
         int messageCount = 0;
@@ -134,7 +135,7 @@ public class ChatEmailNotificationBuilder {
         return result.toString();
     }
 
-    private Map<ChatMessage, List<ChatMessageFile>> getMessagesByProcess(Process process) {
+    private Map<ChatMessage, List<ChatMessageFile>> getMessagesByProcess(Process<CurrentToken> process) {
         Map<ChatMessage, List<ChatMessageFile>> result = new LinkedHashMap<>();
         for (ChatMessage message : messages.get(process)) {
             result.put(message, files.get(message));

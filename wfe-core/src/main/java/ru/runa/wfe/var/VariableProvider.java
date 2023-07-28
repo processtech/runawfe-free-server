@@ -1,6 +1,6 @@
 package ru.runa.wfe.var;
 
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 
 /**
@@ -33,7 +33,7 @@ public interface VariableProvider {
      * @return context process definition, can be <code>null</code> (if
      *         variables does not linked with process definition)
      */
-    ProcessDefinition getProcessDefinition();
+    ParsedProcessDefinition getParsedProcessDefinition();
 
     /**
      * Access to current process id.

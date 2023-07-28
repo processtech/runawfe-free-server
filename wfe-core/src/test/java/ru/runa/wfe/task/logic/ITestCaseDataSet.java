@@ -17,42 +17,41 @@ import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
-public interface ITestCaseDataSet {
+interface ITestCaseDataSet {
 
-    public void mockRules(WfTaskFactory tastFactory);
+    void mockRules(WfTaskFactory tastFactory);
 
-    public void mockRules(ExecutorDao executorDao);
+    void mockRules(ExecutorDao executorDao);
 
-    public void mockRules(SubstitutionLogic substitutionLogic);
+    void mockRules(SubstitutionLogic substitutionLogic);
 
-    public void mockRules(ProcessDefinitionLoader processDefinitionLoader);
+    void mockRules(ProcessDefinitionLoader processDefinitionLoader);
 
-    public void mockRules(TaskDao taskDao);
+    void mockRules(TaskDao taskDao);
 
-    public void mockRules(ExecutionContextFactory exeContextFactory);
+    void mockRules(ExecutionContextFactory exeContextFactory);
 
-    public void mockRules(BatchPresentationCompilerFactory<?> batchCompilerFactory);
+    void mockRules(BatchPresentationCompilerFactory<?> batchCompilerFactory);
 
-    public void mockRules(ProcessLogDao logDAO);
+    void mockRules(ProcessLogDao logDAO);
 
-    public SubstitutionCriteria getCriteria();
+    SubstitutionCriteria getCriteria();
 
-    public Set<Long> getIds();
+    Set<Long> getIds();
 
-    public ExecutionContext getExeContext();
+    ExecutionContext getExeContext();
 
-    public Task getTask();
+    Task getTask();
 
-    public Actor getActor();
+    Actor getActor();
 
-    public Actor getAssignedActor();
+    Actor getAssignedActor();
 
-    public Actor getSubstitutorActor();
+    Actor getSubstitutorActor();
 
-    public BatchPresentation getBatchPresentation();
+    BatchPresentation getBatchPresentation();
 
-    public Set<Executor> getExecutorsToGetTasksByMembership();
+    Set<Executor> getExecutorsToGetTasksByMembership();
 
-    public EscalationGroup getEscalationGroup();
-
+    EscalationGroup getEscalationGroup();
 }

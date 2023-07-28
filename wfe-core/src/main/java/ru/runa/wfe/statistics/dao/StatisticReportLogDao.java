@@ -15,6 +15,10 @@ import ru.runa.wfe.statistics.StatisticReportLog;
 @Transactional
 public class StatisticReportLogDao extends GenericDao<StatisticReportLog> {
 
+    public StatisticReportLogDao() {
+        super(StatisticReportLog.class);
+    }
+
     @Override
     public List<StatisticReportLog> getAll() {
         QStatisticReportLog srl = QStatisticReportLog.statisticReportLog;

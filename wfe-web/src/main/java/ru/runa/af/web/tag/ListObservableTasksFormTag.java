@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.ecs.html.B;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
@@ -14,7 +14,6 @@ import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.tag.ListTasksFormTag;
 import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
@@ -27,11 +26,12 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listObservableTasksForm")
+@CommonsLog
 public class ListObservableTasksFormTag extends ListTasksFormTag {
     private static final long serialVersionUID = 1L;
     private Long executorId;
 
-    @Attribute(required = false, rtexprvalue = true)
+    @Attribute
     public void setExecutorId(Long executorId) {
         this.executorId = executorId;
         if (executorId != null) {
@@ -84,29 +84,31 @@ public class ListObservableTasksFormTag extends ListTasksFormTag {
         Actor actor = ProfileHttpSessionHelper.getProfile(pageContext.getSession()).getActor();
         try {
             // TODO move to service method
-            Utils.getTransactionManager().begin();
-            int fieldIndex = getBatchPresentation().getType().getFieldIndex(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR);
-            FilterCriteria filterCriteria = getBatchPresentation().getFilteredFields().get(fieldIndex);
-            String executorName = filterCriteria != null ? filterCriteria.getFilterTemplates()[0] : null;
-            TaskListBuilderImpl taskListBuilderImpl = ApplicationContextFactory.getContext().getBean(TaskListBuilderImpl.class);
-            Set<Executor> executors = taskListBuilderImpl.getObservableExecutors(actor, executorName);
-            Utils.getTransactionManager().rollback();
-            StringBuilder title = new StringBuilder();
-            title.append(MessagesProcesses.TITLE_OBSERVABLE_EXECUTORS.message(pageContext)).append(" (").append(executors.size()).append("):<br/>");
-            int maxCount = 20;
-            for (Executor executor : executors) {
-                title.append(executor.getName()).append("<br/>");
-                if (--maxCount <= 0) {
-                    title.append("...<br/>");
-                    break;
-                }
-            }
-            B b = new B();
-            b.addElement(Commons.getMessage("content.observable_tasks.help", pageContext));
-            b.setTitle(title.toString());
-            tdFormElement.addElement(b);
+            ApplicationContextFactory.getTransactionalExecutor().execute(
+                    () -> {
+                        int fieldIndex = getBatchPresentation().getType().getFieldIndex(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR);
+                        FilterCriteria filterCriteria = getBatchPresentation().getFilteredFields().get(fieldIndex);
+                        String executorName = filterCriteria != null ? filterCriteria.getFilterTemplates()[0] : null;
+                        TaskListBuilderImpl taskListBuilder = ApplicationContextFactory.getContext().getBean(TaskListBuilderImpl.class);
+                        Set<Executor> executors = taskListBuilder.getObservableExecutors(actor, executorName);
+                        StringBuilder title = new StringBuilder();
+                        title.append(MessagesProcesses.TITLE_OBSERVABLE_EXECUTORS.message(pageContext)).append(" (").append(executors.size())
+                                .append("):<br/>");
+                        int maxCount = 20;
+                        for (Executor executor : executors) {
+                            title.append(executor.getName()).append("<br/>");
+                            if (--maxCount <= 0) {
+                                title.append("...<br/>");
+                                break;
+                            }
+                        }
+                        B b = new B();
+                        b.addElement(Commons.getMessage("content.observable_tasks.help", pageContext));
+                        b.setTitle(title.toString());
+                        tdFormElement.addElement(b);
+                    });
         } catch (Exception e) {
-            LogFactory.getLog(getClass()).error("Unable to build header", e);
+            log.error("Unable to build header", e);
         }
         super.fillFormElement(tdFormElement);
     }

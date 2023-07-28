@@ -2,7 +2,7 @@
 <!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="userTasks" pageWidth="595" pageHeight="842" whenNoDataType="BlankPage" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Key" uuid="94d20e09-7b2a-43d7-a028-685e2019045b">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="DataAdapter.xml"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="DataAdapter-pgsql-develop.xml"/>
 	<style name="PropertyList" mode="Opaque" hTextAlign="Center" vTextAlign="Middle" isBlankWhenNull="true" fontName="Arial" fontSize="14">
 		<box>
 			<topPen lineWidth="1.0" lineColor="#969696"/>
@@ -53,9 +53,7 @@ WHERE
 			<![CDATA[SELECT 
 		COUNT(*) AS CompletedByCurrentUser, 
 		SUM(CASE WHEN TASK.DEADLINE_DATE IS NOT NULL AND TASK.END_DATE IS NOT NULL AND TASK.END_DATE > TASK.DEADLINE_DATE THEN 1 ELSE 0 END) AS TasksWithDeadline 
-		FROM BPM_AGGLOG_TASKS TASK
-		JOIN BPM_PROCESS PROCESS ON (PROCESS.ID=TASK.PROCESS_ID)
-		JOIN BPM_PROCESS_DEFINITION DEFINITION ON (DEFINITION.ID=PROCESS.DEFINITION_ID)
+		FROM BPM_AGGLOG_TASK TASK
 		WHERE (TASK.CREATE_DATE >= $P{ReportDateFrom} AND TASK.CREATE_DATE <= $P{ReportDateTo} OR
 			TASK.END_DATE IS NOT NULL AND TASK.END_DATE >= $P{ReportDateFrom} AND TASK.END_DATE <= $P{ReportDateTo}) 
 			AND TASK.COMPLETE_ACTOR_NAME = $P{UserName}]]>
@@ -83,19 +81,20 @@ WHERE
 		<queryString language="SQL">
 			<![CDATA[SELECT 
 				PROCESS.ID AS PROCESS_ID,
-				DEFINITION.NAME AS PROCESS_NAME,
+				PACK.NAME AS PROCESS_NAME,
 				TASK.TASK_NAME AS TASK_NAME,
 				TASK.CREATE_DATE AS START_DATE,
 				TASK.END_DATE AS END_DATE,
 				TASK.DEADLINE_DATE AS DEADLINE_DATE
-		FROM BPM_AGGLOG_TASKS TASK
+		FROM BPM_AGGLOG_TASK TASK
 			JOIN BPM_PROCESS PROCESS ON (PROCESS.ID=TASK.PROCESS_ID)
 			JOIN BPM_PROCESS_DEFINITION DEFINITION ON (DEFINITION.ID=PROCESS.DEFINITION_ID)
+			JOIN BPM_PROCESS_DEFINITION_PACK PACK ON (DEFINITION.ID=DEFINITION.PACK_ID)
 		WHERE 
 			(TASK.CREATE_DATE >= $P{ReportDateFrom} AND TASK.CREATE_DATE <= $P{ReportDateTo} OR
 			TASK.END_DATE IS NOT NULL AND TASK.END_DATE >= $P{ReportDateFrom} AND TASK.END_DATE <= $P{ReportDateTo}) 
-			AND TASK.COMPLETE_ACTOR_NAME = $P{UserLogin} 
-			AND ($P{OnlyDeadlined} = 0 OR (TASK.DEADLINE_DATE IS NOT NULL AND TASK.END_DATE IS NOT NULL AND TASK.END_DATE > TASK.DEADLINE_DATE))
+			AND TASK.COMPLETE_ACTOR_NAME = $P{UserLogin}
+			AND ($P{OnlyDeadlined} = 0 OR (TASK.DEADLINE_DATE IS NOT NULL AND TASK.END_DATE IS NOT NULL AND TASK.END_DATE > TASK.DEADLINE_DATE)) 
 		ORDER BY PROCESS.ID, TASK.CREATE_DATE ASC]]>
 		</queryString>
 		<field name="PROCESS_ID" class="java.math.BigDecimal"/>
@@ -227,11 +226,11 @@ WHERE
 						<datasetParameter name="UserName">
 							<datasetParameterExpression><![CDATA[$P{UserName}]]></datasetParameterExpression>
 						</datasetParameter>
-						<datasetParameter name="ReportDateTo">
-							<datasetParameterExpression><![CDATA[$P{ReportDateTo}]]></datasetParameterExpression>
-						</datasetParameter>
 						<datasetParameter name="ReportDateFrom">
 							<datasetParameterExpression><![CDATA[$P{ReportDateFrom}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="ReportDateTo">
+							<datasetParameterExpression><![CDATA[$P{ReportDateTo}]]></datasetParameterExpression>
 						</datasetParameter>
 						<datasetParameter name="DataFormatter">
 							<datasetParameterExpression><![CDATA[$P{DataFormatter}]]></datasetParameterExpression>

@@ -1,43 +1,21 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.commons.cache;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Statistic counters for cache usages.
  * @author Konstantinov Aleksey
  */
+@CommonsLog
 public class CacheStatistic {
-
-    /**
-     * Logging support.
-     */
-    private static Log log = LogFactory.getLog(CacheStatistic.class);
 
     /**
      * Registered statistic counters. 
      */
-    private static ConcurrentHashMap<String, StatisticCounter> counters = new ConcurrentHashMap<String, StatisticCounter>();
+    private static ConcurrentHashMap<String, StatisticCounter> counters = new ConcurrentHashMap<>();
 
     /**
      * Get statistic counter for specified cache. Register it, if this counter not register yet.
@@ -99,7 +77,7 @@ public class CacheStatistic {
      * @return Statistic counters snapshot.
      */
     private static Map<String, StatisticCounter> getSnapshotAndReset() {
-        Map<String, StatisticCounter> snapshot = new HashMap<String, StatisticCounter>();
+        Map<String, StatisticCounter> snapshot = new HashMap<>();
         for (Map.Entry<String, StatisticCounter> counter : counters.entrySet()) {
             snapshot.put(counter.getKey(), new StatisticCounter(counter.getValue()));
         }

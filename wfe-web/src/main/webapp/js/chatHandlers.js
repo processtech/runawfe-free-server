@@ -6,7 +6,7 @@ let editMessageId = -1;
 function deleteMessageHandler(id) {
     if (confirm("Вы уверены?")) {
         let newMessage = {};
-        newMessage.messageId = id;
+        newMessage.id = id;
         newMessage.processId = $("#ChatForm").attr("processId");
         newMessage.messageType = deleteMessageType;
         sendBinaryMessage(chatSocket, newMessage);
@@ -18,7 +18,7 @@ function sendMessageHandler() {
     if ((message !== "") || (attachedFiles.length !== 0)) {
         message = replaceLinks(message);
         let newMessage = {};
-        newMessage.message = message;
+        newMessage.text = message;
         newMessage.processId = $("#ChatForm").attr("processId");
         if (editMessageId === -1) {
             newMessage.messageType = newMessageType;
@@ -30,7 +30,7 @@ function sendMessageHandler() {
             }
         } else if (confirm("Вы уверены?")) {
             newMessage.messageType = editMessageType;
-            newMessage.editMessageId = editMessageId;
+            newMessage.id = editMessageId;
             editMessageId = -1;
             sendBinaryMessage(chatSocket, newMessage);
         }

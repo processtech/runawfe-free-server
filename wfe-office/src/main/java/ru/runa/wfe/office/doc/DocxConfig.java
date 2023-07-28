@@ -6,15 +6,14 @@ import com.google.common.collect.Maps;
 import com.google.common.net.MediaType;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.office.shared.FilesSupplierConfig;
 import ru.runa.wfe.var.format.VariableFormat;
 
+@CommonsLog
 public class DocxConfig extends FilesSupplierConfig {
     public static final String PDF_EXTENSION = "pdf";
-    private static final Log log = LogFactory.getLog(DocxConfig.class);
     private boolean strictMode;
     private final Map<String, TableConfig> tables = Maps.newHashMap();
     private final Map<String, VariableFormat> typeHints = Maps.newHashMap();

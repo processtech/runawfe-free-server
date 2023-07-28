@@ -81,5 +81,4 @@ public class TaskCompletionInfo {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("by", completionBy).add("executor", executor).add("processId", processId).toString();
     }
-
 }

@@ -6,7 +6,7 @@ public class AddTransitionNameForTaskPatch extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeUpdates(getDDLCreateColumn("BPM_AGGLOG_TASKS", new VarcharColumnDef("TRANSITION_NAME", 1024)));
+        executeUpdates(getDDLCreateColumn("BPM_AGGLOG_TASK", new VarcharColumnDef("TRANSITION_NAME", 1024)));
     }
 
 }

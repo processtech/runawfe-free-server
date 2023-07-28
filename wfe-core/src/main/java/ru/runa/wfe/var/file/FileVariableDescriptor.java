@@ -1,19 +1,16 @@
 package ru.runa.wfe.var.file;
 
+import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
-
 import ru.runa.wfe.InternalApplicationException;
-
-import com.google.common.io.Files;
 
 /**
  * Used only for back compatibility to read from stream.
  *
- * @see LocalFileSystemVariable.
+ * @see LocalFileSystemVariable
  *
  * @author dofs
- *
  */
 @Deprecated
 public class FileVariableDescriptor extends FileVariableImpl {

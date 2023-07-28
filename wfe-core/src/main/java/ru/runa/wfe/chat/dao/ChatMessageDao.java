@@ -16,6 +16,10 @@ import ru.runa.wfe.user.Actor;
 @MonitoredWithSpring
 public class ChatMessageDao extends GenericDao<ChatMessage> {
 
+    public ChatMessageDao() {
+        super(ChatMessage.class);
+    }
+
     public void readMessages(Actor user, List<ChatMessage> messages) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         queryFactory.update(cr).set(cr.readDate, new Date())

@@ -86,4 +86,5 @@ public class OracleStoreService extends JdbcStoreService {
     protected VariableFormatVisitor<String, ConverterContext> sqlValueConverter() {
         return new OracleSqlValueConverter();
     }
+
 }

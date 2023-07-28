@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.presentation.hibernate;
 
 import com.google.common.base.Strings;
@@ -23,7 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.hibernate.Hibernate;
+import lombok.val;
+import org.hibernate.type.StandardBasicTypes;
 import org.springframework.util.Assert;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
@@ -158,9 +142,17 @@ public class HibernateCompilerHqlBuider {
         if (parameters.isCountQuery()) {
             query.append("select count (").append(ClassPresentation.classNameSQL).append(")");
         } else {
-            query.append("select ").append(ClassPresentation.classNameSQL);
-            if (parameters.isOnlyIdentityLoad()) {
-                query.append(".id");
+            query.append("select ");
+            val onlyFields = parameters.getOnlySpecificHqlFields();
+            if (onlyFields != null) {
+                for (int i = 0;  i < onlyFields.length;  i++) {
+                    if (i > 0) {
+                        query.append(", ");
+                    }
+                    query.append(ClassPresentation.classNameSQL).append(".").append(onlyFields[i]);
+                }
+            } else {
+                query.append(ClassPresentation.classNameSQL);
             }
         }
         query.append(" from ");
@@ -319,7 +311,7 @@ public class HibernateCompilerHqlBuider {
      * 
      * @return List of string, represents expressions.
      */
-    // TODO Largely duplicates PermissionDAO logic. After (if ever) BatchPresentation uses QueryDSL, try to merge duplicates.
+    // TODO Largely duplicates PermissionDao logic. After (if ever) BatchPresentation uses QueryDSL, try to merge duplicates.
     private List<String> addSecureCheck() {
         List<String> result = new LinkedList<>();
         RestrictionsToPermissions pp = (parameters.getPermissionRestrictions()==null)?null:parameters.getPermissionRestrictions().cloneCheckRequired();
@@ -350,8 +342,8 @@ public class HibernateCompilerHqlBuider {
         Assert.notNull(subst);
         Assert.isTrue(subst.listPermissions.isEmpty() || listType != null);
 
-        ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
-        PermissionDao permissionDao = ApplicationContextFactory.getPermissionDAO();
+        ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
+        PermissionDao permissionDao = ApplicationContextFactory.getPermissionDao();
         HibernateQueryFactory queryFactory = HibernateQueryFactory.getInstance();
 
         // Need to check privileged & list permissions only once.
@@ -360,7 +352,7 @@ public class HibernateCompilerHqlBuider {
         if (permissionDao.hasPrivilegedExecutor(executorIds)) {
             return result;
         }
-        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+        val pm = QPermissionMapping.permissionMapping;
         if (!subst.listPermissions.isEmpty() && queryFactory.select(pm.id).from(pm)
                 .where(pm.executor.id.in(executorIds)
                         .and(pm.objectType.eq(listType))
@@ -388,8 +380,8 @@ public class HibernateCompilerHqlBuider {
         placeholders.add("securedOwnerIds", executorIds);
 //        placeholders.add("securedTypes", Arrays.stream(types).map(SecuredObjectType::getName).collect(Collectors.toList()), Hibernate.STRING);
 //        placeholders.add("securedPermissions", subst.selfPermissions.stream().map(Permission::getName).collect(Collectors.toList()), Hibernate.STRING);
-        placeholders.add("securedTypes", typeNames, Hibernate.STRING);
-        placeholders.add("securedPermissions", permissionNames, Hibernate.STRING);
+        placeholders.add("securedTypes", typeNames, StandardBasicTypes.STRING);
+        placeholders.add("securedPermissions", permissionNames, StandardBasicTypes.STRING);
 
         return result;
     }

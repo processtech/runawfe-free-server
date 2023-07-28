@@ -2,6 +2,7 @@ package ru.runa.wfe.office.excel;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.val;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -15,7 +16,7 @@ public class ListRowExcelStorable extends ExcelStorable<RowConstraints, List<?>>
 
     @Override
     public void load(Workbook workbook) {
-        List<Object> list = new ArrayList<Object>();
+        val list = new ArrayList<Object>();
         Row row = getRow(workbook);
         int columnIndex = constraints.getColumnStartIndex();
         VariableFormat elementFormat = FormatCommons.createComponent((VariableFormatContainer) format, 0);
@@ -45,8 +46,6 @@ public class ListRowExcelStorable extends ExcelStorable<RowConstraints, List<?>>
 
     private Row getRow(Workbook workbook) {
         Sheet sheet = ExcelHelper.getSheet(workbook, constraints.getSheetName(), constraints.getSheetIndex());
-        Row row = ExcelHelper.getRow(sheet, constraints.getRowIndex(), true);
-        return row;
+        return ExcelHelper.getRow(sheet, constraints.getRowIndex(), true);
     }
-
 }

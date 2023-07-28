@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.graph.image;
 
 import com.google.common.base.Objects;
@@ -24,6 +7,7 @@ import java.awt.Color;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import ru.runa.wfe.audit.CurrentNodeEnterLog;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
@@ -43,7 +27,7 @@ import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.task.TaskDeadlineUtils;
@@ -52,16 +36,16 @@ import ru.runa.wfe.task.TaskDeadlineUtils;
  * Modified on 26.02.2009 by gavrusev_sergei
  */
 public class GraphImageBuilder {
-    private final ProcessDefinition processDefinition;
+    private final ParsedProcessDefinition parsedProcessDefinition;
     private Token highlightedToken;
     private final Map<String, AbstractFigure> allNodeFigures = Maps.newHashMap();
     private final Map<TransitionFigure, RenderHits> transitionFigures = Maps.newHashMap();
     private final Map<AbstractFigure, RenderHits> nodeFigures = Maps.newLinkedHashMap();
     private final boolean smoothTransitions;
 
-    public GraphImageBuilder(ProcessDefinition processDefinition) {
-        this.processDefinition = processDefinition;
-        this.smoothTransitions = DrawProperties.isSmoothLinesEnabled() && processDefinition.getDeployment().getLanguage() == Language.BPMN2;
+    public GraphImageBuilder(ParsedProcessDefinition parsedProcessDefinition) {
+        this.parsedProcessDefinition = parsedProcessDefinition;
+        this.smoothTransitions = DrawProperties.isSmoothLinesEnabled() && parsedProcessDefinition.getLanguage() == Language.BPMN2;
     }
 
     public void setHighlightedToken(Token highlightedToken) {
@@ -70,16 +54,16 @@ public class GraphImageBuilder {
 
     public byte[] createDiagram(Process process, ProcessLogs logs, Set<String> activeNodeIds) throws Exception {
         AbstractFigureFactory factory;
-        if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
+        if (parsedProcessDefinition.getLanguage() == Language.BPMN2) {
             factory = new BpmnFigureFactory();
         } else {
             factory = new UmlFigureFactory();
         }
-        for (Node node : processDefinition.getNodes(false)) {
+        for (Node node : parsedProcessDefinition.getNodes(false)) {
             AbstractFigure nodeFigure = factory.createFigure(node, DrawProperties.useEdgingOnly());
             allNodeFigures.put(node.getNodeId(), nodeFigure);
         }
-        for (Node node : processDefinition.getNodes(false)) {
+        for (Node node : parsedProcessDefinition.getNodes(false)) {
             String nodeId = node.getNodeId();
             AbstractFigure nodeFigure = allNodeFigures.get(node.getNodeId());
             Preconditions.checkNotNull(nodeFigure, "Node figure not found by id " + nodeId);
@@ -94,10 +78,10 @@ public class GraphImageBuilder {
                 AbstractFigure figureTo = allNodeFigures.get(transition.getTo().getTransitionNodeId(true));
                 TransitionFigure transitionFigure = factory.createTransitionFigure();
                 transitionFigure.init(transition, nodeFigure, figureTo, smoothTransitions);
-                if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
+                if (parsedProcessDefinition.getLanguage() == Language.BPMN2) {
                     NodeType nodeType = node.getNodeType();
-                    transitionFigure.setExclusive(
-                            nodeType != NodeType.EXCLUSIVE_GATEWAY && nodeType != NodeType.PARALLEL_GATEWAY && leavingTransitionsCount > 1);
+                    transitionFigure.setExclusive(nodeType != NodeType.EXCLUSIVE_GATEWAY && node.getNodeType() != NodeType.PARALLEL_GATEWAY
+                            && leavingTransitionsCount > 1);
                 }
                 nodeFigure.addTransition(transitionFigure);
                 if (!DrawProperties.useEdgingOnly()) {
@@ -106,7 +90,7 @@ public class GraphImageBuilder {
             }
         }
         for (TransitionLog transitionLog : logs.getLogs(TransitionLog.class)) {
-            Transition transition = transitionLog.getTransitionOrNull(processDefinition);
+            Transition transition = transitionLog.getTransitionOrNull(parsedProcessDefinition);
             if (transition != null) {
                 RenderHits renderHits = new RenderHits(DrawProperties.getHighlightColor(), true);
                 // Mark 'from' block as PASSED
@@ -136,9 +120,16 @@ public class GraphImageBuilder {
                 transitionFigures.put(transitionFigure, renderHits);
             }
         }
+        // subprocess node that triggered by event has no any transition, so it can be found only in EnterLog
+        for (CurrentNodeEnterLog enterLog : logs.getLogs(CurrentNodeEnterLog.class)) {
+            AbstractFigure figure = allNodeFigures.get(enterLog.getNodeId());
+            if (figure.getNode() instanceof SubprocessNode && ((SubprocessNode) figure.getNode()).isTriggeredByEvent()) {
+                fillSubprocess(figure, activeNodeIds);
+            }
+        }
 
         fillTasks(logs);
-        GraphImage graphImage = new GraphImage(processDefinition, transitionFigures, nodeFigures);
+        GraphImage graphImage = new GraphImage(parsedProcessDefinition, transitionFigures, nodeFigures);
         return graphImage.getImageBytes();
     }
 
@@ -148,7 +139,7 @@ public class GraphImageBuilder {
         boolean active = activeNodeIds.contains(subprocessNodeId);
         boolean highlighted;
         if (subprocessNode.isEmbedded()) {
-            String prefix = processDefinition.getEmbeddedSubprocessByNameNotNull(subprocessNode.getSubProcessName()).getNodeId() + ".";
+            String prefix = parsedProcessDefinition.getEmbeddedSubprocessByNameNotNull(subprocessNode.getSubProcessName()).getNodeId() + ".";
             if (!active) {
                 // correct behavior for in complex case when one of token already leaved out of subprocess
                 for (String nodeId : activeNodeIds) {
@@ -168,20 +159,22 @@ public class GraphImageBuilder {
 
     private void fillTasks(ProcessLogs logs) {
         for (Map.Entry<TaskCreateLog, TaskEndLog> entry : logs.getTaskLogs().entrySet()) {
-            boolean activeTask = entry.getValue() == null;
-            Date deadlineDate = entry.getKey().getDeadlineDate();
-            Date endDate = activeTask ? new Date() : entry.getValue().getCreateDate();
-            AbstractFigure figure = allNodeFigures.get(entry.getKey().getNodeId());
+            TaskCreateLog taskCreateLog = entry.getKey();
+            TaskEndLog taskEndLog = entry.getValue();
+
+            boolean isActiveTask = taskEndLog == null;
+            Date deadlineDate = taskCreateLog.getDeadlineDate();
+            Date endDate = isActiveTask ? new Date() : taskEndLog.getCreateDate();
+            AbstractFigure figure = allNodeFigures.get(taskCreateLog.getNodeId());
             if (figure == null) {
-                // ru.runa.wfe.audit.TaskCreateLog.getNodeId() = null for old
-                // tasks
+                // ru.runa.wfe.audit.CurrentTaskCreateLog.getNodeId() = null for old tasks
                 continue;
             }
-            Date deadlineWarningDate = TaskDeadlineUtils.getDeadlineWarningDate(entry.getKey().getCreateDate(), deadlineDate);
+            Date deadlineWarningDate = TaskDeadlineUtils.getDeadlineWarningDate(taskCreateLog.getCreateDate(), deadlineDate);
             Color color = null;
-            if (activeTask) {
+            if (isActiveTask) {
                 color = DrawProperties.getBaseColor();
-                if (highlightedToken != null && Objects.equal(entry.getKey().getTokenId(), highlightedToken.getId())) {
+                if (highlightedToken != null && Objects.equal(taskCreateLog.getTokenId(), highlightedToken.getId())) {
                     color = DrawProperties.getHighlightColor();
                 }
             }
@@ -191,7 +184,7 @@ public class GraphImageBuilder {
                 color = DrawProperties.getLightAlarmColor();
             }
             if (color != null) {
-                nodeFigures.put(figure, new RenderHits(color, true, activeTask));
+                nodeFigures.put(figure, new RenderHits(color, true, isActiveTask));
             }
         }
     }

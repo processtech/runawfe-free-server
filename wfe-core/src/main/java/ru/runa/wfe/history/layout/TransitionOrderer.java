@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.history.graph.HistoryGraphForkNodeModel;
 import ru.runa.wfe.history.graph.HistoryGraphGenericNodeModel;
 import ru.runa.wfe.history.graph.HistoryGraphJoinNodeModel;
@@ -48,7 +47,7 @@ public class TransitionOrderer implements HistoryGraphNodeVisitor<TransitionOrde
     private void reorderParallelFork(HistoryGraphParallelNodeModel node, TransitionOrdererContext context) {
         List<HistoryGraphNode> complexFollowNodes = new ArrayList<HistoryGraphNode>();
         for (HistoryGraphTransitionModel transition : node.getTransitions()) {
-            TransitionOrdererContext searchContext = new TransitionOrdererContext(context);
+            TransitionOrdererContext searchContext = new TransitionOrdererContext(false);
             transition.getToNode().processBy(this, searchContext);
             complexFollowNodes.add(searchContext.getFindNode());
         }

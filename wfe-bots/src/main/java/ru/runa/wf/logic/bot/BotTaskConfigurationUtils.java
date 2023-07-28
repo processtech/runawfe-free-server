@@ -16,7 +16,6 @@ import ru.runa.wfe.extension.handler.ParamsDef;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.VariableProvider;
 
 public class BotTaskConfigurationUtils {
     private static final String TASK_PARAM = "task";
@@ -112,7 +111,7 @@ public class BotTaskConfigurationUtils {
         Element botConfigElement = document.getRootElement().element(BOTCONFIG_PARAM);
         String substituted;
         if (botConfigElement.elements().size() > 0) {
-            Element taskConfigElement = (Element) botConfigElement.elements().get(0);
+            Element taskConfigElement = botConfigElement.elements().get(0);
             substituted = XmlUtils.toString(taskConfigElement, OutputFormat.createPrettyPrint());
         } else {
             substituted = botConfigElement.getText();
@@ -142,7 +141,7 @@ public class BotTaskConfigurationUtils {
         return false;
     }
 
-    public static byte[] substituteParameterizedConfiguration(User user, WfTask task, byte[] configuration, VariableProvider variableProvider) {
+    public static byte[] substituteParameterizedConfiguration(User user, WfTask task, byte[] configuration) {
         Element taskElement = getBotTaskElement(user, task);
         if (taskElement == null) {
             return configuration;

@@ -1,13 +1,11 @@
 package ru.runa.wfe.var.file;
 
-import java.io.File;
-import java.io.IOException;
-
-import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.var.Variable;
-
 import com.google.common.base.Objects;
 import com.google.common.io.Files;
+import java.io.File;
+import java.io.IOException;
+import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.var.Variable;
 
 /**
  * This class eliminates need to persist large bytes array in database.
@@ -24,11 +22,11 @@ public class LocalFileSystemVariable implements FileVariable {
     public LocalFileSystemVariable() {
     }
 
-    public LocalFileSystemVariable(Variable<?> variable, String variableName, FileVariable fileVariable) {
+    public LocalFileSystemVariable(Variable variable, String variableName, FileVariable fileVariable) {
         name = fileVariable.getName();
         contentType = fileVariable.getContentType();
         long version = variable.getVersion() != null ? variable.getVersion() + 1 : 0;
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
         for (char ch : variableName.toCharArray()) {
             if (Character.isLetterOrDigit(ch)) {
                 b.append(ch);
@@ -81,5 +79,4 @@ public class LocalFileSystemVariable implements FileVariable {
         }
         return false;
     }
-
 }

@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.web.tag;
 
 import java.util.regex.Matcher;
@@ -31,7 +14,7 @@ import ru.runa.common.web.Resources;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.html.GraphElementPresentationHelper;
 import ru.runa.wfe.audit.ActionLog;
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.Severity;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
@@ -63,7 +46,6 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
     /**
      * Creates operation to create links to subprocesses and tool tips to minimized elements.
      *
-     * @param taskId      Current task identity.
      * @param pageContext Rendered page context.
      * @param td          Root form element.
      */
@@ -103,7 +85,7 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
                     addLogRow(table, log);
                 });
             } else {
-                for (ProcessLog log : element.getData()) {
+                for (BaseProcessLog log : element.getData()) {
                     addLogRow(table, log);
                 }
             }
@@ -115,7 +97,7 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
         return presentationHelper;
     }
 
-    private void addLogRow(Table table, ProcessLog log) {
+    private void addLogRow(Table table, BaseProcessLog log) {
         String description;
         try {
             String format = Messages.getMessage("history.log." + log.getPatternName(), pageContext);

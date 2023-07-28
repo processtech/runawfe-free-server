@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.definition.update.ProcessDefinitionUpdateData;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.lang.Node;
@@ -26,7 +27,7 @@ public class ParallelGatewayProcessDefinitionUpdateValidator implements ProcessD
 
     @Override
     public void validate(ProcessDefinitionUpdateData processDefinitionUpdateData) {
-        if (processDefinitionUpdateData.getNewDefinition().getDeployment().getLanguage() != Language.BPMN2) {
+        if (processDefinitionUpdateData.getNewDefinition().getLanguage() != Language.BPMN2) {
             return;
         }
         Set<ParallelGateway> parallelGateways = getParallelGatewaysForCheck(processDefinitionUpdateData);
@@ -70,7 +71,7 @@ public class ParallelGatewayProcessDefinitionUpdateValidator implements ProcessD
     private Set<ParallelGateway> getParallelGatewaysForCheck(ProcessDefinitionUpdateData processDefinitionUpdateData) {
         Set<ParallelGateway> parallelGateways = new HashSet<>();
         Set<Node> seenNodes = new HashSet<>();
-        for (ru.runa.wfe.execution.Process process : processDefinitionUpdateData.getProcesses()) {
+        for (CurrentProcess process : processDefinitionUpdateData.getProcesses()) {
             for (Token token : tokenDao.findByProcessAndExecutionStatusIsNotEnded(process)) {
                 String nodeId = token.getNodeId();
                 Node node = processDefinitionUpdateData.getOldDefinition().getNodeNotNull(nodeId);

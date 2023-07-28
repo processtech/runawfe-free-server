@@ -1,6 +1,8 @@
 package ru.runa.wf.web.servlet;
 
 import com.google.common.base.Strings;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
@@ -10,8 +12,6 @@ import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 public class AjaxGetProcessVariablesList extends JsonAjaxCommand {
 

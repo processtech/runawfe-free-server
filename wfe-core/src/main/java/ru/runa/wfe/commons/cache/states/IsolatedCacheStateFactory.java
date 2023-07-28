@@ -2,30 +2,25 @@ package ru.runa.wfe.commons.cache.states;
 
 import ru.runa.wfe.commons.cache.CacheImplementation;
 
-public class IsolatedCacheStateFactory<CacheImpl extends CacheImplementation> implements CacheStateFactory<CacheImpl, DefaultStateContext> {
+public class IsolatedCacheStateFactory<CacheImpl extends CacheImplementation> extends CacheStateFactory<CacheImpl> {
 
-    public IsolatedCacheStateFactory() {
-        super();
+    @Override
+    public CacheState<CacheImpl> createEmptyState(CacheImpl cache) {
+        return new EmptyCacheState<>(getOwner());
     }
 
     @Override
-    public CacheState<CacheImpl, DefaultStateContext> createEmptyState(CacheImpl cache, DefaultStateContext context) {
-        return EmptyCacheState.createEmptyState();
+    public CacheState<CacheImpl> createInitializingState(CacheImpl cache) {
+        return new CacheInitializingState<>(getOwner(), cache);
     }
 
     @Override
-    public CacheState<CacheImpl, DefaultStateContext> createInitializingState(CacheImpl cache, DefaultStateContext context) {
-        return new CacheInitializingState<CacheImpl>(cache);
+    public CacheState<CacheImpl> createCompletedState(CacheImpl cache) {
+        return new IsolatedCompletedCacheState<>(getOwner(), cache);
     }
 
     @Override
-    public CacheState<CacheImpl, DefaultStateContext> createInitializedState(CacheImpl cache, DefaultStateContext context) {
-        return new IsolatedCompletedCacheState<CacheImpl>(cache);
-    }
-
-    @Override
-    public CacheState<CacheImpl, DefaultStateContext> createDirtyState(CacheImpl cache, DirtyTransactions<CacheImpl> dirtyTransactions,
-            DefaultStateContext context) {
-        return new IsolatedDirtyCacheState<CacheImpl>(cache, dirtyTransactions);
+    public CacheState<CacheImpl> createDirtyState(CacheImpl cache, DirtyTransactions<CacheImpl> dirtyTransactions) {
+        return new IsolatedDirtyCacheState<>(getOwner(), cache, dirtyTransactions);
     }
 }

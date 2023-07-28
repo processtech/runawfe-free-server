@@ -24,14 +24,17 @@
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/main.css?"+Version.getHash() %>' />">
   </head>
 	<body>
+	<script type="text/javascript">
+		window.localStorage.removeItem('runawfe@user');
+	</script>
 	<center>
-			<table height = "100%">
-				<tr height = "5%">
-					<td></td>
-				</tr>
-				<tr height = "65%">
-					<td align="center">
-					   <html:form action="/login">
+		<table height="100%">
+			<tr height="5%">
+				<td></td>
+			</tr>
+			<tr height="65%">
+				<td align="center">
+					<html:form action="/login">
 						<table>
 							<tr>
 								<td  align="left" colspan="2" target="new">
@@ -58,17 +61,6 @@
 							</tr>					
 						</table>
 						</html:form>
-						<% if (ru.runa.common.WebResources.isNTLMSupported()) { %>
-						<table>
-							<tr>
-								<td>
-									<html:link action="/ntlmlogin">
-										<bean:message key="login.page.login.ntlm"/>
-									</html:link> 	
-								</td>
-							</tr>
-						</table>
-						<% } %>
 						<% if (ru.runa.wfe.security.auth.KerberosLoginModuleResources.isHttpAuthEnabled()) { %>
 						<table>
 							<tr>

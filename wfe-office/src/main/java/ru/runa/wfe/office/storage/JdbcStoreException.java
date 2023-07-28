@@ -9,5 +9,4 @@ public class JdbcStoreException extends RuntimeException {
     public JdbcStoreException(Throwable cause) {
         super(OfficeErrorProperties.getMessage("error.jdbc.store"), cause);
     }
-
 }

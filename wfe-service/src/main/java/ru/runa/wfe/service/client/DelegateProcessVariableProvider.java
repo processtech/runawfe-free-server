@@ -2,7 +2,7 @@ package ru.runa.wfe.service.client;
 
 import com.google.common.base.MoreObjects;
 import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -25,7 +25,7 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
     protected final Long processId;
     protected Long processDefinitionId;
     protected String processDefinitionName;
-    protected ProcessDefinition processDefinition;
+    protected ParsedProcessDefinition parsedProcessDefinition;
 
     public DelegateProcessVariableProvider(ExecutionService executionService, DefinitionService definitionService, User user, Long processId) {
         this.executionService = executionService;
@@ -61,11 +61,11 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    public ProcessDefinition getProcessDefinition() {
-        if (processDefinition == null) {
-            processDefinition = definitionService.getParsedProcessDefinition(user, getProcessDefinitionId());
+    public ParsedProcessDefinition getParsedProcessDefinition() {
+        if (parsedProcessDefinition == null) {
+            parsedProcessDefinition = definitionService.getParsedProcessDefinition(user, getProcessDefinitionId());
         }
-        return processDefinition;
+        return parsedProcessDefinition;
     }
 
     @Override
@@ -101,5 +101,4 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("processId", processId).toString();
     }
-
 }

@@ -3,7 +3,7 @@ package ru.runa.wfe.service.client;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import java.util.List;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -20,7 +20,7 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
     private final User user;
     private final Long definitionId;
     private String definitionName;
-    private ProcessDefinition definition;
+    private ParsedProcessDefinition definition;
 
     public DelegateDefinitionVariableProvider(DefinitionService definitionService, User user, Long definitionId) {
         this.definitionService = definitionService;
@@ -46,7 +46,7 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
     }
 
     @Override
-    public ProcessDefinition getProcessDefinition() {
+    public ParsedProcessDefinition getParsedProcessDefinition() {
         if (definition == null) {
             definition = definitionService.getParsedProcessDefinition(user, definitionId);
         }
@@ -79,7 +79,8 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
             return new WfVariable(
                     variableDefinition,
                     variableDefinition.getFormatNotNull() instanceof FileFormat ?
-                            new FileVariableProxy(user, null, definitionId, variableName, (FileVariable) variableDefinition.getDefaultValue()) :
+ new FileVariableProxy(user, null,
+                    definitionId, variableName, (FileVariable) variableDefinition.getDefaultValue()) :
                             null
             );
         }

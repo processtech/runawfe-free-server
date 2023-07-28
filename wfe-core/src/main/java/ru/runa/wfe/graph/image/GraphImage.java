@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.graph.image;
 
 import java.awt.BasicStroke;
@@ -34,29 +17,30 @@ import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.graph.image.figure.TransitionFigure;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.SubprocessNode;
 
 public class GraphImage {
     private static final String FORMAT = "png";
     private BufferedImage image;
-    private final ProcessDefinition processDefinition;
+    private final ParsedProcessDefinition parsedProcessDefinition;
     private final Map<TransitionFigure, RenderHits> transitions;
     private final Map<AbstractFigure, RenderHits> nodes;
     private final boolean useEdgingOnly = DrawProperties.useEdgingOnly();
 
     @SneakyThrows
-    public GraphImage(ProcessDefinition processDefinition, Map<TransitionFigure, RenderHits> transitions, Map<AbstractFigure, RenderHits> nodes) {
+    public GraphImage(ParsedProcessDefinition parsedProcessDefinition, Map<TransitionFigure, RenderHits> transitions, Map<AbstractFigure, RenderHits> nodes) {
         if (useEdgingOnly) {
-            image = ImageIO.read(new ByteArrayInputStream(processDefinition.getGraphImageBytesNotNull()));
+            image = ImageIO.read(new ByteArrayInputStream(parsedProcessDefinition.getGraphImageBytesNotNull()));
         }
-        this.processDefinition = processDefinition;
+        this.parsedProcessDefinition = parsedProcessDefinition;
         this.transitions = transitions;
         this.nodes = nodes;
     }
 
     public byte[] getImageBytes() throws IOException {
-        int width = processDefinition.getGraphConstraints()[2];
-        int height = processDefinition.getGraphConstraints()[3];
+        int width = parsedProcessDefinition.getGraphConstraints()[2];
+        int height = parsedProcessDefinition.getGraphConstraints()[3];
         if (!useEdgingOnly) {
             image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         }
@@ -81,11 +65,15 @@ public class GraphImage {
             if (entry.getValue().isActive()) {
                 lineWidth *= 2;
             }
-            if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
+            if (parsedProcessDefinition.getLanguage() == Language.BPMN2) {
                 lineWidth *= 2;
             }
             entry.getKey().setRenderHits(entry.getValue());
-            drawAbstractFigure(graphics, entry.getKey(), entry.getValue(), new BasicStroke(lineWidth));
+            Stroke stroke = new BasicStroke(lineWidth);
+            if ((entry.getKey().getNode() instanceof SubprocessNode) && ((SubprocessNode) entry.getKey().getNode()).isTriggeredByEvent()) {
+                stroke = new BasicStroke(lineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 6, 3 }, 0);
+            }
+            drawAbstractFigure(graphics, entry.getKey(), entry.getValue(), stroke);
         }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

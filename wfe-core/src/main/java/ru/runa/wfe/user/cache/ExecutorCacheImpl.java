@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.user.cache;
 
 import java.io.Serializable;
@@ -153,9 +136,9 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
         synchronized (this) {
             ConcurrentHashMap<BatchPresentationFieldEquals, List<Executor>> map = batchAllExecutors.get(clazz);
             if (map == null) {
-                map = new ConcurrentHashMap<BatchPresentationFieldEquals, List<Executor>>();
+                map = new ConcurrentHashMap<>();
             }
-            List<Executor> result = new ArrayList<Executor>();
+            List<Executor> result = new ArrayList<>();
             for (Executor executor : executors) {
                 result.add(executor);
             }
@@ -175,7 +158,7 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
     private <Key extends Serializable, ValueInSet> Set<ValueInSet> getCollectionFromMap(Cache<Key, HashSet<ValueInSet>> map, Key key) {
         HashSet<ValueInSet> retVal = map.get(key);
         if (retVal == null) {
-            retVal = new HashSet<ValueInSet>();
+            retVal = new HashSet<>();
             map.put(key, retVal);
         }
         return retVal;
@@ -192,10 +175,10 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
         }
         for (Executor executor : executors) {
             if (executorToParentGroupsCache.get(executor.getId()) == null) {
-                executorToParentGroupsCache.put(executor.getId(), new HashSet<Group>());
+                executorToParentGroupsCache.put(executor.getId(), new HashSet<>());
             }
             if (executor instanceof Group && groupToMembersCache.get(executor.getId()) == null) {
-                groupToMembersCache.put(executor.getId(), new HashSet<Executor>());
+                groupToMembersCache.put(executor.getId(), new HashSet<>());
             }
             if (!context.isInitializationStillRequired()) {
                 return;
@@ -218,7 +201,7 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
         if (executorGroups != null) {
             return executorGroups;
         }
-        executorGroups = new HashSet<Group>();
+        executorGroups = new HashSet<>();
         cache.put(executor.getId(), executorGroups);
         if (mapExecutorToParents.get(executor.getId()) != null) {
             for (Group group : mapExecutorToParents.get(executor.getId())) {
@@ -234,7 +217,7 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
         if (actorMembers != null) {
             return actorMembers;
         }
-        actorMembers = new HashSet<Actor>();
+        actorMembers = new HashSet<>();
         cache.put(group.getId(), actorMembers);
         if (mapGroupToMembers.get(group.getId()) != null) {
             for (Executor ex : mapGroupToMembers.get(group.getId())) {
@@ -250,12 +233,15 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
 
     private List<ExecutorGroupMembership> getAllMemberships() {
         return ApplicationContextFactory.getCurrentSession()
-                .createSQLQuery("SELECT * FROM EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N'))")
+                .createSQLQuery(
+                        "SELECT * FROM " + ApplicationContextFactory.getSchemaPrefix() + "EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM "
+                                + ApplicationContextFactory.getSchemaPrefix() + "EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N'))")
                 .addEntity(ExecutorGroupMembership.class).list();
     }
 
     private List<Executor> getAllExecutors() {
-        return ApplicationContextFactory.getCurrentSession().createSQLQuery("SELECT * FROM EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N')")
+        return ApplicationContextFactory.getCurrentSession()
+                .createSQLQuery("SELECT * FROM " + ApplicationContextFactory.getSchemaPrefix() + "EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N')")
                 .addEntity(Executor.class).list();
     }
 

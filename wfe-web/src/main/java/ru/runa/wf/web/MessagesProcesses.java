@@ -52,6 +52,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_SHOW_GRAPH_HISTORY = new StrutsMessage("label.manage_graph_history");
     public static final StrutsMessage LABEL_SHOW_GANTT_DIAGRAM = new StrutsMessage("label.show_gantt_diagram");
     public static final StrutsMessage LABEL_DEFINITIONS_ARCHIVE = new StrutsMessage("process_definition.archive");
+    public static final StrutsMessage LABEL_DEFINITIONS_DAYS_BEFORE_ARCHIVING = new StrutsMessage("process_definition.days_before_archiving");
     public static final StrutsMessage LABEL_DEPLOY_APPLY_TYPE = new StrutsMessage("batch_presentation.process_definition.application_type");
     public static final StrutsMessage LABEL_DEPLOY_APPLY_NEW = new StrutsMessage("batch_presentation.process_definition.application_type.new.label");
     public static final StrutsMessage LABEL_DEPLOY_APPLY_ALL = new StrutsMessage("batch_presentation.process_definition.application_type.all.label");
@@ -98,11 +99,11 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_START_DATE = new StrutsMessage("label.task_history_table_start_date");
     public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_END_DATE = new StrutsMessage("label.task_history_table_end_date");
     public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_DURATION = new StrutsMessage("label.task_history_table_duration");
-    public static final StrutsMessage LABEL_UPDATE_CURRENT_VERSION = new StrutsMessage(
-            "batch_presentation.process_definition.update_current_version");
+    public static final StrutsMessage LABEL_UPDATE_CURRENT_VERSION = new StrutsMessage("batch_presentation.process_definition.update_current_version");
     public static final StrutsMessage TITLE_SUBPROCESSES_LIST = new StrutsMessage("title.process_subprocess_list");
     public static final StrutsMessage LINK_SHOW_TASKS = new StrutsMessage("link.show_tasks");
     public static final StrutsMessage LABEL_GLOBAL = new StrutsMessage("label.global");
+    public static final StrutsMessage LABEL_CREATE = new StrutsMessage("label.create");
     public static final StrutsMessage LABEL_COLLAPSE = new StrutsMessage("label.collapse");
     public static final StrutsMessage LABEL_EXPAND = new StrutsMessage("label.expand");
     public static final StrutsMessage LABEL_COLLAPSE_ALL = new StrutsMessage("label.collapse.all");

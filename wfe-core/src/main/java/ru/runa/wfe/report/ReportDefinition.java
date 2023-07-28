@@ -12,23 +12,17 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-/**
- * DTO for report description.
- */
-
 @Entity
-@Table(name = "REPORT", indexes = { @Index(name = "IX_REPORT_NAME", unique = true, columnList = "NAME") })
+@Table(name = "REPORT")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ReportDefinition {
     private Long id;
@@ -118,7 +112,7 @@ public class ReportDefinition {
 
     @OneToMany(targetEntity = ReportParameter.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "REPORT_ID", nullable = false)
-    @OrderColumn(name = "IDX")
+    // @OrderColumn(name = "IDX")
     public List<ReportParameter> getParameters() {
         return parameters;
     }
@@ -163,15 +157,5 @@ public class ReportDefinition {
     @Transient
     public String getConfigTypeDescription() {
         return configType.getDescription();
-    }
-
-    public void updateFrom(ReportDefinition reportDefinition) {
-        this.category = reportDefinition.category;
-        this.compiledReport = reportDefinition.compiledReport;
-        this.configType = reportDefinition.configType;
-        this.description = reportDefinition.description;
-        this.name = reportDefinition.name;
-        this.parameters.clear();
-        this.parameters.addAll(reportDefinition.getParameters());
     }
 }

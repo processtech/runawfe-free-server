@@ -1,8 +1,7 @@
 package ru.runa.wfe.office.excel.utils;
 
 import java.util.Date;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -13,8 +12,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.var.format.VariableFormat;
 
+@CommonsLog
 public class ExcelHelper {
-    private static final Log log = LogFactory.getLog(ExcelHelper.class);
 
     public static Sheet getSheet(Workbook workbook, String sheetName, int sheetIndex) {
         if (workbook.getNumberOfSheets() <= 0) {

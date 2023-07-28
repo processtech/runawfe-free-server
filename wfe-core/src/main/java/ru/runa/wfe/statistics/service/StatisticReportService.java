@@ -1,8 +1,13 @@
 package ru.runa.wfe.statistics.service;
 
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -21,18 +26,12 @@ import ru.runa.wfe.commons.GitProperties;
 import ru.runa.wfe.commons.InstallationProperties;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.datasource.DataSourceStorage;
-import ru.runa.wfe.definition.dao.DeploymentDao;
-import ru.runa.wfe.execution.dao.ProcessDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionPackDao;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.relation.dao.RelationDao;
-import ru.runa.wfe.report.dao.ReportDao;
+import ru.runa.wfe.report.dao.ReportDefinitionDao;
 import ru.runa.wfe.statistics.StatisticReportLog;
 import ru.runa.wfe.statistics.dao.StatisticReportLogDao;
-
-import java.io.OutputStream;
-import java.net.URL;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
 @Service
@@ -44,15 +43,15 @@ public class StatisticReportService {
     @Autowired
     private BotTaskDao botTaskDao;
     @Autowired
-    private ReportDao reportDao;
+    private ReportDefinitionDao reportDefinitionDao;
     @Autowired
     private RelationDao relationDao;
     @Autowired
-    private ProcessDao processDao;
+    private CurrentProcessDao currentProcessDao;
     @Autowired
     private ExecutorDao executorDao;
     @Autowired
-    private DeploymentDao deploymentDao;
+    private ProcessDefinitionPackDao processDefinitionPackDao;
     @Autowired
     private StatisticReportLogDao statisticReportLogDao;
 
@@ -81,12 +80,12 @@ public class StatisticReportService {
         info.put("referrerUrl", InstallationProperties.getReferrerUrl());
 
         info.put("botTaskCount", botTaskDao.getAllCount());
-        info.put("reportsCount", reportDao.getAllCount());
+        info.put("reportsCount", reportDefinitionDao.getAllCount());
         info.put("actorsCount", executorDao.getAllActorsCount());
         info.put("relationsCount", relationDao.getAllCount());
-        info.put("activeProcessesCount", processDao.getAllActiveProcessesCount());
-        info.put("completedProcessesCount", processDao.getAllCompletedProcessesCount());
-        info.put("processDefinitionsCount", deploymentDao.getAllDeploymentNameCount());
+        info.put("activeProcessesCount", currentProcessDao.getAllActiveProcessesCount());
+        info.put("completedProcessesCount", currentProcessDao.getAllCompletedProcessesCount());
+        info.put("processDefinitionsCount", processDefinitionPackDao.findAllIds().size());
         info.put("dataSourcesCount", DataSourceStorage.getAllDataSourcesCount());
 
         return info;

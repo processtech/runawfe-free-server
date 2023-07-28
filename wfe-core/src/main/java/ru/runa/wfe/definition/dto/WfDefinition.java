@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.definition.dto;
 
 import com.google.common.base.MoreObjects;
@@ -23,10 +6,12 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.commons.EntityWithType;
-import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.FileDataProvider;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.definition.ProcessDefinitionPack;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
@@ -34,7 +19,9 @@ import ru.runa.wfe.user.Actor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WfDefinition extends SecuredObject implements Comparable<WfDefinition>, EntityWithType {
     private static final long serialVersionUID = -6032491529439317948L;
+
     private Long id;
+    private Long packId;
     private String name;
     private String description;
     private String[] categories;
@@ -49,35 +36,48 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     private Date updateDate;
     private Actor updateActor;
     private Date subprocessBindingDate;
+    private Integer secondsBeforeArchiving;
 
     public WfDefinition() {
     }
 
-    public WfDefinition(ProcessDefinition definition, boolean canBeStarted) {
-        this(definition.getDeployment());
-        hasHtmlDescription = definition.getFileData(FileDataProvider.INDEX_FILE_NAME) != null;
-        hasStartImage = definition.getFileData(FileDataProvider.START_IMAGE_FILE_NAME) != null;
-        hasDisabledImage = definition.getFileData(FileDataProvider.START_DISABLED_IMAGE_FILE_NAME) != null;
-        subprocessOnly = definition.getAccessType() == ProcessDefinitionAccessType.OnlySubprocess;
-        this.canBeStarted = canBeStarted && !subprocessOnly;
+    public WfDefinition(ProcessDefinitionPack p, ProcessDefinition d) {
+        this.id = d.getId();
+        this.packId = p.getId();
+        this.version = d.getVersion();
+        this.name = p.getName();
+        this.description = p.getDescription();
+        this.categories = p.getCategories();
+        this.createDate = d.getCreateDate();
+        this.createActor = d.getCreateActor();
+        this.updateDate = d.getUpdateDate();
+        this.updateActor = d.getUpdateActor();
+        this.subprocessBindingDate = d.getSubprocessBindingDate();
+        this.secondsBeforeArchiving = p.getSecondsBeforeArchiving();
     }
 
-    public WfDefinition(Deployment deployment) {
-        id = deployment.getId();
-        version = deployment.getVersion();
-        name = deployment.getName();
-        description = deployment.getDescription();
-        categories = deployment.getCategories();
-        createDate = deployment.getCreateDate();
-        createActor = deployment.getCreateActor();
-        updateDate = deployment.getUpdateDate();
-        updateActor = deployment.getUpdateActor();
-        subprocessBindingDate = deployment.getSubprocessBindingDate();
+    public WfDefinition(ProcessDefinition d) {
+        this(d.getPack(), d);
     }
 
-    @Override
-    public Long getIdentifiableId() {
-        return (long) getName().hashCode();
+    public WfDefinition(ParsedProcessDefinition pd, boolean canBeStarted) {
+        this.id = pd.getId();
+        this.packId = pd.getPackId();
+        this.version = pd.getVersion();
+        this.name = pd.getName();
+        this.description = pd.getDescription();
+        this.categories = pd.getCategory() != null ? pd.getCategory().split(Utils.CATEGORY_DELIMITER) : new String[] {};
+        this.createDate = pd.getCreateDate();
+        this.createActor = pd.getCreateActor();
+        this.updateDate = pd.getUpdateDate();
+        this.updateActor = pd.getUpdateActor();
+        this.subprocessBindingDate = pd.getSubprocessBindingDate();
+        this.secondsBeforeArchiving = pd.getSecondsBeforeArchiving();
+        this.hasHtmlDescription = pd.getFileData(FileDataProvider.INDEX_FILE_NAME) != null;
+        this.hasStartImage = pd.getFileData(FileDataProvider.START_IMAGE_FILE_NAME) != null;
+        this.hasDisabledImage = pd.getFileData(FileDataProvider.START_DISABLED_IMAGE_FILE_NAME) != null;
+        this.subprocessOnly = pd.getAccessType() == ProcessDefinitionAccessType.OnlySubprocess;
+        this.canBeStarted = canBeStarted && !subprocessOnly && pd.getManualStartNode() != null;
     }
 
     @Override
@@ -85,8 +85,13 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         return SecuredObjectType.DEFINITION;
     }
 
+    @Override
     public Long getId() {
         return id;
+    }
+
+    public Long getPackId() {
+        return packId;
     }
 
     public String getName() {
@@ -150,6 +155,10 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         return subprocessBindingDate;
     }
 
+    public Integer getSecondsBeforeArchiving() {
+        return secondsBeforeArchiving;
+    }
+
     @Override
     public int compareTo(WfDefinition o) {
         if (name == null) {
@@ -175,5 +184,4 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     public String toString() {
         return MoreObjects.toStringHelper(this).add("id", id).add("name", name).add("version", version).toString();
     }
-
 }

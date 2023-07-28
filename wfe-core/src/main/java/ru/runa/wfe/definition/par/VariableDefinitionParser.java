@@ -6,7 +6,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.List;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.FileDataProvider;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableStoreType;
@@ -25,6 +25,7 @@ import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
+@CommonsLog
 public class VariableDefinitionParser implements ProcessArchiveParser {
     private static final String FORMAT = "format";
     private static final String SWIMLANE = "swimlane";
@@ -42,7 +43,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     @Autowired
     private LocalizationDao localizationDao;
 
-    public void setLocalizationDAO(LocalizationDao localizationDao) {
+    public void setLocalizationDao(LocalizationDao localizationDao) {
         this.localizationDao = localizationDao;
     }
 
@@ -52,26 +53,26 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     }
 
     @Override
-    public void readFromArchive(ProcessArchive archive, ProcessDefinition processDefinition) {
-        byte[] xml = processDefinition.getFileDataNotNull(FileDataProvider.VARIABLES_XML_FILE_NAME);
+    public void readFromArchive(ProcessArchive archive, ParsedProcessDefinition parsedProcessDefinition) {
+        byte[] xml = parsedProcessDefinition.getFileDataNotNull(FileDataProvider.VARIABLES_XML_FILE_NAME);
         Document document = XmlUtils.parseWithoutValidation(xml);
         Element root = document.getRootElement();
         List<Element> typeElements = document.getRootElement().elements(USER_TYPE);
         for (Element typeElement : typeElements) {
             UserType type = new UserType(typeElement.attributeValue(NAME));
-            processDefinition.addUserType(type);
+            parsedProcessDefinition.addUserType(type);
         }
         for (Element typeElement : typeElements) {
-            UserType type = processDefinition.getUserTypeNotNull(typeElement.attributeValue(NAME));
+            UserType type = parsedProcessDefinition.getUserTypeNotNull(typeElement.attributeValue(NAME));
             List<Element> attributeElements = typeElement.elements(VARIABLE);
             for (Element element : attributeElements) {
-                VariableDefinition variableDefinition = parse(processDefinition, element);
+                VariableDefinition variableDefinition = parse(parsedProcessDefinition, element);
                 type.addAttribute(variableDefinition);
             }
         }
-        for (UserType userType : processDefinition.getUserTypes()) {
+        for (UserType userType : parsedProcessDefinition.getUserTypes()) {
             for (VariableDefinition variableDefinition : userType.getAttributes()) {
-                parseDefaultValue(processDefinition, variableDefinition);
+                parseDefaultValue(parsedProcessDefinition, variableDefinition);
             }
         }
         List<Element> variableElements = root.elements(VARIABLE);
@@ -80,16 +81,16 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
             if (swimlane) {
                 String name = element.attributeValue(NAME);
                 String scriptingName = element.attributeValue(SCRIPTING_NAME, name);
-                processDefinition.setSwimlaneScriptingName(name, scriptingName);
+                parsedProcessDefinition.setSwimlaneScriptingName(name, scriptingName);
             } else {
-                VariableDefinition variableDefinition = parse(processDefinition, element);
-                parseDefaultValue(processDefinition, variableDefinition);
-                processDefinition.addVariable(variableDefinition);
+                VariableDefinition variableDefinition = parse(parsedProcessDefinition, element);
+                parseDefaultValue(parsedProcessDefinition, variableDefinition);
+                parsedProcessDefinition.addVariable(variableDefinition);
             }
         }
     }
 
-    private VariableDefinition parse(ProcessDefinition processDefinition, Element element) {
+    private VariableDefinition parse(ParsedProcessDefinition parsedProcessDefinition, Element element) {
         String name = element.attributeValue(NAME);
         String scriptingName = element.attributeValue(SCRIPTING_NAME, name);
         String global = element.attributeValue(GLOBAL);
@@ -99,7 +100,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         String userTypeName = element.attributeValue(USER_TYPE);
         if (userTypeName != null) {
             variableDefinition.setFormat(userTypeName);
-            variableDefinition.setUserType(processDefinition.getUserTypeNotNull(userTypeName));
+            variableDefinition.setUserType(parsedProcessDefinition.getUserTypeNotNull(userTypeName));
         } else {
             String format = element.attributeValue(FORMAT);
             format = BackCompatibilityClassNames.getClassName(format);
@@ -123,7 +124,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
             }
             variableDefinition.setFormatLabel(formatLabel);
         }
-        variableDefinition.initComponentUserTypes(processDefinition);
+        variableDefinition.initComponentUserTypes(parsedProcessDefinition);
         variableDefinition.setPublicAccess(Boolean.parseBoolean(element.attributeValue(PUBLIC, "false")));
         variableDefinition.setEditableInChat(Boolean.parseBoolean(element.attributeValue(EDITABLE_IN_CHAT, "false")));
         variableDefinition.setDefaultValue(element.attributeValue(DEFAULT_VALUE));
@@ -134,11 +135,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         return variableDefinition;
     }
 
-    private String getProcessFileName(String path) {
-        return path.substring(FileDataProvider.PROCESS_FILE_PROTOCOL.length());
-    }
-
-    private void parseDefaultValue(ProcessDefinition processDefinition, VariableDefinition variableDefinition) {
+    private void parseDefaultValue(ParsedProcessDefinition parsedProcessDefinition, VariableDefinition variableDefinition) {
         String stringDefaultValue = (String) variableDefinition.getDefaultValue();
         if (!Strings.isNullOrEmpty(stringDefaultValue)) {
             try {
@@ -146,24 +143,28 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
 
                 if (variableFormat instanceof FileFormat) {
                     String fileName = getProcessFileName(stringDefaultValue);
-                    byte[] fileData = processDefinition.getFileData(fileName);
+                    byte[] fileData = parsedProcessDefinition.getFileData(fileName);
                     Object value = new FileVariableImpl(fileName, fileData, "application/octet-stream");
                     variableDefinition.setDefaultValue(value);
                 } else {
                     variableDefinition.setDefaultValue(variableFormat.parse(stringDefaultValue));
                 }
             } catch (Exception e) {
-                Date createDate = processDefinition.getDeployment().getCreateDate();
+                Date createDate = parsedProcessDefinition.getCreateDate();
                 if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed()
                         || (createDate == null ? new Date() : createDate).after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
-                    LogFactory.getLog(getClass()).warn("Unable to parse default value '" + stringDefaultValue +
+                    log.warn("Unable to parse default value '" + stringDefaultValue +
                             "' for variable '" + variableDefinition.getName() + "'" + ": " + e);
                     throw e;
                 } else {
-                    LogFactory.getLog(getClass()).error(
-                            "Unable to format default value '" + stringDefaultValue + "' in " + processDefinition + ":" + variableDefinition, e);
+                    log.error("Unable to format default value '" + stringDefaultValue + "' in " + parsedProcessDefinition + ":" + variableDefinition, e);
                 }
             }
         }
     }
+
+    private String getProcessFileName(String path) {
+        return path.substring(FileDataProvider.PROCESS_FILE_PROTOCOL.length());
+    }
+
 }

@@ -1,19 +1,19 @@
 package ru.runa.wfe.job.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 
+@CommonsLog
 public class UnusedTemporaryGroupsCleaner {
-    protected final Log log = LogFactory.getLog(getClass());
-    // @Autowired
-    // protected HibernateQueryFactory queryFactory;
     @Autowired
     protected SessionFactory sessionFactory;
 
     @Transactional
+    @Scheduled(fixedDelayString = "${timertask.period.millis.remove.temp.groups}")
     public void execute() {
         log.debug("Cleaning unused temporary groups");
         // TODO seems like bug in generated query: Column "TEMPORARYG0_.PROCESS_ID" not found
@@ -33,12 +33,21 @@ public class UnusedTemporaryGroupsCleaner {
         sessionFactory
                 .getCurrentSession()
                 .createSQLQuery(
-                        "DELETE FROM EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM EXECUTOR WHERE DISCRIMINATOR IN ('D', 'T', 'E') AND ID NOT IN (SELECT DISTINCT(EXECUTOR_ID) FROM BPM_SWIMLANE WHERE EXECUTOR_ID IS NOT NULL UNION SELECT DISTINCT(EXECUTOR_ID) FROM BPM_TASK WHERE EXECUTOR_ID IS NOT NULL))")
+                        "DELETE FROM " + ApplicationContextFactory.getSchemaPrefix() + "EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM "
+                                + ApplicationContextFactory.getSchemaPrefix()
+                                + "EXECUTOR WHERE DISCRIMINATOR IN ('D', 'T', 'E') AND ID NOT IN (SELECT DISTINCT(EXECUTOR_ID) FROM "
+                                + ApplicationContextFactory.getSchemaPrefix()
+                                + " BPM_SWIMLANE WHERE EXECUTOR_ID IS NOT NULL UNION SELECT DISTINCT(EXECUTOR_ID) FROM "
+                                + ApplicationContextFactory.getSchemaPrefix() + "BPM_TASK WHERE EXECUTOR_ID IS NOT NULL))")
                 .executeUpdate();
         sessionFactory
                 .getCurrentSession()
                 .createSQLQuery(
-                        "DELETE FROM EXECUTOR WHERE DISCRIMINATOR IN ('D', 'T', 'E') AND ID NOT IN (SELECT DISTINCT(EXECUTOR_ID) FROM BPM_SWIMLANE WHERE EXECUTOR_ID IS NOT NULL UNION SELECT DISTINCT(EXECUTOR_ID) FROM BPM_TASK WHERE EXECUTOR_ID IS NOT NULL)")
+                        "DELETE FROM " + ApplicationContextFactory.getSchemaPrefix()
+                                + "EXECUTOR WHERE DISCRIMINATOR IN ('D', 'T', 'E') AND ID NOT IN (SELECT DISTINCT(EXECUTOR_ID) FROM "
+                                + ApplicationContextFactory.getSchemaPrefix()
+                                + "BPM_SWIMLANE WHERE EXECUTOR_ID IS NOT NULL UNION SELECT DISTINCT(EXECUTOR_ID) FROM "
+                                + ApplicationContextFactory.getSchemaPrefix() + "BPM_TASK WHERE EXECUTOR_ID IS NOT NULL)")
                 .executeUpdate();
     }
 

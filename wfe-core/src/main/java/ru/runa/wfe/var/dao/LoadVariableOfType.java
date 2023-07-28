@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.Variable;
@@ -41,52 +40,52 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
 
     @Override
     public Object onDate(DateFormat dateFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(dateFormat, context);
+        return loadSimpleVariable(context);
     }
 
     @Override
     public Object onTime(TimeFormat timeFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(timeFormat, context);
+        return loadSimpleVariable(context);
     }
 
     @Override
     public Object onDateTime(DateTimeFormat dateTimeFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(dateTimeFormat, context);
+        return loadSimpleVariable(context);
     }
 
     @Override
     public Object onExecutor(ExecutorFormat executorFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(executorFormat, context);
+        return loadSimpleVariable(context);
     }
 
     @Override
     public Object onBoolean(BooleanFormat booleanFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(booleanFormat, context);
+        return loadSimpleVariable(context);
     }
 
     @Override
     public Object onBigDecimal(BigDecimalFormat bigDecimalFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(bigDecimalFormat, context);
+        return loadSimpleVariable(context);
     }
 
     @Override
     public Object onDouble(DoubleFormat doubleFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(doubleFormat, context);
+        return loadSimpleVariable(context);
     }
 
     @Override
     public Object onLong(LongFormat longFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(longFormat, context);
+        return loadSimpleVariable(context);
     }
 
     @Override
     public Object onFile(FileFormat fileFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(fileFormat, context);
+        return loadSimpleVariable(context);
     }
 
     @Override
     public Object onHidden(HiddenFormat hiddenFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(hiddenFormat, context);
+        return loadSimpleVariable(context);
     }
 
     @Override
@@ -97,9 +96,9 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
         Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.createFor(sizeDefinition));
         if (size == null) {
             if (SystemProperties.isV4ListVariableCompatibilityMode()) {
-                Variable<?> variable = context.getVariable();
+                Variable variable = context.getVariable();
                 if (variable != null) {
-                    return processComplexVariables(context.processDefinition, context.variableDefinition, null, variable.getValue());
+                    return processComplexVariables(context.variableDefinition, null, variable.getValue());
                 }
             }
             return context.variableDefinition.getDefaultValue();
@@ -126,12 +125,12 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
         Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.createFor(sizeDefinition));
         if (size == null && SystemProperties.isV4MapVariableCompatibilityMode()) {
             VariableDefinition variableDefinition = context.variableDefinition;
-            Variable<?> variable = context.getVariable();
+            Variable variable = context.getVariable();
             if (variable == null) {
                 return variableDefinition.getDefaultValue();
             }
             Object value = variable.getValue();
-            value = processComplexVariables(context.processDefinition, variableDefinition, variableDefinition.getUserType(), value);
+            value = processComplexVariables(variableDefinition, variableDefinition.getUserType(), value);
             return value;
         }
         String[] componentFormats = context.variableDefinition.getFormatComponentClassNames();
@@ -152,22 +151,22 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
 
     @Override
     public Object onProcessId(ProcessIdFormat processIdFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(processIdFormat, context);
+        return loadSimpleVariable(context);
     }
 
     @Override
     public Object onString(StringFormat stringFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(stringFormat, context);
+        return loadSimpleVariable(context);
     }
 
     @Override
     public Object onTextString(TextFormat textFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(textFormat, context);
+        return loadSimpleVariable(context);
     }
 
     @Override
     public Object onFormattedTextString(FormattedTextFormat textFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(textFormat, context);
+        return loadSimpleVariable(context);
     }
 
     @Override
@@ -181,7 +180,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
             userTypeMap.put(attributeDefinition.getName(), value);
         }
         if (userTypeMap.isEmpty()) {
-            Variable<?> variable = context.getVariable();
+            Variable variable = context.getVariable();
             if (variable != null) {
                 // Back compatibility for variables stored as blob.
                 if (variable.getValue() == null) {
@@ -202,31 +201,28 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
 
     @Override
     public Object onOther(VariableFormat variableFormat, LoadVariableOfTypeContext context) {
-        return loadSimpleVariable(variableFormat, context);
+        return loadSimpleVariable(context);
     }
 
     /**
      * Loading variable of simple type (one variable value -> one variable record).
      * 
-     * @param format
-     *            Loaded variable format.
      * @param context
      *            Loading context.
      * @return Returns loaded variable value.
      */
-    private Object loadSimpleVariable(VariableFormat format, LoadVariableOfTypeContext context) {
-        Variable<?> variable = context.getVariable();
+    private Object loadSimpleVariable(LoadVariableOfTypeContext context) {
+        Variable variable = context.getVariable();
         if (variable == null) {
             return context.variableDefinition.getDefaultValue();
         }
-        Object value = variable.getValue();
-        return value;
+        return variable.getValue();
     }
 
     /**
      * ComplexVariable -> UserTypeMap conversion was made before v4.3.0
      */
-    private Object processComplexVariables(ProcessDefinition processDefinition, VariableDefinition variableDefinition, UserType userType, Object value) {
+    private Object processComplexVariables(VariableDefinition variableDefinition, UserType userType, Object value) {
         if (value instanceof ComplexVariable) {
             UserTypeMap map = new UserTypeMap(userType);
             // limitation: embedded complex variables
@@ -242,11 +238,11 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
                 if (variableDefinition.getFormatComponentUserTypes()[0] != null) {
                     map.put(entry.getKey(),
-                            processComplexVariables(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0], entry.getValue()));
+                            processComplexVariables(null, variableDefinition.getFormatComponentUserTypes()[0], entry.getValue()));
                 }
                 if (variableDefinition.getFormatComponentUserTypes()[1] != null) {
                     map.put(entry.getKey(),
-                            processComplexVariables(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[1], entry.getValue()));
+                            processComplexVariables(null, variableDefinition.getFormatComponentUserTypes()[1], entry.getValue()));
                 }
             }
         }
@@ -255,7 +251,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
             List<Object> list = (List<Object>) value;
             for (int i = 0; i < list.size(); i++) {
                 if (variableDefinition.getFormatComponentUserTypes()[0] != null) {
-                    list.set(i, processComplexVariables(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0], list.get(i)));
+                    list.set(i, processComplexVariables(null, variableDefinition.getFormatComponentUserTypes()[0], list.get(i)));
                 }
             }
         }

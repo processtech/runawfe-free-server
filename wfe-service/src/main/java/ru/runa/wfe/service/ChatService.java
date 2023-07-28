@@ -3,8 +3,11 @@ package ru.runa.wfe.service;
 import java.util.List;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.WfChatMessageBroadcast;
 import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageDeletedBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageEditedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.request.EditMessageRequest;
@@ -28,21 +31,21 @@ public interface ChatService {
      *              request to add a new message
      * @return id of created message
      */
-    public Long saveMessage(User user, AddMessageRequest request);
+    public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(User user, AddMessageRequest request);
 
     /**
      * Edit message according to provided request
      * @param user authorized user
      * @param request request to edit message
      */
-    public void editMessage(User user, EditMessageRequest request);
+    public WfChatMessageBroadcast<MessageEditedBroadcast> editMessage(User user, EditMessageRequest request);
 
     /**
      * Delete message according to provided request
      * @param user authorized user
      * @param request request to edit message
      */
-    public void deleteMessage(User user, DeleteMessageRequest request);
+    public WfChatMessageBroadcast<MessageDeletedBroadcast> deleteMessage(User user, DeleteMessageRequest request);
 
     /**
      * Gets ChatMessage.
@@ -109,5 +112,4 @@ public interface ChatService {
      *            process Id
      */
     public void deleteChatMessages(User user, Long processId);
-
 }

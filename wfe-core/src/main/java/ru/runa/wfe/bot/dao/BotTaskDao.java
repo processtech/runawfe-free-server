@@ -1,6 +1,7 @@
 package ru.runa.wfe.bot.dao;
 
 import java.util.List;
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
@@ -17,6 +18,10 @@ import ru.runa.wfe.commons.dao.GenericDao;
 @Component
 public class BotTaskDao extends GenericDao<BotTask> {
 
+    public BotTaskDao() {
+        super(BotTask.class);
+    }
+
     @Override
     protected void checkNotNull(BotTask entity, Object identity) {
         if (entity == null) {
@@ -30,7 +35,7 @@ public class BotTaskDao extends GenericDao<BotTask> {
      * @return loaded {@linkplain BotTask} or <code>null</code>
      */
     public BotTask get(Bot bot, String name) {
-        QBotTask bt = QBotTask.botTask;
+        val bt = QBotTask.botTask;
         return queryFactory.selectFrom(bt).where(bt.bot.eq(bot).and(bt.name.eq(name))).fetchFirst();
     }
 
@@ -51,7 +56,7 @@ public class BotTaskDao extends GenericDao<BotTask> {
      * @return list, not <code>null</code>.
      */
     public List<BotTask> getAll(Bot bot) {
-        QBotTask bt = QBotTask.botTask;
+        val bt = QBotTask.botTask;
         return queryFactory.selectFrom(bt).where(bt.bot.eq(bot)).fetch();
     }
 

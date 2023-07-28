@@ -8,9 +8,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.job.Job;
+import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.job.dao.JobDao;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 @Component
 @Transactional
@@ -20,27 +22,29 @@ public class JobTransactionalExecutor {
     private JobDao jobDao;
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
+    @Autowired
+    private ExecutionLogic executionLogic;
 
-    public List<Long> getExpiredJobIds() {
+    public List<TimerJob> getExpiredJobs() {
         Long batchSize = SystemProperties.getJobExecutorBatchSize();
         Long expiredJobsCount = jobDao.getExpiredJobsCount();
-        List<Long> jobIds = jobDao.getExpiredJobIds(batchSize);
+        List<TimerJob> jobs = jobDao.getExpiredJobs(batchSize);
         log.debug("Expired jobs: " + expiredJobsCount);
         if (expiredJobsCount > batchSize) {
             log.debug("Too many expired jobs. Processing first " + batchSize);
         }
-        return jobIds;
+        return jobs;
     }
 
     public void execute(Long jobId) {
         Job job = jobDao.get(jobId);
-        ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(job.getProcess().getDeployment().getId());
-        ExecutionContext executionContext = new ExecutionContext(processDefinition, job.getToken());
+        ParsedProcessDefinition parsed = processDefinitionLoader.getDefinition(job.getProcess());
+        ExecutionContext executionContext = new ExecutionContext(parsed, job.getToken());
         job.execute(executionContext);
     }
 
     public void onExecutionFailed(Long jobId, Exception e) {
         Job job = jobDao.get(jobId);
-        job.getToken().fail(e);
+        executionLogic.failToken(job.getToken(), e);
     }
 }

@@ -1,22 +1,21 @@
 package ru.runa.wf.web.ftl.component;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.wf.web.FormSubmissionUtils;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.HiddenFormat;
@@ -26,11 +25,8 @@ import ru.runa.wfe.var.format.VariableDisplaySupport;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
-
+@CommonsLog
 public class ViewUtil {
-    private static final Log log = LogFactory.getLog(ViewUtil.class);
 
     public static String createExecutorSelect(User user, WfVariable variable) {
         return GenerateHtmlForVariable.createExecutorSelect(user, variable);
@@ -124,13 +120,10 @@ public class ViewUtil {
 
     public static String getFileInput(WebHelper webHelper, String variableName, boolean allowMultiple, String acceptTypes) {
         String multiple = allowMultiple ? " multiple " : "";
-        String attachImageUrl = "";
-        String loadingImageUrl = "";
         String uploadFileTitle = webHelper.getMessage("message.upload.file");
+        String attachImageUrl = webHelper.getUrl(Resources.IMAGE_ATTACH);
+        String loadingImageUrl = webHelper.getUrl(Resources.IMAGE_LOADING);
         String loadingMessage = webHelper.getMessage("message.loading");
-        attachImageUrl = webHelper.getUrl(Resources.IMAGE_ATTACH);
-        loadingImageUrl = webHelper.getUrl(Resources.IMAGE_LOADING);
-        loadingMessage = webHelper.getMessage("message.loading");
         String hideStyle = "style=\"display: none;\"";
         String html = "<div class=\"inputFileContainer\">";
         html += "<div class=\"dropzone\" >";
@@ -193,7 +186,7 @@ public class ViewUtil {
     }
     
     public static String generateTableHeader(List<WfVariable> variables, VariableProvider variableProvider, String operationsColumn) {
-        StringBuffer header = new StringBuffer();
+        StringBuilder header = new StringBuilder();
         header.append("<tr class=\"header\">");
         for (WfVariable variable : variables) {
             Object value = variableProvider.getValue(variable.getDefinition().getName() + "_header");
@@ -239,5 +232,4 @@ public class ViewUtil {
         html += "</" + tagToUse + ">";
         return html;
     }
-
 }

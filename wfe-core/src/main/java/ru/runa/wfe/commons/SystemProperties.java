@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.execution.logic.ProcessExecutionListener;
 import ru.runa.wfe.execution.logic.TaskExecutionListener;
 import ru.runa.wfe.lang.NodeType;
@@ -13,6 +14,7 @@ import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 
+@CommonsLog
 public class SystemProperties {
     public static final String CONFIG_FILE_NAME = "system.properties";
     private static final PropertyResources RESOURCES = new PropertyResources(CONFIG_FILE_NAME);
@@ -86,10 +88,27 @@ public class SystemProperties {
     }
 
     /**
-     * Using non runtime substitution cache instead of static substitution cache.
+     * Using staleable (formerly called "non-runtime") substitution cache instead of static substitution cache.
      */
-    public static boolean useNonRuntimeSubstitutionCache() {
-        return NO_DATABASE_RESOURCES.getBooleanProperty("nonruntime.susbstitution.cache", true);
+    public static boolean useStaleableSubstitutionCache() {
+        // TODO Rename parameter from "nonruntime..." to "staleable..." in configs.
+        return NO_DATABASE_RESOURCES.getBooleanProperty(
+                "staleable.susbstitution.cache",
+                useNonRuntimeSubstitutionCache()  // fallback to old parameter name
+        );
+    }
+
+    /**
+     * @deprecated Queries old parameter name; use useStaleableSubstitutionCache().
+     */
+    @Deprecated
+    private static boolean useNonRuntimeSubstitutionCache() {
+        String s = NO_DATABASE_RESOURCES.getStringProperty("nonruntime.susbstitution.cache", null);
+        if (s == null) {
+            return true;  // default value
+        }
+        log.warn("Please rename obsolete config property \"nonruntime.susbstitution.cache\" to new \"staleable.susbstitution.cache\".");
+        return Boolean.parseBoolean(s);  // as getBooleanProperty() does
     }
 
     /**
@@ -284,6 +303,10 @@ public class SystemProperties {
         return RESOURCES.getMultipleStringProperty("process.end.handlers");
     }
 
+    public static List<String> getProcessArchiverStepHandlers() {
+        return RESOURCES.getMultipleStringProperty("process.archiver.step.handlers");
+    }
+
     public static List<String> getProcessAdminGroupNames() {
         return RESOURCES.getMultipleStringProperty("process.admin.groups");
     }
@@ -394,6 +417,25 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.only.strict.compliance.handling", false);
     }
 
+    public static boolean isEventSubprocessMessagePredefinedSelectorEnabled() {
+        return RESOURCES.getBooleanProperty("event.subprocess.message.predefined.selector.enabled", true);
+    }
+
+    public static boolean isEventSubprocessMessagePredefinedSelectorOnlyStrictComplianceHandling() {
+        return RESOURCES.getBooleanProperty("event.subprocess.message.predefined.selector.only.strict.compliance.handling", false);
+    }
+
+    /**
+     * -1 means "disable archiving", see {@link #isProcessArchivingEnabled()}. 0 means "archive immediately". Defaults to -1.
+     */
+    public static int getProcessDefaultSecondsBeforeArchiving() {
+        return RESOURCES.getIntegerProperty("process.default.seconds.before.archiving", -1);
+    }
+
+    public static boolean isProcessArchivingEnabled() {
+        return getProcessDefaultSecondsBeforeArchiving() >= 0;
+    }
+
     /**
      * @return default permissions by object type
      */
@@ -478,5 +520,10 @@ public class SystemProperties {
     public static boolean isFileSystemAccessAllowed() {
         return NO_DATABASE_RESOURCES.getBooleanProperty("filesystem.access.allowed", false);
     }
+
+    public static String getJwtSecret() {  return NO_DATABASE_RESOURCES.getStringProperty("jwt.secret");  }
+
+    public static String getTSAurl() {  return NO_DATABASE_RESOURCES.getStringProperty("signature.server.tsaurl");  }
+    public static String getSignatureServerContainerPassword() {  return NO_DATABASE_RESOURCES.getStringProperty("signature.server.container.password");  }
 
 }

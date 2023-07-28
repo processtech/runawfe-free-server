@@ -1,26 +1,31 @@
 package ru.runa.wfe.definition.dao;
 
-import com.google.common.base.Preconditions;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.cache.DefinitionCache;
+import org.springframework.stereotype.Component;
+import ru.runa.wfe.definition.cache.ProcessDefCacheCtrl;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
+@Component
 public class ProcessDefinitionLoader {
+
     @Autowired
-    private DefinitionCache processDefCacheCtrl;
+    private ProcessDefCacheCtrl processDefCacheCtrl;
 
-    public ProcessDefinition getDefinition(Long id) {
-        return processDefCacheCtrl.getDefinition(id);
+    public ParsedProcessDefinition getDefinition(Long processDefinitionId) {
+        return processDefCacheCtrl.getDefinition(processDefinitionId);
     }
 
-    public ProcessDefinition getDefinition(Process process) {
-        Preconditions.checkNotNull(process, "process");
-        return getDefinition(process.getDeployment().getId());
+    public ParsedProcessDefinition getDefinition(@NonNull Process process) {
+        return getDefinition(process.getDefinition().getId());
     }
 
-    public ProcessDefinition getLatestDefinition(String definitionName) throws DefinitionDoesNotExistException {
+    public ParsedProcessDefinition getLatestDefinition(@NonNull String definitionName) {
         return processDefCacheCtrl.getLatestDefinition(definitionName);
+    }
+
+    public ParsedProcessDefinition getLatestDefinitionByPackId(Long packId) {
+        return processDefCacheCtrl.getLatestDefinitionByPackId(packId);
     }
 }

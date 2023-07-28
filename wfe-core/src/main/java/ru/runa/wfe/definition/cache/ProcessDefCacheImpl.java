@@ -1,74 +1,78 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * aLong with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.definition.cache;
 
-import org.hibernate.Hibernate;
-import org.hibernate.proxy.HibernateProxy;
+import lombok.NonNull;
+import lombok.val;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.dao.DeploymentDao;
+import ru.runa.wfe.definition.ProcessDefinition;
+import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionPackDao;
 import ru.runa.wfe.definition.par.ProcessArchive;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
-class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefinitionCache {
+class ProcessDefCacheImpl extends BaseCacheImpl {
 
-    public static final String definitionIdToDefinitionName = "ru.runa.wfe.definition.cache.definitionIdToDefinition";
-    public static final String definitionNameToLatestDefinitionName = "ru.runa.wfe.definition.cache.definitionNameToLatestDefinition";
+    public static final String definitionIdToParsedCacheName = "ru.runa.wfe.definition.cache.definitionIdToParsed";
+    public static final String definitionNameToLatestCacheName = "ru.runa.wfe.definition.cache.definitionNameToLatest";
+    public static final String packIdToDefinitionIdCacheName = "ru.runa.wfe.definition.cache.packIdToDefinitionId";
 
-    private final Cache<Long, ProcessDefinition> definitionIdToDefinition;
-    private final Cache<String, Long> definitionNameToId;
+    /**
+     * Key is ProcessDefinition.id.
+     */
+    private final Cache<Long, ParsedProcessDefinition> definitionIdToParsed;
+
+    /**
+     * Key is ProcessDefinitionPack.name, value is ProcessDefinition.id.
+     */
+    private final Cache<String, Long> definitionNameToLatest;
+
+    /**
+     * Key is ProcessDefinitionPack.id, value is ProcessDefinitionPack.latest.id.
+     */
+    private final Cache<Long, Long> packIdToDefinitionId;
 
     public ProcessDefCacheImpl() {
-        definitionIdToDefinition = createCache(definitionIdToDefinitionName);
-        definitionNameToId = createCache(definitionNameToLatestDefinitionName);
+        definitionIdToParsed = createCache(definitionIdToParsedCacheName);
+        definitionNameToLatest = createCache(definitionNameToLatestCacheName);
+        packIdToDefinitionId = createCache(packIdToDefinitionIdCacheName);
     }
 
-    @Override
-    public ProcessDefinition getDefinition(DeploymentDao deploymentDao, Long definitionId) throws DefinitionDoesNotExistException {
-        ProcessDefinition processDefinition = null;
-        processDefinition = definitionIdToDefinition.get(definitionId);
-        if (processDefinition != null) {
-            return processDefinition;
+    public ParsedProcessDefinition getDefinition(ProcessDefinitionDao processDefinitionDao, Long processDefinitionId
+    ) {
+        ParsedProcessDefinition parsed = definitionIdToParsed.get(processDefinitionId);
+        if (parsed != null) {
+            return parsed;
         }
-        Deployment deployment = deploymentDao.getNotNull(definitionId);
-        Hibernate.initialize(deployment);
-        if (deployment instanceof HibernateProxy) {
-            deployment = (Deployment) (((HibernateProxy) deployment).getHibernateLazyInitializer().getImplementation());
-        }
-        ProcessArchive archive = new ProcessArchive(deployment);
-        processDefinition = archive.parseProcessDefinition();
-        definitionIdToDefinition.put(definitionId, processDefinition);
-        return processDefinition;
+        ProcessDefinition processDefinition = processDefinitionDao.get(processDefinitionId);
+        val archive = new ProcessArchive(processDefinition);
+        parsed = archive.parseProcessDefinition();
+        definitionIdToParsed.put(processDefinitionId, parsed);
+        return parsed;
     }
 
-    @Override
-    public ProcessDefinition getLatestDefinition(DeploymentDao deploymentDao, String definitionName) {
-        Long definitionId = null;
-        definitionId = definitionNameToId.get(definitionName);
+    public ParsedProcessDefinition getLatestDefinition(
+            ProcessDefinitionPackDao processDefinitionPackDao, ProcessDefinitionDao processDefinitionDao, @NonNull String definitionName
+    ) {
+        Long definitionId = definitionNameToLatest.get(definitionName);
         if (definitionId != null) {
-            return getDefinition(deploymentDao, definitionId);
+            return getDefinition(processDefinitionDao, definitionId);
         }
-        definitionId = deploymentDao.findLatestDeployment(definitionName).getId();
-        definitionNameToId.put(definitionName, definitionId);
-        return getDefinition(deploymentDao, definitionId);
+        definitionId = processDefinitionPackDao.getByName(definitionName).getLatest().getId();
+        definitionNameToLatest.put(definitionName, definitionId);
+        return getDefinition(processDefinitionDao, definitionId);
+    }
+
+    public ParsedProcessDefinition getLatestDefinitionByPackId(
+            ProcessDefinitionPackDao processDefinitionPackDao, ProcessDefinitionDao processDefinitionDao, Long packId
+    ) {
+        Long processDefinitionId = packIdToDefinitionId.get(packId);
+        if (processDefinitionId != null) {
+            return getDefinition(processDefinitionDao, processDefinitionId);
+        }
+        processDefinitionId = processDefinitionPackDao.get(packId).getLatest().getId();
+        packIdToDefinitionId.put(packId, processDefinitionId);
+        return getDefinition(processDefinitionDao, processDefinitionId);
     }
 
     @Override

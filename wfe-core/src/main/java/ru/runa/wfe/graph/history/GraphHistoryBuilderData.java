@@ -2,16 +2,16 @@ package ru.runa.wfe.graph.history;
 
 import com.google.common.collect.Lists;
 import java.util.List;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLog;
-import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.TaskLog;
 import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 
 /**
  * Model to parse and store data, required to build history from logs.
@@ -27,10 +27,9 @@ public class GraphHistoryBuilderData {
      */
     private final TransitionLogData transitions;
     /**
-     * All process logs to build history. (Without embedded subprocess or
-     * embedded subprocess only).
+     * All process logs to build history. (Without embedded subprocess or embedded subprocess only).
      */
-    private final List<ProcessLog> processLogs;
+    private final List<BaseProcessLog> processLogs;
     /**
      * All instances of {@link NodeLog} to build history.
      */
@@ -56,11 +55,11 @@ public class GraphHistoryBuilderData {
      *            Subprocess name, if history for embedded subprocess is
      *            required.
      */
-    public GraphHistoryBuilderData(Process processInstance, ProcessDefinition processDefinition,
-            List<ProcessLog> fullProcessLogs, String subProcessId) {
-        processInstanceData = new ProcessInstanceData(processInstance, processDefinition);
+    public GraphHistoryBuilderData(Process process, ParsedProcessDefinition parsedProcessDefinition,
+            List<? extends BaseProcessLog> fullProcessLogs, String subProcessId) {
+        processInstanceData = new ProcessInstanceData(process, parsedProcessDefinition);
         transitions = new TransitionLogData(fullProcessLogs);
-        embeddedLogsParser = new EmbeddedSubprocessLogsData(fullProcessLogs, transitions, getProcessInstanceData());
+        embeddedLogsParser = new EmbeddedSubprocessLogsData(fullProcessLogs, getProcessInstanceData());
         processLogs = prepareLogs(fullProcessLogs, subProcessId);
     }
 
@@ -74,12 +73,15 @@ public class GraphHistoryBuilderData {
      *            required.
      * @return Returns logs to build history.
      */
-    private List<ProcessLog> prepareLogs(List<ProcessLog> fullProcessLogs, String subProcessId) {
+    private List<BaseProcessLog> prepareLogs(List<? extends BaseProcessLog> fullProcessLogs, String subProcessId) {
         final boolean isForEmbeddedSubprocess = subProcessId != null && !"null".equals(subProcessId);
-        List<ProcessLog> processLogForProcessing = embeddedLogsParser.getProcessLogs(subProcessId);
-        for (ProcessLog processLog : processLogForProcessing) {
+        List<BaseProcessLog> processLogForProcessing = embeddedLogsParser.getProcessLogs(subProcessId);
+        for (BaseProcessLog processLog : processLogForProcessing) {
             if (processLog instanceof NodeLog) {
-                if (isForEmbeddedSubprocess && processLog instanceof NodeEnterLog && NodeType.START_EVENT == ((NodeLog) processLog).getNodeType()) {
+                if (isForEmbeddedSubprocess &&
+                        processLog instanceof NodeEnterLog &&
+                        NodeType.START_EVENT == ((NodeLog) processLog).getNodeType()
+                ) {
                     continue;
                 }
                 nodeLogs.add((NodeLog) processLog);
@@ -107,7 +109,7 @@ public class GraphHistoryBuilderData {
      * 
      * @return Returns process logs to build history.
      */
-    public List<ProcessLog> getProcessLogs() {
+    public List<BaseProcessLog> getProcessLogs() {
         return processLogs;
     }
 
@@ -136,7 +138,7 @@ public class GraphHistoryBuilderData {
      *            Subprocess definition name.
      * @return Returns subprocess definition.
      */
-    public SubprocessDefinition getEmbeddedSubprocess(String subProcessName) {
+    public ParsedSubprocessDefinition getEmbeddedSubprocess(String subProcessName) {
         return getProcessInstanceData().getEmbeddedSubprocess(subProcessName);
     }
 

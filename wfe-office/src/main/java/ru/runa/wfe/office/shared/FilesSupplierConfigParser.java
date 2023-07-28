@@ -1,12 +1,12 @@
 package ru.runa.wfe.office.shared;
 
+import java.util.List;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.FileDataProvider;
-import java.util.List;
 
 public abstract class FilesSupplierConfigParser<T extends FilesSupplierConfig> {
 

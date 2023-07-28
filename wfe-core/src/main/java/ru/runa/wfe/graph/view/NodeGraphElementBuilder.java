@@ -4,18 +4,16 @@ import com.google.common.collect.Lists;
 import java.util.Comparator;
 import java.util.List;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 public class NodeGraphElementBuilder {
 
     /**
      * Convert nodes to graph elements.
      *
-     * @param definitionNodes
-     *            Nodes to convert
      * @return List of graph elements for nodes.
      */
-    public static List<NodeGraphElement> createElements(ProcessDefinition definition) {
+    public static List<NodeGraphElement> createElements(ParsedProcessDefinition definition) {
         List<NodeGraphElement> result = Lists.newArrayList();
         List<Node> nodes = definition.getNodes(false);
         nodes.sort(new NodeChidrenFirstComparator());
@@ -28,8 +26,6 @@ public class NodeGraphElementBuilder {
     /**
      * Convert nodes to graph elements.
      *
-     * @param definitionNodes
-     *            Nodes to convert
      * @return List of graph elements for nodes.
      */
     public static NodeGraphElement createElement(Node node) {
@@ -61,8 +57,8 @@ public class NodeGraphElementBuilder {
 
         @Override
         public int compare(Node o1, Node o2) {
-            int p1 = o1.getParentElement() instanceof ProcessDefinition ? 1 : 0;
-            int p2 = o2.getParentElement() instanceof ProcessDefinition ? 1 : 0;
+            int p1 = o1.getParentElement() instanceof ParsedProcessDefinition ? 1 : 0;
+            int p2 = o2.getParentElement() instanceof ParsedProcessDefinition ? 1 : 0;
             return Integer.compare(p1, p2);
         }
 

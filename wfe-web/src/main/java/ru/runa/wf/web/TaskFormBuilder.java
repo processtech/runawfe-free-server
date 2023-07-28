@@ -1,35 +1,16 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.web;
 
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
-
 import ru.runa.common.web.MessagesException;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.client.DelegateDefinitionVariableProvider;
 import ru.runa.wfe.service.client.DelegateTaskVariableProvider;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Created on 17.11.2004
@@ -58,7 +39,7 @@ public abstract class TaskFormBuilder {
         if (interaction.hasForm()) {
             VariableProvider variableProvider = new DelegateDefinitionVariableProvider(user, definitionId);
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-            Map<String, Object> map = FormSubmissionUtils.getPreviousUserInputVariables(request, interaction, variableProvider);
+            Map<String, Object> map = FormSubmissionUtils.getPreviousUserInputVariables(request);
             if (map != null) {
                 variableProvider = new MapDelegableVariableProvider(map, variableProvider);
             }
@@ -74,7 +55,7 @@ public abstract class TaskFormBuilder {
         if (interaction.hasForm()) {
             VariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-            Map<String, Object> map = FormSubmissionUtils.getPreviousUserInputVariables(request, interaction, variableProvider);
+            Map<String, Object> map = FormSubmissionUtils.getPreviousUserInputVariables(request);
             if (map != null) {
                 variableProvider = new MapDelegableVariableProvider(map, variableProvider);
             }
@@ -86,7 +67,7 @@ public abstract class TaskFormBuilder {
 
     private String buildForm(VariableProvider variableProvider, Long definitionId) {
         String form = buildForm(variableProvider);
-        return FormPresentationUtils.adjustForm(pageContext, definitionId, form, variableProvider, interaction.getRequiredVariableNames());
+        return FormPresentationUtils.adjustForm(pageContext, definitionId, form, interaction.getRequiredVariableNames());
     }
 
     protected abstract String buildForm(VariableProvider variableProvider);

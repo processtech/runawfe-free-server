@@ -1,5 +1,6 @@
 package ru.runa.wfe.bot.dao;
 
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotStationDoesNotExistException;
@@ -15,6 +16,10 @@ import ru.runa.wfe.commons.dao.GenericDao;
 @Component
 public class BotStationDao extends GenericDao<BotStation> {
 
+    public BotStationDao() {
+        super(BotStation.class);
+    }
+
     @Override
     protected void checkNotNull(BotStation entity, Object identity) {
         if (entity == null) {
@@ -29,7 +34,7 @@ public class BotStationDao extends GenericDao<BotStation> {
      *         station found
      */
     public BotStation get(String name) {
-        QBotStation bs = QBotStation.botStation;
+        val bs = QBotStation.botStation;
         return queryFactory.selectFrom(bs).where(bs.name.eq(name)).fetchFirst();
     }
 

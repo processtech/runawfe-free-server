@@ -4,8 +4,8 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 /**
  * Contains information about old and new definition for process definition compatibility check.
@@ -16,7 +16,7 @@ import ru.runa.wfe.lang.ProcessDefinition;
 @Getter
 @Setter
 public class ProcessDefinitionUpdateData {
-    private final ProcessDefinition oldDefinition;
-    private final ProcessDefinition newDefinition;
-    private final List<Process> processes;
+    private final ParsedProcessDefinition oldDefinition;
+    private final ParsedProcessDefinition newDefinition;
+    private final List<CurrentProcess> processes;
 }

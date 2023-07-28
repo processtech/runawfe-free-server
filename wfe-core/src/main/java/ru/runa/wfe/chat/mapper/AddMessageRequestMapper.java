@@ -8,7 +8,7 @@ public class AddMessageRequestMapper extends AbstractModelMapper<ChatMessage, Ad
     @Override
     public ChatMessage toEntity(AddMessageRequest dto) {
         ChatMessage message = new ChatMessage();
-        message.setText(dto.getMessage());
+        message.setText(dto.getText());
         message.setCreateDate(new Date());
         return message;
     }

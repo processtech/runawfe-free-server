@@ -72,11 +72,11 @@ public class GroovyScriptExecutor {
 
         public GroovyScriptBinding(VariableProvider variableProvider) {
             this.variableProvider = variableProvider;
-            if (variableProvider.getProcessDefinition() != null) {
-                for (VariableDefinition variableDefinition : variableProvider.getProcessDefinition().getVariables()) {
+            if (variableProvider.getParsedProcessDefinition() != null) {
+                for (VariableDefinition variableDefinition : variableProvider.getParsedProcessDefinition().getVariables()) {
                     variableScriptingNameToNameMap.put(variableDefinition.getScriptingName(), variableDefinition.getName());
                 }
-                for (SwimlaneDefinition swimlaneDefinition : variableProvider.getProcessDefinition().getSwimlanes()) {
+                for (SwimlaneDefinition swimlaneDefinition : variableProvider.getParsedProcessDefinition().getSwimlanes()) {
                     variableScriptingNameToNameMap.put(swimlaneDefinition.getScriptingName(), swimlaneDefinition.getName());
                 }
             }

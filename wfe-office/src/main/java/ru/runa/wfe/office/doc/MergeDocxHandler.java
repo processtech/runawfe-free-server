@@ -119,5 +119,4 @@ public class MergeDocxHandler extends OfficeFilesSupplierHandler<MergeDocxConfig
         document.write(outputStream);
         return result;
     }
-
 }

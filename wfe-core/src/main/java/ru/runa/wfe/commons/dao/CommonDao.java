@@ -1,5 +1,6 @@
 package ru.runa.wfe.commons.dao;
 
+import java.util.Map;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public abstract class CommonDao extends DaoSupport {
      * @return entity or <code>null</code> if no entity found.
      */
     protected <T> T get(Class<T> clazz, Long id) {
-        return (T)sessionFactory.getCurrentSession().get(clazz, id);
+        return sessionFactory.getCurrentSession().get(clazz, id);
     }
 
     /**
@@ -45,11 +46,11 @@ public abstract class CommonDao extends DaoSupport {
      *            query parameters
      * @return first entity from list or <code>null</code>
      */
-    protected <T> T findFirstOrNull(String hql, Object... parameters) {
+    protected <T> T findFirstOrNull(String hql, Map<String, Object> parameters) {
         Query q = sessionFactory.getCurrentSession().createQuery(hql);
-        for (int i = 0; i < parameters.length; i++) {
-            q.setParameter(i, parameters[i]);
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            q.setParameter(entry.getKey(), entry.getValue());
         }
-        return (T)q.setMaxResults(1).uniqueResult();
+        return (T) q.setMaxResults(1).uniqueResult();
     }
 }

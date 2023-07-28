@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.web.servlet;
 
 import com.google.common.base.Function;
@@ -27,8 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import ru.runa.common.web.Commons;
@@ -38,9 +20,9 @@ import ru.runa.wfe.commons.web.AjaxCommand;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.user.User;
 
+@CommonsLog
 public class AjaxCommandServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(AjaxCommandServlet.class);
     private static final String COMMAND_ELEMENT = "command";
     private static final String NAME_ATTR = "name";
     private static final String CLASS_ATTR = "class";
@@ -77,7 +59,7 @@ public class AjaxCommandServlet extends HttpServlet {
         });
     }
 
-    protected void doRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void doRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         log.debug("Got ajax request: " + request.getQueryString());
         try {
             String command = request.getParameter("command");
@@ -103,12 +85,12 @@ public class AjaxCommandServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         doRequest(request, response);
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         doRequest(request, response);
     }
 }

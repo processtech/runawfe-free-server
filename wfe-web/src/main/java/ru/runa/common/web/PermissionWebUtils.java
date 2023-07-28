@@ -5,11 +5,13 @@ import javax.servlet.jsp.PageContext;
 import org.apache.struts.action.ActionForward;
 import ru.runa.af.web.form.GrantPermissionsForm;
 import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.af.web.action.GrantPermissionsAction;
+import ru.runa.af.web.action.UpdatePermissionsAction;
 
 public class PermissionWebUtils {
 
     /**
-     * Common code for {@link ru.runa.af.web.action.GrantPermissionsAction} and {@link ru.runa.af.web.action.UpdatePermissionsAction}.
+     * Common code for {@link GrantPermissionsAction} and {@link UpdatePermissionsAction}.
      * Both must return to permission editor form: either /managePermissionsForm or embedded form on other page (e.g. /manage_system).
      * <p>
      * For this reason UpdatePermissionsForm is inherited from GrantPermissionsForm: they have common fields required by this method.
