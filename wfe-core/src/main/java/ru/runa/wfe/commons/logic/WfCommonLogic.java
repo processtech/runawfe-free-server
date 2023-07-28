@@ -22,6 +22,7 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
+import ru.runa.wfe.execution.dao.EventSubprocessTriggerDao;
 import ru.runa.wfe.execution.dao.NodeProcessDao;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
 import ru.runa.wfe.execution.dao.TokenDao;
@@ -89,6 +90,8 @@ public class WfCommonLogic extends CommonLogic {
     protected ChatMessageDao chatMessageDao;
     @Autowired
     protected ChatComponentFacade chatComponentFacade;
+    @Autowired
+    protected EventSubprocessTriggerDao eventSubprocessTriggerDao;
 
     public ParsedProcessDefinition getDefinition(Long processDefinitionId) {
         return processDefinitionLoader.getDefinition(processDefinitionId);
@@ -207,6 +210,7 @@ public class WfCommonLogic extends CommonLogic {
         taskDao.deleteAll(process);
         currentSwimlaneDao.deleteAll(process);
         chatComponentFacade.deleteByProcessId(process.getId());
+        eventSubprocessTriggerDao.deleteByProcess(process);
         currentProcessDao.delete(process);
         systemLogDao.create(new ProcessDeleteLog(
                 user.getActor().getId(), processDefinitionLoader.getDefinition(process).getName(), process.getId()

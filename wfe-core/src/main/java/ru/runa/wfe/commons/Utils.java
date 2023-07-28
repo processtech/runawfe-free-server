@@ -31,7 +31,10 @@ import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.lang.BaseMessageNode;
+import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.Node;
+import ru.runa.wfe.lang.StartNode;
+import ru.runa.wfe.lang.bpmn2.EventTrigger;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.UserTypeMap;
@@ -182,7 +185,7 @@ public class Utils {
         Utils.sendBpmnMessage(variableMappings, variableProvider, 0);
     }
 
-    public static String getMessageSelectorValue(VariableProvider variableProvider, BaseMessageNode messageNode, VariableMapping mapping) {
+    public static String getMessageSelectorValue(VariableProvider variableProvider, GraphElement messageNode, VariableMapping mapping) {
         String testValue = mapping.getMappedName();
         if (Variables.CURRENT_PROCESS_ID_WRAPPED.equals(testValue) || "${currentInstanceId}".equals(testValue)) {
             return String.valueOf(variableProvider.getProcessId());
@@ -199,15 +202,25 @@ public class Utils {
     }
 
     public static String getReceiveMessageNodeSelector(VariableProvider variableProvider, BaseMessageNode messageNode) {
+        return getMessageSelector(variableProvider, messageNode, messageNode.getEventType(), messageNode.getVariableMappings());
+    }
+
+    public static String getStartNodeMessageSelector(VariableProvider variableProvider, StartNode startNode) {
+        EventTrigger eventTrigger = startNode.getEventTrigger();
+        return getMessageSelector(variableProvider, startNode, eventTrigger.getEventType(), eventTrigger.getVariableMappings());
+    }
+
+    private static String getMessageSelector(VariableProvider variableProvider, GraphElement messageNode, MessageEventType eventType,
+            List<VariableMapping> variableMappings) {
         List<String> selectors = Lists.newArrayList();
-        if (messageNode.getEventType() == MessageEventType.error && messageNode.getParentElement() instanceof Node) {
+        if (eventType == MessageEventType.error && messageNode.getParentElement() instanceof Node) {
             selectors.add(BaseMessageNode.EVENT_TYPE + MESSAGE_SELECTOR_VALUE_DELIMITER + MessageEventType.error.name());
             selectors
                     .add(BaseMessageNode.ERROR_EVENT_PROCESS_ID + MESSAGE_SELECTOR_VALUE_DELIMITER + String.valueOf(variableProvider.getProcessId()));
             selectors.add(
                     BaseMessageNode.ERROR_EVENT_NODE_ID + MESSAGE_SELECTOR_VALUE_DELIMITER + messageNode.getParentElement().getNodeId());
         } else {
-            for (VariableMapping mapping : messageNode.getVariableMappings()) {
+            for (VariableMapping mapping : variableMappings) {
                 if (mapping.isPropertySelector()) {
                     selectors.add(
                             mapping.getName() + MESSAGE_SELECTOR_VALUE_DELIMITER + getMessageSelectorValue(variableProvider, messageNode, mapping));

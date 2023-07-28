@@ -95,4 +95,17 @@ public class CurrentTokenDao extends GenericDao<CurrentToken> {
                 .fetch();
     }
 
+    public List<CurrentToken> findByProcessIdAndParentId(Long processId) {
+        val t = QCurrentToken.currentToken;
+        return queryFactory.selectFrom(t).where(t.process.id.eq(processId).and(t.parent.isNull())).fetch();
+    }
+
+    public boolean existByProcessAndExecutionStatusIsNotEndedAndNodeIdPrefix(CurrentProcess process, String nodeIdPrefix) {
+        val t = QCurrentToken.currentToken;
+        String nodeIdPrefixPattern = nodeIdPrefix + "%";
+        return queryFactory.selectFrom(t)
+                .where(t.process.eq(process).and(t.executionStatus.ne(ExecutionStatus.ENDED).and(t.nodeId.like(nodeIdPrefixPattern)))).limit(1)
+                .fetchFirst() != null;
+    }
+
 }

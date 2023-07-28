@@ -20,6 +20,10 @@ public class EmbeddedSubprocessStartNode extends StartNode implements BoundaryEv
     @Autowired
     private transient CurrentTokenDao currentTokenDao;
 
+    public SubprocessNode getSubprocessNode() {
+        return subprocessNode;
+    }
+
     public void setSubprocessNode(SubprocessNode subprocessNode) {
         this.subprocessNode = subprocessNode;
     }

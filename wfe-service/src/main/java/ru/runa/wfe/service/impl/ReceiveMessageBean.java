@@ -28,7 +28,9 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.EventSubprocessTrigger;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Signal;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
@@ -36,6 +38,7 @@ import ru.runa.wfe.execution.dao.SignalDao;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.BaseReceiveMessageNode;
+import ru.runa.wfe.lang.EventSubprocessStartNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
@@ -120,6 +123,27 @@ public class ReceiveMessageBean implements MessageListener {
                     log.error("Unable to handle " + token, e);
                 }
             }
+            List<EventSubprocessTrigger> triggers = executionLogic.findEventTriggersForMessageSelector(getRoutingData(message));
+            for (EventSubprocessTrigger trigger : triggers) {
+                try {
+                    ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(trigger.getProcess());
+                    EventSubprocessStartNode startNode = (EventSubprocessStartNode) parsedProcessDefinition.getNodeNotNull(trigger.getNodeId());
+                    boolean suitable = false;
+                    String parentSubprocessDefinitionId = startNode.getParentSubprocessDefinitionIdOrNull();
+                    if (parentSubprocessDefinitionId != null) {
+                        String prefix = parentSubprocessDefinitionId + ".";
+                        suitable = currentTokenDao.existByProcessAndExecutionStatusIsNotEndedAndNodeIdPrefix(trigger.getProcess(), prefix);
+                    } else {
+                        suitable = true;
+                    }
+                    if (suitable) {
+                        ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, trigger.getProcess());
+                        handlers.add(new ReceiveMessageData(executionContext, startNode));
+                    }
+                } catch (Exception e) {
+                    log.error("Unable to handle " + trigger, e);
+                }
+            }
         });
         if (handlers.isEmpty()) {
             if (errorEventData != null) {
@@ -169,15 +193,20 @@ public class ReceiveMessageBean implements MessageListener {
             transactionalExecutor.execute(() -> {
                 log.info("Handling " + message + " for " + data);
                 CurrentToken token = currentTokenDao.getNotNull(data.tokenId);
-                if (!Objects.equal(token.getNodeId(), data.node.getNodeId())) {
+                if (!Objects.equal(token.getNodeId(), data.node.getNodeId()) && !(data.node instanceof EventSubprocessStartNode)) {
                     throw new InternalApplicationException(token + " not in " + data.node.getNodeId());
                 }
                 ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(token.getProcess());
                 ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token);
                 executionContext.activateTokenIfHasPreviousError();
-                executionContext.addLog(new CurrentReceiveMessageLog(data.node, Utils.toString(message, true)));
                 Map<String, Object> map = (Map<String, Object>) message.getObject();
-                data.node.leave(executionContext, map);
+                if (data.node instanceof BaseReceiveMessageNode) {
+                    BaseReceiveMessageNode messageNode = ((BaseReceiveMessageNode) data.node);
+                    messageNode.leave(executionContext, map);
+                    executionContext.addLog(new CurrentReceiveMessageLog(messageNode, Utils.toString(message, true)));
+                } else if (data.node instanceof EventSubprocessStartNode) {
+                    data.node.leave(executionContext);
+                }
                 executionLogic.removeTokenError(data.tokenId);
             });
         } catch (final Throwable th) {
@@ -191,9 +220,9 @@ public class ReceiveMessageBean implements MessageListener {
     private static class ReceiveMessageData {
         private Long processId;
         private Long tokenId;
-        private BaseReceiveMessageNode node;
+        private Node node;
 
-        public ReceiveMessageData(ExecutionContext executionContext, BaseReceiveMessageNode node) {
+        public ReceiveMessageData(ExecutionContext executionContext, Node node) {
             this.processId = executionContext.getProcess().getId();
             this.tokenId = executionContext.getToken().getId();
             this.node = node;

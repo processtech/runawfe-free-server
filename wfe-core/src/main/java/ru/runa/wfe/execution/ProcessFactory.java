@@ -20,7 +20,9 @@ import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.form.Interaction;
+import ru.runa.wfe.lang.EventSubprocessStartNode;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
@@ -75,12 +77,13 @@ public class ProcessFactory {
      *            will be inserted into the context variables after the context submodule has been created and before the process-start event is
      *            fired, which is also before the execution of the initial node.
      */
-    public CurrentProcess startProcess(ParsedProcessDefinition parsedProcessDefinition, Map<String, Object> variables, Actor actor, String transitionName,
-            Map<String, Object> transientVariables) {
+    public CurrentProcess startProcess(ParsedProcessDefinition parsedProcessDefinition, StartNode startNode, Map<String, Object> variables,
+            Actor actor, String transitionName, Map<String, Object> transientVariables) {
         Preconditions.checkNotNull(actor, "can't start a process when actor is null");
-        ExecutionContext executionContext = createProcessInternal(parsedProcessDefinition, variables, actor, null, transientVariables, transitionName);
+        ExecutionContext executionContext = createProcessInternal(parsedProcessDefinition, startNode, variables, actor, null, transientVariables,
+                transitionName);
         grantProcessPermissions(parsedProcessDefinition, executionContext.getCurrentProcess(), actor);
-        startProcessInternal(executionContext, transitionName);
+        startProcessInternal(executionContext, startNode, transitionName);
         return executionContext.getCurrentProcess();
     }
 
@@ -108,12 +111,13 @@ public class ProcessFactory {
         CurrentProcess parentProcess = parentExecutionContext.getCurrentProcess();
         CurrentProcess rootProcess = currentNodeProcessDao.getRootProcessByParentProcess(parentProcess);
         SubprocessNode subProcessNode = (SubprocessNode) parentExecutionContext.getNode();
-        ExecutionContext subExecutionContext = createProcessInternal(parsedProcessDefinition, variables, null, parentProcess, null, null);
+        StartNode startNode = parsedProcessDefinition.getManualStartStateNotNull();
+        ExecutionContext subExecutionContext = createProcessInternal(parsedProcessDefinition, startNode, variables, null, parentProcess, null, null);
         currentNodeProcessDao.create(new CurrentNodeProcess(subProcessNode, parentExecutionContext.getCurrentToken(), rootProcess,
                 subExecutionContext.getCurrentProcess(), index));
         if (validate) {
             validateVariables(subExecutionContext, new ExecutionVariableProvider(subExecutionContext), parsedProcessDefinition,
-                    parsedProcessDefinition.getStartStateNotNull().getNodeId(), variables);
+                    parsedProcessDefinition.getManualStartStateNotNull().getNodeId(), variables);
         }
         return subExecutionContext.getCurrentProcess();
     }
@@ -123,7 +127,8 @@ public class ProcessFactory {
                 executionContext.getCurrentProcess()));
         grantSubprocessPermissions(executionContext.getParsedProcessDefinition(), executionContext.getCurrentProcess(),
                 parentExecutionContext.getCurrentProcess());
-        startProcessInternal(executionContext, null);
+        StartNode startNode = executionContext.getParsedProcessDefinition().getManualStartStateNotNull();
+        startProcessInternal(executionContext, startNode, null);
     }
 
     private void validateVariables(ExecutionContext executionContext, VariableProvider variableProvider,
@@ -152,11 +157,11 @@ public class ProcessFactory {
         }
     }
 
-    private ExecutionContext createProcessInternal(ParsedProcessDefinition parsedProcessDefinition, Map<String, Object> variables, Actor actor,
-            CurrentProcess parentProcess, Map<String, Object> transientVariables, String transitionName) {
+    private ExecutionContext createProcessInternal(ParsedProcessDefinition parsedProcessDefinition, StartNode startNode,
+            Map<String, Object> variables, Actor actor, CurrentProcess parentProcess, Map<String, Object> transientVariables, String transitionName) {
         Preconditions.checkNotNull(parsedProcessDefinition, "can't create a process when parsedProcessDefinition is null");
         CurrentProcess process = new CurrentProcess(processDefinitionDao.get(parsedProcessDefinition.getId()));
-        CurrentToken rootToken = new CurrentToken(parsedProcessDefinition, process);
+        CurrentToken rootToken = new CurrentToken(parsedProcessDefinition, process, startNode);
         process.setRootToken(rootToken);
         currentProcessDao.create(process);
         if (parentProcess != null) {
@@ -168,8 +173,8 @@ public class ProcessFactory {
         ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, rootToken);
         if (actor != null) {
             executionContext.addLog(new CurrentProcessStartLog(actor));
-            executionContext.addLog(new CurrentTaskCreateLog(process, parsedProcessDefinition.getStartStateNotNull()));
-            executionContext.addLog(new CurrentTaskAssignLog(process, parsedProcessDefinition.getStartStateNotNull(), actor));
+            executionContext.addLog(new CurrentTaskCreateLog(process, startNode));
+            executionContext.addLog(new CurrentTaskAssignLog(process, startNode, actor));
         }
         if (transientVariables != null) {
             for (Map.Entry<String, Object> entry : transientVariables.entrySet()) {
@@ -177,25 +182,28 @@ public class ProcessFactory {
             }
         }
         executionContext.setVariableValues(variables);
+        for (ParsedSubprocessDefinition parsedSubprocessDefinition : parsedProcessDefinition.getEmbeddedSubprocesses().values()) {
+            if (parsedSubprocessDefinition.isTriggeredByEvent()) {
+                for (StartNode eventStartNode : parsedSubprocessDefinition.getEventStartNodes()) {
+                    ((EventSubprocessStartNode) eventStartNode).execute(new ExecutionContext(parsedProcessDefinition, process));
+                }
+            }
+        }
         if (actor != null) {
-            StartNode startNode = executionContext.getParsedProcessDefinition().getStartStateNotNull();
             if (startNode.getFirstTaskNotNull().isReassignSwimlaneToTaskPerformer()) {
-                SwimlaneDefinition swimlaneDefinition = parsedProcessDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
+                SwimlaneDefinition swimlaneDefinition = startNode.getFirstTaskNotNull().getSwimlane();
                 CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(process, swimlaneDefinition);
                 swimlane.assignExecutor(executionContext, actor, false);
             }
-            executionContext.addLog(new CurrentTaskEndLog(process, parsedProcessDefinition.getStartStateNotNull(), actor, transitionName));
+            executionContext.addLog(new CurrentTaskEndLog(process, startNode, actor, transitionName));
         }
         return executionContext;
     }
 
-    private void startProcessInternal(ExecutionContext executionContext, String transitionName) {
-        // execute the start node
-        StartNode startNode = executionContext.getParsedProcessDefinition().getStartStateNotNull();
-        // startNode.enter(executionContext);
+    private void startProcessInternal(ExecutionContext executionContext, StartNode startNode, String transitionName) {
         Transition transition = null;
         if (transitionName != null) {
-            transition = executionContext.getParsedProcessDefinition().getStartStateNotNull().getLeavingTransitionNotNull(transitionName);
+            transition = startNode.getLeavingTransitionNotNull(transitionName);
         }
         startNode.leave(executionContext, transition);
     }

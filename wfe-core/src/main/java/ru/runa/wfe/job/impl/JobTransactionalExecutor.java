@@ -10,6 +10,7 @@ import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.job.Job;
+import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
@@ -24,15 +25,15 @@ public class JobTransactionalExecutor {
     @Autowired
     private ExecutionLogic executionLogic;
 
-    public List<Long> getExpiredJobIds() {
+    public List<TimerJob> getExpiredJobs() {
         Long batchSize = SystemProperties.getJobExecutorBatchSize();
         Long expiredJobsCount = jobDao.getExpiredJobsCount();
-        List<Long> jobIds = jobDao.getExpiredJobIds(batchSize);
+        List<TimerJob> jobs = jobDao.getExpiredJobs(batchSize);
         log.debug("Expired jobs: " + expiredJobsCount);
         if (expiredJobsCount > batchSize) {
             log.debug("Too many expired jobs. Processing first " + batchSize);
         }
-        return jobIds;
+        return jobs;
     }
 
     public void execute(Long jobId) {

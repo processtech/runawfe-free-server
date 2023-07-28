@@ -18,6 +18,7 @@ import ru.runa.wfe.graph.RenderHits;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.graph.image.figure.TransitionFigure;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.SubprocessNode;
 
 public class GraphImage {
     private static final String FORMAT = "png";
@@ -68,7 +69,11 @@ public class GraphImage {
                 lineWidth *= 2;
             }
             entry.getKey().setRenderHits(entry.getValue());
-            drawAbstractFigure(graphics, entry.getKey(), entry.getValue(), new BasicStroke(lineWidth));
+            Stroke stroke = new BasicStroke(lineWidth);
+            if ((entry.getKey().getNode() instanceof SubprocessNode) && ((SubprocessNode) entry.getKey().getNode()).isTriggeredByEvent()) {
+                stroke = new BasicStroke(lineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 6, 3 }, 0);
+            }
+            drawAbstractFigure(graphics, entry.getKey(), entry.getValue(), stroke);
         }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

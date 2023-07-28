@@ -41,7 +41,7 @@ public class ParsedSubprocessDefinition extends ParsedProcessDefinition {
     @Override
     public void validate() {
         super.validate();
-        if (getStartStateNotNull().getLeavingTransitions().size() != 1) {
+        if (getManualStartStateNotNull().getLeavingTransitions().size() != 1) {
             throw new InternalApplicationException("Start state in embedded subprocess should have 1 leaving transition");
         }
         int endNodesCount = 0;
@@ -62,8 +62,8 @@ public class ParsedSubprocessDefinition extends ParsedProcessDefinition {
     }
 
     @Override
-    public EmbeddedSubprocessStartNode getStartStateNotNull() {
-        return (EmbeddedSubprocessStartNode) super.getStartStateNotNull();
+    public EmbeddedSubprocessStartNode getManualStartStateNotNull() {
+        return (EmbeddedSubprocessStartNode) super.getManualStartStateNotNull();
     }
 
     public List<EmbeddedSubprocessEndNode> getEndNodes() {

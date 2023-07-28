@@ -257,7 +257,7 @@
 
 	<task:scheduler id="baseScheduler" />
 
-	<bean id="jobExecutor" class="ru.runa.wfe.job.impl.JobExecutor" />
+	<bean id="jobExecutor" class="ru.runa.wfe.job.impl.TimerJobExecutor" />
 	<bean id="unassignedTaskAssigner" class="ru.runa.wfe.job.impl.UnassignedTaskAssigner" />
 	<bean id="unusedTemporaryGroupsCleaner" class="ru.runa.wfe.job.impl.UnusedTemporaryGroupsCleaner" />
 	<bean id="processArchiver" class="ru.runa.wfe.job.impl.ProcessArchiver" />

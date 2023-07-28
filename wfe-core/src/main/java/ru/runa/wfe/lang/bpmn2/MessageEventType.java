@@ -4,5 +4,6 @@ public enum MessageEventType {
     message,
     signal,
     cancel,
-    error;
+    error,
+    timer;
 }

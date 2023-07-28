@@ -29,6 +29,7 @@ import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
 import ru.runa.wfe.job.Job;
+import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
@@ -406,8 +407,8 @@ public class ExecutionContext {
             task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), task.getDeadlineDateExpression()));
             log.info(String.format("Changed deadlineDate for %s from %s to %s", task, oldDate, task.getDeadlineDate()));
         }
-        List<Job> jobs = jobDao.findByProcessAndDeadlineExpressionContaining(getCurrentProcess(), variableName);
-        for (Job job : jobs) {
+        List<TimerJob> jobs = jobDao.findByProcessAndDeadlineExpressionContaining(getCurrentProcess(), variableName);
+        for (TimerJob job : jobs) {
             Date oldDate = job.getDueDate();
             job.setDueDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), job.getDueDateExpression()));
             log.info(String.format("Changed dueDate for %s from %s to %s", job, oldDate, job.getDueDate()));

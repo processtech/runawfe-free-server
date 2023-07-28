@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import ru.runa.wfe.audit.CurrentNodeEnterLog;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
@@ -117,6 +118,13 @@ public class GraphImageBuilder {
                 // Mark transition as PASSED
                 TransitionFigure transitionFigure = nodeModelFrom.getTransition(transition.getName());
                 transitionFigures.put(transitionFigure, renderHits);
+            }
+        }
+        // subprocess node that triggered by event has no any transition, so it can be found only in EnterLog
+        for (CurrentNodeEnterLog enterLog : logs.getLogs(CurrentNodeEnterLog.class)) {
+            AbstractFigure figure = allNodeFigures.get(enterLog.getNodeId());
+            if (figure.getNode() instanceof SubprocessNode && ((SubprocessNode) figure.getNode()).isTriggeredByEvent()) {
+                fillSubprocess(figure, activeNodeIds);
             }
         }
 

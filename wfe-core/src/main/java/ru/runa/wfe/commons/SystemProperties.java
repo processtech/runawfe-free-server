@@ -417,6 +417,14 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.only.strict.compliance.handling", false);
     }
 
+    public static boolean isEventSubprocessMessagePredefinedSelectorEnabled() {
+        return RESOURCES.getBooleanProperty("event.subprocess.message.predefined.selector.enabled", true);
+    }
+
+    public static boolean isEventSubprocessMessagePredefinedSelectorOnlyStrictComplianceHandling() {
+        return RESOURCES.getBooleanProperty("event.subprocess.message.predefined.selector.only.strict.compliance.handling", false);
+    }
+
     /**
      * -1 means "disable archiving", see {@link #isProcessArchivingEnabled()}. 0 means "archive immediately". Defaults to -1.
      */
