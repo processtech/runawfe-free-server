@@ -199,5 +199,4 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
         }
         return new ActionForward(tableViewSetupForm.getReturnAction(), true);
     }
-
 }

@@ -59,10 +59,12 @@
 	<wf:addExecutorToGroupsLink identifiableId='<%= id %>' href='<%= "/add_executor_to_groups.do?id=" + id %>' />
 </wf:listExecutorGroupsForm>
 
-<wf:listGroupMembersForm batchPresentationId="listGroupMembersForm" buttonAlignment="right" identifiableId="<%= id %>" returnAction="<%= returnAction %>" >
+<wf:listGroupMembersForm batchPresentationId="listGroupMembersForm" buttonAlignment="right" identifiableId="<%= id %>" returnAction="<%= returnAction %>">
 	<div>
 		<wf:viewControlsHideableBlock hideableBlockId="listGroupMembersForm"  returnAction="<%= returnAction %>"  >
-			<wf:tableViewSetupForm batchPresentationId="listGroupMembersForm"  returnAction="<%= returnAction %>" />
+
+			<wf:tableViewSetupForm batchPresentationId="listGroupMembersForm"  returnAction="<%= returnAction %>"/>
+
 		</wf:viewControlsHideableBlock>
 	</div>
 	<wf:addGroupMembersLink identifiableId='<%=id %>' href='<%= "/add_members_to_group.do?id=" + id %>'  />

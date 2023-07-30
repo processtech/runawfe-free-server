@@ -29,7 +29,7 @@ import ru.runa.wfe.user.User;
 
 /**
  * Created on 18.08.2004
- * 
+ * z
  * @author Gordienko_m
  * @author Vitaliy S aka Yilativs
  */
