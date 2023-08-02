@@ -42,6 +42,11 @@ public class EditUserTypeList extends AbstractUserTypeList implements FormCompon
         return list;
     }
 
+    public static String getReturnValue(String s) {
+        return s.replace("\"", "'").replace("\n", "").replace("[]", "{}");
+
+    }
+
     public class EditUserTypeListModel extends UserTypeListModel {
         private final boolean allowToAddElements;
         private final boolean allowToChangeElements;
@@ -80,8 +85,7 @@ public class EditUserTypeList extends AbstractUserTypeList implements FormCompon
                     + definition.getName();
             WfVariable templateComponentVariable = ViewUtil.createComponentVariable(variable, suffix, definition.getFormatNotNull(), null);
             String inputComponentHtml = ViewUtil.getComponentInput(user, webHelper, templateComponentVariable);
-            return inputComponentHtml.replaceAll("\"", "'").replaceAll("\n", "").replace("[]", "{}");
+            return getReturnValue(inputComponentHtml);
         }
-
     }
 }
