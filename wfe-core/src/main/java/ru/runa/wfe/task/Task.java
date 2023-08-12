@@ -47,13 +47,14 @@ import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.audit.TaskAssignLog;
-import ru.runa.wfe.audit.TaskCancelledLog;
+import ru.runa.wfe.audit.TaskCancelledByExceededLifetimeLog;
+import ru.runa.wfe.audit.TaskCancelledByHandlerLog;
+import ru.runa.wfe.audit.TaskCancelledByProcessEndLog;
+import ru.runa.wfe.audit.TaskCancelledBySignalLog;
 import ru.runa.wfe.audit.TaskEndByAdminLog;
 import ru.runa.wfe.audit.TaskEndBySubstitutorLog;
 import ru.runa.wfe.audit.TaskEndLog;
-import ru.runa.wfe.audit.TaskExpiredLog;
 import ru.runa.wfe.audit.TaskRemovedOnEmbeddedSubprocessEndLog;
-import ru.runa.wfe.audit.TaskRemovedOnProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -315,7 +316,7 @@ public class Task implements Assignable {
         log.debug("Ending " + this + " with " + completionInfo);
         switch (completionInfo.getCompletionBy()) {
         case TIMER:
-            executionContext.addLog(new TaskExpiredLog(this, completionInfo));
+            executionContext.addLog(new TaskCancelledByExceededLifetimeLog(this, completionInfo));
             break;
         case ASSIGNED_EXECUTOR:
             executionContext.addLog(new TaskEndLog(this, completionInfo));
@@ -327,11 +328,13 @@ public class Task implements Assignable {
             executionContext.addLog(new TaskEndByAdminLog(this, completionInfo));
             break;
         case HANDLER:
+            executionContext.addLog(new TaskCancelledByHandlerLog(this, completionInfo));
+            break;
         case SIGNAL:
-            executionContext.addLog(new TaskCancelledLog(this, completionInfo));
+            executionContext.addLog(new TaskCancelledBySignalLog(this, completionInfo));
             break;
         case PROCESS_END:
-            executionContext.addLog(new TaskRemovedOnProcessEndLog(this, completionInfo));
+            executionContext.addLog(new TaskCancelledByProcessEndLog(this, completionInfo));
             break;
         case EMBEDDED_SUBPROCESS_END:
             executionContext.addLog(new TaskRemovedOnEmbeddedSubprocessEndLog(this, completionInfo));
