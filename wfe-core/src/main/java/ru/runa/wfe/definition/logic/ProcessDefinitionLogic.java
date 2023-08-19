@@ -465,9 +465,9 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
                 processDefinitions.put(parsed.getSecuredObject(), parsed);
                 securedObjects.add(parsed.getSecuredObject());
             } catch (Exception e) {
-                ProcessDefinitionPack processDefinitionPack = processDefinitionPackDao.get(definitionId.longValue());
-                if (processDefinitionPack != null) {
-                    securedObjects.add(processDefinitionPack);
+                ProcessDefinition processDefinition = processDefinitionDao.get(definitionId.longValue());
+                if (processDefinition != null) {
+                    securedObjects.add(processDefinition.getPack());
                 }
             }
         }
