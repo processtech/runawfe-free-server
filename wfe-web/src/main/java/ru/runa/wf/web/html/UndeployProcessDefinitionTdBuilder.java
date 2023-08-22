@@ -37,7 +37,6 @@ import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.filter.LongFilterCriteria;
 import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.service.delegate.Delegates;
 
 /**
  * @since 4.3.0
@@ -56,14 +55,15 @@ public class UndeployProcessDefinitionTdBuilder extends BaseTdBuilder {
         int definitionVersionFieldIndex = presentation.getType().getFieldIndex(ProcessClassPresentation.DEFINITION_VERSION);
         presentation.getFilteredFields().put(definitionNameFieldIndex, new StringFilterCriteria(definition.getName()));
         presentation.getFilteredFields().put(definitionVersionFieldIndex, new LongFilterCriteria(definition.getVersion()));
-        int allCount = Delegates.getExecutionService().getProcessesCount(env.getUser(), presentation);
         ConcreteElement element;
-        if (isEnabled(object, env) && allCount == 0) {
+        if (isEnabled(object, env)) {
             Map<String, Object> parameters = Maps.newHashMap();
             parameters.put(IdForm.ID_INPUT_NAME, definition.getId());
             parameters.put(IdVersionForm.VERSION_INPUT_NAME, definition.getVersion());
             String url = Commons.getActionUrl(UndeployProcessDefinitionAction.ACTION_PATH, parameters, env.getPageContext(), PortletUrlType.Render);
             element = new A(url, MessagesProcesses.BUTTON_UNDEPLOY_DEFINITION.message(env.getPageContext()));
+            element.setID("definition-remove-" + definition.getVersion());
+            element.setStyle("visibility: hidden");
         } else {
             element = new StringElement();
         }
