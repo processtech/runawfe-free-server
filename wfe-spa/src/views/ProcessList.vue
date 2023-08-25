@@ -13,6 +13,7 @@
             :routeName="`Карточка процесса`"
             :prefixLocalStorageName="`runawfe@process-list`"
             :dynamic="true"
+            :options="options"
             @get-data-event="onGetData"
         />
     </v-container>
@@ -21,7 +22,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import { get, sync } from 'vuex-pathify';
-import { Options, Sorting, Select, Header } from '../ts/Options';
+import { Sorting, Select } from '../ts/Options';
+import Constants from '../ts/Constants';
 
 export default Vue.extend({
     name: "ProcessList",
@@ -48,7 +50,7 @@ export default Vue.extend({
                     value: 'id',
                     visible: true,
                     width: '3em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'Long',
                     filterable: true,
                 },
@@ -57,7 +59,7 @@ export default Vue.extend({
                     value: 'definitionName',
                     visible: true,
                     width: '20em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'String',
                     link: true,
                     filterable: true,
@@ -67,7 +69,7 @@ export default Vue.extend({
                     value: 'executionStatus',
                     visible: true,
                     width: '20em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'String',
                     selectOptions:[new Select('Активен','ACTIVE'), new Select('Завершен','ENDED'),
                                    new Select('Приостановлен','SUSPENDED'), new Select('Имеет ошибки выполнения','FAILED')],
@@ -77,9 +79,8 @@ export default Vue.extend({
                     text: 'Запущен',
                     value: 'startDate',
                     visible: true,
-                    sortable: false,
                     width: '10em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'DateTime',
                     filterable: true,
                 },
@@ -88,7 +89,7 @@ export default Vue.extend({
                     value: 'endDate',
                     visible: true,
                     width: '10em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'DateTime',
                     filterable: true,
                 },
@@ -98,6 +99,10 @@ export default Vue.extend({
     mounted() {
     },
     computed: {
+        items: sync('app/items'),
+        options(): any {
+            return this.items.find(h => h.to === Constants.PROCESSES_PATH).options;
+        }
     },
     watch: {
     },
@@ -130,6 +135,8 @@ export default Vue.extend({
             return result;
         },
         onGetData (options, filter, variables) {
+            this.items.find(h => h.to === Constants.PROCESSES_PATH).options = options;
+            localStorage.setItem(Constants.PROCESSES_OPTIONS, JSON.stringify(options));
             this.loading = true;
             const { page, itemsPerPage, sortBy, sortDesc } = options;
             const query = {
