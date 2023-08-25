@@ -13,6 +13,7 @@
             :routeName="`Карточка задачи`"
             :prefixLocalStorageName="`runawfe@task-list`"
             :dynamic="true"
+            :options="options"
             @get-data-event="onGetData"
         />
     </v-container>
@@ -20,8 +21,9 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { get, sync } from 'vuex-pathify';
-import { Options, Sorting } from '../ts/Options';
+import { sync } from 'vuex-pathify';
+import { Sorting } from '../ts/Options';
+import Constants from '../ts/Constants';
 
 export default Vue.extend({
     name: "TaskList",
@@ -55,7 +57,7 @@ export default Vue.extend({
                     value: 'name',
                     visible: true,
                     width: '20em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'String',
                     link: true,
                     filterable: true,
@@ -65,7 +67,7 @@ export default Vue.extend({
                     value: 'description',
                     visible: false,
                     width: '20em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'String',
                     filterable: true,
                 },
@@ -74,7 +76,7 @@ export default Vue.extend({
                     value: 'processId',
                     visible: true,
                     width: '7em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'Long',
                     filterable: true,
                 },
@@ -83,7 +85,7 @@ export default Vue.extend({
                     value: 'definitionName',
                     visible: true,
                     width: '20em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'String',
                     filterable: true,
                 },
@@ -92,7 +94,7 @@ export default Vue.extend({
                     value: 'createDate',
                     visible: true,
                     width: '12em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'DateTime',
                     filterable: true,
                 },
@@ -101,7 +103,7 @@ export default Vue.extend({
                     value: 'deadlineDate',
                     visible: true,
                     width: '12em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'DateTime',
                     filterable: true,
                 },
@@ -111,6 +113,10 @@ export default Vue.extend({
     mounted() {
     },
     computed: {
+        items: sync('app/items'),
+        options(): any {
+            return this.items.find(h => h.to === Constants.TASKS_PATH).options;
+        }
     },
     watch: {
     },
@@ -149,6 +155,8 @@ export default Vue.extend({
             return result;
         },
         onGetData (options, filter, variables) {
+            this.items.find(h => h.to === Constants.TASKS_PATH).options = options;
+            localStorage.setItem(Constants.TASKS_OPTIONS, JSON.stringify(options));
             this.loading = true;
             const { page, itemsPerPage, sortBy, sortDesc } = options;
             const query = {

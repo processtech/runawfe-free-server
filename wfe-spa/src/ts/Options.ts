@@ -1,3 +1,5 @@
+import Constants from "./Constants";
+
 export class Options {
     page: number;
     sortBy: string[];
@@ -68,7 +70,7 @@ export class Header {
         this.dynamic = false;
         this.format = 'String';
         this.link = false;
-        this.bcolor = '';
+        this.bcolor = Constants.WHITE_COLOR;
         this.selectOptions = [];
         this.filterable = true;
     }

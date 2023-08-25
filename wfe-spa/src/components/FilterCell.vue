@@ -86,7 +86,7 @@
             />
         </span>
     </td>
-    <td v-else>
+    <td :bgcolor="header.bcolor" v-else>
     </td>
 </template>
 

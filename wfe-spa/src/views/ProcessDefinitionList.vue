@@ -11,6 +11,7 @@
             :routeName="`ProcessDefinitionCard`"
             :prefixLocalStorageName="`runawfe@definition-list`"
             :dynamic="false"
+            :options="options"
             @get-data-event="onGetData"
             :footerProps= "{
                 disablePagination: false,
@@ -25,8 +26,9 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { get, sync } from 'vuex-pathify';
-import { Options, Sorting } from '../ts/Options';
+import { sync } from 'vuex-pathify';
+import { Sorting } from '../ts/Options';
+import Constants from '../ts/Constants';
 
 export default Vue.extend({
     name: "ProcessDefinitionList",
@@ -44,6 +46,7 @@ export default Vue.extend({
                     visible: true,
                     sortable: false,
                     width: '1px',
+                    bcolor: Constants.WHITE_COLOR,
                     filterable: false,
                 },
                 {
@@ -52,7 +55,7 @@ export default Vue.extend({
                     value: 'name',
                     visible: true,
                     width: '20em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'String',
                     filterable: true,
                 },
@@ -61,7 +64,7 @@ export default Vue.extend({
                     value:'description',
                     visible: false,
                     width: '20em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'String',
                     filterable: true,
                 },
@@ -70,7 +73,7 @@ export default Vue.extend({
                     value: 'createDate',
                     visible: true,
                     width: '12em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'DateTime',
                     filterable: true,
                 },
@@ -80,7 +83,7 @@ export default Vue.extend({
                     visible: true,
                     sortable: false,
                     width: '12em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'Actor',
                     filterable: true,
                 },
@@ -89,7 +92,7 @@ export default Vue.extend({
                     value: 'updateDate',
                     visible: false,
                     width: '12em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'DateTime',
                     filterable: true,
                 },
@@ -99,7 +102,7 @@ export default Vue.extend({
                     visible: false,
                     sortable: false,
                     width: '12em',
-                    bcolor: '',
+                    bcolor: Constants.WHITE_COLOR,
                     format: 'Actor',
                     filterable: true,
                 }
@@ -107,6 +110,10 @@ export default Vue.extend({
         }
     },
     computed: {
+        items: sync('app/items'),
+        options(): any {
+            return this.items.find(h => h.to === Constants.DEFINITIONS_PATH).options;
+        }
     },
     watch: {
     },
@@ -126,6 +133,8 @@ export default Vue.extend({
             return result;
         },
         onGetData (options, filter) {
+            this.items.find(h => h.to === Constants.DEFINITIONS_PATH).options = options;
+            localStorage.setItem(Constants.DEFINITIONS_OPTIONS, JSON.stringify(options));
             this.loading = true;
             const { page, itemsPerPage, sortBy, sortDesc } = options;
             const query = {
