@@ -35,7 +35,7 @@
     <!-- 9 : ru.runa.wfe.audit.TaskCancelledByExceededLifetimeLog  -->
     <!-- a : ru.runa.wfe.audit.TaskCancelledByHandlerLog -->
     <!-- b :  -->
-    <!-- c : -->
+    <!-- c : ru.runa.wfe.audit.NodeCancelLog (industrial) -->
     <!-- d : ru.runa.wfe.audit.TaskCancelledBySignalLog -->
 
     
