@@ -5,15 +5,14 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 @Entity
-@DiscriminatorValue(value = "P")
-public class ArchivedTaskRemovedOnEmbeddedSubprocessEndLog extends ArchivedTaskCancelledLog implements TaskRemovedOnEmbeddedSubprocessEndLog {
+@DiscriminatorValue(value = "d")
+public class ArchivedTaskCancelledBySignalLog extends ArchivedTaskCancelledLog implements TaskCancelledBySignalLog {
     private static final long serialVersionUID = 1L;
-
 
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { getTaskName() };
+        return new Object[] {getTaskName()};
     }
 
     @Override

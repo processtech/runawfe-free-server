@@ -13,13 +13,13 @@ import ru.runa.wfe.task.TaskCompletionInfo;
  */
 @Entity
 @DiscriminatorValue(value = "9")
-public class CurrentTaskExpiredLog extends CurrentTaskCancelledLog implements TaskExpiredLog {
+public class CurrentTaskCancelledByExceededLifetimeLog extends CurrentTaskCancelledLog implements TaskCancelledByExceededLifetimeLog {
     private static final long serialVersionUID = 1L;
 
-    public CurrentTaskExpiredLog() {
+    public CurrentTaskCancelledByExceededLifetimeLog() {
     }
 
-    public CurrentTaskExpiredLog(Task task, TaskCompletionInfo completionInfo) {
+    public CurrentTaskCancelledByExceededLifetimeLog(Task task, TaskCompletionInfo completionInfo) {
         super(task, completionInfo);
     }
 
@@ -37,6 +37,6 @@ public class CurrentTaskExpiredLog extends CurrentTaskCancelledLog implements Ta
 
     @Override
     public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskExpiredLog(this);
+        visitor.onTaskCancelledLog(this);
     }
 }

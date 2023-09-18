@@ -1,6 +1,5 @@
 package ru.runa.wfe.audit;
 
-@SuppressWarnings({"unused", "WeakerAccess"})
 public abstract class ProcessLogVisitor {
 
     public void onProcessStartLog(ProcessStartLog processStartLog) {}
@@ -39,13 +38,7 @@ public abstract class ProcessLogVisitor {
 
     public void onTaskEscalationLog(TaskEscalationLog taskEscalationLog) {}
 
-    public void onTaskDelegaionLog(TaskDelegationLog taskDelegationLog) {}
-
-    public void onTaskRemovedOnProcessEndLog(TaskRemovedOnProcessEndLog taskRemovedOnProcessEndLog) {}
-
-    public void onTaskExpiredLog(TaskExpiredLog taskExpiredLog) {}
-
-    public void onTaskRemovedOnEmbeddedSubprocessEndLog(TaskRemovedOnEmbeddedSubprocessEndLog log) {}
+    public void onTaskDelegationLog(TaskDelegationLog taskDelegationLog) {}
 
     public void onTaskEndBySubstitutorLog(TaskEndBySubstitutorLog taskEndBySubstitutorLog) {}
 

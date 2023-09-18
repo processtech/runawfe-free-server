@@ -7,21 +7,21 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
 @Entity
-@DiscriminatorValue(value = "P")
-public class CurrentTaskRemovedOnEmbeddedSubprocessEndLog extends CurrentTaskCancelledLog implements TaskRemovedOnEmbeddedSubprocessEndLog {
+@DiscriminatorValue(value = "d")
+public class CurrentTaskCancelledBySignalLog extends CurrentTaskCancelledLog implements TaskCancelledBySignalLog {
     private static final long serialVersionUID = 1L;
 
-    public CurrentTaskRemovedOnEmbeddedSubprocessEndLog() {
+    public CurrentTaskCancelledBySignalLog() {
     }
 
-    public CurrentTaskRemovedOnEmbeddedSubprocessEndLog(Task task, TaskCompletionInfo completionInfo) {
+    public CurrentTaskCancelledBySignalLog(Task task, TaskCompletionInfo completionInfo) {
         super(task, completionInfo);
     }
 
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { getTaskName() };
+        return new Object[] {getTaskName()};
     }
 
     @Override

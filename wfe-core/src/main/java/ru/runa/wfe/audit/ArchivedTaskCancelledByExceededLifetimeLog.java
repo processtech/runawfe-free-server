@@ -6,7 +6,8 @@ import javax.persistence.Transient;
 
 @Entity
 @DiscriminatorValue(value = "9")
-public class ArchivedTaskExpiredLog extends ArchivedTaskCancelledLog implements TaskExpiredLog {
+public class ArchivedTaskCancelledByExceededLifetimeLog extends ArchivedTaskCancelledLog implements TaskCancelledByExceededLifetimeLog {
+    private static final long serialVersionUID = 1L;
 
     @Override
     @Transient
@@ -22,6 +23,6 @@ public class ArchivedTaskExpiredLog extends ArchivedTaskCancelledLog implements 
 
     @Override
     public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskExpiredLog(this);
+        visitor.onTaskCancelledLog(this);
     }
 }

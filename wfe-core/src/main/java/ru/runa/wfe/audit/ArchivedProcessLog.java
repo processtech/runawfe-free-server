@@ -18,6 +18,7 @@ import javax.persistence.Transient;
 @DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
 @DiscriminatorValue(value = "G")
 public abstract class ArchivedProcessLog extends BaseProcessLog {
+    private static final long serialVersionUID = 1L;
 
     private Long id;
     private Long processId;
