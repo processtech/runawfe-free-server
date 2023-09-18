@@ -40,8 +40,6 @@ public interface ProcessLogVisitor {
 
     void onTaskDelegaionLog(TaskDelegationLog taskDelegationLog);
 
-    void onTaskRemovedOnEmbeddedSubprocessEndLog(TaskRemovedOnEmbeddedSubprocessEndLog log);
-
     void onTaskEndBySubstitutorLog(TaskEndBySubstitutorLog taskEndBySubstitutorLog);
 
     void onTaskEndByAdminLog(TaskEndByAdminLog taskEndByAdminLog);

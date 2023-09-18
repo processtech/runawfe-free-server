@@ -26,6 +26,6 @@ public class TaskRemovedOnEmbeddedSubprocessEndLog extends TaskCancelledLog {
 
     @Override
     public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskRemovedOnEmbeddedSubprocessEndLog(this);
+        visitor.onTaskCancelledLog(this);
     }
 }
