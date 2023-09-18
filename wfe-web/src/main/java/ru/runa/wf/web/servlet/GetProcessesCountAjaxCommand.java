@@ -28,11 +28,11 @@ public class GetProcessesCountAjaxCommand extends JsonAjaxCommand {
         BatchPresentation presentation = BatchPresentationFactory.PROCESSES.createDefault();
         int definitionNameFieldIndex = presentation.getType().getFieldIndex(ProcessClassPresentation.DEFINITION_NAME);
         int definitionVersionFieldIndex = presentation.getType().getFieldIndex(ProcessClassPresentation.DEFINITION_VERSION);
-        int processEndDateFieldIndex = presentation.getType().getFieldIndex(ProcessClassPresentation.PROCESS_END_DATE);
         presentation.getFilteredFields().put(definitionNameFieldIndex, new StringFilterCriteria(definitionName));
         presentation.getFilteredFields().put(definitionVersionFieldIndex, new LongFilterCriteria(definitionVersion));
-        presentation.getFilteredFields().put(processEndDateFieldIndex, new DateFilterCriteria());
         int activeCount = Delegates.getExecutionService().getProcessesCount(user, presentation);
+        int processEndDateFieldIndex = presentation.getType().getFieldIndex(ProcessClassPresentation.PROCESS_END_DATE);
+        presentation.getFilteredFields().put(processEndDateFieldIndex, new DateFilterCriteria());
         int allCount = Delegates.getExecutionService().getProcessesCount(user, presentation);
 
         JSONObject object = new JSONObject();
