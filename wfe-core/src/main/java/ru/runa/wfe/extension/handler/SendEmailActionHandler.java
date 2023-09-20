@@ -67,6 +67,7 @@ public class SendEmailActionHandler extends ActionHandlerBase {
                 log.warn("unable to send email: " + e);
                 return;
             }
+            throw e;
         }
     }
 }
