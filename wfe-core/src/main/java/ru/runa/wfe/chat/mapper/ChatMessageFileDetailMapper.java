@@ -9,6 +9,7 @@ public class ChatMessageFileDetailMapper extends AbstractModelMapper<ChatMessage
         ChatMessageFileDetailDto result = new ChatMessageFileDetailDto();
         result.setId(entity.getId());
         result.setName(entity.getName());
+        result.setUuid(entity.getUuid());
         return result;
     }
 }

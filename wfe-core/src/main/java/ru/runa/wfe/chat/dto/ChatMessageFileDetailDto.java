@@ -10,4 +10,5 @@ public class ChatMessageFileDetailDto extends AbstractChatDto {
 
     private Long id;
     private String name;
+    private String uuid;
 }
