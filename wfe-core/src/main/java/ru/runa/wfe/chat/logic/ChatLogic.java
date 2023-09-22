@@ -9,6 +9,7 @@ import java.util.Set;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.runa.wfe.chat.ChatListener;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatRoom;
@@ -67,6 +68,8 @@ public class ChatLogic extends WfCommonLogic {
     private ChatFileDao fileDao;
     @Autowired
     private ChatMessageRecipientDao recipientDao;
+    @Autowired(required = false)
+    private List<ChatListener> listeners = new ArrayList<>();
 
     public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(User user, AddMessageRequest request) {
         final ChatMessage newMessage = messageRequestMapper.toEntity(request);
@@ -86,7 +89,10 @@ public class ChatLogic extends WfCommonLogic {
             messageAddedBroadcast = saveMessageInternal(processId, newMessage, recipients);
         }
 
-        return new WfChatMessageBroadcast<>(messageAddedBroadcast, recipients);
+        WfChatMessageBroadcast<MessageAddedBroadcast> wfChatMessageBroadcast = new WfChatMessageBroadcast<>(messageAddedBroadcast, recipients);
+        listeners.forEach(l -> l.onCreate(wfChatMessageBroadcast));
+
+        return wfChatMessageBroadcast;
     }
 
     public WfChatMessageBroadcast<MessageEditedBroadcast> editMessage(User user, EditMessageRequest request) {
@@ -97,10 +103,13 @@ public class ChatLogic extends WfCommonLogic {
         }
         chatMessageDao.update(message);
 
-        return new WfChatMessageBroadcast<>(
+        WfChatMessageBroadcast<MessageEditedBroadcast> wfChatMessageBroadcast = new WfChatMessageBroadcast<>(
                 new MessageEditedBroadcast(request.getProcessId(), message.getId(), message.getText(), user.getName()),
                 getRecipientsByMessageId(message.getId())
         );
+        listeners.forEach(l -> l.onEdit(wfChatMessageBroadcast));
+
+        return wfChatMessageBroadcast;
     }
 
     public WfChatMessageBroadcast<MessageDeletedBroadcast> deleteMessage(User user, DeleteMessageRequest request) {
@@ -112,7 +121,12 @@ public class ChatLogic extends WfCommonLogic {
         fileDao.deleteByMessage(message);
         recipientDao.deleteByMessageId(message.getId());
         chatMessageDao.delete(message.getId());
-        return new WfChatMessageBroadcast<>(new MessageDeletedBroadcast(request.getProcessId(), request.getId(), user.getName()), recipients);
+
+        WfChatMessageBroadcast<MessageDeletedBroadcast> wfChatMessageBroadcast = new WfChatMessageBroadcast<>(
+                new MessageDeletedBroadcast(request.getProcessId(), request.getId(), user.getName()), recipients);
+        listeners.forEach(l -> l.onDelete(wfChatMessageBroadcast));
+
+        return wfChatMessageBroadcast;
     }
 
     public ChatMessage getMessageById(User user, Long messageId) {
