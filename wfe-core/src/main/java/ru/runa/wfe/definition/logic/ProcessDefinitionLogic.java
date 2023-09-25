@@ -127,7 +127,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
      */
     public WfDefinition redeployProcessDefinition(User user, Long processDefinitionId, byte[] processArchiveBytes, List<String> categories,
             Integer secondsBeforeArchiving) {
-        ProcessDefinition oldDefinition = processDefinitionDao.get(processDefinitionId);
+        ProcessDefinition oldDefinition = processDefinitionDao.getNotNull(processDefinitionId);
         permissionDao.checkAllowed(user, Permission.UPDATE, oldDefinition.getPack());
         if (processArchiveBytes == null) {
             Preconditions.checkNotNull(categories, "In mode 'update only categories' categories are required");
@@ -180,7 +180,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
      * Updates process definition subversion.
      */
     public WfDefinition updateProcessDefinition(User user, Long processDefinitionId, @NonNull byte[] processArchiveBytes) {
-        val d = processDefinitionDao.get(processDefinitionId);
+        val d = processDefinitionDao.getNotNull(processDefinitionId);
         permissionDao.checkAllowed(user, Permission.UPDATE, d.getPack());
         val parsed = parseProcessDefinition(processArchiveBytes);
         if (!Objects.equals(d.getPack().getName(), parsed.getName())) {
@@ -217,7 +217,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
     }
 
     public void setProcessDefinitionSubprocessBindingDate(User user, Long processDefinitionId, Date date) {
-        ProcessDefinition d = processDefinitionDao.get(processDefinitionId);
+        ProcessDefinition d = processDefinitionDao.getNotNull(processDefinitionId);
         permissionDao.checkAllowed(user, Permission.UPDATE, d.getPack());
         Date oldDate = d.getSubprocessBindingDate();
         d.setSubprocessBindingDate(date);
@@ -256,7 +256,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
             permissionDao.checkAllowed(user, Permission.READ, definition.getSecuredObject());
             return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START_PROCESS, definition.getSecuredObject()));
         } catch (Exception e) {
-            val d = processDefinitionDao.get(processDefinitionId);
+            val d = processDefinitionDao.getNotNull(processDefinitionId);
             permissionDao.checkAllowed(user, Permission.READ, d.getPack());
             return new WfDefinition(d);
         }
@@ -353,7 +353,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
             permissionDao.checkAllowed(user, Permission.READ, definition.getSecuredObject());
         }
         if (FileDataProvider.PAR_FILE.equals(fileName)) {
-            return processDefinitionDao.get(processDefinitionId).getContent();
+            return processDefinitionDao.getNotNull(processDefinitionId).getContent();
         }
         return definition.getFileData(fileName);
     }

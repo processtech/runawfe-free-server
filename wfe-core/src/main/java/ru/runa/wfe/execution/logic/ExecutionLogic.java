@@ -646,7 +646,7 @@ public class ExecutionLogic extends WfCommonLogic {
                     "to 'true' in system.properties or wfe.custom.system.properties"
             );
         }
-        ProcessDefinition d = processDefinitionDao.get(processDefinitionId);
+        ProcessDefinition d = processDefinitionDao.getNotNull(processDefinitionId);
         ProcessDefinition nextDefinition = processDefinitionDao.getByNameAndVersion(d.getPack().getName(), newVersion);
         if (Objects.equal(newVersion, d.getVersion())) {
             return 0;

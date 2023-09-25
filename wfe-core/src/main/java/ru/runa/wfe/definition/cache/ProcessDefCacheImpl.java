@@ -44,7 +44,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl {
         if (parsed != null) {
             return parsed;
         }
-        ProcessDefinition processDefinition = processDefinitionDao.get(processDefinitionId);
+        ProcessDefinition processDefinition = processDefinitionDao.getNotNull(processDefinitionId);
         val archive = new ProcessArchive(processDefinition);
         parsed = archive.parseProcessDefinition();
         definitionIdToParsed.put(processDefinitionId, parsed);
@@ -70,7 +70,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl {
         if (processDefinitionId != null) {
             return getDefinition(processDefinitionDao, processDefinitionId);
         }
-        processDefinitionId = processDefinitionPackDao.get(packId).getLatest().getId();
+        processDefinitionId = processDefinitionPackDao.getNotNull(packId).getLatest().getId();
         packIdToDefinitionId.put(packId, processDefinitionId);
         return getDefinition(processDefinitionDao, processDefinitionId);
     }
