@@ -48,6 +48,7 @@ function Reload() {
 <% } %>
 <style>
 	.ui-tooltip {
+		position: fixed;
 		max-width: -moz-fit-content !important;
 		max-width: fit-content !important;
 	}
