@@ -10,6 +10,7 @@
 
 <tiles:put name="head" type="string">
 	<script type="text/javascript">var id = <%= Long.parseLong(request.getParameter(IdForm.ID_INPUT_NAME)) %>;</script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/taskformutils.js?"+Version.getHash() %>' />"></script>
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/updateprocessswimlanesutils.js?"+Version.getHash() %>' />"></script>
 </tiles:put>
 
