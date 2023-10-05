@@ -1,6 +1,5 @@
 package ru.runa.wf.web.action;
 
-import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -8,10 +7,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionMessage;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.wf.web.FormSubmissionUtils;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.form.ProcessForm;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -39,9 +40,10 @@ public class UpdateProcessVariableAction extends ActionBase {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put(ProcessForm.ID_INPUT_NAME, processId);
         try {
-            String variableName = request.getParameter("searchVariable");
-            if (variableName.isEmpty()) {
-                throw new InternalApplicationException("Variable name should not be empty");
+            String variableName = request.getParameter("variableName");
+            if (variableName == null || variableName.isEmpty()) {
+                log.warn("No variableName has been provided, seems like a user copied URL for page");
+                return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), params);
             }
             WfVariable variable = Delegates.getExecutionService().getVariable(user, processId, variableName);
             if (variable == null) {
@@ -61,6 +63,7 @@ public class UpdateProcessVariableAction extends ActionBase {
                 map.put(variableName, variableValue);
             }
             Delegates.getExecutionService().updateVariables(user, processId, map);
+            addMessage(request, new ActionMessage(MessagesProcesses.VARIABLE_WAS_UPDATED.getKey()));
         } catch (Exception e) {
             addError(request, e);
             return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), params);

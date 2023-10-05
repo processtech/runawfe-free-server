@@ -1,14 +1,16 @@
 $(document).ready(function() {
-	$("input[name='searchVariable']").autocomplete({
+	var $submitButton = $("input[name='submitButton']");
+	var $variableName = $("input[name='variableName']");
+	$variableName.autocomplete({
 		delay: 300,
 		minLength: 0,
 		source: function(request, response) {
+			$(".errors").html("");
 		    $.ajax({
 		   	    type: "GET",
 			    cache: false,
 			    url: "/wfe/ajaxcmd?command=ajaxGetProcessVariablesList",
-			    data:
-			    {
+			    data: {
                     processId : id,
                     hint : request.term
                 },
@@ -20,34 +22,34 @@ $(document).ready(function() {
 		    })
         },
 		select: function(event, ui) {
-			$("input[name='searchVariable']").val(ui.item.label);
-			getVariableInfo(ui.item.label);
+			$variableName.val(ui.item.label).change();
 			return false;
 		}
 	});
-
-    $("input[name='searchVariable']").focus(function() {
+    $variableName.focus(function() {
 		$(this).autocomplete("search", $(this).val());
 	});
-});
-
-function getVariableInfo(value) {
-	if(value != null) {
+	
+	function getVariableInfo() {
+		$submitButton.attr("disabled", true);
+		var variableName = $variableName.val();
+		if (!variableName) {
+			return;
+		}
 		jQuery.ajax({
 			type: "GET",
 			cache: false,
-			url: "/wfe/getComponentInput",
+			url: "/wfe/getVariable",
 			data: {
 				id: id,
-				variableName: value
+				variableName: variableName
 			},
 			dataType: "html",
 			success: function (e, msg, result) {
 				var data = jQuery.parseJSON(result.responseText);
 				$("#variableInput").empty();
-
 				var currentValue;
-				if(data.variableIsNull == "true") {
+				if (data.variableIsNull == "true") {
 					currentValue = "<div class=\"variableLabel\"><input type='checkbox' disabled='true' checked>NULL</div>";
 					$("#nullValueCheckbox").css("display", "none");
 					$("#nullValueLabel").css("display", "none");
@@ -58,16 +60,18 @@ function getVariableInfo(value) {
 				}
 				$("#variableInput").append(data.input);
 				$("#nullValueCheckbox").change(function() {
-			        if($(this).is(':checked')) {
+			        if ($(this).is(':checked')) {
 			        	$("[name=" + $("#variableSelect").val() + "]").attr("disabled", "true");
 			        } else {
 			        	$("[name=" + $("#variableSelect").val() + "]").attr("disabled", null);
 			        }
 			    });
 				initComponents($("#variableInput"));
+				$submitButton.attr("disabled", !data.scriptingName);
 			}
 		});
-	} else {
-		$(".button").css("display", "none");
-	}
-}
+	}	
+
+	$variableName.change(getVariableInfo);
+	$variableName.change();
+});

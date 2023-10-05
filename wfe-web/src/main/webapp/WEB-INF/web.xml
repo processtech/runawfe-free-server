@@ -99,8 +99,8 @@
 	</servlet>
 
 	<servlet>
-		<servlet-name>getComponentInput</servlet-name>
-		<servlet-class>ru.runa.wf.web.servlet.GetComponentInputServlet</servlet-class>
+		<servlet-name>getVariable</servlet-name>
+		<servlet-class>ru.runa.wf.web.servlet.GetVariableServlet</servlet-class>
 	</servlet>
 
 	<servlet>
@@ -149,8 +149,8 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>getComponentInput</servlet-name>
-		<url-pattern>/getComponentInput</url-pattern>
+		<servlet-name>getVariable</servlet-name>
+		<url-pattern>/getVariable</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

@@ -20,6 +20,16 @@
 
 %>
 
+<wf:processInfoForm identifiableId="<%= id %>" readOnly="true">
+	<table width="100%">
+		<tr>
+			<td align="right">
+				<wf:showProcessLink identifiableId='<%= id %>' />
+			</td>
+		</tr>
+	</table>
+</wf:processInfoForm>
+
 <wf:updateProcessSwimlanes processId='<%= id %>'/>
 
 </tiles:put>
