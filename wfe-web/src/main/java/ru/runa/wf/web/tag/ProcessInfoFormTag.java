@@ -67,22 +67,27 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
     private static final long serialVersionUID = -1275657878697999574L;
 
     private Long taskId;
+    private boolean readOnly;
 
     @Attribute
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
 
-    public Long getTaskId() {
-        return taskId;
+    @Attribute
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
-
-    // start #179
 
     @Override
     protected Permission getSubmitPermission() {
         // @see #isSubmitButtonEnabled()
         return null;
+    }
+
+    @Override
+    protected boolean isSubmitButtonVisible() {
+        return !readOnly;
     }
 
     @Override
@@ -117,8 +122,6 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         boolean ended = getProcess().isEnded();
         return ended ? MessagesCommon.BUTTON_REMOVE.message(pageContext) : MessagesProcesses.BUTTON_CANCEL_PROCESS.message(pageContext);
     }
-
-    // end #179
 
     @Override
     protected void fillFormData(TD tdFormElement) {
@@ -192,8 +195,10 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
                     Div div = new Div();
                     div.addElement(statusElement);
                     div.addElement(Entities.NBSP);
-                    div.addElement(new A(Commons.getActionUrl(SuspendProcessExecutionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(),
-                            pageContext, PortletUrlType.Render), MessagesProcesses.PROCESS_SUSPEND.message(pageContext)));
+                    if (!readOnly) {
+                        div.addElement(new A(Commons.getActionUrl(SuspendProcessExecutionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(),
+                                pageContext, PortletUrlType.Render), MessagesProcesses.PROCESS_SUSPEND.message(pageContext)));
+                    }
                     statusElement = div;
                 }
                 break;
@@ -206,8 +211,10 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
                     div.addElement(Entities.NBSP);
                     StrutsMessage message = process.getExecutionStatus() == ExecutionStatus.FAILED ? MessagesProcesses.PROCESS_ACTIVATE_FAILED_TOKENS
                             : MessagesProcesses.PROCESS_ACTIVATE;
-                    div.addElement(new A(Commons.getActionUrl(ActivateProcessExecutionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(),
-                            pageContext, PortletUrlType.Render), message.message(pageContext)));
+                    if (!readOnly) {
+                        div.addElement(new A(Commons.getActionUrl(ActivateProcessExecutionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(),
+                                pageContext, PortletUrlType.Render), message.message(pageContext)));
+                    }
                     statusElement = div;
                 }
                 break;
@@ -217,14 +224,17 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
                 div.addElement(Entities.NBSP);
                 div.addElement(CalendarUtil.formatDateTime(process.getEndDate()));
                 if (isAdministrator) {
-                A restoreLink = new A();
-                    Map<String, String> parameters = Maps.newHashMap();
-                    parameters.put(IdForm.ID_INPUT_NAME, process.getId().toString());
-                    restoreLink.setHref(Commons.getActionUrl(RestoreProcessAction.ACTION_PATH, parameters, pageContext, PortletUrlType.Render));
-                    restoreLink.setClass(Resources.CLASS_BUTTON);
-                    restoreLink.setStyle("margin-left: 5px");
-                    restoreLink.addElement(MessagesCommon.BUTTON_RESTORE.message(pageContext));
-                    div.addElement(restoreLink);
+                    if (!readOnly) {
+                        div.addElement(new StringElement(String.valueOf(process.getId())));
+                        A restoreLink = new A();
+                        Map<String, String> parameters = Maps.newHashMap();
+                        parameters.put(IdForm.ID_INPUT_NAME, process.getId().toString());
+                        restoreLink.setHref(Commons.getActionUrl(RestoreProcessAction.ACTION_PATH, parameters, pageContext, PortletUrlType.Render));
+                        restoreLink.setClass(Resources.CLASS_BUTTON);
+                        restoreLink.setStyle("margin-left: 5px");
+                        restoreLink.addElement(MessagesCommon.BUTTON_RESTORE.message(pageContext));
+                        div.addElement(restoreLink);
+                    }
                 }
                 statusElement = div;
                 break;
@@ -254,7 +264,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
                 params.put(TaskIdForm.TASK_ID_INPUT_NAME, taskId);
                 params.put(TaskIdForm.SELECTED_TASK_PROCESS_ID_NAME, process.getId());
                 inner = new A(Commons.getActionUrl(ShowGraphModeHelper.getManageProcessAction(), params, pageContext, PortletUrlType.Render),
-                        parentProcessDefinitionName);
+                            parentProcessDefinitionName);
             } else {
                 inner = new StringElement(parentProcessDefinitionName);
             }
@@ -273,13 +283,15 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         Div div = new Div();
         div.addElement(versionElement);
         div.addElement(Entities.NBSP);
-        String url = Commons.getActionUrl(UpgradeProcessToDefinitionVersionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(), pageContext,
+        if (!readOnly) {
+            String url = Commons.getActionUrl(UpgradeProcessToDefinitionVersionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(), pageContext,
                 PortletUrlType.Render);
-        A upgradeLink = new A(url, MessagesProcesses.PROCESS_UPGRADE_TO_DEFINITION_VERSION.message(pageContext));
-        upgradeLink.addAttribute("data-definitionName", process.getName());
-        upgradeLink.addAttribute("data-definitionVersion", process.getVersion());
-        upgradeLink.setOnClick("selectProcessUpgrageVersionDialog(this); return false;");
-        div.addElement(upgradeLink);
+            A upgradeLink = new A(url, MessagesProcesses.PROCESS_UPGRADE_TO_DEFINITION_VERSION.message(pageContext));
+            upgradeLink.addAttribute("data-definitionName", process.getName());
+            upgradeLink.addAttribute("data-definitionVersion", process.getVersion());
+            upgradeLink.setOnClick("selectProcessUpgrageVersionDialog(this); return false;");
+            div.addElement(upgradeLink);
+        }
         return div;
     }
 

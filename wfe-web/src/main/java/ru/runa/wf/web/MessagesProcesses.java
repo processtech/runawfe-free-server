@@ -57,6 +57,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_DEPLOY_APPLY_ALL = new StrutsMessage("batch_presentation.process_definition.application_type.all.label");
     public static final StrutsMessage PROCESS_STARTER_NAME = new StrutsMessage("process_starter.name");
     public static final StrutsMessage LABEL_STATE_NAME = new StrutsMessage("label.state_name");
+    public static final StrutsMessage LABEL_PROCESS = new StrutsMessage("label.process");
     public static final StrutsMessage LABEL_PARENT_PROCESS = new StrutsMessage("label.parent_process");
     public static final StrutsMessage LABEL_START_PROCESS = new StrutsMessage("label.start_process");
     public static final StrutsMessage LABEL_SWIMLANE = new StrutsMessage("label.swimlane");
@@ -73,6 +74,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_NO_SWIMLANES = new StrutsMessage("label.no_swimlanes");
     public static final StrutsMessage LINK_UPDATE_VARIABLE = new StrutsMessage("link.update_variable");
     public static final StrutsMessage BUTTON_UPDATE_VARIABLE = new StrutsMessage("button.update_variable");
+    public static final StrutsMessage VARIABLE_WAS_UPDATED = new StrutsMessage("variable.was_updated");
     public static final StrutsMessage BUTTON_FORM = new StrutsMessage("button.form");
     public static final StrutsMessage BUTTON_COMPLETE = new StrutsMessage("button.complete");
     public static final StrutsMessage BUTTON_ACCEPT_TASK = new StrutsMessage("button.accept_task");
