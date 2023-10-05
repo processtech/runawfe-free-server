@@ -17,25 +17,23 @@
  */
 package ru.runa.wfe.user;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Strings;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
 import org.hibernate.annotations.Index;
-
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Strings;
-
 import ru.runa.wfe.security.SecuredObjectType;
 
 /**
  * Actor represents a real user of system that could perform different actions.
  */
 @Entity
-@DiscriminatorValue(value = "N")
+@DiscriminatorValue(value = Actor.DISCRIMINATOR_VALUE)
 public class Actor extends Executor {
     private static final long serialVersionUID = -582492651083909598L;
+    public static final String DISCRIMINATOR_VALUE = "N";
     public static final Actor UNAUTHORIZED_ACTOR = new Actor(UNAUTHORIZED_EXECUTOR_NAME, null);
 
     private Long code;

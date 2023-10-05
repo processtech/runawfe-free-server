@@ -1,8 +1,9 @@
 $(function() {
-	getCurrentExecutor($("#swimlaneSelect").val());
+    getCurrentExecutor($("#swimlaneSelect").val());
 	$("#swimlaneSelect").bind("change", function() {
-		getCurrentExecutor($("#swimlaneSelect").val());
-	});
+	    getCurrentExecutor($("#swimlaneSelect").val());
+    });
+    initComponents($("input[name='newExecutor']").parent());
 });
 
 function getCurrentExecutor(value) {

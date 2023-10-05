@@ -58,8 +58,10 @@ public class TaskAssignLog extends TaskLog {
             addAttribute(ATTR_NEW_VALUE, newExecutor.getName());
         }
         List<Long> ids = Lists.newArrayList();
-        for (Executor executor : actors) {
-            ids.add(executor.getId());
+        if (actors != null) {
+            for (Executor executor : actors) {
+                ids.add(executor.getId());
+            }
         }
         addAttribute(ATTR_MESSAGE, Joiner.on(ExecutorIdsValue.DELIM).join(ids));
     }
