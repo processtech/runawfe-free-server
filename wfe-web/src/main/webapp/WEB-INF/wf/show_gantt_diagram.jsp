@@ -79,16 +79,18 @@
 	Long processId = Long.parseLong(request.getParameter(parameterName));
 %>
 
-<wf:showGanttDiagram identifiableId="<%= processId %>" >
-<table width="100%">
-	<tr>
-		<td align="right">
-			<wf:updateProcessLink identifiableId='<%=processId %>' href='<%= "/manage_process.do?" + parameterName+ "=" + processId %>'  />
-		</td>
-	</tr>
-</table>
-<br/>
-<div id="GanttChartDIV" style='position:relative; width:100%; height:600px'></div>
+<wf:processInfoForm identifiableId="<%= processId %>" readOnly="true">
+	<table width="100%">
+		<tr>
+			<td align="right">
+				<wf:showProcessLink identifiableId='<%= processId %>' />
+			</td>
+		</tr>
+	</table>
+</wf:processInfoForm>
+
+<wf:showGanttDiagram identifiableId="<%= processId %>">
+	<div id="GanttChartDIV" style='position:relative; width:100%; height:600px'></div>
 </wf:showGanttDiagram>
 
 <%!

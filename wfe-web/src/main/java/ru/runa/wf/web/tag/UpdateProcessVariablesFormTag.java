@@ -24,8 +24,8 @@ import ru.runa.wfe.var.VariableDefinition;
 public class UpdateProcessVariablesFormTag extends TitledFormTag {
 
     private static final long serialVersionUID = 1L;
-
     private Long processId;
+    private String variableName;
 
     @Attribute(required = false, rtexprvalue = true)
     public void setProcessId(Long id) {
@@ -36,10 +36,19 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
         return processId;
     }
 
+    @Attribute(required = false, rtexprvalue = true)
+    public void setVariableName(String variableName) {
+        this.variableName = variableName;
+    }
+    public String getVariableName() {
+        return variableName;
+    }
+
     @Override
     protected void fillFormElement(TD tdFormElement) {
         WfProcess process = Delegates.getExecutionService().getProcess(getUser(), getProcessId());
         List<VariableDefinition> variables = getVariableDefinitions(process.getDefinitionId());
+
         if (!variables.isEmpty()) {
             if (WebResources.isUpdateProcessVariablesEnabled() && isAvailable()) {
                 getForm().setEncType(Form.ENC_UPLOAD);
@@ -49,8 +58,11 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
                 table.setClass(Resources.CLASS_LIST_TABLE);
                 tdFormElement.addElement(table);
 
-                Input searchInput = HTMLUtils.createInput("searchVariable","");
+                Input searchInput = HTMLUtils.createInput("variableName", "");
                 searchInput.addAttribute("autocomplete", "off");
+                if (variableName != null) {
+                    searchInput.setValue(variableName);
+                }
                 table.addElement(HTMLUtils.createRow(MessagesProcesses.LABEL_SEARCH_VARIABLE.message(pageContext), searchInput));
                 TR variableInputTr = new TR();
                 variableInputTr.setClass("variableInputRegion");
@@ -109,6 +121,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
     protected String getSubmitButtonName() {
         return MessagesProcesses.BUTTON_UPDATE_VARIABLE.message(pageContext);
     }
+
     @Override
     protected boolean isCancelButtonEnabled() {
         return true;

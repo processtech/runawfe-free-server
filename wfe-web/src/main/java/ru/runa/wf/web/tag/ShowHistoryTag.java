@@ -15,7 +15,6 @@ import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
-import ru.runa.common.web.MessagesBatch;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
@@ -54,8 +53,7 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
         // filter
         StringBuilder filterHtml = new StringBuilder("\n");
         filterHtml.append("<input type=\"hidden\" name=\"id\" value=\"").append(filter.getProcessId()).append("\">\n");
-        filterHtml.append("<table class=\"box\"><tr><th class=\"box\">").append(MessagesBatch.FILTER_CRITERIA.message(pageContext))
-                .append("</th></tr>\n");
+        filterHtml.append("<table class=\"box\">\n");
         filterHtml.append("<tr><td>\n");
         filterHtml.append("<input type=\"checkbox\" name=\"withSubprocesses\" value=\"true\"");
         if (filter.isIncludeSubprocessLogs()) {

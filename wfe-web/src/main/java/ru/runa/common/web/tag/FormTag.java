@@ -25,6 +25,7 @@ import ru.runa.wfe.commons.web.PortletUrlType;
 abstract public class FormTag extends VisibleTag {
 
     public static final String SUBMIT_BUTTON_NAME = "submitButton";
+    public static final String CANCEL_BUTTON_NAME = "cancelButton";
     public static final String MULTIPLE_SUBMIT_BUTTONS = "multipleSubmit";
     public static final String ATTRIBUTE_COLOR = "color";
     public static final String ATTRIBUTE_NAME = "name";
@@ -124,7 +125,9 @@ abstract public class FormTag extends VisibleTag {
         return "";
     }
 
-    protected String getCancelButtonName() { return MessagesCommon.BUTTON_CANCEL.message(pageContext);  }
+    protected String getCancelButtonName() {
+        return MessagesCommon.BUTTON_CANCEL.message(pageContext);
+    }
 
     @Override
     protected ConcreteElement getEndElement() {
@@ -188,7 +191,7 @@ abstract public class FormTag extends VisibleTag {
                 td.addElement(submitButton);
             }
             if (isCancelButtonEnabled()) {
-                Input cancelButton = new Input(Input.BUTTON, SUBMIT_BUTTON_NAME, getCancelButtonName());
+                Input cancelButton = new Input(Input.BUTTON, CANCEL_BUTTON_NAME, getCancelButtonName());
                 cancelButton.setClass(Resources.CLASS_BUTTON);
                 cancelButton.addAttribute(ATTRIBUTE_ONCLICK, "window.location='" + getCancelButtonAction() + "'");
                 td.addElement(Entities.NBSP);

@@ -16,7 +16,7 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 
-public class GetComponentInputServlet extends HttpServlet {
+public class GetVariableServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Override

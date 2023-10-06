@@ -3308,22 +3308,7 @@
         <tag-class>ru.runa.wf.web.tag.ProcessInfoFormTag</tag-class>
         <body-content>JSP</body-content>
         <attribute>
-            <name>action</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>align</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
             <name>buttonAlignment</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>height</name>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
@@ -3333,28 +3318,14 @@
             <type>java.lang.Long</type>
         </attribute>
         <attribute>
-            <name>method</name>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
             <name>taskId</name>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Long</type>
         </attribute>
         <attribute>
-            <name>title</name>
+            <name>readOnly</name>
             <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>valign</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>width</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
+            <type>java.lang.Boolean</type>
         </attribute>
     </tag>
     <tag>
@@ -4652,28 +4623,13 @@
         </attribute>
     </tag>
     <tag>
-        <name>updateProcessLink</name>
-        <tag-class>ru.runa.wf.web.tag.UpdateProcessLinkTag</tag-class>
+        <name>showProcessLink</name>
+        <tag-class>ru.runa.wf.web.tag.ShowProcessLinkTag</tag-class>
         <body-content>empty</body-content>
-        <attribute>
-            <name>forward</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>href</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
         <attribute>
             <name>identifiableId</name>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Long</type>
-        </attribute>
-        <attribute>
-            <name>linkText</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
         </attribute>
     </tag>
     <tag>
@@ -4730,46 +4686,12 @@
         <tag-class>ru.runa.wf.web.tag.UpdateProcessVariablesFormTag</tag-class>
         <body-content>empty</body-content>
         <attribute>
-            <name>action</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>align</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>buttonAlignment</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>height</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>method</name>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
             <name>processId</name>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Long</type>
         </attribute>
         <attribute>
-            <name>title</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>valign</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>width</name>
+            <name>variableName</name>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>

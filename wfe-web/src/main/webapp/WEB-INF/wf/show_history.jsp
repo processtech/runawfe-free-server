@@ -9,15 +9,17 @@
 	long id = Long.parseLong(request.getParameter(IdForm.ID_INPUT_NAME));
 %>
 
-<wf:showHistory identifiableId="<%= id %>" >
-<table width="100%">
-	<tr>
-		<td align="right">
-			<wf:updateProcessLink identifiableId='<%=id %>' href='<%= "/manage_process.do?" + IdForm.ID_INPUT_NAME + "=" + id %>'  />
-		</td>
-	</tr>
-</table>
-</wf:showHistory>
+<wf:processInfoForm identifiableId="<%= id %>" readOnly="true">
+	<table width="100%">
+		<tr>
+			<td align="right">
+				<wf:showProcessLink identifiableId='<%= id %>' />
+			</td>
+		</tr>
+	</table>
+</wf:processInfoForm>
+
+<wf:showHistory identifiableId="<%= id %>" />
 
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />

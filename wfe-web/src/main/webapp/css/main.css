@@ -354,6 +354,7 @@ a.permissionLink {
 }
 .expandAllButton {
 	cursor: pointer;
+	margin: 0px;
 }
 #processGraph {
 	position: absolute;
