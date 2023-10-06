@@ -31,7 +31,7 @@ import ru.runa.wfe.rest.converter.WfeNodeMapper;
 import ru.runa.wfe.rest.converter.WfeProcessDefinitionMapper;
 import ru.runa.wfe.rest.converter.WfeSwimlaneDefinitionMapper;
 import ru.runa.wfe.rest.converter.WfeTaskNodeInteractionMapper;
-import ru.runa.wfe.rest.converter.WfeUserTypeMapper;
+import ru.runa.wfe.rest.converter.WfeVariableUserTypeMapper;
 import ru.runa.wfe.rest.converter.WfeVariableDefinitionMapper;
 import ru.runa.wfe.rest.dto.WfeNode;
 import ru.runa.wfe.rest.dto.WfeNodeGraphElement;
@@ -159,12 +159,12 @@ public class DefinitionController {
     @GetMapping("{id}/userTypes")
     public List<WfeVariableUserType> getProcessDefinitionUserTypes(@PathVariable Long id) {
         List<UserType> userTypes = processDefinitionLogic.getDefinition(id).getUserTypes();
-        return Mappers.getMapper(WfeUserTypeMapper.class).map(userTypes);
+        return Mappers.getMapper(WfeVariableUserTypeMapper.class).map(userTypes);
     }
 
     @GetMapping("{id}/userType")
     public WfeVariableUserType getProcessDefinitionUserType(@PathVariable Long id, @RequestParam String name) {
-        return Mappers.getMapper(WfeUserTypeMapper.class).map(processDefinitionLogic.getDefinition(id).getUserType(name));
+        return Mappers.getMapper(WfeVariableUserTypeMapper.class).map(processDefinitionLogic.getDefinition(id).getUserType(name));
     }
 
     @GetMapping("{id}/variables")

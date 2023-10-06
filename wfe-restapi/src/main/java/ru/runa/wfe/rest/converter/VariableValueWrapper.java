@@ -57,10 +57,7 @@ public class VariableValueWrapper {
 
         @Override
         public Map<String, Object> getCustomUserTypeFields(UserTypeFormat userTypeFormat) {
-            Map<String, Object> result = new LinkedHashMap<>();
-            // useful for clients?
-            result.put("USER_TYPE_NAME", userTypeFormat.getUserType().getName());
-            return result;
+            return new LinkedHashMap<>();
         }
     }
 
