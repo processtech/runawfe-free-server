@@ -1,7 +1,7 @@
 package ru.runa.wfe.rest.converter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Date;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,29 +42,33 @@ public class VariableValueUnwrapper {
     }
 
     private class UnwrapVariableFormatVisitor extends BaseWfVariableFormatVisitor {
+        private ISO8601DateFormat iso8601DateFormat = new ISO8601DateFormat();
 
         @Override
+        @SneakyThrows
         public Object onDate(DateFormat dateFormat, WfVariable variable) {
             if (variable.getValue() == null) {
                 return null;
             }
-            return new Date(((Number) variable.getValue()).longValue());
+            return iso8601DateFormat.parse((String) variable.getValue());
         }
 
         @Override
+        @SneakyThrows
         public Object onTime(TimeFormat timeFormat, WfVariable variable) {
             if (variable.getValue() == null) {
                 return null;
             }
-            return new Date(((Number) variable.getValue()).longValue());
+            return iso8601DateFormat.parse((String) variable.getValue());
         }
 
         @Override
+        @SneakyThrows
         public Object onDateTime(DateTimeFormat dateTimeFormat, WfVariable variable) {
             if (variable.getValue() == null) {
                 return null;
             }
-            return new Date(((Number) variable.getValue()).longValue());
+            return iso8601DateFormat.parse((String) variable.getValue());
         }
 
         @Override

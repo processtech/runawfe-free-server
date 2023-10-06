@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class WfeVariable {
     private String name;
-    private Object value;
+    private WfeVariableType type;
     private String format;
-
+    private Object value;
 }

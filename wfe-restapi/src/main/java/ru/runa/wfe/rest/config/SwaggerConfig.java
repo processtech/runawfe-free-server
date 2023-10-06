@@ -1,9 +1,8 @@
 package ru.runa.wfe.rest.config;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 import com.fasterxml.classmate.TypeResolver;
+import java.util.Collections;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -57,7 +56,6 @@ public class SwaggerConfig {
                 .globalResponses(HttpMethod.PATCH, Collections.singletonList(internalServerErrorResponse()))
                 .apiInfo(apiInfo())
                 .useDefaultResponseMessages(false)
-                .directModelSubstitute(Date.class, Long.class)
                 .ignoredParameterTypes(AuthenticationPrincipal.class)
                 .securitySchemes(Collections.singletonList(HttpAuthenticationScheme.JWT_BEARER_BUILDER.name("token").build()))
                 .securityContexts(Collections.singletonList(securityContext()))

@@ -34,21 +34,7 @@ public class UserTypeFormat extends VariableFormat implements VariableDisplaySup
 
     @Override
     public String getName() {
-        return JSONValue.toJSONString(buildFormatDescriptor(userType));
-    }
-
-    private static Map<String, Object> buildFormatDescriptor(UserType userType) {
-        Map<String, Object> map = Maps.newLinkedHashMap();
-        for (VariableDefinition attributeDefinition : userType.getAttributes()) {
-            Object value;
-            if (attributeDefinition.isUserType()) {
-                value = buildFormatDescriptor(attributeDefinition.getUserType());
-            } else {
-                value = FormatCommons.create(attributeDefinition).getName();
-            }
-            map.put(attributeDefinition.getName(), value);
-        }
-        return map;
+        return userType.getName();
     }
 
     @Override

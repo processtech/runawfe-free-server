@@ -363,43 +363,22 @@ export default Vue.extend({
         getVariableValue (variableName, data) {
             for (let variable of data.variables) {
                 if (variableName == variable.name ) {
-                    const prefix = 'ru.runa.wfe.var.format.';
-                    if (!variable.format.includes(prefix)) {
-                        let obj = {};
-                        obj = Object.assign(obj, variable.value);
-                        if (obj && Object.keys(obj).length !== 0) {
-                            return variable.value;
-                        }
+                    if (!variable.value) {
                         return '';
                     }
-                    const format = variable.format.replace(prefix,'').replace('Format','');
-                    if (format === 'Date') {
-                        return this.getDate(variable.value);
-                    } else if (format === 'Time') {
-                        return this.getTime(variable.value);
-                    } else if (format === 'DateTime') {
+                    if (variable.type === 'DATE') {
+                        if (variable.format === 'date') {
+                            return this.getDate(variable.value);
+                        }
+                        if (variable.format === 'time') {
+                            return this.getTime(variable.value);
+                        }
                         return this.getDateTime(variable.value);
-                    } else if (format === 'Actor' || format === 'Executor' || format === 'Group') {
-                        let executor = {};
-                        executor = Object.assign(executor, variable.value);
-                        return executor.name;
-                    } else if (format === 'File') {
-                        // not support
-                        return '';
-                    } else if (format.includes('List')) {
-                        let arr = [];
-                        arr = Object.assign(arr, variable.value);
-                        if (arr.length) {
-                            return variable.value;
-                        }
-                        return '';
-                    } else if (format.includes('Map')) {
-                        let obj = {};
-                        obj = Object.assign(obj, variable.value);
-                        if (obj && Object.keys(obj).length !== 0) {
-                            return variable.value;
-                        }
-                        return '';
+                    } else if (variable.type === 'EXECUTOR') {
+                        return variable.value.name;
+                    } else if (variable.type === 'FILE') {
+                        // not clickable
+                        return variable.value.name;
                     } else {
                         return variable.value;
                     }
