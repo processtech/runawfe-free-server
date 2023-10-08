@@ -21,6 +21,14 @@
         <script type="text/javascript" src="<html:rewrite page='<%="/js/taskformutils.js?"+Version.getHash() %>' />"></script>
         <script type="text/javascript" src="<html:rewrite page='<%="/js/updateprocessvariablesutils.js?"+Version.getHash() %>' />">c=0;</script>
         <script type="text/javascript"> var id = <%= getId(request) %>;</script>
+        <script type="text/javascript">
+            var labelExpand = "<%=MessagesProcesses.LABEL_EXPAND.message(pageContext)%>";
+            var labelCollapse = "<%=MessagesProcesses.LABEL_COLLAPSE.message(pageContext)%>";
+            var labelExpandAll = "<%=MessagesProcesses.LABEL_EXPAND_ALL.message(pageContext)%>";
+            var labelCollapseAll = "<%=MessagesProcesses.LABEL_COLLAPSE_ALL.message(pageContext)%>";
+            var processId = <%=Long.parseLong(request.getParameter("processId"))%>;
+        </script>
+        <script type="text/javascript" src="<html:rewrite page='<%="/js/bigVariablesHiding.js?"+Version.getHash() %>' />"></script>
         <link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/trumbowyg.css" />">
         <link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/fileupload.css?"+Version.getHash() %>' />">
     </tiles:put>
