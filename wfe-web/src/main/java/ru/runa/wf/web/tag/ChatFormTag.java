@@ -62,7 +62,7 @@ public class ChatFormTag extends TitledFormTag {
         TextArea textArea = new TextArea();
         textArea.setID("message");
         textArea.setOnClick("openChatForm()");
-        textArea.addAttribute("placeholder", "Введите текст сообщения");
+        textArea.addAttribute("placeholder", MessagesChat.PLACEHOLDER_MESSAGE.message(pageContext));
         textArea.setClass("inputText");
         return textArea;
     }

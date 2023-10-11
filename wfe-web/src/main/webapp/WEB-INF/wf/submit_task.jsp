@@ -60,7 +60,7 @@
 		}
 		String href = "/wfe/chat_page.do?processId=" + processId;
 	%>
-	<a href="<%= href %>">Открыть чат</a>
+	<a href="<%= href %>"><bean:message key="chat.open"/></a>
 </div>
 <% }%>
 <% if (WebResources.isTaskDelegationEnabled()) { %>
