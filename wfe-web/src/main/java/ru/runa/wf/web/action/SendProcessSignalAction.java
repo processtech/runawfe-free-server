@@ -3,9 +3,7 @@ package ru.runa.wf.web.action;
 import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,7 +13,6 @@ import org.apache.struts.action.ActionMapping;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.wf.web.FormSubmissionUtils;
 import ru.runa.wf.web.SignalUtils;
-import ru.runa.wf.web.VariablesFormatException;
 import ru.runa.wf.web.form.SendProcessSignalForm;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.var.VariableDefinition;
@@ -39,7 +36,7 @@ public class SendProcessSignalAction extends ActionBase {
             Map<String, Object> payloadData = initPayloadMap(sendForm, request);
             Delegates.getExecutionService().sendSignal(getLoggedUser(request), routingData, payloadData, 1);
         } catch (Exception e) {
-            writeResponse(response, e.getMessage());
+            writeResponse(response, e.getMessage() != null ? e.getMessage() : e.toString());
         }
         return null;
     }
@@ -87,11 +84,7 @@ public class SendProcessSignalAction extends ActionBase {
             Object value = FormSubmissionUtils.extractVariable(request, payloadData, variableDefinition, errors);
             payloadResult.put(variableName, value);
             if (errors.size() > 0) {
-                List<String> errorValues = new ArrayList<>();
-                for (Map.Entry<String, String> errorEntry : errors.entrySet()) {
-                    errorValues.add(errorEntry.getKey() + " ->" + errorEntry.getValue());
-                }
-                throw new VariablesFormatException(errorValues);
+                throw new Exception(errors.toString());
             }
         }
         return payloadResult;
