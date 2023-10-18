@@ -2,15 +2,9 @@ package ru.runa.wfe.definition.logic;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.val;
@@ -462,6 +456,9 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         for (Number definitionId : definitionIds) {
             try {
                 ParsedProcessDefinition parsed = getDefinition(definitionId.longValue());
+                if (isCategoryFilterEmpty(batchPresentation) && !parsed.getCategory().isEmpty()) {
+                    continue;
+                }
                 processDefinitions.put(parsed.getSecuredObject(), parsed);
                 securedObjects.add(parsed.getSecuredObject());
             } catch (Exception e) {
@@ -486,6 +483,13 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
             }
         });
         return idsWithPermission;
+    }
+
+    private boolean isCategoryFilterEmpty(BatchPresentation batchPresentation) {
+        int categoryFilterId = 2;
+        return batchPresentation.getFilteredFields().containsKey(categoryFilterId)
+                && Arrays.stream(batchPresentation.getFilteredFields().get(categoryFilterId).getFilterTemplates())
+                .anyMatch(String::isEmpty);
     }
 
     private List<ProcessDefinitionChange> getChanges(List<Long> processDefinitionIds) {
