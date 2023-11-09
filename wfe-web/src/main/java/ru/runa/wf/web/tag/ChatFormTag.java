@@ -95,7 +95,8 @@ public class ChatFormTag extends TitledFormTag {
             messageCard.setClass("message-card");
             messageCard.addElement(getMessageHeader(message).setClass("message-header"));
             messageCard.addElement(getFileHolder(message));
-            messageCard.addElement(new TR(new TD(message.getText()).setClass("text")));
+            String text = message.getText().replace("\n", "<br/>");
+            messageCard.addElement(new TR(new TD(text).setClass("text")));
             table.addElement(new TR(new TD(messageCard)));
         }
         return table;
