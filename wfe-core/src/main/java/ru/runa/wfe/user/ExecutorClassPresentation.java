@@ -15,6 +15,11 @@ public class ExecutorClassPresentation extends ClassPresentation {
     public static final String FULL_NAME = "fullName";
     public static final String DESCRIPTION = "description";
     public static final String TYPE = "type";
+    public static final String CODE = "code";
+    public static final String EMAIL = "email";
+    public static final String PHONE = "phone";
+    public static final String DEPARTAMENT = "department";
+    public static final String TITLE = "title";
 
     public static final ClassPresentation INSTANCE = new ExecutorClassPresentation();
 
@@ -28,6 +33,16 @@ public class ExecutorClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "fullName" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(Executor.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "description" }),
+                new FieldDescriptor(CODE, String.class.getName(), new DefaultDbSource(Executor.class, "code"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "code" }).setVisible(false),
+                new FieldDescriptor(EMAIL, String.class.getName(), new DefaultDbSource(Executor.class, "email"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "email" }).setVisible(false),
+                new FieldDescriptor(PHONE, String.class.getName(), new DefaultDbSource(Executor.class, "phone"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "phone" }).setVisible(false),
+                new FieldDescriptor(DEPARTAMENT, String.class.getName(), new DefaultDbSource(Executor.class, "department"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "department" }).setVisible(false),
+                new FieldDescriptor(TITLE, String.class.getName(), new DefaultDbSource(Executor.class, "title"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "title" }).setVisible(false),
                 new FieldDescriptor(TYPE, String.class.getName(), new DefaultDbSource(Executor.class, "class"), false, FieldFilterMode.DATABASE,
                         "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "class" }).setShowable(false) });
     }
