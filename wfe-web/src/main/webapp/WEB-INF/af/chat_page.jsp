@@ -19,6 +19,7 @@
         <script type="text/javascript" src="/wfe/js/trumbowyg-langs/<%= Commons.getLocale(pageContext).getLanguage() %>.min.js"></script>
         <% } %>
         <script type="text/javascript" src="<html:rewrite page='<%="/js/taskformutils.js?"+Version.getHash() %>' />"></script>
+        <script type="text/javascript"> var getVariablesUrl = '/wfe/ajaxcmd?command=ajaxGetProcessVariablesInChatList'; displayInChat = true</script>
         <script type="text/javascript" src="<html:rewrite page='<%="/js/updateprocessvariablesutils.js?"+Version.getHash() %>' />">c=0;</script>
         <script type="text/javascript"> var id = <%= getId(request) %>;</script>
         <script type="text/javascript">
@@ -26,7 +27,7 @@
             var labelCollapse = "<%=MessagesProcesses.LABEL_COLLAPSE.message(pageContext)%>";
             var labelExpandAll = "<%=MessagesProcesses.LABEL_EXPAND_ALL.message(pageContext)%>";
             var labelCollapseAll = "<%=MessagesProcesses.LABEL_COLLAPSE_ALL.message(pageContext)%>";
-            var processId = <%=Long.parseLong(request.getParameter("processId"))%>;
+            var processId = <%=Long.parseLong(request.getParameter("id"))%>;
         </script>
         <script type="text/javascript" src="<html:rewrite page='<%="/js/bigVariablesHiding.js?"+Version.getHash() %>' />"></script>
         <link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/trumbowyg.css" />">
@@ -42,7 +43,7 @@
                 </th>
             </tr>
             <tr>
-                <td align="right">
+                <td class="navigation" align="right">
                     <a href="<%=Commons.getActionUrl(WebResources.ACTION_MAPPING_MANAGE_PROCESS,
                         ImmutableMap.of("id", processId), pageContext, PortletUrlType.Render)%>">
                         <%=MessagesProcesses.TITLE_PROCESS.message(pageContext)%>
@@ -50,15 +51,19 @@
                 </td>
             </tr>
         </table>
-        <wf:processVariableChatMonitor identifiableId='<%= processId %>'/>
-
+        <div id="process-variables">
+            <wf:processVariableChatMonitor identifiableId='<%= processId %>'/>
+        </div>
         <table class="box">
             <tr>
-                <td id="ChatForm" processId="<%= processId %>">
-                    <wf:updateProcessVariablesInChat processId='<%= processId %>'/>
+                <td id="ChatForm" hidden="true" processId="<%= processId %>">
+                    <wf:updateProcessVariablesInChat processId='<%= processId %>' redirectOption="chatPage" />
                 </td>
             </tr>
         </table>
+        <div class="form-toggler">
+            <span onclick="toogleVariablesEditor()">Update process variable values</span>
+        </div>
         <wf:chatForm processId='<%= processId %>' title='<%= "" %>'/>
     </tiles:put>
 
@@ -66,8 +71,6 @@
 </tiles:insert>
 <%!
     public long getId(HttpServletRequest request) {
-        return Long.parseLong(request.getParameter("processId") != null
-                ? request.getParameter("processId")
-                : request.getParameter("id"));
+        return Long.parseLong(request.getParameter("id"));
     }
 %>

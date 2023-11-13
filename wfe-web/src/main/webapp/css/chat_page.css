@@ -1,16 +1,11 @@
 #message {
-    font-weight: bold;
-    cursor: pointer;
-    resize: none;
+    resize: vertical;
+    cursor: text;
     display: block;
-    width: 100%;
+    width: 99%;
     height: 80px;
-    margin: auto;
+    margin: 0 auto;
     overflow: auto;
-}
-
-#ChatForm {
-    display: none;
 }
 
 table.messages {
@@ -33,4 +28,20 @@ table.message-card {
 
 .private-message-label {
     margin: 4px;
+}
+
+.form-toggler {
+    margin-left: 6px;
+    color: gray;
+    text-align: right;
+    padding-right: 20px;
+    text-decoration: underline;
+}
+
+.form-toggler span:hover {
+    color: #990000;
+}
+
+.form-toggler span {
+    cursor: pointer;
 }

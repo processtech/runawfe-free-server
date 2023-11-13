@@ -16,6 +16,7 @@ import ru.runa.common.web.html.RowBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
@@ -61,18 +62,29 @@ public class ProcessVariablesRowBuilder implements RowBuilder {
         if (value != null && WebResources.isVariableHidingEnabled() && isHidingRequired(variable)) {
             tr.addElement(buildHiddenVariable(variable));
         } else {
-            String formattedValue = value == null
-                    ? MessagesOther.LABEL_UNSET_EMPTY_VALUE.message(pageContext)
-                    : ViewUtil.getOutput(Commons.getUser(pageContext.getSession()), new StrutsWebHelper(pageContext), processId, variable);
-            tr.addElement(new TD(formattedValue).setClass(Resources.CLASS_LIST_TABLE_TD));
+            tr.addElement(new TD(getFormattedValue(variable)).setClass(Resources.CLASS_LIST_TABLE_TD));
         }
         index++;
         return tr;
     }
 
+    protected String getFormattedValue(WfVariable variable) {
+        return (variable.getValue() == null)
+                ? MessagesOther.LABEL_UNSET_EMPTY_VALUE.message(pageContext)
+                : ViewUtil.getOutput(Commons.getUser(pageContext.getSession()), new StrutsWebHelper(pageContext), processId, variable);
+    }
+
     @Override
     public List<TR> buildNextArray() {
         return null;
+    }
+
+    public Long getProcessId() {
+        return processId;
+    }
+
+    public PageContext getPageContext() {
+        return pageContext;
     }
 
     private boolean isHidingRequired(WfVariable variable) {

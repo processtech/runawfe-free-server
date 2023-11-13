@@ -19,10 +19,16 @@ public class GenerateHtmlForVariableContext {
      */
     public final boolean readonly;
 
-    public GenerateHtmlForVariableContext(WfVariable variable, Long processId, boolean readonly) {
+    /**
+     * Whether html is printed on chat page or not
+     */
+    public final boolean isChatView;
+
+    public GenerateHtmlForVariableContext(WfVariable variable, Long processId, boolean readonly, boolean isChatView) {
         this.variable = variable;
         this.processId = processId;
         this.readonly = readonly;
+        this.isChatView = isChatView;
     }
 
     /**
@@ -33,7 +39,7 @@ public class GenerateHtmlForVariableContext {
      * @return Returns HTML code generation operation context for variable.
      */
     public GenerateHtmlForVariableContext copyFor(WfVariable newVariable) {
-        return new GenerateHtmlForVariableContext(newVariable, processId, readonly);
+        return new GenerateHtmlForVariableContext(newVariable, processId, readonly, isChatView);
     }
 
     /**

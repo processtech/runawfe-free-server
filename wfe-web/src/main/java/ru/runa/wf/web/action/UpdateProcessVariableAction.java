@@ -1,5 +1,6 @@
 package ru.runa.wf.web.action;
 
+import com.google.common.base.Objects;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -14,7 +15,6 @@ import ru.runa.common.web.action.ActionBase;
 import ru.runa.wf.web.FormSubmissionUtils;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.form.ProcessForm;
-import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -33,6 +33,8 @@ import ru.runa.wfe.var.format.BooleanFormat;
 public class UpdateProcessVariableAction extends ActionBase {
     public static final String ACTION_PATH = "/updateProcessVariable";
 
+    private static final String REDIRECT_OPTION_PARAM = "redirectOption";
+
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         User user = Commons.getUser(request.getSession());
@@ -42,13 +44,9 @@ public class UpdateProcessVariableAction extends ActionBase {
         try {
             String variableName = request.getParameter("variableName");
             if (variableName == null || variableName.isEmpty()) {
-                log.warn("No variableName has been provided, seems like a user copied URL for page");
-                return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), params);
+                return Commons.forward(mapping.findForward(request.getParameter(REDIRECT_OPTION_PARAM)), params);
             }
             WfVariable variable = Delegates.getExecutionService().getVariable(user, processId, variableName);
-            if (variable == null) {
-                throw new InternalApplicationException("Variable \"" + variableName + "\" is not found");
-            }
             Object variableValue;
             if ("on".equals(request.getParameter("isNullValue"))) {
                 variableValue = null;
@@ -59,8 +57,10 @@ public class UpdateProcessVariableAction extends ActionBase {
             if (variableValue instanceof UserTypeMap && variable.getValue() instanceof UserTypeMap) {
                 map = getValues(variableName, (UserTypeMap) variable.getValue(), (UserTypeMap) variableValue);
             } else {
-                map = new HashMap<>();
-                map.put(variableName, variableValue);
+                map = new HashMap<String, Object>();
+                if (!Objects.equal(FormSubmissionUtils.IGNORED_VALUE, variableValue)) {
+                    map.put(variableName, variableValue);
+                }
             }
             Delegates.getExecutionService().updateVariables(user, processId, map);
             addMessage(request, new ActionMessage(MessagesProcesses.VARIABLE_WAS_UPDATED.getKey()));
@@ -69,7 +69,7 @@ public class UpdateProcessVariableAction extends ActionBase {
             return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), params);
         }
         FormSubmissionUtils.clearUserInputFiles(request);
-        return Commons.forward(mapping.findForward(Resources.FORWARD_SUCCESS), params);
+        return Commons.forward(mapping.findForward(request.getParameter(REDIRECT_OPTION_PARAM)), params);
     }
 
     private Map<String, Object> getValues(String variableName, UserTypeMap existingUserTypeMap, UserTypeMap userTypeMap) {

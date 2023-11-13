@@ -1,6 +1,7 @@
 $(document).ready(function() {
 	var $submitButton = $("input[name='submitButton']");
 	var $variableName = $("input[name='variableName']");
+	$submitButton.attr("disabled", true);
 	$variableName.autocomplete({
 		delay: 300,
 		minLength: 0,
@@ -9,7 +10,7 @@ $(document).ready(function() {
 		    $.ajax({
 		   	    type: "GET",
 			    cache: false,
-			    url: "/wfe/ajaxcmd?command=ajaxGetProcessVariablesList",
+			    url: getVariablesUrl,
 			    data: {
                     processId : id,
                     hint : request.term
@@ -42,7 +43,8 @@ $(document).ready(function() {
 			url: "/wfe/getVariable",
 			data: {
 				id: id,
-				variableName: variableName
+				variableName: variableName,
+				displayInChat: displayInChat
 			},
 			dataType: "html",
 			success: function (e, msg, result) {

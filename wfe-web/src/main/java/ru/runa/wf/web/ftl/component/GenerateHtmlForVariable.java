@@ -324,6 +324,9 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         Table result = new Table();
         result.setClass("list");
         for (VariableDefinition attributeDefinition : userType.getAttributes()) {
+            if (context.isChatView && !attributeDefinition.isEditableInChat()) {
+                continue;
+            }
             TR TR = new TR();
             result.addElement(TR);
             TD nameTd = new TD();
@@ -335,7 +338,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             Object attributeValue = userTypeMap.get(attributeDefinition.getName());
             WfVariable componentVariable = ViewUtil.createUserTypeComponentVariable(context.variable, attributeDefinition, attributeValue);
             GenerateHtmlForVariableResult attributeGeneratedHtml = componentVariable.getDefinition().getFormatNotNull()
-                    .processBy(this, new GenerateHtmlForVariableContext(componentVariable, context.processId, context.readonly));
+                    .processBy(this, new GenerateHtmlForVariableContext(componentVariable, context.processId, context.readonly, context.isChatView));
             valueTd.addElement(attributeGeneratedHtml.content);
             TR.addElement(valueTd);
         }
