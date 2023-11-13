@@ -13,6 +13,7 @@
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.iframe-transport.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.fileupload.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/trumbowyg.js" />" charset="utf-8">c=0;</script>
+	<script type="text/javascript"> var getVariablesUrl = '/wfe/ajaxcmd?command=ajaxGetProcessVariablesList'; var displayInChat = false</script>
 <% if (!"en".equals(Commons.getLocale(pageContext).getLanguage())) { %>
 	<script type="text/javascript" src="/wfe/js/trumbowyg-langs/<%= Commons.getLocale(pageContext).getLanguage() %>.min.js"></script>
 <% } %>
@@ -41,7 +42,7 @@
 	</table>
 </wf:processInfoForm>
 
-<wf:updateProcessVariables processId="<%= id %>" variableName="<%= variableName %>"/>
+<wf:updateProcessVariables processId="<%= id %>" variableName="<%= variableName %>" redirectOption="manageProcess" />
 
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />

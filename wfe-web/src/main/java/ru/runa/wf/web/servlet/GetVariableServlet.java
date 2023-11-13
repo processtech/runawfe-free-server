@@ -32,6 +32,7 @@ public class GetVariableServlet extends HttpServlet {
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String variableName = request.getParameter("variableName");
         Long processId = Long.valueOf(request.getParameter("id"));
+        boolean displayInChat = Boolean.valueOf(request.getParameter("displayInChat"));
         if (processId == null) {
             throw new InternalApplicationException("id not found");
         }
@@ -49,7 +50,7 @@ public class GetVariableServlet extends HttpServlet {
             Boolean variableIsNull = true;
             if (value != null) {
                 variableIsNull = false;
-                variableValue = ViewUtil.getComponentOutput(user, webHelper, processId, variable);
+                variableValue = ViewUtil.getComponentOutput(user, webHelper, processId, variable, displayInChat);
             }
             scriptingName = variable.getDefinition().getScriptingName();
             variableIsNullString = variableIsNull.toString();
@@ -67,7 +68,7 @@ public class GetVariableServlet extends HttpServlet {
         variableObject.put("variableIsNull", variableIsNullString);
         variableObject.put("variableValue", variableValue);
         try {
-            String componentInput = ViewUtil.getComponentInput(user, webHelper, variable);
+            String componentInput = ViewUtil.getComponentInput(user, webHelper, variable, displayInChat);
             variableObject.put("input", componentInput);
         } catch (Exception e) {
             variableObject.put("input", e.getLocalizedMessage());

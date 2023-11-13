@@ -142,15 +142,31 @@ public class ViewUtil {
     }
 
     public static String getComponentInput(User user, WebHelper webHelper, WfVariable variable) {
+        return componentInput(user, webHelper, variable, false);
+    }
+
+    public static String getComponentInput(User user, WebHelper webHelper, WfVariable variable, boolean displayInChat) {
+        return componentInput(user, webHelper, variable, displayInChat);
+    }
+
+    private static String componentInput(User user, WebHelper webHelper, WfVariable variable, boolean displayInChat) {
         VariableFormat variableFormat = variable.getDefinition().getFormatNotNull();
-        GenerateHtmlForVariableContext context = new GenerateHtmlForVariableContext(variable, 0L, false);
+        GenerateHtmlForVariableContext context = new GenerateHtmlForVariableContext(variable, 0L, false, displayInChat);
         GenerateHtmlForVariableResult generatedResult = variableFormat.processBy(new GenerateHtmlForVariable(user, webHelper), context);
         return generatedResult.content;
     }
 
     public static String getComponentOutput(User user, WebHelper webHelper, Long processId, WfVariable variable) {
+        return componentOutput(user, webHelper, processId, variable, false);
+    }
+
+    public static String getComponentOutput(User user, WebHelper webHelper, Long processId, WfVariable variable, boolean displayInChat) {
+        return componentOutput(user, webHelper, processId, variable, displayInChat);
+    }
+
+    private static String componentOutput(User user, WebHelper webHelper, Long processId, WfVariable variable, boolean displayInChat) {
         VariableFormat variableFormat = variable.getDefinition().getFormatNotNull();
-        GenerateHtmlForVariableContext context = new GenerateHtmlForVariableContext(variable, processId, true);
+        GenerateHtmlForVariableContext context = new GenerateHtmlForVariableContext(variable, processId, true, displayInChat);
         GenerateHtmlForVariableResult generatedResult = variableFormat.processBy(new GenerateHtmlForVariable(user, webHelper), context);
         return generatedResult.content;
     }

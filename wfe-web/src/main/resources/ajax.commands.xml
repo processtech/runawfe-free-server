@@ -9,5 +9,6 @@
 	<command name="ajaxGetProcessesCount" class="ru.runa.wf.web.servlet.GetProcessesCountAjaxCommand" />
 	<command name="getProcessVariableValue" class="ru.runa.wf.web.servlet.GetProcessVariableValueAjaxCommand" />
 	<command name="ajaxGetProcessVariablesList" class="ru.runa.wf.web.servlet.AjaxGetProcessVariablesList" />
+	<command name="ajaxGetProcessVariablesInChatList" class="ru.runa.wf.web.servlet.AjaxGetProcessVariablesInChatList" />
 	<command class="ru.runa.wf.web.servlet.LocaleTextChat" name="LocaleTextChat" />
 </configuration>

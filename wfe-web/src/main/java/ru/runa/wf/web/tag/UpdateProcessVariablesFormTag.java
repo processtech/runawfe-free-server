@@ -26,6 +26,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
     private static final long serialVersionUID = 1L;
     private Long processId;
     private String variableName;
+    private String redirectOption;
 
     @Attribute(required = false, rtexprvalue = true)
     public void setProcessId(Long id) {
@@ -36,12 +37,14 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
         return processId;
     }
 
+    @Attribute(required = true)
+    public void setRedirectOption(String redirectOption) {
+        this.redirectOption = redirectOption;
+    }
+
     @Attribute(required = false, rtexprvalue = true)
     public void setVariableName(String variableName) {
         this.variableName = variableName;
-    }
-    public String getVariableName() {
-        return variableName;
     }
 
     @Override
@@ -94,9 +97,15 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
             }
         } else {
             Label variablesExist = new Label("variables");
-            variablesExist.addElement(MessagesProcesses.LABEL_NO_VARIABLES.message(pageContext) + "&nbsp;");
+            variablesExist.addElement(getNoVariablesMessage());
             tdFormElement.addElement(variablesExist);
+            tdFormElement.addElement(getRedirectOptionInput());
         }
+        tdFormElement.addElement(getRedirectOptionInput());
+    }
+
+    protected String getNoVariablesMessage() {
+        return MessagesProcesses.LABEL_NO_VARIABLES.message(pageContext);
     }
 
     protected List<VariableDefinition> getVariableDefinitions(Long processDefinitionId) {
@@ -132,4 +141,15 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
         return "manage_process.do?id=" + getProcessId();
     }
 
+    protected boolean isChatView() {
+        return false;
+    }
+
+    private Input getRedirectOptionInput() {
+        Input input = new Input();
+        input.setType("hidden");
+        input.setName("redirectOption");
+        input.setValue(redirectOption);
+        return input;
+    }
 }
