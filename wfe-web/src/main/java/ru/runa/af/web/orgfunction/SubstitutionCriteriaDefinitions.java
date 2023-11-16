@@ -15,9 +15,21 @@ import ru.runa.wfe.service.delegate.Delegates;
 
 @CommonsLog
 public class SubstitutionCriteriaDefinitions {
-    private static List<FunctionDef> definitions = new ArrayList<>();
 
-    static {
+    private List<FunctionDef> definitions = new ArrayList<>();
+    private static SubstitutionCriteriaDefinitions instance;
+
+    private SubstitutionCriteriaDefinitions() {
+    }
+
+    public static synchronized SubstitutionCriteriaDefinitions getInstance() {
+        if (instance == null) {
+            instance = new SubstitutionCriteriaDefinitions();
+        }
+        return instance;
+    }
+
+    public void parseConfiguration() {
         ClassLoaderUtil.withExtensionResources("substitution.criterias.xml", new Function<InputStream, Object>() {
 
             @Override
@@ -49,11 +61,11 @@ public class SubstitutionCriteriaDefinitions {
         });
     }
 
-    public static List<FunctionDef> getAll() {
+    public List<FunctionDef> getAll() {
         return definitions;
     }
 
-    public static FunctionDef getByClassName(String className) {
+    public FunctionDef getByClassName(String className) {
         for (FunctionDef definition : getAll()) {
             if (definition.getClassName().equals(className)) {
                 return definition;
