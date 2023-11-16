@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -357,13 +358,14 @@ public class Token implements Serializable {
         }
     }
 
-    /**
-     * ends this token and all of its children (if recursive).
-     *
-     * @param canceller actor who cancels process (if any), can be <code>null</code>
-     */
     public void end(ProcessDefinition processDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive) {
+        end(processDefinition, canceller, taskCompletionInfo, recursive, null);
+    }
+
+    public void end(ProcessDefinition processDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive,
+            Map<String, Object> transientVariables) {
         ExecutionContext executionContext = new ExecutionContext(processDefinition, this);
+        executionContext.setTransientVariables(transientVariables);
         if (hasEnded()) {
             log.debug(this + " already ended");
         } else {
@@ -375,7 +377,9 @@ public class Token implements Serializable {
             if (node instanceof SubprocessNode) {
                 for (Process subProcess : executionContext.getTokenSubprocesses()) {
                     ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
-                    subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
+                    ExecutionContext subProcessExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);
+                    subProcessExecutionContext.setTransientVariables(transientVariables);
+                    subProcess.end(subProcessExecutionContext, canceller);
                 }
             } else if (node instanceof BaseTaskNode) {
                 ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
@@ -388,7 +392,7 @@ public class Token implements Serializable {
         }
         if (recursive) {
             for (Token child : getChildren()) {
-                child.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, recursive);
+                child.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, recursive, transientVariables);
             }
         }
     }
