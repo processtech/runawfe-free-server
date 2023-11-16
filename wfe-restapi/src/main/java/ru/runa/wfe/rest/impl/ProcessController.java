@@ -105,8 +105,8 @@ public class ProcessController {
     }
 
     @PatchMapping("{id}/cancel")
-    public void cancelProcess(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        executionLogic.cancelProcess(authUser.getUser(), id);
+    public void cancelProcess(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestParam(required = false) String reason) {
+        executionLogic.cancelProcess(authUser.getUser(), id, reason);
     }
 
     @DeleteMapping("{id}")

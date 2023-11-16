@@ -33,6 +33,12 @@ public class SendProcessSignalFormTag extends TitledFormTag {
     }
 
     protected void fillFormData(TD tdFormElement) {
+        Button pasteButton = new Button();
+        pasteButton.setID("pasteButton");
+        pasteButton.setOnClick("javascript:pasteRows();");
+        pasteButton.setType("button");
+        pasteButton.addElement(MessagesProcesses.PASTE_SIGNAL_DATA_BUTTON_NAME.message(pageContext));
+        tdFormElement.addElement(pasteButton);
         addTable(tdFormElement, "routing", MessagesProcesses.ROUTING_PARAMETER_NAME, MessagesProcesses.ROUTING_PARAMETER_VALUE, "addRow('routing')");
         addTable(tdFormElement, "payload", MessagesProcesses.PAYLOAD_PARAMETER_NAME, MessagesProcesses.PAYLOAD_PARAMETER_VALUE, "addRow('payload')");
     }

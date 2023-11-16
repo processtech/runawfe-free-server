@@ -223,9 +223,16 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     }
 
     @Override
+    @WebMethod(exclude = true)
+    public void cancelProcess(@NonNull User user, @NonNull Long processId) {
+        cancelProcess(user, processId, null);
+    }
+
+    @Override
     @WebResult(name = "result")
-    public void cancelProcess(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
-        executionLogic.cancelProcess(user, processId);
+    public void cancelProcess(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
+            @WebParam(name = "reason") String reason) {
+        executionLogic.cancelProcess(user, processId, reason);
     }
 
     @Override

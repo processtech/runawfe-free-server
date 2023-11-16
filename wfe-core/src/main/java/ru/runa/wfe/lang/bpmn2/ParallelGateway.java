@@ -19,8 +19,10 @@ import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.execution.logic.ProcessExecutionException;
+import ru.runa.wfe.lang.EmbeddedSubprocessEndNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.lang.Transition;
 
 public class ParallelGateway extends Node {
@@ -53,7 +55,7 @@ public class ParallelGateway extends Node {
                 break;
             }
             case WAITING: {
-                if (stateInfo.activeTokenNodeIds.contains(getNodeId())) {
+            if (stateInfo.getActiveTokenNodeIds().contains(getNodeId())) {
                     log.debug("scheduling execution due to active concurrent token found in this node");
                     TransactionListeners.addListener(new ActiveCheck(this, executionContext.getProcess().getId(), token), false);
                 } else {
@@ -63,7 +65,7 @@ public class ParallelGateway extends Node {
             }
             case BLOCKING: {
                 log.warn("failing token " + token.getId() + " execution because " + stateInfo.unreachableTransition
-                        + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
+                    + " cannot be passed by active tokens in nodes " + stateInfo.getActiveTokenNodeIds());
                 executionLogic.failToken(token, new ProcessExecutionException(ProcessExecutionException.PARALLEL_GATEWAY_UNREACHABLE_TRANSITION,
                         stateInfo.unreachableTransition));
                 TransactionListeners.addListener(new FailedCheck(this, executionContext.getProcess().getId()), false);
@@ -114,7 +116,7 @@ public class ParallelGateway extends Node {
             stateInfo.state = State.LEAVING;
         } else {
             for (Transition transition : stateInfo.notPassedTransitions) {
-                if (!transitionCanBePassed(transition, stateInfo.activeTokenNodeIds, new HashSet<Node>())) {
+                if (!hasTokenAlreadyArrivedThroughExactTransitionOrTransitionCanBePassed(stateInfo, transition)) {
                     stateInfo.unreachableTransition = transition;
                     stateInfo.state = State.BLOCKING;
                     break;
@@ -129,12 +131,25 @@ public class ParallelGateway extends Node {
             if (token.getExecutionStatus() != ExecutionStatus.ACTIVE && Objects.equal(token.getNodeId(), getNodeId())) {
                 stateInfo.arrivedTokens.add(token);
             } else if (token.getExecutionStatus() == ExecutionStatus.ACTIVE || token.getExecutionStatus() == ExecutionStatus.FAILED) {
-                stateInfo.activeTokenNodeIds.add(token.getNodeId());
+                stateInfo.activeTokens.add(token);
             }
         }
         for (CurrentToken childToken : token.getChildren()) {
             fillTokensInfo(childToken, stateInfo);
         }
+    }
+    
+    private boolean hasTokenAlreadyArrivedThroughExactTransitionOrTransitionCanBePassed(StateInfo stateInfo, Transition transition) {
+        boolean tokenAlreadyArrived = false;
+        for (CurrentToken token : stateInfo.activeTokens) {
+            if (token.getNodeId().equals(getNodeId()) && token.getTransitionId().equals(transition.getNodeId())) {
+                log.debug(String.format("Skipping %s passage validation due to active token %s arriving through it", transition, token));
+                tokenAlreadyArrived = true;
+                break;
+            }
+        }
+        return tokenAlreadyArrived ? tokenAlreadyArrived
+                : transitionCanBePassed(transition, stateInfo.getActiveTokenNodeIds(), new HashSet<Node>());
     }
 
     private boolean transitionCanBePassed(Transition transition, Set<String> activeTokenNodeIds, Set<Node> testedNodes) {
@@ -145,6 +160,17 @@ public class ParallelGateway extends Node {
         testedNodes.add(node);
         if (activeTokenNodeIds.contains(node.getNodeId())) {
             return true;
+        }
+        if (node instanceof EmbeddedSubprocessEndNode) {
+            // code below needed for cases when subprocess have more than one end node, so arriving transition on node after subprocess return only
+            // one of theese end nodes which results in only one branch of subprocess being tested on can be passed
+            for (Node subprocessEndNode : ((ParsedSubprocessDefinition) node.getParsedProcessDefinition()).getEndNodes()) {
+                for (Transition nodeTransition : subprocessEndNode.getArrivingTransitions()) {
+                    if (transitionCanBePassed(nodeTransition, activeTokenNodeIds, testedNodes)) {
+                        return true;
+                    }
+                }
+            }
         }
         for (Transition nodeTransition : node.getArrivingTransitions()) {
             if (transitionCanBePassed(nodeTransition, activeTokenNodeIds, testedNodes)) {
@@ -169,10 +195,18 @@ public class ParallelGateway extends Node {
     private static class StateInfo {
         private State state = State.WAITING;
         private Set<CurrentToken> arrivedTokens = Sets.newHashSet();
-        private Set<String> activeTokenNodeIds = Sets.newHashSet();
+        private Set<CurrentToken> activeTokens = Sets.newHashSet();
         private List<CurrentToken> tokensToPop = Lists.newArrayList();
         private List<Transition> notPassedTransitions = Lists.newArrayList();
         private Transition unreachableTransition;
+        
+        public Set<String> getActiveTokenNodeIds() {
+            Set<String> result = Sets.newHashSet();
+            for (CurrentToken token : activeTokens) {
+                result.add(token.getNodeId());
+            }
+            return result;
+        }
     }
 
     private static class ActiveCheck implements TransactionListener {
@@ -216,7 +250,7 @@ public class ParallelGateway extends Node {
                         }
                     case BLOCKING: {
                         log.error("failing process " + process.getId() + " execution because " + stateInfo.unreachableTransition
-                                + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
+                                        + " cannot be passed by active tokens in nodes " + stateInfo.getActiveTokenNodeIds());
                         process.setExecutionStatus(ExecutionStatus.FAILED);
                         ApplicationContextFactory.getExecutionLogic().failToken(token, new ProcessExecutionException(
                                 ProcessExecutionException.PARALLEL_GATEWAY_UNREACHABLE_TRANSITION, stateInfo.unreachableTransition));
@@ -267,11 +301,11 @@ public class ParallelGateway extends Node {
                             break;
                         }
                         case BLOCKING: {
-                            if (stateInfo.activeTokenNodeIds.contains(gateway.getNodeId())) {
+                            if (stateInfo.getActiveTokenNodeIds().contains(gateway.getNodeId())) {
                                 log.warn("leaving failed tokens " + failedTokens + " due to active token in this node");
                             } else {
                                 log.error("failing process " + process.getId() + " execution because " + stateInfo.unreachableTransition
-                                        + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
+                                        + " cannot be passed by active tokens in nodes " + stateInfo.getActiveTokenNodeIds());
                                 process.setExecutionStatus(ExecutionStatus.FAILED);
                             }
                             break;

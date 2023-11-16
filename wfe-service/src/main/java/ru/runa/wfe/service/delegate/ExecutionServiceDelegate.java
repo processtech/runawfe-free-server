@@ -53,8 +53,13 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
 
     @Override
     public void cancelProcess(User user, Long processId) {
+        cancelProcess(user, processId, null);
+    }
+
+    @Override
+    public void cancelProcess(User user, Long processId, String reason) {
         try {
-            getExecutionService().cancelProcess(user, processId);
+            getExecutionService().cancelProcess(user, processId, reason);
         } catch (Exception e) {
             throw handleException(e);
         }

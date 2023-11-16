@@ -28,7 +28,6 @@ import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
-import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.Node;
@@ -119,16 +118,20 @@ public class ExecutionContext {
         this(parsedProcessDefinition, task.getToken());
     }
 
-    /**
-     * retrieves the transient variable for the given name.
-     */
+    public Map<String, Object> getTransientVariables() {
+        return transientVariables;
+    }
+
     public Object getTransientVariable(String name) {
         return transientVariables.get(name);
     }
 
-    /**
-     * sets the transient variable for the given name to the given value.
-     */
+    public void setTransientVariables(Map<String, Object> transientVariables) {
+        if (transientVariables != null) {
+            this.transientVariables.putAll(transientVariables);
+        }
+    }
+
     public void setTransientVariable(String name, Object value) {
         transientVariables.put(name, value);
     }

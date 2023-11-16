@@ -1,7 +1,6 @@
 package ru.runa.wfe.script.processes;
 
 import javax.xml.bind.annotation.XmlType;
-
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
 
@@ -12,6 +11,6 @@ public class CancelProcessesOperation extends FilterableProcessInstancesOperatio
 
     @Override
     public void execute(ScriptExecutionContext context) {
-        context.getExecutionLogic().cancelProcesses(context.getUser(), createProcessFilter());
+        context.getExecutionLogic().cancelProcesses(context.getUser(), createProcessFilter(), "by admin script");
     }
 }
