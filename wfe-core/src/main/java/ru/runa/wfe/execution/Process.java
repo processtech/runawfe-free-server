@@ -54,6 +54,7 @@ import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.extension.ProcessEndHandler;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.AsyncCompletionMode;
@@ -224,14 +225,15 @@ public class Process extends SecuredObjectBase {
         log.info("Ending " + this + " by " + canceller);
 
         if (canceller != null) {
-            executionContext.addLog(new ProcessCancelLog(canceller));
+            String reason = (String) executionContext.getTransientVariable(WfProcess.CANCEL_REASON_TRANSIENT_VARIABLE_NAME);
+            executionContext.addLog(new ProcessCancelLog(canceller, reason));
         } else {
             executionContext.addLog(new ProcessEndLog());
         }
 
         TaskCompletionInfo taskCompletionInfo = TaskCompletionInfo.createForProcessEnd(id);
         // end the main path of execution
-        rootToken.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, true);
+        rootToken.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, true, executionContext.getTransientVariables());
         // mark this process as ended
         setEndDate(new Date());
         setExecutionStatus(ExecutionStatus.ENDED);

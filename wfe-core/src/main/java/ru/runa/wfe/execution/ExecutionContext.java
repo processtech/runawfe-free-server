@@ -46,7 +46,6 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDao;
-import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
 import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.job.Job;
@@ -85,8 +84,6 @@ public class ExecutionContext {
     private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
     private VariableCreator variableCreator;
-    @Autowired
-    private ProcessDao processDao;
     @Autowired
     private TokenDao tokenDao;
     @Autowired
@@ -133,16 +130,20 @@ public class ExecutionContext {
         this(processDefinition, task.getToken());
     }
 
-    /**
-     * retrieves the transient variable for the given name.
-     */
+    public Map<String, Object> getTransientVariables() {
+        return transientVariables;
+    }
+
     public Object getTransientVariable(String name) {
         return transientVariables.get(name);
     }
 
-    /**
-     * sets the transient variable for the given name to the given value.
-     */
+    public void setTransientVariables(Map<String, Object> transientVariables) {
+        if (transientVariables != null) {
+            this.transientVariables.putAll(transientVariables);
+        }
+    }
+
     public void setTransientVariable(String name, Object value) {
         transientVariables.put(name, value);
     }

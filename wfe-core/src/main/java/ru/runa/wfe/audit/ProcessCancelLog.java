@@ -24,7 +24,6 @@ package ru.runa.wfe.audit;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
 import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 import ru.runa.wfe.user.Actor;
 
@@ -42,15 +41,18 @@ public class ProcessCancelLog extends ProcessLog {
 
     }
 
-    public ProcessCancelLog(Actor actor) {
+    public ProcessCancelLog(Actor actor, String reason) {
         addAttribute(ATTR_ACTOR_NAME, actor.getName());
+        addAttribute(ATTR_MESSAGE, reason);
         setSeverity(Severity.INFO);
     }
 
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { new ExecutorNameValue(getAttributeNotNull(ATTR_ACTOR_NAME)) };
+        String reason = getAttribute(ATTR_MESSAGE);
+        reason = reason != null ? " (" + reason + ")" : "";
+        return new Object[] { new ExecutorNameValue(getAttributeNotNull(ATTR_ACTOR_NAME)), reason };
     }
 
     @Override

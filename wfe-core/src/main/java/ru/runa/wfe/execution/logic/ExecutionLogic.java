@@ -126,11 +126,11 @@ public class ExecutionLogic extends WfCommonLogic {
     @Autowired
     private ProcessDefinitionUpdateManager processDefinitionUpdateManager;
 
-    public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
+    public void cancelProcess(User user, Long processId, String reason) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
         Preconditions.checkArgument(processId != null);
         filter.setId(processId);
-        cancelProcesses(user, filter);
+        cancelProcesses(user, filter, reason);
     }
 
     public int getProcessesCount(User user, BatchPresentation batchPresentation) {
@@ -142,21 +142,24 @@ public class ExecutionLogic extends WfCommonLogic {
         return toWfProcesses(data, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 
-    public void deleteProcesses(User user, final ProcessFilter filter) {
+    public void deleteProcesses(User user, ProcessFilter filter) {
         List<Process> processes = getProcessesInternal(user, filter);
-        // TODO add ProcessPermission.DELETE_PROCESS
-        processes = filterSecuredObject(user, processes, Permission.CANCEL);
+        processes = filterSecuredObject(user, processes, Permission.DELETE);
         for (Process process : processes) {
             deleteProcess(user, process);
         }
     }
 
-    public void cancelProcesses(User user, final ProcessFilter filter) {
+    public void cancelProcesses(User user, ProcessFilter filter, String reason) {
         List<Process> processes = getProcessesInternal(user, filter);
-        processes = filterSecuredObject(user, processes, Permission.CANCEL);
+        if (SystemProperties.isCheckProcessCancelPermissions()) {
+            processes = filterSecuredObject(user, processes, Permission.CANCEL);
+        }
         for (Process process : processes) {
             ProcessDefinition processDefinition = getDefinition(process);
             ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
+            executionContext.setTransientVariable(WfProcess.CANCEL_ACTOR_TRANSIENT_VARIABLE_NAME, user.getActor());
+            executionContext.setTransientVariable(WfProcess.CANCEL_REASON_TRANSIENT_VARIABLE_NAME, reason);
             process.end(executionContext, user.getActor());
             log.info(process + " was cancelled by " + user);
         }
