@@ -62,7 +62,7 @@ public abstract class BaseTdBuilder implements TdBuilder {
 
     protected String readProperty(Object object, String propertyName, boolean isExceptionOnAbsent) {
         try {
-            return BeanUtils.getProperty(object, propertyName);
+            return BeanUtils.getNestedProperty(object, propertyName);
         } catch (NoSuchMethodException e) {
             if (isExceptionOnAbsent) {
                 throw Throwables.propagate(e);

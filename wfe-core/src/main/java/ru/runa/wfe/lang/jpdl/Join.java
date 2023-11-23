@@ -44,7 +44,7 @@ public class Join extends Node {
             token.setAbleToReactivateParent(false);
             Token parentToken = token.getParent();
             boolean reactivateParent = true;
-            for (Token childToken : parentToken.getActiveChildren()) {
+            for (Token childToken : parentToken.getActiveChildren(false)) {
                 if (childToken.isAbleToReactivateParent()) {
                     reactivateParent = false;
                     log.debug("There are exists at least 1 active token that can reactivate parent: " + childToken);

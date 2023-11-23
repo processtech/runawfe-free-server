@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -82,18 +83,24 @@ import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.lang.Delegation;
+import ru.runa.wfe.lang.EmbeddedSubprocessStartNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
+import ru.runa.wfe.lang.SubprocessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.lang.bpmn2.DataStore;
+import ru.runa.wfe.lang.bpmn2.ParallelGateway;
+import ru.runa.wfe.lang.bpmn2.TextAnnotation;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
+import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
@@ -533,6 +540,149 @@ public class ExecutionLogic extends WfCommonLogic {
 
     public int getTokenErrorsCount(User user, BatchPresentation batchPresentation) {
         return getPersistentObjectCount(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES);
+    }
+
+    public void moveToken(User user, Long processId, Long tokenId, String nodeId) {
+        if (!executorDao.isAdministrator(user.getActor())) {
+            throw new AuthorizationException("Only administrator can move token");
+        }
+        Process process = processDao.getNotNull(processId);
+        ProcessDefinition processDefinition = getDefinition(process);
+        Token token = tokenDao.get(tokenId);
+        if (token == null || token.getProcess().getId() != process.getId() || token.hasEnded()) {
+            throw new InternalApplicationException("Unable to find active token " + tokenId + " in process " + process.getId());
+        }
+        if (token.hasActiveChild()) {
+            throw new InternalApplicationException(
+                    "Token " + tokenId + " has active children " + Arrays.toString(token.getActiveChildren(true).toArray()));
+        }
+        ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+        if (!executionContext.getNotEndedSubprocesses().isEmpty()) {
+            throw new InternalApplicationException("Token " + tokenId + " is a parent for an active subprocess");
+        }
+        Node newNode = getDestinationNode(processDefinition, nodeId);
+        if (!(newNode instanceof EmbeddedSubprocessStartNode) && !newNode.getProcessDefinition().getName()
+                .equals(processDefinition.getNodeNotNull(token.getNodeId()).getProcessDefinition().getName())) {
+            throw new InternalApplicationException("Token can be moved only within one schema");
+        }
+        if (newNode instanceof ParallelGateway) {
+            throw new InternalApplicationException("Token cannot be moved to a parallel gateway");
+        }
+        String oldNodeId = token.getNodeId();
+        String oldNodeName = token.getNodeName();
+        executionContext.getNode().cancel(executionContext);
+        newNode.enter(executionContext);
+        AdminActionLog oldNodeLog = new AdminActionLog(user.getActor(), AdminActionLog.ACTION_MOVE_TOKEN, token, oldNodeName, newNode.getName());
+        oldNodeLog.setNodeId(oldNodeId);
+        processLogDao.addLog(oldNodeLog, process, token);
+        AdminActionLog newNodeLog = new AdminActionLog(user.getActor(), AdminActionLog.ACTION_MOVE_TOKEN, token, oldNodeName, newNode.getName());
+        newNodeLog.setNodeId(nodeId);
+        processLogDao.addLog(newNodeLog, process, token);
+    }
+
+    public void createToken(User user, Long processId, String nodeId) {
+        if (!executorDao.isAdministrator(user.getActor())) {
+            throw new AuthorizationException("Only administrator can create token");
+        }
+        Process process = processDao.getNotNull(processId);
+        ProcessDefinition processDefinition = getDefinition(process);
+        Node node = getDestinationNode(processDefinition, nodeId);
+        Token token;
+        if (node instanceof ParallelGateway) {
+            throw new InternalApplicationException("Token cannot be created in a parallel gateway");
+        } else if (node instanceof StartNode || !(node.getProcessDefinition() instanceof SubprocessDefinition)) {
+            token = new Token(processDefinition, process);
+        } else {
+            SubprocessNode subprocessNode = ((SubprocessDefinition) node.getProcessDefinition()).getStartStateNotNull().getSubprocessNode();
+            if (subprocessNode.isTransactional()) {
+                throw new InternalApplicationException("Unable to create token in transaction subprocess");
+            }
+            List<Token> subprocessNodeTokens = tokenDao.findByProcessAndNodeIdAndExecutionStatus(process, subprocessNode.getNodeId(),
+                    ExecutionStatus.ACTIVE);
+            if (subprocessNodeTokens.isEmpty()) {
+                throw new InternalApplicationException("Embedded subprocess must be active");
+            }
+            token = new Token(subprocessNodeTokens.get(0), nodeId);
+        }
+        tokenDao.create(token);
+        if (process.hasEnded()) {
+            token.setEndDate(new Date());
+            token.setNodeId(nodeId);
+            RestoreProcessStatus status = restoreProcess(user, processId);
+            if (status != RestoreProcessStatus.OK) {
+                tokenDao.delete(token.getId());
+                throw new InternalApplicationException("Unable to restore process");
+            }
+        } else {
+            ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+            node.enter(executionContext);
+        }
+        AdminActionLog adminActionLog = new AdminActionLog(user.getActor(), AdminActionLog.ACTION_CREATE_TOKEN, token, token.getNodeName());
+        adminActionLog.setNodeId(nodeId);
+        processLogDao.addLog(adminActionLog, process, token);
+    }
+
+    private Node getDestinationNode(ProcessDefinition processDefinition, String nodeId) {
+        Node node = processDefinition.getNodeNotNull(nodeId);
+        if (node instanceof TextAnnotation || node instanceof DataStore) {
+            throw new InternalApplicationException("Unable to create token in the annotation or data store node");
+        }
+        if (node.getClass() == StartNode.class) {
+            throw new InternalApplicationException("Unable to create token in the start node of the main process");
+        }
+        return node;
+    }
+
+    public void removeTokens(User user, Long processId, List<Long> tokenIds) {
+        if (!executorDao.isAdministrator(user.getActor())) {
+            throw new AuthorizationException("Only administrator can delete tokens");
+        }
+        Process process = processDao.getNotNull(processId);
+        ProcessDefinition processDefinition = getDefinition(process);
+        // child tokens will be removed first
+        Collections.sort(tokenIds, Collections.reverseOrder());
+        List<Token> tokens = new ArrayList<>();
+        for (Long tokenId : tokenIds) {
+            Token token = tokenDao.getNotNull(tokenId);
+            tokens.add(token);
+            if (token.hasActiveChild()) {
+                List<Long> childTokenIds = new ArrayList<>();
+                for (Token childToken : token.getActiveChildren(true)) {
+                    childTokenIds.add(childToken.getId());
+                }
+                if (!tokenIds.containsAll(childTokenIds)) {
+                    childTokenIds.removeAll(tokenIds);
+                    throw new InternalApplicationException(
+                            "Token " + token.getId() + " cannot be deleted while tokens " + Arrays.toString(childTokenIds.toArray()) + " are active");
+                }
+            }
+        }
+        for (Token token : tokens) {
+            ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+            Node node = token.getNodeNotNull(processDefinition);
+            node.cancel(executionContext);
+            token.end(processDefinition, null, TaskCompletionInfo.createForHandler("cancel"), false);
+            processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_REMOVE_TOKEN, token), token.getProcess(), token);
+            if (token == process.getRootToken()) {
+                process.end(executionContext, user.getActor());
+                tokenIds.remove(token.getId());
+                continue;
+            }
+            List<Process> subprocesses = executionContext.getTokenSubprocesses();
+            if (!subprocesses.isEmpty()) {
+                for (Process subprocess : subprocesses) {
+                    ExecutionContext subprocessExecutionContext = new ExecutionContext(getDefinition(subprocess), subprocess);
+                    subprocess.end(subprocessExecutionContext, user.getActor());
+                }
+                tokenIds.remove(token.getId());
+            }
+        }
+        tokens.clear();
+        tokenDao.delete(tokenIds);
+        if (tokenDao.findByProcessAndExecutionStatusIsNotEnded(process).isEmpty()) {
+            ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
+            process.end(executionContext, user.getActor());
+        }
     }
 
     public RestoreProcessStatus restoreProcess(User user, Long processId) throws ProcessDoesNotExistException {

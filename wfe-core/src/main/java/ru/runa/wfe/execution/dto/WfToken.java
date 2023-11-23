@@ -27,6 +27,8 @@ import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.dto.WfNode;
+import ru.runa.wfe.security.SecuredObjectBase;
+import ru.runa.wfe.security.SecuredObjectType;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
@@ -35,7 +37,7 @@ import com.google.common.base.Objects;
  * @since 4.3.0
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public class WfToken implements Serializable {
+public class WfToken extends SecuredObjectBase implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long parentId;
     private Long id;
@@ -70,6 +72,7 @@ public class WfToken implements Serializable {
         return parentId;
     }
 
+    @Override
     public Long getId() {
         return id;
     }
@@ -126,6 +129,11 @@ public class WfToken implements Serializable {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).add("id", id).add("name", name).toString();
+    }
+
+    @Override
+    public SecuredObjectType getSecuredObjectType() {
+        return SecuredObjectType.TOKENS;
     }
 
 }

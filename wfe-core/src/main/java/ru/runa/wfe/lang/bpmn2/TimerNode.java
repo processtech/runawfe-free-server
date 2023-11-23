@@ -89,6 +89,12 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
     }
 
     @Override
+    public void cancel(ExecutionContext executionContext) {
+        super.cancel(executionContext);
+        cancelBoundaryEvent(executionContext.getToken());
+    }
+
+    @Override
     public TaskCompletionInfo getTaskCompletionInfoIfInterrupting(ExecutionContext executionContext) {
         return TaskCompletionInfo.createForTimer(getLeavingTransitions().get(0).getName());
     }

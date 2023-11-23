@@ -85,6 +85,8 @@ public class BatchPresentationConsts {
 
     public static final String ID_SYSTEM_LOGS = "listSystemLogsForm";
 
+    public static final String ID_TOKENS = "listTokensForm";
+
     public static final String ID_TOKEN_ERRORS = "listTokenErrorsForm";
 
     public static final String ID_CHAT_ROOMS = "listChatRoomsForm";

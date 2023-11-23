@@ -54,6 +54,7 @@
 		<form-bean name="deployDataSourceForm" type="ru.runa.af.web.form.DeployDataSourceForm" />
 		<form-bean name="changeDataSourcePasswordForm" type="ru.runa.af.web.form.ChangeDataSourcePasswordForm" />
 		<form-bean name="sendProcessSignalForm" type="ru.runa.wf.web.form.SendProcessSignalForm" />
+		<form-bean name="moveTokenForm" type="ru.runa.wf.web.form.MoveTokenForm" />
 	</form-beans>
 
 	<!-- ========== Global Exceptions Definitions =================================== -->
@@ -867,6 +868,24 @@
 
 		<action path="/chat_rooms" type="ru.runa.common.web.action.TabHeaderForwardAction"
 				parameter="/WEB-INF/wf/chat_rooms.jsp" />
+
+		<action path="/manage_process_execution" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/manage_process_execution.jsp" />
+		<action path="/moveToken" type="ru.runa.wf.web.action.MoveTokenAction"
+			name="moveTokenForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failure" path="/manage_process_execution.do" redirect="true" />
+		</action>
+		<action path="/createToken" type="ru.runa.wf.web.action.CreateTokenAction"
+			name="idNameForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_process_execution.do" redirect="true" />
+			<forward name="failure" path="/manage_process_execution.do" redirect="true" />
+		</action>
+		<action path="/removeTokens" type="ru.runa.wf.web.action.RemoveTokensAction"
+			name="idsForm"  scope="request" unknown="false" validate="false" >
+			<forward name="success" path="/manage_process_execution.do" redirect="true" />
+			<forward name="failure" path="/manage_process_execution.do" redirect="true" />
+		</action>
 
 	</action-mappings>
 

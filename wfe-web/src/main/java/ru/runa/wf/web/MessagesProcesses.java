@@ -31,6 +31,10 @@ public final class MessagesProcesses {
     public static final StrutsMessage TITLE_VIEW_ONLY = new StrutsMessage("title.task_view_only");
     public static final StrutsMessage TITLE_PROCESS_GRAPH = new StrutsMessage("title.process_graph");
     public static final StrutsMessage TITLE_HISTORY = new StrutsMessage("title.history");
+    public static final StrutsMessage TITLE_TOKENS = new StrutsMessage("title.tokens");
+    public static final StrutsMessage TITLE_MOVE_TOKEN = new StrutsMessage("title.move_token");
+    public static final StrutsMessage BUTTON_MOVE = new StrutsMessage("button.move");
+    public static final StrutsMessage TITLE_CREATE_TOKEN = new StrutsMessage("title.create_token");
     public static final StrutsMessage LABEL_REDEPLOY_PROCESS_DEFINIION = new StrutsMessage("label.redeploy_process_definition");
     public static final StrutsMessage LABEL_SHOW_DEPLOY_DEFINITION_CONTROLS = new StrutsMessage("label.show_deploy_definition_controls");
     public static final StrutsMessage LABEL_HIDE_DEPLOY_DEFINITION_CONTROLS = new StrutsMessage("label.hide_deploy_definition_controls");

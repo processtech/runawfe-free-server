@@ -402,11 +402,14 @@ public class Token implements Serializable {
     }
 
     @Transient
-    public List<Token> getActiveChildren() {
+    public List<Token> getActiveChildren(boolean recursive) {
         List<Token> activeChildren = Lists.newArrayList();
         for (Token child : getChildren()) {
             if (!child.hasEnded()) {
                 activeChildren.add(child);
+            }
+            if (recursive) {
+                activeChildren.addAll(child.getActiveChildren(recursive));
             }
         }
         return activeChildren;

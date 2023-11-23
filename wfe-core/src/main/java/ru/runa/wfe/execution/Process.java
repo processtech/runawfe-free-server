@@ -54,6 +54,7 @@ import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.extension.ProcessEndHandler;
 import ru.runa.wfe.job.dao.JobDao;
@@ -232,8 +233,11 @@ public class Process extends SecuredObjectBase {
         }
 
         TaskCompletionInfo taskCompletionInfo = TaskCompletionInfo.createForProcessEnd(id);
-        // end the main path of execution
-        rootToken.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, true, executionContext.getTransientVariables());
+        TokenDao tokenDao = ApplicationContextFactory.getTokenDAO();
+        List<Token> tokens = tokenDao.findByProcessIdAndParentIsNull(id);
+        for (Token token : tokens) {
+            token.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, true, executionContext.getTransientVariables());
+        }
         // mark this process as ended
         setEndDate(new Date());
         setExecutionStatus(ExecutionStatus.ENDED);

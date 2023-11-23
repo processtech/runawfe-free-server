@@ -391,4 +391,26 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public Set<Executor> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups) {
         return executionLogic.getAllExecutorsByProcessId(user, processId, expandGroups);
     }
+
+    @Override
+    @WebResult(name = "result")
+    public void moveToken(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
+            @WebParam(name = "tokenId") @NonNull Long tokenId, @WebParam(name = "nodeId") @NonNull String nodeId) {
+        executionLogic.moveToken(user, processId, tokenId, nodeId);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public void createToken(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
+            @WebParam(name = "nodeId") @NonNull String nodeId) {
+        executionLogic.createToken(user, processId, nodeId);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public void removeTokens(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
+            @WebParam(name = "tokenIds") List<Long> tokenIds) {
+        executionLogic.removeTokens(user, processId, tokenIds);
+    }
+
 }

@@ -40,6 +40,7 @@ import ru.runa.wfe.execution.logic.TokenNodeNameExtractor;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
+import ru.runa.wfe.task.TaskCompletionInfo;
 
 public abstract class Node extends GraphElement {
     private static final long serialVersionUID = 1L;
@@ -249,6 +250,10 @@ public abstract class Node extends GraphElement {
      * override this method to customize the node behavior.
      */
     public void cancel(ExecutionContext executionContext) {
+        List<Token> activeTokens = executionContext.getToken().getActiveChildren(true);
+        for (Token token : activeTokens) {
+            token.end(executionContext.getProcessDefinition(), null, TaskCompletionInfo.createForHandler("cancel"), false);
+        }
     }
 
     /**
@@ -328,7 +333,7 @@ public abstract class Node extends GraphElement {
     public void endBoundaryEventTokens(ExecutionContext executionContext) {
         if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessStartNode)) {
             List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
-            List<Token> activeTokens = executionContext.getToken().getActiveChildren();
+            List<Token> activeTokens = executionContext.getToken().getActiveChildren(false);
             log.debug("Ending boundary event tokens " + activeTokens + " for " + boundaryEvents);
             for (Token token : activeTokens) {
                 Node node = token.getNodeNotNull(executionContext.getProcessDefinition());
