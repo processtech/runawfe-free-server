@@ -69,11 +69,13 @@ public class ErrorDetailsAction extends ActionBase {
                 }
             } else if ("getTokenErrorStackTrace".equals(action)) {
                 Long tokenId = Long.valueOf(request.getParameter("tokenId"));
-                WfTokenError tokenError = Delegates.getSystemService().getTokenError(getLoggedUser(request), tokenId);
+                Long processId = Long.valueOf(request.getParameter("processId"));
+                String errorStackTrace = Delegates.getSystemService().getTokenErrorStackTrace(getLoggedUser(request),
+                        tokenId);
                 String html = "<form id='supportForm'>";
-                html += "<input type='hidden' name='processId' value='" + tokenError.getProcessId() + "' />";
+                html += "<input type='hidden' name='processId' value='" + processId + "' />";
                 html += "</form>";
-                html += StringEscapeUtils.escapeHtml(tokenError.getStackTrace());
+                html += StringEscapeUtils.escapeHtml(errorStackTrace);
                 rootObject.put(HTML, html);
             } else if ("deleteSystemError".equals(action)) {
                 SystemErrors.removeError(form.getName());
@@ -117,7 +119,8 @@ public class ErrorDetailsAction extends ActionBase {
                             exceptions.append("\r\n").append(CalendarUtil.formatDateTime(error.getErrorDate())).append(" ");
                             exceptions.append(error.getNodeId()).append("/").append(error.getNodeName()).append("\r\n");
                             exceptions.append(HtmlEscapers.htmlEscaper().escape(error.getErrorMessage())).append("\r\n");
-                            exceptions.append(error.getStackTrace());
+                            String errorStackTrace = Delegates.getSystemService().getTokenErrorStackTrace(getLoggedUser(request), error.getId());
+                            exceptions.append(errorStackTrace);
                         }
                         processFiles.put("exceptions." + processId + ".txt", exceptions.toString().getBytes(Charsets.UTF_8));
                     }

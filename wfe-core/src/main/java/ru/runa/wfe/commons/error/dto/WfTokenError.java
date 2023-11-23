@@ -29,9 +29,9 @@ public class WfTokenError extends SecuredObjectBase {
     private Date nodeEnterDate;
     private Date errorDate;
     private String errorMessage;
-    private String stackTrace;
 
-    public WfTokenError(Token token, String stackTrace) {
+
+    public WfTokenError(Token token) {
         this.id = token.getId();
         this.processId = token.getProcess().getId();
         ProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader()
@@ -46,7 +46,6 @@ public class WfTokenError extends SecuredObjectBase {
         this.nodeEnterDate = token.getNodeEnterDate();
         this.errorDate = token.getErrorDate();
         this.errorMessage = token.getErrorMessage();
-        this.stackTrace = stackTrace;
     }
 
     @Override
