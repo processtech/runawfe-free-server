@@ -56,6 +56,7 @@ public abstract class TaskLog extends ProcessLog {
         setNodeId(startNode.getNodeId());
         addAttribute(ATTR_TASK_ID, String.valueOf(-1 * process.getId()));
         addAttribute(ATTR_TASK_NAME, startNode.getName());
+        addAttribute(ATTR_SWIMLANE_NAME, startNode.getFirstTaskNotNull().getSwimlane().getName());
         setSeverity(Severity.INFO);
     }
 
