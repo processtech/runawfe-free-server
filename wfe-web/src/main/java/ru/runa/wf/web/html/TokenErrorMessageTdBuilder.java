@@ -22,10 +22,8 @@ public class TokenErrorMessageTdBuilder implements TdBuilder {
             return tokenError.getErrorMessage();
         }
         String message = StringEscapeUtils.escapeHtml(tokenError.getErrorMessage());
-        if (tokenError.getStackTrace() != null) {
-            return String.format("<a href=\"javascript:showTokenErrorStackTrace(%s)\">%s</a>", tokenError.getId(), message);
-        }
-        return message;
+        return String.format("<a href=\"javascript:showTokenErrorStackTrace(%s, %s)\">%s</a>", tokenError.getId(), tokenError.getProcessId(),
+                message);
     }
 
     @Override

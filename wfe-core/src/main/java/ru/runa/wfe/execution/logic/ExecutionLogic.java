@@ -497,7 +497,7 @@ public class ExecutionLogic extends WfCommonLogic {
         List<Token> tokens = getPersistentObjects(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES, true);
         List<WfTokenError> errors = Lists.newArrayListWithExpectedSize(tokens.size());
         for (Token token : tokens) {
-            errors.add(new WfTokenError(token, getStackTrace(token)));
+            errors.add(new WfTokenError(token));
         }
         return errors;
     }
@@ -509,17 +509,13 @@ public class ExecutionLogic extends WfCommonLogic {
             throw new ProcessDoesNotExistException(processId);
         }
         for (Token token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
-            errors.add(new WfTokenError(token, getStackTrace(token)));
+            errors.add(new WfTokenError(token));
         }
         return errors;
     }
 
-    public WfTokenError getTokenError(User user, Long tokenId) {
+    public String getTokenErrorStackTrace(User user, Long tokenId) {
         Token token = tokenDao.get(tokenId);
-        return new WfTokenError(token, getStackTrace(token));
-    }
-
-    private String getStackTrace(Token token) {
         ProcessLogFilter filter = new ProcessLogFilter(token.getProcess().getId());
         filter.setTokenId(token.getId());
         filter.setNodeId(token.getNodeId());
@@ -527,9 +523,9 @@ public class ExecutionLogic extends WfCommonLogic {
         List<ProcessLog> nodeErrorLogs = processLogDao.getAll(filter);
         if (!nodeErrorLogs.isEmpty()) {
             ProcessLog lastLog = nodeErrorLogs.get(nodeErrorLogs.size() - 1);
-            return lastLog.getBytes() != null ? new String(lastLog.getBytes()) : null;
+            return lastLog.getBytes() != null ? new String(lastLog.getBytes()) : "";
         }
-        return null;
+        return "";
     }
 
     public int getTokenErrorsCount(User user, BatchPresentation batchPresentation) {

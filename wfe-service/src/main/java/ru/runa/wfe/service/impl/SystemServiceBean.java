@@ -134,6 +134,12 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
 
     @Override
     @WebMethod(exclude = true)
+    public String getTokenErrorStackTrace(@NonNull User user, Long tokenId) {
+        return executionLogic.getTokenErrorStackTrace(user, tokenId);
+    }
+
+    @Override
+    @WebMethod(exclude = true)
     public int getTokenErrorsCount(User user, BatchPresentation batchPresentation) {
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.TOKEN_ERRORS.createDefault();
@@ -145,11 +151,6 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     @WebResult(name = "result")
     public List<WfTokenError> getTokenErrorsByProcessId(@NonNull User user, @NonNull Long processId) {
         return executionLogic.getTokenErrors(user, processId);
-    }
-
-    @Override
-    public WfTokenError getTokenError(User user, Long tokenId) {
-        return executionLogic.getTokenError(user, tokenId);
     }
 
     @Override

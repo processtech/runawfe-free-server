@@ -48,13 +48,14 @@ function deleteSystemError(element, message) {
     });
 }
 
-function showTokenErrorStackTrace(tokenId) {
+function showTokenErrorStackTrace(tokenId, processId) {
 	$.ajax({
 		dataType: "json",
 		url: "/wfe/error_details.do",
 		data: {
 			action: "getTokenErrorStackTrace",
-			tokenId: tokenId
+			tokenId: tokenId,
+			processId: processId
 		},
 		success: function(data) {
 			$("#errorDetailsDiv").html("<pre>" + data.html + "</pre>");
