@@ -29,6 +29,7 @@ import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ProcessGraphImageAction;
 import ru.runa.wf.web.form.TaskIdForm;
+import ru.runa.wf.web.html.GraphElementPresentationHelper;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.security.Permission;
@@ -41,6 +42,7 @@ public class ProcessGraphFormTag extends ProcessBaseFormTag {
     private Long taskId;
     private Long childProcessId;
     private String subprocessId;
+    private String graphMode;
 
     public ProcessGraphFormTag() {
         this.id = "processGraph";
@@ -73,6 +75,11 @@ public class ProcessGraphFormTag extends ProcessBaseFormTag {
         this.subprocessId = subprocessId;
     }
 
+    @Attribute(required = false, rtexprvalue = true)
+    public void setGraphMode(String graphMode) {
+        this.graphMode = graphMode;
+    }
+
     @Override
     protected void fillFormData(TD td) {
         Map<String, Object> params = Maps.newHashMap();
@@ -86,11 +93,19 @@ public class ProcessGraphFormTag extends ProcessBaseFormTag {
         img.setSrc(href);
         img.setBorder(0);
         List<NodeGraphElement> elements = Delegates.getExecutionService().getProcessDiagramElements(getUser(), getIdentifiableId(), subprocessId);
-        ProcessNodeGraphElementVisitor visitor = new ProcessNodeGraphElementVisitor(getUser(), pageContext, td, subprocessId);
-        visitor.visit(elements);
-        if (!visitor.getPresentationHelper().getMap().isEmpty()) {
-            td.addElement(visitor.getPresentationHelper().getMap());
-            img.setUseMap("#" + visitor.getPresentationHelper().getMapName());
+        GraphElementPresentationHelper helper;
+        if ("Select".equals(graphMode)) {
+            SelectNodeGraphElementVisitor visitor = new SelectNodeGraphElementVisitor(pageContext, td, subprocessId);
+            visitor.visit(elements);
+            helper = visitor.getPresentationHelper();
+        } else {
+            ProcessNodeGraphElementVisitor visitor = new ProcessNodeGraphElementVisitor(getUser(), pageContext, td, subprocessId);
+            visitor.visit(elements);
+            helper = visitor.getPresentationHelper();
+        }
+        if (!helper.getMap().isEmpty()) {
+            td.addElement(helper.getMap());
+            img.setUseMap("#" + helper.getMapName());
         }
         td.addElement(img);
     }

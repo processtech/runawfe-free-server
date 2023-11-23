@@ -65,6 +65,12 @@ public class BaseReceiveMessageNode extends BaseMessageNode implements BoundaryE
         }
     }
 
+    @Override
+    public void cancel(ExecutionContext executionContext) {
+        super.cancel(executionContext);
+        executionContext.getToken().setMessageSelector(null);
+    }
+
     public void leave(ExecutionContext executionContext, Map<String, Object> map) {
         String swimlaneName = null;
         boolean setSwimlaneValue = true;

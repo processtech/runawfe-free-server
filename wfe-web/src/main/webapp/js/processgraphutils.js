@@ -37,7 +37,7 @@ function showEmbeddedSubprocessDefinition(definitionId, subprocessId, width, hei
 	showImageDialog(src, width, height);
 }
 
-function showEmbeddedSubprocess(processId, subprocessId, width, height) {
+function showEmbeddedSubprocess(processId, subprocessId, width, height, graphMode) {
 	var jsId = getJsessionidValue();
 	var src;
 	if (jsId) {
@@ -45,7 +45,14 @@ function showEmbeddedSubprocess(processId, subprocessId, width, height) {
 	} else {
 		src = "/wfe/process_graph_component.do?id=" + processId + "&subprocessId=" + subprocessId;
 	}
+	if (graphMode) {
+		src = src + "&graphMode=" + graphMode;
+	}
 	showImageDialog(src, width, height);
+}
+
+function showEmbeddedSubprocessInSelectMode(processId, subprocessId, width, height) {
+	showEmbeddedSubprocess(processId, subprocessId, width, height, "Select");
 }
 
 function showEmbeddedSubprocessGraphHistory(processId, subprocessId, width, height) {
@@ -63,6 +70,10 @@ var graphDialogCounter = 0;
 function showImageDialog(src, w, h) {
 	// TODO auto-update with history
 	graphDialogCounter++;
+	if(!w) {
+		w = screen.width*3/4;
+		h = screen.height*3/4;
+	}
 	var graphDialogDivId = "graphDialog" + graphDialogCounter;
 	$.graphDialog = $("<div id='" + graphDialogDivId + "'></div>").dialog({
     	autoOpen: false,

@@ -455,4 +455,32 @@ public interface ExecutionService {
      * @return Actors if expandGroups, otherwise Actors and Groups
      */
     Set<Executor> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups);
+
+    /**
+     * Moves token to another node.
+     *
+     * @param user      authorized user
+     * @param processId process id
+     * @param tokenId   token id
+     * @param nodeId    destination node id
+     */
+    public void moveToken(User user, Long processId, Long tokenId, String nodeId);
+
+    /**
+     * Creates token in specified node.
+     *
+     * @param user      authorized user
+     * @param processId process id
+     * @param nodeId    node id
+     */
+    public void createToken(User user, Long processId, String nodeId);
+
+    /**
+     * Remove tokens by ids.
+     *
+     * @param user      authorized user
+     * @param processId process id
+     * @param tokenIds  token ids
+     */
+    public void removeTokens(User user, Long processId, List<Long> tokenIds);
 }

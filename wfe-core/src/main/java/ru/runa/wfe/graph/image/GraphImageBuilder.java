@@ -24,6 +24,7 @@ import java.awt.Color;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
@@ -136,7 +137,16 @@ public class GraphImageBuilder {
                 transitionFigures.put(transitionFigure, renderHits);
             }
         }
-
+        for (AdminActionLog adminActionLog : logs.getLogs(AdminActionLog.class)) {
+            if (adminActionLog.getPatternName().equals("AdminActionLog." + AdminActionLog.ACTION_MOVE_TOKEN) ||
+                    adminActionLog.getPatternName().equals("AdminActionLog." + AdminActionLog.ACTION_CREATE_TOKEN)) {
+                String nodeId = adminActionLog.getNodeId();
+                AbstractFigure nodeFigure = allNodeFigures.get(nodeId);
+                if (nodeFigure != null && nodeFigure.getNode() instanceof SubprocessNode) {
+                    fillSubprocess(nodeFigure, activeNodeIds);
+                }
+            }
+        }
         fillTasks(logs);
         GraphImage graphImage = new GraphImage(processDefinition, transitionFigures, nodeFigures);
         return graphImage.getImageBytes();

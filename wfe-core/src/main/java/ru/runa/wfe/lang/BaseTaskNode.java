@@ -53,7 +53,8 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
 
     @Override
     public void cancel(ExecutionContext executionContext) {
-        endTokenTasks(executionContext, TaskCompletionInfo.createForHandler("process activation"));
+        super.cancel(executionContext);
+        endTokenTasks(executionContext, TaskCompletionInfo.createForHandler("cancel"));
     }
 
     public void endTokenTasks(ExecutionContext executionContext, TaskCompletionInfo taskCompletionInfo) {

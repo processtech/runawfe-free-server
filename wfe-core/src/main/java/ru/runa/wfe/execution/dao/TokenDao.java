@@ -86,4 +86,9 @@ public class TokenDao extends GenericDao<Token> {
                 .where(t.process.eq(process).and(t.endDate.eq(endDate).or(t.endDate.after(endDate))))
                 .fetch();
     }
+
+    public List<Token> findByProcessIdAndParentIsNull(Long processId) {
+        QToken t = QToken.token;
+        return queryFactory.selectFrom(t).where(t.process.id.eq(processId).and(t.parent.isNull())).fetch();
+    }
 }

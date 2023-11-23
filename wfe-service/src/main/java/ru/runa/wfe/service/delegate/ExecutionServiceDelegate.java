@@ -352,4 +352,31 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
             throw handleException(e);
         }
     }
+
+    @Override
+    public void moveToken(User user, Long processId, Long tokenId, String nodeId) {
+        try {
+            getExecutionService().moveToken(user, processId, tokenId, nodeId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void createToken(User user, Long processId, String nodeId) {
+        try {
+            getExecutionService().createToken(user, processId, nodeId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void removeTokens(User user, Long processId, List<Long> tokenIds) {
+        try {
+            getExecutionService().removeTokens(user, processId, tokenIds);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
 }

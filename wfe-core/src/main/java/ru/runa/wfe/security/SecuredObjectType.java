@@ -139,6 +139,8 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
     
     public static final SecuredObjectType SYSTEM = new SecuredObjectType("SYSTEM", true);
 
+    public static final SecuredObjectType TOKENS = new SecuredObjectType("TOKENS", true);
+
     public static final SecuredObjectType CHAT_ROOMS = new SecuredObjectType("CHAT_ROOMS", false);
 
 }

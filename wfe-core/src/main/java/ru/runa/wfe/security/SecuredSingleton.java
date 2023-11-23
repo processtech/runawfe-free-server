@@ -62,4 +62,5 @@ public final class SecuredSingleton extends SecuredObjectBase {
     public static final SecuredSingleton RELATIONS = new SecuredSingleton(SecuredObjectType.RELATIONS);
     public static final SecuredSingleton REPORTS = new SecuredSingleton(SecuredObjectType.REPORTS);
     public static final SecuredSingleton SYSTEM = new SecuredSingleton(SecuredObjectType.SYSTEM);
+    public static final SecuredSingleton TOKENS = new SecuredSingleton(SecuredObjectType.TOKENS);
 }
