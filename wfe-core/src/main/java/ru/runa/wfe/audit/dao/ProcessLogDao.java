@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.ProcessLogVisitor;
 import ru.runa.wfe.audit.ProcessLogsCleanLog;
 import ru.runa.wfe.audit.QNodeEnterLog;
 import ru.runa.wfe.audit.QProcessLog;
@@ -30,7 +31,7 @@ import ru.runa.wfe.user.User;
 public class ProcessLogDao extends GenericDao<ProcessLog> {
 
     @Autowired
-    private ProcessLogAwareDao customizationDao;
+    private List<ProcessLogVisitor> processLogVisitors;
 
     @Autowired
     protected SystemLogDao systemLogDao;
@@ -129,14 +130,8 @@ public class ProcessLogDao extends GenericDao<ProcessLog> {
         processLog.setCreateDate(new Date());
         processLog.serializeAttributes();
         this.create(processLog);
-        registerInCustomizationDao(processLog, process, token);
-    }
-
-    private void registerInCustomizationDao(ProcessLog processLog, Process process, Token token) {
-        try {
-            customizationDao.addLog(processLog, process, token);
-        } catch (Throwable e) {
-            log.warn("Custom log handler throws exception", e);
+        for (ProcessLogVisitor processLogVisitor : processLogVisitors) {
+            processLog.processBy(processLogVisitor);
         }
     }
 

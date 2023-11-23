@@ -36,9 +36,9 @@ public class TaskFactory {
         task.setIndex(index);
         taskDao.create(task);
         taskDao.flushPendingChanges();
+        task.setSwimlane(swimlane);
         executionContext.addLog(new TaskCreateLog(task));
         taskDefinition.fireEvent(executionContext, ActionEvent.TASK_CREATE);
-        task.setSwimlane(swimlane);
         task.assignExecutor(executionContext, executor != null ? executor : swimlane.getExecutor(), false);
         task.setAsync(isAsync);
         for (TaskExecutionListener listener : SystemProperties.getTaskExecutionListeners()) {

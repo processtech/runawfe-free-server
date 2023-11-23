@@ -48,6 +48,7 @@ public abstract class TaskLog extends ProcessLog {
         if (task.getIndex() != null) {
             addAttribute(ATTR_INDEX, task.getIndex().toString());
         }
+        addAttribute(ATTR_SWIMLANE_NAME, task.getSwimlaneName());
         setSeverity(Severity.INFO);
     }
 
@@ -79,6 +80,11 @@ public abstract class TaskLog extends ProcessLog {
             return Integer.valueOf(taskIndexString);
         }
         return null;
+    }
+
+    @Transient
+    public String getSwimlaneName() {
+        return getAttribute(ATTR_SWIMLANE_NAME);
     }
 
 }

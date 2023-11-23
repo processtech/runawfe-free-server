@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ru.runa.wfe.audit.aggregated.AssignmentHistory;
-import ru.runa.wfe.audit.aggregated.ProcessInstanceAggregatedLog;
+import ru.runa.wfe.audit.aggregated.ProcessAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
