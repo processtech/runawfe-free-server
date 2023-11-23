@@ -18,6 +18,7 @@ public interface Attributes {
     String ATTR_VARIABLE_NAME = "varName";
     String ATTR_TASK_ID = "taskId";
     String ATTR_TASK_NAME = "taskName";
+    String ATTR_SWIMLANE_NAME = "swimlaneName";
     String ATTR_INDEX = "index";
     String ATTR_IS_FILE_VALUE = "fileValue";
     String ATTR_IS_EXECUTOR_VALUE = "executorValue";

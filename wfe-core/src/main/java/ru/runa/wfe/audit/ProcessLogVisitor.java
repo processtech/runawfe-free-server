@@ -2,61 +2,90 @@ package ru.runa.wfe.audit;
 
 public interface ProcessLogVisitor {
 
-    void onProcessStartLog(ProcessStartLog processStartLog);
+    default void onProcessStartLog(ProcessStartLog processStartLog) {
+    }
 
-    void onProcessActivateLog(ProcessActivateLog processActivateLog);
+    default void onProcessActivateLog(ProcessActivateLog processActivateLog) {
+    }
 
-    void onProcessSuspendLog(ProcessSuspendLog processSuspendLog);
+    default void onProcessSuspendLog(ProcessSuspendLog processSuspendLog) {
+    }
 
-    void onProcessEndLog(ProcessEndLog processEndLog);
+    default void onProcessEndLog(ProcessEndLog processEndLog) {
+    }
 
-    void onProcessCancelLog(ProcessCancelLog processCancelLog);
+    default void onProcessCancelLog(ProcessCancelLog processCancelLog) {
+    }
 
-    void onNodeEnterLog(NodeEnterLog nodeEnterLog);
+    default void onNodeEnterLog(NodeEnterLog nodeEnterLog) {
+    }
 
-    void onNodeLeaveLog(NodeLeaveLog nodeLeaveLog);
+    default void onNodeLeaveLog(NodeLeaveLog nodeLeaveLog) {
+    }
 
-    void onNodeErrorLog(NodeErrorLog nodeErrorLog);
+    default void onNodeErrorLog(NodeErrorLog nodeErrorLog) {
+    }
 
-    void onReceiveMessageLog(ReceiveMessageLog receiveMessageLog);
+    default void onReceiveMessageLog(ReceiveMessageLog receiveMessageLog) {
+    }
 
-    void onSendMessageLog(SendMessageLog sendMessageLog);
+    default void onSendMessageLog(SendMessageLog sendMessageLog) {
+    }
 
-    void onSubprocessStartLog(SubprocessStartLog subprocessStartLog);
+    default void onSubprocessStartLog(SubprocessStartLog subprocessStartLog) {
+    }
 
-    void onSubprocessEndLog(SubprocessEndLog subprocessEndLog);
+    default void onSubprocessEndLog(SubprocessEndLog subprocessEndLog) {
+    }
 
-    void onActionLog(ActionLog actionLog);
+    default void onActionLog(ActionLog actionLog) {
+    }
 
-    void onCreateTimerLog(CreateTimerLog createTimerLog);
+    default void onCreateTimerLog(CreateTimerLog createTimerLog) {
+    }
 
-    void onTaskCreateLog(TaskCreateLog taskCreateLog);
+    default void onTaskCreateLog(TaskCreateLog taskCreateLog) {
+    }
 
-    void onTaskAssignLog(TaskAssignLog taskAssignLog);
+    default void onTaskAssignLog(TaskAssignLog taskAssignLog) {
+    }
 
-    void onTaskEndLog(TaskEndLog taskEndLog);
+    default void onTaskEndLog(TaskEndLog taskEndLog) {
+    }
 
-    void onTaskEscalationLog(TaskEscalationLog taskEscalationLog);
+    default void onTaskEscalationLog(TaskEscalationLog taskEscalationLog) {
+    }
 
-    void onTaskDelegaionLog(TaskDelegationLog taskDelegationLog);
+    default void onTaskDelegaionLog(TaskDelegationLog taskDelegationLog) {
+    }
 
-    void onTaskEndBySubstitutorLog(TaskEndBySubstitutorLog taskEndBySubstitutorLog);
+    default void onTaskEndBySubstitutorLog(TaskEndBySubstitutorLog taskEndBySubstitutorLog) {
+    }
 
-    void onTaskEndByAdminLog(TaskEndByAdminLog taskEndByAdminLog);
+    default void onTaskEndByAdminLog(TaskEndByAdminLog taskEndByAdminLog) {
+    }
 
-    void onTaskCancelledLog(TaskCancelledLog taskCancelledLog);
+    default void onTaskCancelledLog(TaskCancelledLog taskCancelledLog) {
+    }
 
-    void onSwimlaneAssignLog(SwimlaneAssignLog swimlaneAssignLog);
+    default void onSwimlaneAssignLog(SwimlaneAssignLog swimlaneAssignLog) {
+    }
 
-    void onTransitionLog(TransitionLog transitionLog);
+    default void onTransitionLog(TransitionLog transitionLog) {
+    }
 
-    void onVariableCreateLog(VariableCreateLog variableCreateLog);
+    default void onVariableCreateLog(VariableCreateLog variableCreateLog) {
+    }
 
-    void onVariableDeleteLog(VariableDeleteLog variableDeleteLog);
+    default void onVariableDeleteLog(VariableDeleteLog variableDeleteLog) {
+    }
 
-    void onVariableUpdateLog(VariableUpdateLog variableUpdateLog);
+    default void onVariableUpdateLog(VariableUpdateLog variableUpdateLog) {
+    }
 
-    void onAdminActionLog(AdminActionLog adminActionLog);
+    default void onAdminActionLog(AdminActionLog adminActionLog) {
+    }
 
-    void onNodeInfoLog(NodeInfoLog nodeInfoLog);
+    default void onNodeInfoLog(NodeInfoLog nodeInfoLog) {
+    }
 }

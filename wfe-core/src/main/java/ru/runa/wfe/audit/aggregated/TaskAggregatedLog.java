@@ -27,12 +27,6 @@ import org.hibernate.annotations.Index;
 import org.hibernate.annotations.IndexColumn;
 import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.TaskCreateLog;
-import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.lang.InteractionNode;
-import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.TaskDefinition;
 
 @Entity
 @Table(name = "BPM_AGGLOG_TASKS")
@@ -103,7 +97,7 @@ public class TaskAggregatedLog {
         super();
     }
 
-    public TaskAggregatedLog(TaskCreateLog taskCreateLog, ProcessDefinitionLoader processDefinitionLoader, Process process, Token token) {
+    public TaskAggregatedLog(TaskCreateLog taskCreateLog) {
         taskId = taskCreateLog.getTaskId();
         processId = taskCreateLog.getProcessId();
         createDate = taskCreateLog.getCreateDate();
@@ -112,13 +106,7 @@ public class TaskAggregatedLog {
         nodeId = taskCreateLog.getNodeId();
         taskName = taskCreateLog.getTaskName();
         taskIndex = taskCreateLog.getTaskIndex();
-        Node node = processDefinitionLoader.getDefinition(process).getNode(taskCreateLog.getNodeId());
-        if (node != null && node instanceof InteractionNode) {
-            List<TaskDefinition> tasks = ((InteractionNode) node).getTasks();
-            if (tasks != null && !tasks.isEmpty() && tasks.get(0).getSwimlane() != null) {
-                swimlaneName = tasks.get(0).getSwimlane().getName();
-            }
-        }
+        swimlaneName = taskCreateLog.getSwimlaneName();
         endReason = EndReason.PROCESSING;
     }
 

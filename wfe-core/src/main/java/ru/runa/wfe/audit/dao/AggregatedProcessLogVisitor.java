@@ -1,38 +1,24 @@
 package ru.runa.wfe.audit.dao;
 
 import org.hibernate.SessionFactory;
-import ru.runa.wfe.audit.ActionLog;
-import ru.runa.wfe.audit.AdminActionLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.audit.NodeEnterLog;
-import ru.runa.wfe.audit.NodeErrorLog;
-import ru.runa.wfe.audit.NodeInfoLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
-import ru.runa.wfe.audit.ProcessActivateLog;
 import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.audit.ProcessLogVisitor;
 import ru.runa.wfe.audit.ProcessStartLog;
-import ru.runa.wfe.audit.ProcessSuspendLog;
 import ru.runa.wfe.audit.ReceiveMessageLog;
-import ru.runa.wfe.audit.SendMessageLog;
-import ru.runa.wfe.audit.SubprocessEndLog;
-import ru.runa.wfe.audit.SubprocessStartLog;
-import ru.runa.wfe.audit.SwimlaneAssignLog;
 import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.TaskCancelledLog;
 import ru.runa.wfe.audit.TaskCreateLog;
-import ru.runa.wfe.audit.TaskDelegationLog;
 import ru.runa.wfe.audit.TaskEndByAdminLog;
 import ru.runa.wfe.audit.TaskEndBySubstitutorLog;
 import ru.runa.wfe.audit.TaskEndLog;
-import ru.runa.wfe.audit.TaskEscalationLog;
-import ru.runa.wfe.audit.TransitionLog;
-import ru.runa.wfe.audit.VariableCreateLog;
-import ru.runa.wfe.audit.VariableDeleteLog;
-import ru.runa.wfe.audit.VariableUpdateLog;
-import ru.runa.wfe.audit.aggregated.ProcessInstanceAggregatedLog;
-import ru.runa.wfe.audit.aggregated.QProcessInstanceAggregatedLog;
+import ru.runa.wfe.audit.aggregated.ProcessAggregatedLog;
+import ru.runa.wfe.audit.aggregated.QProcessAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QSignalListenerAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QTaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QTimerAggregatedLog;
@@ -41,49 +27,28 @@ import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog.EndReason;
 import ru.runa.wfe.audit.aggregated.TimerAggregatedLog;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
-import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.BaseReceiveMessageNode;
 import ru.runa.wfe.lang.NodeType;
 
-public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
+@Component
+public class AggregatedProcessLogVisitor implements ProcessLogVisitor {
 
-    private final SessionFactory sessionFactory;
-    private final HibernateQueryFactory queryFactory;
-    private final Process process;
-    private final Token token;
-    private final ProcessDefinitionLoader processDefinitionLoader;
-
-    public UpdateAggregatedLogOperation(SessionFactory sessionFactory, HibernateQueryFactory queryFactory,
-            ProcessDefinitionLoader processDefinitionLoader,
-            Process process, Token token) {
-        this.sessionFactory = sessionFactory;
-        this.queryFactory = queryFactory;
-        this.processDefinitionLoader = processDefinitionLoader;
-        this.process = process;
-        this.token = token;
-    }
+    @Autowired
+    private SessionFactory sessionFactory;
+    @Autowired
+    private HibernateQueryFactory queryFactory;
 
     @Override
     public void onProcessStartLog(ProcessStartLog processStartLog) {
         if (getProcessInstanceLog(processStartLog.getProcessId()) != null) {
             return;
         }
-        sessionFactory.getCurrentSession().save(new ProcessInstanceAggregatedLog(processStartLog, process, token));
-    }
-
-    @Override
-    public void onProcessActivateLog(ProcessActivateLog processActivateLog) {
-    }
-
-    @Override
-    public void onProcessSuspendLog(ProcessSuspendLog processSuspendLog) {
+        sessionFactory.getCurrentSession().save(new ProcessAggregatedLog(processStartLog));
     }
 
     @Override
     public void onProcessEndLog(ProcessEndLog processEndLog) {
-        ProcessInstanceAggregatedLog logEntry = getProcessInstanceLog(processEndLog.getProcessId());
+        ProcessAggregatedLog logEntry = getProcessInstanceLog(processEndLog.getProcessId());
         if (logEntry == null) {
             return;
         }
@@ -93,7 +58,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
 
     @Override
     public void onProcessCancelLog(ProcessCancelLog processCancelLog) {
-        ProcessInstanceAggregatedLog logEntry = getProcessInstanceLog(processCancelLog.getProcessId());
+        ProcessAggregatedLog logEntry = getProcessInstanceLog(processCancelLog.getProcessId());
         if (logEntry == null) {
             return;
         }
@@ -124,10 +89,6 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     }
 
     @Override
-    public void onNodeErrorLog(NodeErrorLog nodeErrorLog) {
-    }
-
-    @Override
     public void onReceiveMessageLog(ReceiveMessageLog receiveMessageLog) {
         QSignalListenerAggregatedLog l = QSignalListenerAggregatedLog.signalListenerAggregatedLog;
         SignalListenerAggregatedLog logEntry = queryFactory.selectFrom(l)
@@ -141,22 +102,6 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     }
 
     @Override
-    public void onSendMessageLog(SendMessageLog sendMessageLog) {
-    }
-
-    @Override
-    public void onSubprocessStartLog(SubprocessStartLog subprocessStartLog) {
-    }
-
-    @Override
-    public void onSubprocessEndLog(SubprocessEndLog subprocessEndLog) {
-    }
-
-    @Override
-    public void onActionLog(ActionLog actionLog) {
-    }
-
-    @Override
     public void onCreateTimerLog(CreateTimerLog createTimerLog) {
         sessionFactory.getCurrentSession().save(new TimerAggregatedLog(createTimerLog));
     }
@@ -166,7 +111,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
         if (getTaskLog(taskCreateLog.getTaskId()) != null) {
             return;
         }
-        sessionFactory.getCurrentSession().save(new TaskAggregatedLog(taskCreateLog, processDefinitionLoader, process, token));
+        sessionFactory.getCurrentSession().save(new TaskAggregatedLog(taskCreateLog));
     }
 
     @Override
@@ -185,14 +130,6 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     }
 
     @Override
-    public void onTaskEscalationLog(TaskEscalationLog taskEscalationLog) {
-    }
-
-    @Override
-    public void onTaskDelegaionLog(TaskDelegationLog taskDelegationLog) {
-    }
-
-    @Override
     public void onTaskEndBySubstitutorLog(TaskEndBySubstitutorLog taskEndBySubstitutorLog) {
         onTaskEnd(taskEndBySubstitutorLog, EndReason.SUBSTITUTOR_END);
     }
@@ -207,40 +144,12 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
         onTaskEnd(taskCancelledLog, taskCancelledLog.getActorName() == null ? EndReason.CANCELLED : EndReason.COMPLETED);
     }
 
-    @Override
-    public void onSwimlaneAssignLog(SwimlaneAssignLog swimlaneAssignLog) {
-    }
-
-    @Override
-    public void onTransitionLog(TransitionLog transitionLog) {
-    }
-
-    @Override
-    public void onVariableCreateLog(VariableCreateLog variableCreateLog) {
-    }
-
-    @Override
-    public void onVariableDeleteLog(VariableDeleteLog variableDeleteLog) {
-    }
-
-    @Override
-    public void onVariableUpdateLog(VariableUpdateLog variableUpdateLog) {
-    }
-
-    @Override
-    public void onAdminActionLog(AdminActionLog adminActionLog) {
-    }
-
-    @Override
-    public void onNodeInfoLog(NodeInfoLog nodeInfoLog) {
-    }
-
-    private ProcessInstanceAggregatedLog getProcessInstanceLog(long processId) {
-        QProcessInstanceAggregatedLog l = QProcessInstanceAggregatedLog.processInstanceAggregatedLog;
+    private ProcessAggregatedLog getProcessInstanceLog(Long processId) {
+        QProcessAggregatedLog l = QProcessAggregatedLog.processAggregatedLog;
         return queryFactory.selectFrom(l).where(l.processInstanceId.eq(processId)).fetchFirst();
     }
 
-    private TaskAggregatedLog getTaskLog(long taskId) {
+    private TaskAggregatedLog getTaskLog(Long taskId) {
         QTaskAggregatedLog l = QTaskAggregatedLog.taskAggregatedLog;
         return queryFactory.selectFrom(l).where(l.taskId.eq(taskId)).fetchFirst();
     }
