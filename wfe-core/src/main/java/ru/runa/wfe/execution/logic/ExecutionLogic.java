@@ -18,7 +18,6 @@
 package ru.runa.wfe.execution.logic;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -134,10 +133,11 @@ public class ExecutionLogic extends WfCommonLogic {
     private ProcessDefinitionUpdateManager processDefinitionUpdateManager;
 
     public void cancelProcess(User user, Long processId, String reason) throws ProcessDoesNotExistException {
-        ProcessFilter filter = new ProcessFilter();
-        Preconditions.checkArgument(processId != null);
-        filter.setId(processId);
-        cancelProcesses(user, filter, reason);
+        Process process = processDao.getNotNull(processId);
+        if (SystemProperties.isCheckProcessCancelPermissions()) {
+            permissionDao.checkAllowed(user, Permission.CANCEL, process);
+        }
+        cancelProcess(user, process, reason);
     }
 
     public int getProcessesCount(User user, BatchPresentation batchPresentation) {
@@ -150,7 +150,7 @@ public class ExecutionLogic extends WfCommonLogic {
     }
 
     public void deleteProcesses(User user, ProcessFilter filter) {
-        List<Process> processes = getProcessesInternal(user, filter);
+        List<Process> processes = processDao.getProcesses(filter);
         processes = filterSecuredObject(user, processes, Permission.DELETE);
         for (Process process : processes) {
             deleteProcess(user, process);
@@ -158,19 +158,24 @@ public class ExecutionLogic extends WfCommonLogic {
     }
 
     public void cancelProcesses(User user, ProcessFilter filter, String reason) {
-        List<Process> processes = getProcessesInternal(user, filter);
+        List<Process> processes = processDao.getProcesses(filter);
         if (SystemProperties.isCheckProcessCancelPermissions()) {
             processes = filterSecuredObject(user, processes, Permission.CANCEL);
         }
         for (Process process : processes) {
-            ProcessDefinition processDefinition = getDefinition(process);
-            ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
-            executionContext.setTransientVariable(WfProcess.CANCEL_ACTOR_TRANSIENT_VARIABLE_NAME, user.getActor());
-            executionContext.setTransientVariable(WfProcess.CANCEL_REASON_TRANSIENT_VARIABLE_NAME, reason);
-            process.end(executionContext, user.getActor());
-            log.info(process + " was cancelled by " + user);
+            cancelProcess(user, process, reason);
         }
     }
+
+    private void cancelProcess(User user, Process process, String reason) {
+        ProcessDefinition processDefinition = getDefinition(process);
+        ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
+        executionContext.setTransientVariable(WfProcess.CANCEL_ACTOR_TRANSIENT_VARIABLE_NAME, user.getActor());
+        executionContext.setTransientVariable(WfProcess.CANCEL_REASON_TRANSIENT_VARIABLE_NAME, reason);
+        process.end(executionContext, user.getActor());
+        log.info(process + " was cancelled by " + user);
+    }
+
 
     public WfProcess getProcess(User user, Long id) throws ProcessDoesNotExistException {
         Process process = processDao.getNotNull(id);
@@ -883,12 +888,6 @@ public class ExecutionLogic extends WfCommonLogic {
             result.add(new WfToken(token, processDefinition));
         }
         return result;
-    }
-
-    private List<Process> getProcessesInternal(User user, ProcessFilter filter) {
-        List<Process> processes = processDao.getProcesses(filter);
-        processes = filterSecuredObject(user, processes, Permission.READ);
-        return processes;
     }
 
     private List<WfProcess> toWfProcesses(List<Process> processes, List<String> variableNamesToInclude) {
