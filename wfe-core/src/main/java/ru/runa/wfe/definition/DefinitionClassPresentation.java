@@ -6,7 +6,7 @@ import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDbSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
-import ru.runa.wfe.presentation.filter.AnywhereStringFilterCriteria;
+import ru.runa.wfe.presentation.filter.StringWithEmptyValueFilterCriteria;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Actor;
 
@@ -38,7 +38,7 @@ public class DefinitionClassPresentation extends ClassPresentation {
                         Permission.START_PROCESS, "name" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTdBuilder", new Object[] {}),
-                new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "category"),
+                new FieldDescriptor(TYPE, StringWithEmptyValueFilterCriteria.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "category"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTdBuilder", new Object[] {}),
                 new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "latest.createDate"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionCreateDateTdBuilder", new Object[] {}),
