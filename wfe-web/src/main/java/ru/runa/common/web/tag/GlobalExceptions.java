@@ -18,11 +18,9 @@
 package ru.runa.common.web.tag;
 
 import javax.servlet.jsp.tagext.TagSupport;
-
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMessages;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.ActionExceptionHelper;
 
 /**
@@ -38,9 +36,9 @@ public class GlobalExceptions extends TagSupport {
 
     @Override
     public int doStartTag() {
-        Exception exception = (Exception) pageContext.getRequest().getAttribute(EXCEPTION_REQUEST_ATTRIBUTE_NAME);
-        if (exception != null) {
-            ActionExceptionHelper.addException(getActionErrors(), exception, pageContext.getRequest().getLocale());
+        Throwable throwable = (Throwable) pageContext.getRequest().getAttribute(EXCEPTION_REQUEST_ATTRIBUTE_NAME);
+        if (throwable != null) {
+            ActionExceptionHelper.addException(getActionErrors(), throwable, pageContext.getRequest().getLocale());
         }
         return SKIP_BODY;
     }
