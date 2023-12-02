@@ -112,6 +112,12 @@ public interface ExecutionService {
     List<WfProcess> getSubprocesses(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException;
 
     /**
+     * @deprecated use method with reason
+     */
+    @Deprecated
+    void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException;
+
+    /**
      * Cancels process by id.
      *
      * @param user
@@ -119,7 +125,7 @@ public interface ExecutionService {
      * @param processId
      *            process id process id
      */
-    void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException;
+    void cancelProcess(User user, Long processId, String reason) throws ProcessDoesNotExistException;
 
     /**
      * Restore process by id.

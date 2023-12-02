@@ -12,9 +12,10 @@ import ru.runa.wfe.security.SecuredObjectType;
  * Actor represents a real user of system that could perform different actions.
  */
 @Entity
-@DiscriminatorValue(value = "N")
+@DiscriminatorValue(value = Actor.DISCRIMINATOR_VALUE)
 public class Actor extends Executor {
     private static final long serialVersionUID = -582492651083909598L;
+    public static final String DISCRIMINATOR_VALUE = "N";
     public static final Actor UNAUTHORIZED_ACTOR = new Actor(UNAUTHORIZED_EXECUTOR_NAME, null);
 
     private Long code;

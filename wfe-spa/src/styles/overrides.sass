@@ -32,6 +32,14 @@
         font-weight: 300 !important
         font-size: small !important
         border: none !important
+      > tbody > tr > td.filter-cell
+          border-bottom: 1px solid !important
+          border-bottom-color: rgba(0, 0, 0, 0.12) !important
+          padding-top: 5px !important
+          padding-bottom: 5px !important
+          z-index: 1
+          position: sticky
+          top: 48px
       > tbody tr:not(.task1, .task2, .task3, .task4, .process1, .process2):nth-of-type(even)
         background-color: #f8f8f8 !important
       > tbody tr:hover,
@@ -48,6 +56,8 @@
         margin-top: 4px !important
         .v-icon
           font-size: medium !important
+    .v-data-table__wrapper
+      height: calc(100vh - 215px)
 
 .wfe-task-table
   @include wfe-tables

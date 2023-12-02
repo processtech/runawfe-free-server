@@ -160,7 +160,7 @@ public class ProcessFactory {
     private ExecutionContext createProcessInternal(ParsedProcessDefinition parsedProcessDefinition, StartNode startNode,
             Map<String, Object> variables, Actor actor, CurrentProcess parentProcess, Map<String, Object> transientVariables, String transitionName) {
         Preconditions.checkNotNull(parsedProcessDefinition, "can't create a process when parsedProcessDefinition is null");
-        CurrentProcess process = new CurrentProcess(processDefinitionDao.get(parsedProcessDefinition.getId()));
+        CurrentProcess process = new CurrentProcess(processDefinitionDao.getNotNull(parsedProcessDefinition.getId()));
         CurrentToken rootToken = new CurrentToken(parsedProcessDefinition, process, startNode);
         process.setRootToken(rootToken);
         currentProcessDao.create(process);

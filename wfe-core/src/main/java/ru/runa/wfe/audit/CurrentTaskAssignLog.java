@@ -37,8 +37,10 @@ public class CurrentTaskAssignLog extends CurrentTaskLog implements TaskAssignLo
             addAttribute(ATTR_NEW_VALUE, newExecutor.getName());
         }
         List<Long> ids = new ArrayList<>();
-        for (Executor executor : actors) {
-            ids.add(executor.getId());
+        if (actors != null) {
+            for (Executor executor : actors) {
+                ids.add(executor.getId());
+            }
         }
         addAttribute(ATTR_MESSAGE, Joiner.on(ExecutorIdsValue.DELIM).join(ids));
     }

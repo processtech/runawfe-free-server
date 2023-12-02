@@ -18,9 +18,6 @@ import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndByAdminLog;
 import ru.runa.wfe.audit.TaskEndBySubstitutorLog;
 import ru.runa.wfe.audit.TaskEndLog;
-import ru.runa.wfe.audit.TaskExpiredLog;
-import ru.runa.wfe.audit.TaskRemovedOnEmbeddedSubprocessEndLog;
-import ru.runa.wfe.audit.TaskRemovedOnProcessEndLog;
 import ru.runa.wfe.audit.aggregated.QSignalListenerAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QTaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QTaskAssignmentAggregatedLog;
@@ -145,21 +142,6 @@ public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
     @Override
     public void onTaskEndLog(TaskEndLog taskEndLog) {
         onTaskEnd(taskEndLog, TaskEndReason.COMPLETED);
-    }
-
-    @Override
-    public void onTaskRemovedOnProcessEndLog(TaskRemovedOnProcessEndLog taskRemovedOnProcessEndLog) {
-        onTaskEnd(taskRemovedOnProcessEndLog, TaskEndReason.PROCESS_END);
-    }
-
-    @Override
-    public void onTaskRemovedOnEmbeddedSubprocessEndLog(TaskRemovedOnEmbeddedSubprocessEndLog log) {
-        onTaskEnd(log, TaskEndReason.CANCELLED);
-    }
-
-    @Override
-    public void onTaskExpiredLog(TaskExpiredLog taskExpiredLog) {
-        onTaskEnd(taskExpiredLog, TaskEndReason.TIMEOUT);
     }
 
     @Override

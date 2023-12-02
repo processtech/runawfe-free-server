@@ -11,7 +11,7 @@
     <!-- J : ru.runa.wfe.audit.NodeInfoLog -->
     <!-- K : ru.runa.wfe.audit.TaskEndByAdminLog -->
     <!-- L : ru.runa.wfe.audit.NodeLeaveLog -->
-    <!-- M : ru.runa.wfe.audit.TaskRemovedOnProcessEndLog -->
+    <!-- M : ru.runa.wfe.audit.TaskCancelledByProcessEndLog -->
     <!-- N : ru.runa.wfe.audit.NodeEnterLog -->
     <!-- O : ru.runa.wfe.audit.TaskCancelledLog -->
     <!-- P : ru.runa.wfe.audit.TaskRemovedOnEmbeddedSubprocessEndLog -->
@@ -34,5 +34,10 @@
     <!-- 6 :  -->
     <!-- 7 : ru.runa.wfe.audit.SendMessageLog -->
     <!-- 8 : ru.runa.wfe.audit.ReceiveMessageLog -->
-    <!-- 9 : ru.runa.wfe.audit.TaskExpiredLog -->
+    <!-- 9 : ru.runa.wfe.audit.TaskCancelledByExceededLifetimeLog  -->
+    <!-- a : ru.runa.wfe.audit.TaskCancelledByHandlerLog -->
+    <!-- b :  -->
+    <!-- c : ru.runa.wfe.audit.NodeCancelLog (industrial) -->
+    <!-- d : ru.runa.wfe.audit.TaskCancelledBySignalLog -->
+
     

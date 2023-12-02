@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import java.util.List;
 import org.apache.ecs.html.Div;
 import org.apache.ecs.html.Form;
+import org.apache.ecs.html.Input;
 import org.apache.ecs.html.Label;
 import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
@@ -17,13 +18,10 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.UpdateProcessSwimlaneAction;
+import ru.runa.wf.web.ftl.component.GenerateHtmlForVariable;
+import ru.runa.wf.web.servlet.AjaxExecutorsList.Type;
 import ru.runa.wfe.execution.dto.WfSwimlane;
-import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updateProcessSwimlanes")
@@ -47,9 +45,6 @@ public class UpdateProcessSwimlanesFormTag extends TitledFormTag {
         User user = getUser();
         Long processId = getProcessId();
         List<WfSwimlane> swimlanes = Delegates.getExecutionService().getProcessSwimlanes(user, processId);
-        BatchPresentation batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
-        batchPresentation.setFieldsToSort(new int[] { 1 }, new boolean[] { true });
-        List<? extends Executor> allowedExecutors = Delegates.getExecutorService().getExecutors(user, batchPresentation);
         if (WebResources.isUpdateProcessSwimlanesEnabled() && Delegates.getExecutorService().isAdministrator(user)) {
             getForm().setEncType(Form.ENC_UPLOAD);
             String labelTDWidth = "150px";
@@ -73,12 +68,28 @@ public class UpdateProcessSwimlanesFormTag extends TitledFormTag {
             for (WfSwimlane swimlane : swimlanes) {
                 swimlaneSelect.addElement(HTMLUtils.createOption(swimlane.getDefinition().getName(), swimlane.equals(swimlanes.get(0))));
             }
-
             TD selectTd = new TD();
             selectTd.addElement(swimlaneSelect);
             swimlanesComboboxTr.addElement(selectTd.setClass(Resources.CLASS_LIST_TABLE_TD));
-
             table.addElement(swimlanesComboboxTr);
+
+            TR nullSwimlaneTr = new TR();
+            nullSwimlaneTr.setClass("nullSwimlane");
+            labelTd = new TD();
+            Label labelNullSwimlane = new Label("swimlaneNull");
+            labelNullSwimlane.addElement(MessagesProcesses.LABEL_VARIABLE_NULL_VALUE.message(pageContext) + ":&nbsp;");
+            labelTd.addElement(labelNullSwimlane);
+            labelTd.setWidth(labelTDWidth);
+            nullSwimlaneTr.addElement(labelTd);
+
+            TD nullCheckboxTd= new TD();
+            Input nullValue = new Input(Input.CHECKBOX, "isNullValue");
+            nullValue.setID("nullValueCheckbox");
+            nullValue.setChecked(false);
+            nullCheckboxTd.addElement(nullValue);
+            nullSwimlaneTr.addElement(nullCheckboxTd);
+
+            table.addElement(nullSwimlaneTr);
 
             TR currentExecutorTr = new TR();
 
@@ -97,32 +108,9 @@ public class UpdateProcessSwimlanesFormTag extends TitledFormTag {
 
             table.addElement(currentExecutorTr);
 
-            TR newExecutorTr = new TR();
-            newExecutorTr.setClass("newExecutor");
-
-            labelTd = new TD();
-            Label labelInputNewExecutor = new Label("newExecutorLabel");
-            labelInputNewExecutor.addElement(MessagesProcesses.LABEL_SWIMLANE_NEW_EXECUTOR.message(pageContext) + ":&nbsp;");
-            labelTd.addElement(labelInputNewExecutor);
-            labelTd.setWidth(labelTDWidth);
-            newExecutorTr.addElement(labelTd.setClass(Resources.CLASS_LIST_TABLE_TD));
-
-            TD inputTd = new TD();
-            Select newExecutorSelect = new Select("newExecutorSelect");
-            newExecutorSelect.setID("newExecutorSelect");
-            for (Executor executor : allowedExecutors) {
-                String label = executor.getName();
-                if (executor instanceof Actor) {
-                    label = !Strings.isNullOrEmpty(executor.getFullName()) ? executor.getFullName() : executor.getName();
-                } else if (executor instanceof Group) {
-                    label = !Strings.isNullOrEmpty(executor.getName()) ? executor.getName() : executor.getFullName();
-                }
-                newExecutorSelect.addElement(HTMLUtils.createOption(executor.getId().intValue(), label, executor.equals(allowedExecutors.get(0))));
-            }
-            inputTd.addElement(newExecutorSelect);
-
-            newExecutorTr.addElement(inputTd.setClass(Resources.CLASS_LIST_TABLE_TD));
-            table.addElement(newExecutorTr);
+            String newExecutorInput = GenerateHtmlForVariable.createExecutorAutoSelect("newExecutor", Type.executor, false, null);
+            table.addElement(HTMLUtils.createRow(MessagesProcesses.LABEL_SWIMLANE_NEW_EXECUTOR.message(pageContext) + ":&nbsp;", 
+                    new TD(newExecutorInput)));
         } else {
             Label variablesExist = new Label("swimlanes");
             variablesExist.addElement(MessagesProcesses.LABEL_NO_SWIMLANES.message(pageContext) + "&nbsp;");
@@ -144,5 +132,12 @@ public class UpdateProcessSwimlanesFormTag extends TitledFormTag {
     protected String getSubmitButtonName() {
         return MessagesProcesses.BUTTON_UPDATE_SWIMLANE.message(pageContext);
     }
-
+    @Override
+    protected boolean isCancelButtonEnabled() {
+        return true;
+    }
+    @Override
+    protected String getCancelButtonAction() {
+        return "manage_process.do?id=" + getProcessId();
+    }
 }

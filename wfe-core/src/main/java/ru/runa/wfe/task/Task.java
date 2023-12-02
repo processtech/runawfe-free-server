@@ -23,13 +23,14 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import ru.runa.wfe.audit.CurrentTaskAssignLog;
-import ru.runa.wfe.audit.CurrentTaskCancelledLog;
+import ru.runa.wfe.audit.CurrentTaskCancelledByExceededLifetimeLog;
+import ru.runa.wfe.audit.CurrentTaskCancelledByHandlerLog;
+import ru.runa.wfe.audit.CurrentTaskCancelledByProcessEndLog;
+import ru.runa.wfe.audit.CurrentTaskCancelledBySignalLog;
 import ru.runa.wfe.audit.CurrentTaskEndByAdminLog;
 import ru.runa.wfe.audit.CurrentTaskEndBySubstitutorLog;
 import ru.runa.wfe.audit.CurrentTaskEndLog;
-import ru.runa.wfe.audit.CurrentTaskExpiredLog;
 import ru.runa.wfe.audit.CurrentTaskRemovedOnEmbeddedSubprocessEndLog;
-import ru.runa.wfe.audit.CurrentTaskRemovedOnProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.CurrentProcess;
@@ -284,7 +285,7 @@ public class Task implements Assignable {
         log.debug("Ending " + this + " with " + completionInfo);
         switch (completionInfo.getCompletionBy()) {
         case TIMER:
-            executionContext.addLog(new CurrentTaskExpiredLog(this, completionInfo));
+            executionContext.addLog(new CurrentTaskCancelledByExceededLifetimeLog(this, completionInfo));
             break;
         case ASSIGNED_EXECUTOR:
             executionContext.addLog(new CurrentTaskEndLog(this, completionInfo));
@@ -296,11 +297,13 @@ public class Task implements Assignable {
             executionContext.addLog(new CurrentTaskEndByAdminLog(this, completionInfo));
             break;
         case HANDLER:
+            executionContext.addLog(new CurrentTaskCancelledByHandlerLog(this, completionInfo));
+            break;
         case SIGNAL:
-            executionContext.addLog(new CurrentTaskCancelledLog(this, completionInfo));
+            executionContext.addLog(new CurrentTaskCancelledBySignalLog(this, completionInfo));
             break;
         case PROCESS_END:
-            executionContext.addLog(new CurrentTaskRemovedOnProcessEndLog(this, completionInfo));
+            executionContext.addLog(new CurrentTaskCancelledByProcessEndLog(this, completionInfo));
             break;
         case EMBEDDED_SUBPROCESS_END:
             executionContext.addLog(new CurrentTaskRemovedOnEmbeddedSubprocessEndLog(this, completionInfo));

@@ -1,6 +1,5 @@
 package ru.runa.wf.web.ftl.component;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import java.util.ArrayList;
@@ -9,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.ecs.html.Div;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
@@ -18,6 +18,7 @@ import org.apache.ecs.html.TextArea;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Resources;
 import ru.runa.wf.web.FormSubmissionUtils;
+import ru.runa.wf.web.servlet.AjaxExecutorsList;
 import ru.runa.wf.web.servlet.UploadedFile;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CalendarUtil;
@@ -27,6 +28,7 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
@@ -110,8 +112,23 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
     @Override
     public GenerateHtmlForVariableResult onExecutor(ExecutorFormat executorFormat, GenerateHtmlForVariableContext context) {
-        return new GenerateHtmlForVariableResult(context, createExecutorSelect(user, context.variable.getDefinition().getName(), executorFormat,
-                context.variable.getValue(), !context.readonly));
+        if (context.readonly) {
+            Input result = createInput(context, "text", "inputString", null);
+            if (context.variable.getValue() instanceof Executor) {
+                result.setValue(((Executor) context.variable.getValue()).getLabel());
+            }
+            return new GenerateHtmlForVariableResult(context, result.toString());
+        }
+        AjaxExecutorsList.Type type;
+        if (executorFormat instanceof ActorFormat) {
+            type = AjaxExecutorsList.Type.actor;
+        } else if (executorFormat instanceof GroupFormat) {
+            type = AjaxExecutorsList.Type.group;
+        } else {
+            type = AjaxExecutorsList.Type.executor;
+        }
+        return new GenerateHtmlForVariableResult(context, createExecutorAutoSelect(context.variable.getDefinition().getName(), type,
+                context.variable.getValue() instanceof TemporaryGroup, (Executor) context.variable.getValue()));
     }
 
     @Override
@@ -307,6 +324,9 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         Table result = new Table();
         result.setClass("list");
         for (VariableDefinition attributeDefinition : userType.getAttributes()) {
+            if (context.isChatView && !attributeDefinition.isEditableInChat()) {
+                continue;
+            }
             TR TR = new TR();
             result.addElement(TR);
             TD nameTd = new TD();
@@ -318,7 +338,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             Object attributeValue = userTypeMap.get(attributeDefinition.getName());
             WfVariable componentVariable = ViewUtil.createUserTypeComponentVariable(context.variable, attributeDefinition, attributeValue);
             GenerateHtmlForVariableResult attributeGeneratedHtml = componentVariable.getDefinition().getFormatNotNull()
-                    .processBy(this, new GenerateHtmlForVariableContext(componentVariable, context.processId, context.readonly));
+                    .processBy(this, new GenerateHtmlForVariableContext(componentVariable, context.processId, context.readonly, context.isChatView));
             valueTd.addElement(attributeGeneratedHtml.content);
             TR.addElement(valueTd);
         }
@@ -380,14 +400,32 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         html.append("<option value=\"\"> ------------------------- </option>");
         for (Executor executor : executors) {
             html.append("<option value=\"ID").append(executor.getId()).append("\"");
-            // TODO #1394 Fields of type Executor mapped as executor.name in JdbcStoreService. Need full entity mapping
-            if (Objects.equal(executor, value) || value instanceof String && value.equals(executor.getName())) {
+            if (Objects.equals(executor, value) || value instanceof String && value.equals(executor.getName())) {
                 html.append(" selected");
             }
             html.append(">").append(executor.getLabel()).append("</option>");
         }
         html.append("</select>");
         return html.toString();
+    }
+
+    public static String createExecutorAutoSelect(String variableName, AjaxExecutorsList.Type type, boolean includingTemporaryGroups, Executor value) {
+        StringBuilder html = new StringBuilder();
+        html.append("<input type=\"hidden\" name=\"").append(variableName).append("\"");
+        if (value != null) {
+            html.append(" value=\"").append(value.getName()).append("\"");
+        }
+        html.append("/>");
+        html.append("<input class=\"js-select-executor\" autocomplete=\"off\" type=\"text\"");
+        html.append(" js-label-for=\"").append(variableName).append("\"");
+        html.append(" js-executor-type=\"").append(type.name()).append("\"");
+        html.append(" js-including-temporary-groups=\"").append(includingTemporaryGroups).append("\"");
+        if (value != null) {
+            html.append(" value=\"").append(value.getLabel()).append("\"");
+        }
+        html.append("/>");
+        return html.toString();
+
     }
 
     public static String getFileComponent(WebHelper webHelper, String variableName, FileVariable value, boolean enabled) {

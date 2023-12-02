@@ -69,6 +69,6 @@ public class CurrentTaskDelegationLog extends CurrentTaskLog implements TaskDele
 
     @Override
     public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskDelegaionLog(this);
+        visitor.onTaskDelegationLog(this);
     }
 }

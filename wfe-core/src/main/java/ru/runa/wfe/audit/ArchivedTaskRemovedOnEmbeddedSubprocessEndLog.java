@@ -18,6 +18,6 @@ public class ArchivedTaskRemovedOnEmbeddedSubprocessEndLog extends ArchivedTaskC
 
     @Override
     public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskRemovedOnEmbeddedSubprocessEndLog(this);
+        visitor.onTaskCancelledLog(this);
     }
 }

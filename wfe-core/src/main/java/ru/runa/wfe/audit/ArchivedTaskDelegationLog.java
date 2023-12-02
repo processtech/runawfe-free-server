@@ -43,6 +43,6 @@ public class ArchivedTaskDelegationLog extends ArchivedTaskLog implements TaskDe
 
     @Override
     public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskDelegaionLog(this);
+        visitor.onTaskDelegationLog(this);
     }
 }

@@ -19,8 +19,9 @@ public class CurrentProcessCancelLog extends CurrentProcessLog implements Proces
     public CurrentProcessCancelLog() {
     }
 
-    public CurrentProcessCancelLog(Actor actor) {
+    public CurrentProcessCancelLog(Actor actor, String reason) {
         addAttribute(ATTR_ACTOR_NAME, actor.getName());
+        addAttribute(ATTR_MESSAGE, reason);
         setSeverity(Severity.INFO);
     }
 
@@ -39,7 +40,9 @@ public class CurrentProcessCancelLog extends CurrentProcessLog implements Proces
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { new ExecutorNameValue(getAttributeNotNull(ATTR_ACTOR_NAME)) };
+        String reason = getAttribute(ATTR_MESSAGE);
+        reason = reason != null ? " (" + reason + ")" : "";
+        return new Object[] { new ExecutorNameValue(getAttributeNotNull(ATTR_ACTOR_NAME)), reason };
     }
 
     @Override

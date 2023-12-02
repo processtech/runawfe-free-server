@@ -22,6 +22,7 @@ $(function() {
 });
 
 var commonInitComponents = initComponents;
+
 initComponents = function(container) {
 	container.find(".dropzone").filter(filterTemplatesElements).each(function () {
 		initFileInput($(this));
@@ -33,6 +34,40 @@ initComponents = function(container) {
 		    svgPath: "css/trumbowyg.svg"
 		});
 	}
+	$(".js-select-executor").focus(function() {
+		var $element = $(this);
+		$(this).autocomplete({
+			delay: 300,
+			minLength: 0,
+			source: function(request, response) {
+				$.ajax({
+					type: "GET",
+					cache: false,
+					url: "/wfe/ajaxcmd?command=ajaxExecutorsList",
+					data: {
+						type: $element.attr("js-executor-type"),
+						includingTemporaryGroups: $element.attr("js-including-temporary-groups"),
+						hint: request.term
+					},
+					dataType: "json",
+					success: function (result) {
+						response(result.data);
+					}
+				});
+			},
+			select: function(event, ui) {
+				$element.val(ui.item.label);
+				$("[name='" + $element.attr("js-label-for") + "']").val(ui.item.value);
+				return false;
+			}
+		});
+		$(this).autocomplete("search", $(this).val());
+	});
+	$(".js-select-executor").change(function() {
+		if ($(this).val() === "") {
+			$("[name='" + $(this).attr("js-label-for") + "']").val("");
+		}
+	});
 	return commonInitComponents(container);
 }
 

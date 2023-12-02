@@ -6,7 +6,7 @@ import ru.runa.wfe.rest.dto.WfeVariableUserType;
 import ru.runa.wfe.var.UserType;
 
 @Mapper(uses = WfeVariableDefinitionMapper.class)
-public interface WfeUserTypeMapper {
+public interface WfeVariableUserTypeMapper {
     WfeVariableUserType map(UserType type);
 
     List<WfeVariableUserType> map(List<UserType> types);

@@ -58,6 +58,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_DEPLOY_APPLY_ALL = new StrutsMessage("batch_presentation.process_definition.application_type.all.label");
     public static final StrutsMessage PROCESS_STARTER_NAME = new StrutsMessage("process_starter.name");
     public static final StrutsMessage LABEL_STATE_NAME = new StrutsMessage("label.state_name");
+    public static final StrutsMessage LABEL_PROCESS = new StrutsMessage("label.process");
     public static final StrutsMessage LABEL_PARENT_PROCESS = new StrutsMessage("label.parent_process");
     public static final StrutsMessage LABEL_START_PROCESS = new StrutsMessage("label.start_process");
     public static final StrutsMessage LABEL_SWIMLANE = new StrutsMessage("label.swimlane");
@@ -74,6 +75,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_NO_SWIMLANES = new StrutsMessage("label.no_swimlanes");
     public static final StrutsMessage LINK_UPDATE_VARIABLE = new StrutsMessage("link.update_variable");
     public static final StrutsMessage BUTTON_UPDATE_VARIABLE = new StrutsMessage("button.update_variable");
+    public static final StrutsMessage VARIABLE_WAS_UPDATED = new StrutsMessage("variable.was_updated");
     public static final StrutsMessage BUTTON_FORM = new StrutsMessage("button.form");
     public static final StrutsMessage BUTTON_COMPLETE = new StrutsMessage("button.complete");
     public static final StrutsMessage BUTTON_ACCEPT_TASK = new StrutsMessage("button.accept_task");
@@ -91,6 +93,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_VARIABLE_NEW_VALUE = new StrutsMessage("label.variable_new_value");
     public static final StrutsMessage LABEL_SEARCH_VARIABLE = new StrutsMessage("label.search_variable");
     public static final StrutsMessage LABEL_NO_VARIABLES = new StrutsMessage("label.no_variables");
+    public static final StrutsMessage LABEL_NO_VARIABLES_IN_CHAT = new StrutsMessage("label.no_variables_in_chat");
     public static final StrutsMessage TASK_COMPLETED = new StrutsMessage("task.completed");
     public static final StrutsMessage LABEL_SHOW_TASKS_HISTORY = new StrutsMessage("label.manage_tasks_history");
     public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_NAME = new StrutsMessage("label.task_history_table_name");
@@ -114,6 +117,8 @@ public final class MessagesProcesses {
     public static final StrutsMessage ROUTING_PARAMETER_VALUE = new StrutsMessage("label.routing_parameter_value");
     public static final StrutsMessage PAYLOAD_PARAMETER_NAME = new StrutsMessage("label.payload_parameter_name");
     public static final StrutsMessage PAYLOAD_PARAMETER_VALUE = new StrutsMessage("label.payload_parameter_value");
+    public static final StrutsMessage PASTE_SIGNAL_DATA_BUTTON_NAME = new StrutsMessage("button.paste_signal_data");
+
     public static final StrutsMessage BUTTON_VIEW_DIFFERENCES = new StrutsMessage("button.view_differences");
     public static final StrutsMessage FAILED_VIEW_DIFFERENCES = new StrutsMessage("failed.view_differences");
     public static final StrutsMessage LABEL_NO_DIFFERENCES_FOUND = new StrutsMessage("label.no_differences_found");

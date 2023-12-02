@@ -4,7 +4,6 @@ import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
 import ru.runa.wfe.security.SecuredObjectType;
 
 /**
@@ -13,10 +12,10 @@ import ru.runa.wfe.security.SecuredObjectType;
  * Created on 01.07.2004
  */
 @Entity
-@DiscriminatorValue(value = "Y")
+@DiscriminatorValue(value = Group.DISCRIMINATOR_VALUE)
 public class Group extends Executor {
     private static final long serialVersionUID = -4353040407820259331L;
-
+    public static final String DISCRIMINATOR_VALUE = "Y";
     public static final Group UNAUTHORIZED_GROUP = new Group(UNAUTHORIZED_EXECUTOR_NAME, null);
 
     private String ldapGroupName;

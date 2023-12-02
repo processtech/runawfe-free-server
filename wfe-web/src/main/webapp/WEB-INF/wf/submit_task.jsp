@@ -58,9 +58,9 @@
 		if (!task.getProcessHierarchyIds().equals(String.valueOf(processId))) {
 			processId = ProcessHierarchyUtils.getRootProcessId(task.getProcessHierarchyIds());
 		}
-		String href = "/wfe/chat_page.do?processId=" + processId;
+		String href = "/wfe/chat_page.do?id=" + processId;
 	%>
-	<a href="<%= href %>">Открыть чат</a>
+	<button onclick="window.location.href='<%= href %>'"><bean:message key="chat.open" /></button>
 </div>
 <% }%>
 <% if (WebResources.isTaskDelegationEnabled()) { %>

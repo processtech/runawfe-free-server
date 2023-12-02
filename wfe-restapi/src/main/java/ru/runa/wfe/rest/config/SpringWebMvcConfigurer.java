@@ -1,6 +1,12 @@
 package ru.runa.wfe.rest.config;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import java.util.List;
+import java.util.TimeZone;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -47,6 +53,18 @@ public class SpringWebMvcConfigurer implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoggerInterceptor()).addPathPatterns("/**");
+    }
+
+    @Override
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        for (HttpMessageConverter<?> converter : converters) {
+            if (converter instanceof AbstractJackson2HttpMessageConverter) {
+                AbstractJackson2HttpMessageConverter jacksonConverter = (AbstractJackson2HttpMessageConverter) converter;
+                jacksonConverter.getObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                jacksonConverter.getObjectMapper().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                jacksonConverter.getObjectMapper().setTimeZone(TimeZone.getDefault());
+            }
+        }
     }
 
 }

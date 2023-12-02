@@ -24,6 +24,8 @@ public class WfProcess extends SecuredObject {
     private static final long serialVersionUID = 4862220986262286596L;
     public static final String SELECTED_TRANSITION_KEY = "RUNAWFE_SELECTED_TRANSITION";
     public static final String TRANSIENT_VARIABLES = "RUNAWFE_TRANSIENT_VARIABLES";
+    public static final String CANCEL_ACTOR_TRANSIENT_VARIABLE_NAME = "cancelActor";
+    public static final String CANCEL_REASON_TRANSIENT_VARIABLE_NAME = "cancelReason";
 
     private Long id;
     private String name;

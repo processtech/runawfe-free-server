@@ -24,8 +24,9 @@ import ru.runa.wfe.var.VariableDefinition;
 public class UpdateProcessVariablesFormTag extends TitledFormTag {
 
     private static final long serialVersionUID = 1L;
-
     private Long processId;
+    private String variableName;
+    private String redirectOption;
 
     @Attribute(required = false, rtexprvalue = true)
     public void setProcessId(Long id) {
@@ -36,10 +37,21 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
         return processId;
     }
 
+    @Attribute(required = true)
+    public void setRedirectOption(String redirectOption) {
+        this.redirectOption = redirectOption;
+    }
+
+    @Attribute(required = false, rtexprvalue = true)
+    public void setVariableName(String variableName) {
+        this.variableName = variableName;
+    }
+
     @Override
     protected void fillFormElement(TD tdFormElement) {
         WfProcess process = Delegates.getExecutionService().getProcess(getUser(), getProcessId());
         List<VariableDefinition> variables = getVariableDefinitions(process.getDefinitionId());
+
         if (!variables.isEmpty()) {
             if (WebResources.isUpdateProcessVariablesEnabled() && isAvailable()) {
                 getForm().setEncType(Form.ENC_UPLOAD);
@@ -49,8 +61,11 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
                 table.setClass(Resources.CLASS_LIST_TABLE);
                 tdFormElement.addElement(table);
 
-                Input searchInput = HTMLUtils.createInput("searchVariable","");
+                Input searchInput = HTMLUtils.createInput("variableName", "");
                 searchInput.addAttribute("autocomplete", "off");
+                if (variableName != null) {
+                    searchInput.setValue(variableName);
+                }
                 table.addElement(HTMLUtils.createRow(MessagesProcesses.LABEL_SEARCH_VARIABLE.message(pageContext), searchInput));
                 TR variableInputTr = new TR();
                 variableInputTr.setClass("variableInputRegion");
@@ -82,9 +97,15 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
             }
         } else {
             Label variablesExist = new Label("variables");
-            variablesExist.addElement(MessagesProcesses.LABEL_NO_VARIABLES.message(pageContext) + "&nbsp;");
+            variablesExist.addElement(getNoVariablesMessage());
             tdFormElement.addElement(variablesExist);
+            tdFormElement.addElement(getRedirectOptionInput());
         }
+        tdFormElement.addElement(getRedirectOptionInput());
+    }
+
+    protected String getNoVariablesMessage() {
+        return MessagesProcesses.LABEL_NO_VARIABLES.message(pageContext);
     }
 
     protected List<VariableDefinition> getVariableDefinitions(Long processDefinitionId) {
@@ -109,6 +130,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
     protected String getSubmitButtonName() {
         return MessagesProcesses.BUTTON_UPDATE_VARIABLE.message(pageContext);
     }
+
     @Override
     protected boolean isCancelButtonEnabled() {
         return true;
@@ -119,4 +141,15 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
         return "manage_process.do?id=" + getProcessId();
     }
 
+    protected boolean isChatView() {
+        return false;
+    }
+
+    private Input getRedirectOptionInput() {
+        Input input = new Input();
+        input.setType("hidden");
+        input.setName("redirectOption");
+        input.setValue(redirectOption);
+        return input;
+    }
 }

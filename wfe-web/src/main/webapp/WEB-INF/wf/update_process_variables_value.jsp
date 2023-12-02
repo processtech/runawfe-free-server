@@ -13,24 +13,36 @@
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.iframe-transport.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.fileupload.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/trumbowyg.js" />" charset="utf-8">c=0;</script>
+	<script type="text/javascript"> var getVariablesUrl = '/wfe/ajaxcmd?command=ajaxGetProcessVariablesList'; var displayInChat = false</script>
 <% if (!"en".equals(Commons.getLocale(pageContext).getLanguage())) { %>
 	<script type="text/javascript" src="/wfe/js/trumbowyg-langs/<%= Commons.getLocale(pageContext).getLanguage() %>.min.js"></script>
 <% } %>
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/taskformutils.js?"+Version.getHash() %>' />"></script>
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/updateprocessvariablesutils.js?"+Version.getHash() %>' />">c=0;</script>	
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/updateprocessvariablesutils.js?"+Version.getHash() %>' />">c=0;</script>
 	<script type="text/javascript">var id = <%= Long.parseLong(request.getParameter(IdForm.ID_INPUT_NAME)) %>;</script>
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/trumbowyg.css" />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/fileupload.css?"+Version.getHash() %>' />">
 </tiles:put>
 
-<tiles:put name="body" type="string" >
 <%
-	String parameterName = IdForm.ID_INPUT_NAME;
-	Long id = Long.parseLong(request.getParameter(parameterName));
-
+    String parameterName = IdForm.ID_INPUT_NAME;
+    Long id = Long.parseLong(request.getParameter(parameterName));
+    String variableName = request.getParameter("variableName");
 %>
 
-<wf:updateProcessVariables processId='<%= id %>'/>
+<tiles:put name="body" type="string" >
+
+<wf:processInfoForm identifiableId="<%= id %>" readOnly="true">
+	<table width="100%">
+		<tr>
+			<td align="right">
+				<wf:showProcessLink identifiableId='<%= id %>' />
+			</td>
+		</tr>
+	</table>
+</wf:processInfoForm>
+
+<wf:updateProcessVariables processId="<%= id %>" variableName="<%= variableName %>" redirectOption="manageProcess" />
 
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />

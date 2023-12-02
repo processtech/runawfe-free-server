@@ -4,10 +4,26 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import ru.runa.wfe.audit.presentation.ProcessIdValue;
+import ru.runa.wfe.task.Task;
+import ru.runa.wfe.task.TaskCompletionInfo;
 
+/**
+ * Logging task cancelled automatically.
+ * 
+ * @author Dofs
+ */
 @Entity
 @DiscriminatorValue(value = "M")
-public class ArchivedTaskRemovedOnProcessEndLog extends ArchivedTaskCancelledLog implements TaskRemovedOnProcessEndLog {
+public class CurrentTaskCancelledByProcessEndLog extends CurrentTaskCancelledLog implements TaskCancelledByProcessEndLog {
+    private static final long serialVersionUID = 1L;
+
+    public CurrentTaskCancelledByProcessEndLog() {
+    }
+
+    public CurrentTaskCancelledByProcessEndLog(Task task, TaskCompletionInfo completionInfo) {
+        super(task, completionInfo);
+        addAttribute(ATTR_PROCESS_ID, completionInfo.getProcessId().toString());
+    }
 
     @Override
     @Transient
@@ -29,6 +45,6 @@ public class ArchivedTaskRemovedOnProcessEndLog extends ArchivedTaskCancelledLog
 
     @Override
     public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskRemovedOnProcessEndLog(this);
+        visitor.onTaskCancelledLog(this);
     }
 }

@@ -1,11 +1,12 @@
 <template>
     <v-data-table
         class="elevation-1 wfe-process-table"
+        fixed-header
         :item-class="getItemClass"
         :headers="visibleHeaders"
         :items="records"
         item-key="id"
-        :options.sync="options"
+        :options.sync="dataOptions"
         :server-items-length="total"
         :loading="loading"
         :footer-props="footerProps ? footerProps : {
@@ -55,6 +56,7 @@
         <template v-slot:[`body.prepend`]>
             <tr v-if="filterVisible" class="filter-row">
                 <filter-cell v-for="header in visibleHeaders"
+                    class="filter-cell"
                     :header="header"
                     :key="header.value"
                     v-model="filter[header.value]"
@@ -108,8 +110,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import { PropOptions } from 'vue';
-import { get, sync } from 'vuex-pathify';
-import { Options, Sorting, Select, Header } from '../ts/Options';
+import { Select, Header } from '../ts/Options';
+import Constants from '../ts/Constants';
 
 export default Vue.extend({
     name: "WfeTables",
@@ -126,11 +128,11 @@ export default Vue.extend({
         routeName: String,
         prefixLocalStorageName: String,
         dynamic: Boolean,
-        footerProps: Object
+        footerProps: Object,
+        options: {}
     },
     data() {
         return {
-            options: new Options(),
             headers: [],
             variables: [],
             filter: {},
@@ -138,6 +140,7 @@ export default Vue.extend({
             filterNow: false,
             applyAll: false,
             activeFilterColor: '#FFFFE0',
+            dataOptions: this.options
         }
     },
     mounted: function () {
@@ -179,9 +182,9 @@ export default Vue.extend({
         },
     },
     watch: {
-        options: {
+        dataOptions: {
             handler () {
-                this.$emit('get-data-event', this.options, this.filter, this.variables);
+                this.$emit('get-data-event', this.dataOptions, this.filter, this.variables);
             },
             deep: true,
         },
@@ -244,7 +247,7 @@ export default Vue.extend({
         },
         clearHeadersColor () {
             this.visibleHeaders.forEach(header => {
-                    header.bcolor = '';
+                    header.bcolor = Constants.WHITE_COLOR;
             });
         },
         checkFilterAndReload (header) {
@@ -264,7 +267,7 @@ export default Vue.extend({
                 || (storageFilter && storageFilter[header.value]!==this.filter[header.value])) {
                 header.bcolor = this.activeFilterColor;
             } else {
-                header.bcolor = '';
+                header.bcolor = Constants.WHITE_COLOR;
             }
         },
         updateFiltersInLocalStorage() {
@@ -282,7 +285,7 @@ export default Vue.extend({
                 this.clearFilters();
             }
             this.applyAll = false;
-            this.$emit('get-data-event', this.options, this.filter, this.variables);
+            this.$emit('get-data-event', this.dataOptions, this.filter, this.variables);
         },
         clearFilters () {
             this.applyAll = false;
@@ -302,7 +305,7 @@ export default Vue.extend({
         updateData () {
             localStorage.setItem(this.prefixLocalStorageName + '-variables', JSON.stringify(this.variables));
             localStorage.setItem(this.prefixLocalStorageName + '-headers', JSON.stringify(this.headers));
-            this.$emit('get-data-event', this.options, this.filter, this.variables);
+            this.$emit('get-data-event', this.dataOptions, this.filter, this.variables);
         },
         getHeadByValue (value) {
             return this.headers.find(h => h.value === value);
@@ -345,9 +348,10 @@ export default Vue.extend({
                     header.value = variableName;
                     header.dynamic = true;
                     header.visible = true;
+                    header.bcolor = Constants.WHITE_COLOR;
                     header.width = '10em';
                     header.sortable = false;
-                    header.selectOptions = '';
+                    header.selectOptions = [];
                     this.headers.push(header);
                     this.variables.push(variableName);
                     if (this.isAnyFilter()) {
@@ -359,43 +363,22 @@ export default Vue.extend({
         getVariableValue (variableName, data) {
             for (let variable of data.variables) {
                 if (variableName == variable.name ) {
-                    const prefix = 'ru.runa.wfe.var.format.';
-                    if (!variable.format.includes(prefix)) {
-                        let obj = {};
-                        obj = Object.assign(obj, variable.value);
-                        if (obj && Object.keys(obj).length !== 0) {
-                            return variable.value;
-                        }
+                    if (!variable.value) {
                         return '';
                     }
-                    const format = variable.format.replace(prefix,'').replace('Format','');
-                    if (format === 'Date') {
-                        return this.getDate(variable.value);
-                    } else if (format === 'Time') {
-                        return this.getTime(variable.value);
-                    } else if (format === 'DateTime') {
+                    if (variable.type === 'DATE') {
+                        if (variable.format === 'date') {
+                            return this.getDate(variable.value);
+                        }
+                        if (variable.format === 'time') {
+                            return this.getTime(variable.value);
+                        }
                         return this.getDateTime(variable.value);
-                    } else if (format === 'Actor' || format === 'Executor' || format === 'Group') {
-                        let executor = {};
-                        executor = Object.assign(executor, variable.value);
-                        return executor.name;
-                    } else if (format === 'File') {
-                        // not support
-                        return '';
-                    } else if (format.includes('List')) {
-                        let arr = [];
-                        arr = Object.assign(arr, variable.value);
-                        if (arr.length) {
-                            return variable.value;
-                        }
-                        return '';
-                    } else if (format.includes('Map')) {
-                        let obj = {};
-                        obj = Object.assign(obj, variable.value);
-                        if (obj && Object.keys(obj).length !== 0) {
-                            return variable.value;
-                        }
-                        return '';
+                    } else if (variable.type === 'EXECUTOR') {
+                        return variable.value.name;
+                    } else if (variable.type === 'FILE') {
+                        // not clickable
+                        return variable.value.name;
                     } else {
                         return variable.value;
                     }

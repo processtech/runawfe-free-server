@@ -259,6 +259,10 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("check.process.start.permissions", true);
     }
 
+    public static boolean isCheckProcessCancelPermissions() {
+        return RESOURCES.getBooleanProperty("check.process.cancel.permissions", true);
+    }
+
     public static boolean isTaskAssignmentStrictRulesEnabled() {
         return RESOURCES.getBooleanProperty("task.assignment.strict.rules.enabled", true);
     }

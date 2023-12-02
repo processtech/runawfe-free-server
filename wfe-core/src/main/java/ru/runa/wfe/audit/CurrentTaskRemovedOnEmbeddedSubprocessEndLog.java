@@ -26,6 +26,6 @@ public class CurrentTaskRemovedOnEmbeddedSubprocessEndLog extends CurrentTaskCan
 
     @Override
     public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskRemovedOnEmbeddedSubprocessEndLog(this);
+        visitor.onTaskCancelledLog(this);
     }
 }

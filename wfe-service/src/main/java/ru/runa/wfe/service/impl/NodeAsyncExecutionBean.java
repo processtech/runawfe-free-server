@@ -105,14 +105,15 @@ public class NodeAsyncExecutionBean implements MessageListener {
             }
             TransactionListeners.reset();
         } catch (final Throwable th) {
-            boolean needReprocessing = failProcessExecution(tokenId, nodeId, th);
+            boolean needReprocessing = failProcessExecution(tokenId, nodeId, th, !retry);
             if (needReprocessing) {
                 throw new MessagePostponedException("process id = " + processId + ", token id = " + tokenId);
             }
         }
     }
 
-    private boolean failProcessExecution(final Long tokenId, String nodeId, final Throwable throwable) {
+    private boolean failProcessExecution(final Long tokenId, String nodeId, final Throwable throwable, 
+            final boolean checkTokenNodeId /* 2399, 3150: check only for activation messages */) {
         final AtomicBoolean needReprocessing = new AtomicBoolean(false);
         transactionalExecutor.execute(() -> {
             CurrentToken token = currentTokenDao.getNotNull(tokenId);
@@ -120,7 +121,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
                 log.debug("Ignored fail process execution in ended " + token);
                 return;
             }
-            if (!Objects.equals(nodeId, token.getNodeId())) {
+            if (checkTokenNodeId && !Objects.equals(nodeId, token.getNodeId())) {
                 log.debug("Ignored fail process execution: " + token + " expected to be in node " + nodeId);
                 return;
             }

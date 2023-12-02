@@ -23,28 +23,30 @@
     function editMessage(id, text) {
         $("#message").val(document.getElementById("message").value + text);
         editMessageId = id;
-        openChatForm();
     }
 
     function reply(text) {
         $("#message").val(document.getElementById("message").value + " > " + text + "\n");
-        openChatForm();
     }
 
     function deleteMessage(id) {
         deleteMessageHandler(id);
     }
 
-    function openChatForm() {
-        $("#ChatForm").css("display", "block");
-        $(document.getElementsByName("submitButton")).css("display", "none");
+    function sendChatForm() {
+        const btn = $(document.getElementsByName("submitButton"))[0];
+        btn.disabled = false;
+        btn.click();
     }
 
-    function sendChatForm() {
-        if ($("#ChatForm").css('display') !== 'none' && $("#variableSelect").val()) {
-            $(document.getElementsByName("submitButton")).click();
-        }
+    function toogleVariablesEditor() {
+        const variables = document.getElementById("process-variables");
+        const variablesForm = document.getElementById("ChatForm");
+        variables.hidden = !variables.hidden;
+        variablesForm.hidden = !variables.hidden;
+        document.querySelector(".form-toggler span").innerText = variablesForm.hidden
+                ? "Update process variables"
+                : "Cancel";
     }
 </script>
-</body>
 </html>

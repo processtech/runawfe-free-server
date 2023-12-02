@@ -6,7 +6,9 @@
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
     <tiles:put name="head" type="string">
 		<script type="text/javascript">
-			var signalSentMessage = "<bean:message key="signal.message_is_sent" />";
+			var signalIsSentMessage = "<bean:message key="message.signal_is_sent" />";
+			var pasteErrorMessage = "<bean:message key="message.signal_data_paste_error" />";
+			var applyButtonName = "<bean:message key="button.apply" />";
 		</script>
 		<script type="text/javascript" src="<html:rewrite page='<%="/js/sendprocesssingal.js"%>' />">c=0;</script>
 		<style>

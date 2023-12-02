@@ -135,7 +135,7 @@ public class ApiExceptionHandler {
         public void commence(HttpServletRequest request, HttpServletResponse response,
                 org.springframework.security.core.AuthenticationException authException)
                 throws IOException, ServletException {
-            response.setStatus(HttpStatus.FORBIDDEN.value());
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
         }
     }
 }

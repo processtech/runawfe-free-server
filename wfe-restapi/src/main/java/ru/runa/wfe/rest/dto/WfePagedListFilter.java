@@ -41,10 +41,15 @@ public class WfePagedListFilter {
 
     public BatchPresentation toBatchPresentation(ClassPresentationType classPresentationType) {
         initDeserializedFields();
-        BatchPresentation batchPresentation = new BatchPresentationFactory(classPresentationType).createDefault();
-        // setRangeSize should go before setPageNumber due to resetting to pageNumber = 1
-        batchPresentation.setRangeSize(pageSize);
-        batchPresentation.setPageNumber(pageNumber);
+        BatchPresentation batchPresentation;
+        if (pageNumber == 0) {
+            batchPresentation = new BatchPresentationFactory(classPresentationType).createNonPaged();
+        } else {
+            batchPresentation = new BatchPresentationFactory(classPresentationType).createDefault();
+            // setRangeSize should go before setPageNumber due to resetting to pageNumber = 1
+            batchPresentation.setRangeSize(pageSize);
+            batchPresentation.setPageNumber(pageNumber);
+        }
         for (Map.Entry<String, String> entry : filters.entrySet()) {
             if (Utils.isNullOrEmpty(entry.getValue()) || variables.contains(entry.getKey())) {
                 continue;
@@ -88,9 +93,6 @@ public class WfePagedListFilter {
         }
         if (pageSize == 0) {
             pageSize = 100;
-        }
-        if (pageNumber == 0) {
-            pageNumber = 1;
         }
     }
 

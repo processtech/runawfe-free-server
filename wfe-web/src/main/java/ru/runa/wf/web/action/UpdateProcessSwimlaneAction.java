@@ -2,14 +2,11 @@ package ru.runa.wf.web.action;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
@@ -36,9 +33,13 @@ public class UpdateProcessSwimlaneAction extends ActionBase {
         params.put(ProcessForm.ID_INPUT_NAME, processId);
         try {
             String swimlaneName = request.getParameter("swimlaneSelect");
-            String newExecutorId = request.getParameter("newExecutorSelect");
-            Executor newExecutor = Delegates.getExecutorService().getExecutor(user, Long.valueOf(newExecutorId));
-            Delegates.getExecutionService().assignSwimlane(user, processId, swimlaneName, newExecutor);
+            String newExecutorName = request.getParameter("newExecutor");
+            if ("on".equals(request.getParameter("isNullValue"))) {
+                Delegates.getExecutionService().assignSwimlane(user, processId, swimlaneName, null);
+            } else {
+                Executor newExecutor = Delegates.getExecutorService().getExecutorByName(user, newExecutorName);
+                Delegates.getExecutionService().assignSwimlane(user, processId, swimlaneName, newExecutor);
+            }
         } catch (Exception e) {
             addError(request, e);
             return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), params);

@@ -48,6 +48,7 @@ function Reload() {
 <% } %>
 <style>
 	.ui-tooltip {
+		position: fixed;
 		max-width: -moz-fit-content !important;
 		max-width: fit-content !important;
 	}
@@ -96,7 +97,7 @@ function Reload() {
 	<tr>
 		<td align="right">
 		<% if (WebResources.isChatEnabled() && isRoot) {%>
-			<% String href = "/wfe/chat_page.do?processId=" + id;%>
+			<% String href = "/wfe/chat_page.do?id=" + id;%>
 			<a href="<%= href %>">
 				<bean:message key="chat.open" />
 			</a>

@@ -20,7 +20,7 @@ import ru.runa.wfe.service.decl.AuthenticationServiceLocal;
 import ru.runa.wfe.service.decl.AuthenticationServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
-import ru.runa.wfe.service.interceptors.PerformanceSimpleObserver;
+import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.springframework4.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.user.User;
 
@@ -29,7 +29,7 @@ import ru.runa.wfe.user.User;
  */
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
-@Interceptors({ EjbExceptionSupport.class, PerformanceSimpleObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
+@Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
 @WebService(name = "AuthenticationAPI", serviceName = "AuthenticationWebService")
 @SOAPBinding
 @CommonsLog

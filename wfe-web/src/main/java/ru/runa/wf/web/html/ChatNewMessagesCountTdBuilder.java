@@ -15,17 +15,15 @@ import ru.runa.wfe.security.Permission;
  * @author Sergey Inyakin
  */
 public class ChatNewMessagesCountTdBuilder extends BaseTdBuilder {
-    private final String propertyName;
 
     public ChatNewMessagesCountTdBuilder(Permission permission, String propertyName) {
         super(permission);
-        this.propertyName = propertyName;
     }
 
     @Override
     public TD build(Object object, Env env) {
         WfChatRoom chatRoom = (WfChatRoom) object;
-        String url = Commons.getActionUrl(WebResources.ACTION_MAPPING_CHAT_PAGE, propertyName, chatRoom.getId(),
+        String url = Commons.getActionUrl(WebResources.ACTION_MAPPING_CHAT_PAGE, "id", chatRoom.getId(),
                 env.getPageContext(), PortletUrlType.Action);
         TD td = new TD(new A(url, getValue(object, env)));
         td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);

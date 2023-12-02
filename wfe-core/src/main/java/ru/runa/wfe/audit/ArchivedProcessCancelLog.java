@@ -24,7 +24,9 @@ public class ArchivedProcessCancelLog extends ArchivedProcessLog implements Proc
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { new ExecutorNameValue(getAttributeNotNull(ATTR_ACTOR_NAME)) };
+        String reason = getAttribute(ATTR_MESSAGE);
+        reason = reason != null ? " (" + reason + ")" : "";
+        return new Object[] { new ExecutorNameValue(getAttributeNotNull(ATTR_ACTOR_NAME)), reason };
     }
 
     @Override

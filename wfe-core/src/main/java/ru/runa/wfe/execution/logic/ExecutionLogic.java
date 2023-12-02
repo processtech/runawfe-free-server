@@ -84,7 +84,6 @@ import ru.runa.wfe.graph.image.GraphImageBuilder;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.ProcessGraphInfoVisitor;
-import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.job.dto.WfJob;
@@ -147,11 +146,11 @@ public class ExecutionLogic extends WfCommonLogic {
     @Autowired
     private EventSubprocessTriggerDao eventSubprocessTriggerDao;
 
-    public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
+    public void cancelProcess(User user, Long processId, String reason) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
         Preconditions.checkArgument(processId != null);
         filter.setId(processId);
-        cancelProcesses(user, filter);
+        cancelProcesses(user, filter, reason);
     }
 
     public int getProcessesCount(User user, BatchPresentation batchPresentation) {
@@ -171,12 +170,14 @@ public class ExecutionLogic extends WfCommonLogic {
         }
     }
 
-    public void cancelProcesses(User user, final ProcessFilter filter) {
+    public void cancelProcesses(User user, final ProcessFilter filter, String reason) {
         List<CurrentProcess> processes = getCurrentProcessesInternal(user, filter);
         processes = filterSecuredObject(user, processes, Permission.CANCEL);
         for (CurrentProcess process : processes) {
             ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
             ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process);
+            executionContext.setTransientVariable(WfProcess.CANCEL_ACTOR_TRANSIENT_VARIABLE_NAME, user.getActor());
+            executionContext.setTransientVariable(WfProcess.CANCEL_REASON_TRANSIENT_VARIABLE_NAME, reason);
             endProcess(process, executionContext, user.getActor());
             log.info(process + " was cancelled by " + user);
         }
@@ -210,14 +211,16 @@ public class ExecutionLogic extends WfCommonLogic {
         }
         log.info("Ending " + process + " by " + canceller);
         if (canceller != null) {
-            executionContext.addLog(new CurrentProcessCancelLog(canceller));
+            String reason = (String) executionContext.getTransientVariable(WfProcess.CANCEL_REASON_TRANSIENT_VARIABLE_NAME);
+            executionContext.addLog(new CurrentProcessCancelLog(canceller, reason));
         } else {
             executionContext.addLog(new CurrentProcessEndLog());
         }
         TaskCompletionInfo taskCompletionInfo = TaskCompletionInfo.createForProcessEnd(process.getId());
         List<CurrentToken> tokens = currentTokenDao.findByProcessIdAndParentId(process.getId());
         for (CurrentToken token : tokens) {
-            endToken(token, executionContext.getParsedProcessDefinition(), canceller, taskCompletionInfo, true);
+            endToken(token, executionContext.getParsedProcessDefinition(), canceller, taskCompletionInfo, true,
+                    executionContext.getTransientVariables());
         }
         eventSubprocessTriggerDao.deleteByProcess(process);
         // mark this process as ended
@@ -367,6 +370,10 @@ public class ExecutionLogic extends WfCommonLogic {
         }
     }
 
+    public void endToken(CurrentToken token, ParsedProcessDefinition processDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo,
+            boolean recursive) {
+        endToken(token, processDefinition, canceller, taskCompletionInfo, recursive, null);
+    }
     /**
      * Ends specified token and all of its children (if recursive).
      *
@@ -374,12 +381,14 @@ public class ExecutionLogic extends WfCommonLogic {
      *            actor who cancels process (if any), can be <code>null</code>
      */
     public void endToken(
-            CurrentToken token, ParsedProcessDefinition processDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive
+            CurrentToken token, ParsedProcessDefinition processDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo,
+            boolean recursive, Map<String, Object> transientVariables
     ) {
         ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
         ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
 
         ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+        executionContext.setTransientVariables(transientVariables);
         if (token.hasEnded()) {
             log.debug(token + " already ended");
         } else {
@@ -391,7 +400,9 @@ public class ExecutionLogic extends WfCommonLogic {
             if (node instanceof SubprocessNode) {
                 for (CurrentProcess subProcess : executionContext.getCurrentTokenSubprocesses()) {
                     ParsedProcessDefinition subProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
-                    executionLogic.endProcess(subProcess, new ExecutionContext(subProcessDefinition, subProcess), canceller);
+                    ExecutionContext subProcessExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);
+                    subProcessExecutionContext.setTransientVariables(transientVariables);
+                    executionLogic.endProcess(subProcess, subProcessExecutionContext, canceller);
                 }
             } else if (node instanceof BaseTaskNode) {
                 ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
@@ -404,7 +415,7 @@ public class ExecutionLogic extends WfCommonLogic {
         }
         if (recursive) {
             for (CurrentToken child : token.getChildren()) {
-                executionLogic.endToken(child, executionContext.getParsedProcessDefinition(), canceller, taskCompletionInfo, true);
+                executionLogic.endToken(child, executionContext.getParsedProcessDefinition(), canceller, taskCompletionInfo, true, transientVariables);
             }
         }
     }
@@ -646,7 +657,7 @@ public class ExecutionLogic extends WfCommonLogic {
                     "to 'true' in system.properties or wfe.custom.system.properties"
             );
         }
-        ProcessDefinition d = processDefinitionDao.get(processDefinitionId);
+        ProcessDefinition d = processDefinitionDao.getNotNull(processDefinitionId);
         ProcessDefinition nextDefinition = processDefinitionDao.getByNameAndVersion(d.getPack().getName(), newVersion);
         if (Objects.equal(newVersion, d.getVersion())) {
             return 0;
