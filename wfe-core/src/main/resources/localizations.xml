@@ -3,6 +3,7 @@
 <artifacts>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.AddObjectToListActionHandler" label="Add object to list"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.process.AddReadProcessPermissionsHandler" label="Add read process permissions"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.process.ModifyProcessPermissionsHandler" label="Modify process permissions"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.ListAggregateFunctionActionHandler" label="Aggregate function on list elements"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.MapAggregateFunctionActionHandler" label="Aggregate function on map elements"/>
   <artifact enabled="true" name="ru.runa.bp.handler.AlfSetContent" label="Alfresco: upload file data"/>
