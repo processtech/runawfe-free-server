@@ -26,6 +26,7 @@
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.DebugHandler" label="Дебаг (выводит текст)"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.AddObjectToListActionHandler" label="Добавить объект в список"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.process.AddReadProcessPermissionsHandler" label="Добавить права на чтение процесса"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.process.ModifyProcessPermissionsHandler" label="Изменить разрешения процесса"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.task.EndAsyncTasksHandler" label="Завершить асинхронные задания"/>
   <artifact enabled="true" name="ru.runa.wf.logic.bot.StartProcessTaskHandler" label="Запустить другой процесс"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.AssignSwimlaneActionHandler" label="Назначить роль"/>

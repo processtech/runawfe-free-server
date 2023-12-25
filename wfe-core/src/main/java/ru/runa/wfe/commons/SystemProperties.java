@@ -410,7 +410,7 @@ public class SystemProperties {
     }
 
     public static boolean isSwimlaneAutoInitializationEnabled() {
-        return RESOURCES.getBooleanProperty("process.swimlane.auto.initialization.enabled", false);
+        return RESOURCES.getBooleanProperty("process.swimlane.auto.initialization.enabled", true);
     }
 
     public static boolean isProcessExecutionMessagePredefinedSelectorEnabled() {
