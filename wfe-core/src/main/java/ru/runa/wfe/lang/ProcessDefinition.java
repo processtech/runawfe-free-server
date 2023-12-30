@@ -46,7 +46,6 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
 
 public class ProcessDefinition extends GraphElement implements FileDataProvider {
     private static final long serialVersionUID = 1L;
-    // TODO remove association for efficiency
     protected Deployment deployment;
     protected Map<String, byte[]> processFiles = Maps.newHashMap();
     protected StartNode startNode;

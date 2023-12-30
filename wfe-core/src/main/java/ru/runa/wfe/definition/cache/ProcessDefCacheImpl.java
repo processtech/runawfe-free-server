@@ -25,6 +25,7 @@ import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.DeploymentDao;
+import ru.runa.wfe.definition.dao.DeploymentWithContentDao;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.lang.ProcessDefinition;
 
@@ -42,7 +43,8 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
     }
 
     @Override
-    public ProcessDefinition getDefinition(DeploymentDao deploymentDao, Long definitionId) throws DefinitionDoesNotExistException {
+    public ProcessDefinition getDefinition(DeploymentDao deploymentDao, DeploymentWithContentDao deploymentWithContentDao, Long definitionId)
+            throws DefinitionDoesNotExistException {
         ProcessDefinition processDefinition = null;
         processDefinition = definitionIdToDefinition.get(definitionId);
         if (processDefinition != null) {
@@ -53,22 +55,22 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
         if (deployment instanceof HibernateProxy) {
             deployment = (Deployment) (((HibernateProxy) deployment).getHibernateLazyInitializer().getImplementation());
         }
-        ProcessArchive archive = new ProcessArchive(deployment);
+        ProcessArchive archive = new ProcessArchive(deployment, deploymentWithContentDao.get(deployment.getId()).getContent());
         processDefinition = archive.parseProcessDefinition();
         definitionIdToDefinition.put(definitionId, processDefinition);
         return processDefinition;
     }
 
     @Override
-    public ProcessDefinition getLatestDefinition(DeploymentDao deploymentDao, String definitionName) {
+    public ProcessDefinition getLatestDefinition(DeploymentDao deploymentDao, DeploymentWithContentDao deploymentWithContentDao, String definitionName) {
         Long definitionId = null;
         definitionId = definitionNameToId.get(definitionName);
         if (definitionId != null) {
-            return getDefinition(deploymentDao, definitionId);
+            return getDefinition(deploymentDao, deploymentWithContentDao, definitionId);
         }
         definitionId = deploymentDao.findLatestDeployment(definitionName).getId();
         definitionNameToId.put(definitionName, definitionId);
-        return getDefinition(deploymentDao, definitionId);
+        return getDefinition(deploymentDao, deploymentWithContentDao, definitionId);
     }
 
     @Override

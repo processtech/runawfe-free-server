@@ -56,7 +56,6 @@ public class WfTaskFactory {
         Process process = task.getProcess();
         Long rootProcessId = ProcessHierarchyUtils.getRootProcessId(process.getHierarchyIds());
         Process rootProcess = rootProcessId.equals(process.getId()) ? process : processDao.get(rootProcessId);
-        ProcessDefinition rootProcessDefinition = processDefinitionLoader.getDefinition(rootProcess.getDeployment().getId());
         boolean escalated = false;
         if (task.getExecutor() instanceof EscalationGroup) {
             EscalationGroup escalationGroup = (EscalationGroup) task.getExecutor();
@@ -68,7 +67,7 @@ public class WfTaskFactory {
             }
         }
         ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
-        WfTask wfTask = new WfTask(task, rootProcessId, rootProcessDefinition.getId(), rootProcessDefinition.getName(),
+        WfTask wfTask = new WfTask(task, rootProcessId, rootProcess.getDeployment().getId(), rootProcess.getDeployment().getName(),
                 processDefinition.getId(), processDefinition.getName(), targetActor, escalated, acquiredBySubstitution, firstOpen);
         if (variableNamesToInclude != null && !variableNamesToInclude.isEmpty()) {
             ExecutionContext executionContext = new ExecutionContext(processDefinition, process);

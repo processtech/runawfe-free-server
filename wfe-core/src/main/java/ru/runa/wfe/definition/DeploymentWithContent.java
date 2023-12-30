@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -23,9 +24,14 @@ import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
 
+/**
+ * Workaround in order do not load blob from db when it is not needed.
+ * 
+ * @author dofs
+ */
 @Entity
 @Table(name = "BPM_PROCESS_DEFINITION")
-public class Deployment extends SecuredObject {
+public class DeploymentWithContent extends SecuredObject {
     private static final long serialVersionUID = 1L;
     private Long id;
     private Long version;
@@ -38,6 +44,25 @@ public class Deployment extends SecuredObject {
     private Date updateDate;
     private Actor updateActor;
     private Date subprocessBindingDate;
+    private byte[] content;
+
+    public DeploymentWithContent() {
+    }
+
+    public DeploymentWithContent(Deployment deployment, byte[] content) {
+        setCategory(deployment.getCategory());
+        setCreateActor(deployment.getCreateActor());
+        setCreateDate(deployment.getCreateDate());
+        setDescription(deployment.getDescription());
+        setId(deployment.getId());
+        setLanguage(deployment.getLanguage());
+        setName(deployment.getName());
+        setSubprocessBindingDate(deployment.getSubprocessBindingDate());
+        setVersion(deployment.getVersion());
+        setContent(content);
+        setUpdateActor(deployment.getUpdateActor());
+        setUpdateDate(deployment.getUpdateDate());
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -146,6 +171,16 @@ public class Deployment extends SecuredObject {
         this.subprocessBindingDate = subprocessBindingDate;
     }
 
+    @Lob
+    @Column(length = 16777216, name = "BYTES")
+    public byte[] getContent() {
+        return content;
+    }
+
+    public void setContent(byte[] content) {
+        this.content = content;
+    }
+
     @Transient
     @Override
     public Long getIdentifiableId() {
@@ -177,8 +212,8 @@ public class Deployment extends SecuredObject {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Deployment) {
-            Deployment d = (Deployment) obj;
+        if (obj instanceof DeploymentWithContent) {
+            DeploymentWithContent d = (DeploymentWithContent) obj;
             return Objects.equal(name, d.name) && Objects.equal(version, d.version);
         }
         return super.equals(obj);
@@ -189,17 +224,4 @@ public class Deployment extends SecuredObject {
         return MoreObjects.toStringHelper(this).add("id", id).add("name", name).add("version", version).toString();
     }
 
-    @Transient
-    public Deployment getCopy() {
-        Deployment deployment = new Deployment();
-        deployment.setCategory(getCategory());
-        deployment.setCreateDate(getCreateDate());
-        deployment.setDescription(getDescription());
-        deployment.setId(getId());
-        deployment.setLanguage(getLanguage());
-        deployment.setName(getName());
-        deployment.setSubprocessBindingDate(getSubprocessBindingDate());
-        deployment.setVersion(getVersion());
-        return deployment;
-    }
 }
