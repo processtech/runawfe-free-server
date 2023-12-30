@@ -75,5 +75,10 @@ public class TableExpansionOperation extends Operation {
     public List<Comparable> getSortedMapKeys() {
         return sortedMapKeys;
     }
+    
+    public boolean isIndexOrNumberColumnExpansitonOperation(int columnIndex) {
+        IterateBy iterateBy = operations.get(columnIndex).iterateBy;
+        return IterateBy.indexes.equals(iterateBy) || IterateBy.numbers.equals(iterateBy);
+    }
 
 }

@@ -53,7 +53,12 @@ public class ColumnExpansionOperation extends AbstractIteratorOperation {
             if (containerSelector == null) {
                 return FormatCommons.formatComponentValue(containerVariable, 0, key);
             } else {
-                return String.valueOf(DocxUtils.getValue(config, variableProvider, key, containerSelector));
+                Object containerValue = DocxUtils.getValue(config, variableProvider, key, containerSelector);
+                if (containerValue == null) {
+                    return "";
+                } else {
+                    return String.valueOf(containerValue);
+                }
             }
         }
         if (iterateBy == IterateBy.values) {
@@ -61,7 +66,12 @@ public class ColumnExpansionOperation extends AbstractIteratorOperation {
             if (containerSelector == null) {
                 return FormatCommons.formatComponentValue(containerVariable, 1, value);
             } else {
-                return String.valueOf(DocxUtils.getValue(config, variableProvider, value, containerSelector));
+                Object containerValue = DocxUtils.getValue(config, variableProvider, value, containerSelector);
+                if (containerValue == null) {
+                    return "";
+                } else {
+                    return String.valueOf(containerValue);
+                }
             }
         }
         return null;
