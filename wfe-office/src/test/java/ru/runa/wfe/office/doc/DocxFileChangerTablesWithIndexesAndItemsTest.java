@@ -44,6 +44,6 @@ public class DocxFileChangerTablesWithIndexesAndItemsTest extends DocxFileChange
         Map<String, Object> data = Maps.<String, Object> newHashMap();
         data.put(rootVariable + "." + listVariable, list);
         log.info(String.format("testChangeSuccess: data: %s", data));
-        testDocx(true, templateFilename, data);
+        createDocx(true, templateFilename, data);
     }
 }

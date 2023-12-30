@@ -40,6 +40,6 @@ public class DocxFileChangerLoopsWithGroovyTest extends DocxFileChangerTest {
     public void testChange() throws IOException {
         log.info("testChange: ");
         Map<String, Object> data = Maps.newHashMap();
-        testDocx(true, "items_groovy.docx", data);
+        createDocx(true, "items_groovy.docx", data);
     }
 }
