@@ -24,9 +24,12 @@ import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.RestoreProcessStatus;
+import ru.runa.wfe.execution.dto.WfFrozenToken;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
+import ru.runa.wfe.execution.process.check.FrozenProcessFilter;
+import ru.runa.wfe.execution.process.check.FrozenProcessSearchData;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -354,6 +357,15 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
+    public List<WfFrozenToken> getFrozenTokens(User user, Map<String, FrozenProcessSearchData> searchData, Map<FrozenProcessFilter, String> filters) {
+        try {
+            return getExecutionService().getFrozenTokens(user, searchData, filters);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public void moveToken(User user, Long processId, Long tokenId, String nodeId) {
         try {
             getExecutionService().moveToken(user, processId, tokenId, nodeId);
@@ -379,4 +391,5 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
             throw handleException(e);
         }
     }
+
 }

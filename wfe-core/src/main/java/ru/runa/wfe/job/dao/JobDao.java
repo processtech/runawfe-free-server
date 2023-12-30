@@ -56,4 +56,5 @@ public class JobDao extends GenericDao<Job> {
         QJob j = QJob.job;
         queryFactory.delete(j).where(j.process.eq(process)).execute();
     }
+
 }

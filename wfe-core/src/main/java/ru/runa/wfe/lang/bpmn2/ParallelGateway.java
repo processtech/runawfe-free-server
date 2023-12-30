@@ -92,9 +92,12 @@ public class ParallelGateway extends Node {
         }
     }
 
-    protected StateInfo findStateInfo(Long processId, boolean ignoreFailedTokens) {
+    private StateInfo findStateInfo(Long processId, boolean ignoreFailedTokens) {
         StateInfo stateInfo = new StateInfo();
-        fillTokensInfo(processId, stateInfo);
+        List<Token> tokens = ApplicationContextFactory.getTokenDAO().findByProcessIdAndParentIsNull(processId);
+        for (Token token : tokens) {
+            fillTokensInfo(token, stateInfo);
+        }
         for (Transition transition : getArrivingTransitions()) {
             boolean transitionIsPassedByToken = false;
             for (Token token : stateInfo.arrivedTokens) {
@@ -124,13 +127,6 @@ public class ParallelGateway extends Node {
             }
         }
         return stateInfo;
-    }
-
-    private void fillTokensInfo(Long processId, StateInfo stateInfo) {
-        List<Token> tokens = ApplicationContextFactory.getTokenDAO().findByProcessIdAndParentIsNull(processId);
-        for (Token token : tokens) {
-            fillTokensInfo(token, stateInfo);
-        }
     }
 
     private void fillTokensInfo(Token token, StateInfo stateInfo) {

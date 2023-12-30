@@ -67,9 +67,13 @@ import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.async.NodeAsyncExecutor;
 import ru.runa.wfe.execution.dto.RestoreProcessStatus;
+import ru.runa.wfe.execution.dto.WfFrozenToken;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
+import ru.runa.wfe.execution.process.check.FrozenProcessFilter;
+import ru.runa.wfe.execution.process.check.FrozenProcessSearchData;
+import ru.runa.wfe.execution.process.check.FrozenProcessSeekManager;
 import ru.runa.wfe.extension.AssignmentHandler;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.graph.DrawProperties;
@@ -131,6 +135,8 @@ public class ExecutionLogic extends WfCommonLogic {
     private JobDao jobDao;
     @Autowired
     private ProcessDefinitionUpdateManager processDefinitionUpdateManager;
+    @Autowired
+    private FrozenProcessSeekManager frozenProcessSeekManager;
 
     public void cancelProcess(User user, Long processId, String reason) throws ProcessDoesNotExistException {
         Process process = processDao.getNotNull(processId);
@@ -515,6 +521,10 @@ public class ExecutionLogic extends WfCommonLogic {
             errors.add(new WfTokenError(token));
         }
         return errors;
+    }
+
+    public List<WfFrozenToken> getFrozenTokens(User user, Map<String, FrozenProcessSearchData> searchData, Map<FrozenProcessFilter, String> filters) {
+        return frozenProcessSeekManager.seek(searchData, filters);
     }
 
     public List<WfTokenError> getTokenErrors(User user, Long processId) {

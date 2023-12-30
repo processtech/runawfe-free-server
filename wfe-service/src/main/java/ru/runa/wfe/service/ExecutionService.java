@@ -26,9 +26,12 @@ import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.RestoreProcessStatus;
+import ru.runa.wfe.execution.dto.WfFrozenToken;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
+import ru.runa.wfe.execution.process.check.FrozenProcessFilter;
+import ru.runa.wfe.execution.process.check.FrozenProcessSearchData;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -456,6 +459,8 @@ public interface ExecutionService {
      */
     Set<Executor> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups);
 
+    List<WfFrozenToken> getFrozenTokens(User user, Map<String, FrozenProcessSearchData> searchData, Map<FrozenProcessFilter, String> filters);
+
     /**
      * Moves token to another node.
      *
@@ -483,4 +488,5 @@ public interface ExecutionService {
      * @param tokenIds  token ids
      */
     public void removeTokens(User user, Long processId, List<Long> tokenIds);
+
 }

@@ -38,10 +38,13 @@ import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.RestoreProcessStatus;
+import ru.runa.wfe.execution.dto.WfFrozenToken;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
+import ru.runa.wfe.execution.process.check.FrozenProcessFilter;
+import ru.runa.wfe.execution.process.check.FrozenProcessSearchData;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -394,6 +397,12 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
+    public List<WfFrozenToken> getFrozenTokens(@WebParam(name = "user") @NonNull User user,
+            Map<String, FrozenProcessSearchData> searchData, Map<FrozenProcessFilter, String> filters) {
+        return executionLogic.getFrozenTokens(user, searchData, filters);
+    }
+
+    @Override
     public void moveToken(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
             @WebParam(name = "tokenId") @NonNull Long tokenId, @WebParam(name = "nodeId") @NonNull String nodeId) {
         executionLogic.moveToken(user, processId, tokenId, nodeId);
