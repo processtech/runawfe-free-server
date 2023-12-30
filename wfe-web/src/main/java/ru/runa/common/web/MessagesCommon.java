@@ -25,6 +25,8 @@ public final class MessagesCommon {
     public static final StrutsMessage MAIN_MENU_ITEM_SYSTEM = new StrutsMessage("manage_system");
     // Forward menu (left main menu items) -> Errors.
     public static final StrutsMessage MAIN_MENU_ITEM_ERRORS = new StrutsMessage("manage_errors");
+    // Forward menu (left main menu items) -> Frozen processes.
+    public static final StrutsMessage MAIN_MENU_ITEM_FROZEN_PROCESSES = new StrutsMessage("manage_frozen_processes");
     // Forward menu (left main menu items) -> Settings.
     public static final StrutsMessage MAIN_MENU_ITEM_SETTINGS = new StrutsMessage("manage_settings");
     // Forward menu (left main menu items) -> Logs.

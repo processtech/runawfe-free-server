@@ -77,4 +77,5 @@ public class NodeProcessDao extends GenericDao<NodeProcess> {
         }
         return result;
     }
+
 }

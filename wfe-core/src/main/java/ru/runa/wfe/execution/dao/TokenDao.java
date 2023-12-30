@@ -91,4 +91,5 @@ public class TokenDao extends GenericDao<Token> {
         QToken t = QToken.token;
         return queryFactory.selectFrom(t).where(t.process.id.eq(processId).and(t.parent.isNull())).fetch();
     }
+
 }

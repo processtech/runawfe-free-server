@@ -1,6 +1,7 @@
 package ru.runa.wf.web;
 
 import ru.runa.common.web.StrutsMessage;
+import ru.runa.wfe.execution.process.check.FrozenProcessesSearchParameter;
 
 public final class MessagesProcesses {
 
@@ -129,4 +130,31 @@ public final class MessagesProcesses {
     public static final StrutsMessage PROCESS_LOG_CLEAN_FAIL = new StrutsMessage("process_log_clean.fail");
 
     public static final StrutsMessage TITLE_CHAT_ROOMS = new StrutsMessage("title.chat_rooms");
+    public static final StrutsMessage BUTTON_SEARCH_FROZEN_PROCESSES = new StrutsMessage("button.search_frozen_processes");
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_IN_PARALLEL_GATEWAYS = new StrutsMessage(
+            FrozenProcessesSearchParameter.SEARCH_FROZEN_IN_PARALLEL_GATEWAYS.getNameLabel());
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_HINT_TO_USE_FILTERS = new StrutsMessage("label.process_frozen.hint_to_use_filters");
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_IN_UNEXPECTED_NODES = new StrutsMessage(
+            FrozenProcessesSearchParameter.SEARCH_FROZEN_IN_UNEXPECTED_NODES.getNameLabel());
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_IN_TASK_NODES = new StrutsMessage(
+            FrozenProcessesSearchParameter.SEARCH_FROZEN_IN_TASK_NODES.getNameLabel());
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_IN_TIMER_NODES = new StrutsMessage(
+            FrozenProcessesSearchParameter.SEARCH_FROZEN_IN_TIMER_NODES.getNameLabel());
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_BY_SUBPROCESSES = new StrutsMessage(
+            FrozenProcessesSearchParameter.SEARCH_FROZEN_BY_SUBPROCESSES.getNameLabel());
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_BY_AWAITING_A_SIGNAL = new StrutsMessage(
+            FrozenProcessesSearchParameter.SEARCH_FROZEN_BY_SIGNAL_TIME_EXCEEDED.getNameLabel());
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_BY_SIGNAL = new StrutsMessage(
+            FrozenProcessesSearchParameter.SEARCH_FROZEN_BY_SIGNAL.getNameLabel());
+    public static final StrutsMessage LABEL_DAY_DURATION = new StrutsMessage("label.frozen_processes.day_duration");
+    public static final StrutsMessage LABEL_NO_FROZEN_PROCESSES = new StrutsMessage("label.no_frozen_processes");
+    public static final StrutsMessage FROZEN_PROCESS_NAME = new StrutsMessage("frozen_processes.process_name");
+    public static final StrutsMessage FROZEN_PROCESS_ID = new StrutsMessage("frozen_processes.process_id");
+    public static final StrutsMessage FROZEN_PROCESS_VERSION = new StrutsMessage("frozen_processes.process_version");
+    public static final StrutsMessage FROZEN_PROCESS_NODE_ID = new StrutsMessage("frozen_processes.node_id");
+    public static final StrutsMessage FROZEN_PROCESS_NODE_NAME = new StrutsMessage("frozen_processes.node_name");
+    public static final StrutsMessage FROZEN_PROCESS_NODE_TYPE = new StrutsMessage("frozen_processes.node_type");
+    public static final StrutsMessage FROZEN_PROCESS_NODE_ENTER_DATE = new StrutsMessage("frozen_processes.node_enter_date");
+    public static final StrutsMessage FROZEN_PROCESS_CAUSE = new StrutsMessage("frozen_processes.cause");
+
 }
