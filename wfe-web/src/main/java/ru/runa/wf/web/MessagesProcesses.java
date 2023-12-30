@@ -17,6 +17,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage TITLE_DEFINITIONS_HISTORY = new StrutsMessage("title.definitions_history");
     public static final StrutsMessage TITLE_PROCESSES = new StrutsMessage("title.processes");
     public static final StrutsMessage TITLE_INSANCE_SWINLANE_LIST = new StrutsMessage("title.process_swimlane_list");
+    public static final StrutsMessage TITLE_INSANCE_JOB_LIST = new StrutsMessage("title.process_job_list");
     public static final StrutsMessage TITLE_INSANCE_TASKS_LIST = new StrutsMessage("title.process_tasks_list");
     public static final StrutsMessage TITLE_INSANCE_VARIABLE_LIST = new StrutsMessage("title.process_variable_list");
     public static final StrutsMessage TITLE_PROCESS = new StrutsMessage("title.process");
@@ -114,6 +115,14 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_EXPAND = new StrutsMessage("label.expand");
     public static final StrutsMessage LABEL_COLLAPSE_ALL = new StrutsMessage("label.collapse.all");
     public static final StrutsMessage LABEL_EXPAND_ALL = new StrutsMessage("label.expand.all");
+    public static final StrutsMessage LABEL_JOB_NAME = new StrutsMessage("label.job.name");
+    public static final StrutsMessage LABEL_JOB_NODE_ID = new StrutsMessage("label.job.node_id");
+    public static final StrutsMessage LABEL_JOB_CREATION_DATE = new StrutsMessage("label.job.creation_date");
+    public static final StrutsMessage LABEL_JOB_DUE_DATE_EXPRESSION = new StrutsMessage("label.job.due_date_expression");
+    public static final StrutsMessage LABEL_JOB_DUE_DATE = new StrutsMessage("label.job.due_date");
+    public static final StrutsMessage LABEL_JOB_UNITS = new StrutsMessage("label.job.units");
+    public static final StrutsMessage TITLE_MANAGE_JOB = new StrutsMessage("title.job");
+    public static final StrutsMessage BUTTON_SAVE_JOB = new StrutsMessage("button.job.save");
 
     public static final StrutsMessage LABEL_SEND_PROCESS_SIGNAL = new StrutsMessage("label.send_process_signal");
     public static final StrutsMessage ROUTING_PARAMETER_NAME = new StrutsMessage("label.routing_parameter_name");

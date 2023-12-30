@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -488,5 +489,24 @@ public interface ExecutionService {
      * @param tokenIds  token ids
      */
     public void removeTokens(User user, Long processId, List<Long> tokenIds);
+
+    /**
+     * Gets timer job by id.
+     *
+     * @param id
+     *            job id
+     * @return timer job or <code>null</code>
+     */
+    public WfJob getJob(Long id);
+
+    /**
+     * Updates job due date.
+     *
+     * @param jobId
+     *            job id
+     * @param dueDate
+     *            job due date
+     */
+    public void updateJobDueDate(User user, Long processId, Long jobId, Date dueDate);
 
 }
