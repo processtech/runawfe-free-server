@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.service.delegate;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -387,6 +388,24 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     public void removeTokens(User user, Long processId, List<Long> tokenIds) {
         try {
             getExecutionService().removeTokens(user, processId, tokenIds);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public WfJob getJob(Long id) {
+        try {
+            return getExecutionService().getJob(id);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void updateJobDueDate(User user, Long processId, Long jobId, Date dueDate) {
+        try {
+            getExecutionService().updateJobDueDate(user, processId, jobId, dueDate);
         } catch (Exception e) {
             throw handleException(e);
         }

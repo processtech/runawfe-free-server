@@ -1,15 +1,12 @@
 package ru.runa.wfe.audit;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
 import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 import ru.runa.wfe.user.Actor;
-
-import com.google.common.collect.Lists;
 
 @Entity
 @DiscriminatorValue(value = "E")
@@ -22,13 +19,15 @@ public class AdminActionLog extends ProcessLog {
     public static final String ACTION_MOVE_TOKEN = "move_token";
     public static final String ACTION_CREATE_TOKEN = "create_token";
     public static final String ACTION_REMOVE_TOKEN = "remove_token";
+    public static final String ACTION_UPDATE_JOB_DUE_DATE = "update_job_due_date";
 
     public AdminActionLog() {
     }
 
-    public AdminActionLog(Actor actor, String actionName, Object... data) {
+    public AdminActionLog(Actor actor, String actionName, String nodeId, Object... data) {
         addAttribute(ATTR_ACTOR_NAME, actor.getName());
         addAttribute(ATTR_ACTION, actionName);
+        setNodeId(nodeId);
         if (data != null) {
             for (int i = 0; i < data.length; i++) {
                 addAttribute(ATTR_PARAM + i, String.valueOf(data[i]));

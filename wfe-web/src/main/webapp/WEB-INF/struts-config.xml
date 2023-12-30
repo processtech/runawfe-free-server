@@ -56,6 +56,7 @@
 		<form-bean name="sendProcessSignalForm" type="ru.runa.wf.web.form.SendProcessSignalForm" />
 		<form-bean name="frozenProcessesForm" type="ru.runa.af.web.form.FrozenProcessesForm" />
 		<form-bean name="moveTokenForm" type="ru.runa.wf.web.form.MoveTokenForm" />
+		<form-bean name="saveJobForm" type="ru.runa.af.web.form.SaveJobForm" />
 	</form-beans>
 
 	<!-- ========== Global Exceptions Definitions =================================== -->
@@ -121,6 +122,12 @@
 		<action path="/save_bot" type="ru.runa.af.web.action.SaveBotAction"
 			name="idForm" scope="request" input="/WEB-INF/wf/bot.jsp" unknown="false"
 			validate="false">
+		</action>
+		<action path="/save_job" type="ru.runa.af.web.action.SaveJobAction"
+			name="saveJobForm" scope="request" input="/WEB-INF/wf/manage_job.jsp" unknown="false"
+			validate="true">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failue" path="/manage_process.do" redirect="false" />
 		</action>
 		<action path="/restore_default_settings" type="ru.runa.af.web.action.RestoreDefaultSettingsAction"
 			input="/WEB-INF/wf/manage_settings.jsp">
@@ -703,6 +710,11 @@
 
 		<action path="/createSubstitutionCriteria" type="ru.runa.af.web.action.CreateSubstitutionCriteriaAction"
 			parameter="/WEB-INF/af/edit_substitution_criteria.jsp" />
+
+		<action path="/manage_job" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/manage_job.jsp">
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
 
 		<action path="/manage_system" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="SYSTEM" />
 		<action path="/manage_errors" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="ERRORS" />

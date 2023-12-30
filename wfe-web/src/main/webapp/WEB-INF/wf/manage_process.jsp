@@ -123,6 +123,7 @@ function Reload() {
 <wf:processActiveTaskMonitor identifiableId='<%= id %>' />
 <wf:processSwimlaneMonitor identifiableId='<%= id %>' />
 <wf:processVariableMonitor identifiableId='<%= id %>' />
+<wf:processJobMonitor identifiableId='<%= id %>' />
 <% if(!graphMode) { %>
 	<wf:processGraphForm identifiableId='<%= id %>' taskId='<%= taskId %>' childProcessId='<%= childProcessId %>'/>
 <% } %>

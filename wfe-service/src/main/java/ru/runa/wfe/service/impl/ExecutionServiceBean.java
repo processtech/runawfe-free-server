@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.service.impl;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -420,6 +421,18 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public void removeTokens(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
             @WebParam(name = "tokenIds") List<Long> tokenIds) {
         executionLogic.removeTokens(user, processId, tokenIds);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public WfJob getJob(Long id) {
+        return executionLogic.getJob(id);
+    }
+
+    @Override
+    @WebMethod(exclude = true)
+    public void updateJobDueDate(User user, Long processId, Long jobId, Date dueDate) {
+        executionLogic.updateJobDueDate(user, processId, jobId, dueDate);
     }
 
 }

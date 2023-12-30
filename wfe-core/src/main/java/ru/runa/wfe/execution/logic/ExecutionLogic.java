@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.NonNull;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.ConfigurationException;
@@ -46,7 +47,7 @@ import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.ProcessSuspendLog;
 import ru.runa.wfe.audit.TaskEndLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.Utils;
@@ -83,7 +84,6 @@ import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.ProcessGraphInfoVisitor;
 import ru.runa.wfe.job.Job;
-import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.EmbeddedSubprocessStartNode;
@@ -129,10 +129,6 @@ public class ExecutionLogic extends WfCommonLogic {
     private ExecutorLogic executorLogic;
     @Autowired
     private NodeAsyncExecutor nodeAsyncExecutor;
-    @Autowired
-    private ProcessLogDao processLogDao;
-    @Autowired
-    private JobDao jobDao;
     @Autowired
     private ProcessDefinitionUpdateManager processDefinitionUpdateManager;
     @Autowired
@@ -383,7 +379,7 @@ public class ExecutionLogic extends WfCommonLogic {
         for (Process process : processes) {
             process.setDeployment(nextDeployment);
             processDao.update(process);
-            processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
+            processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, null, deployment.getVersion(),
                     newVersion), process, null);
         }
         processDefinitionUpdateManager.after(newDefinition, affectedProcesses);
@@ -408,7 +404,7 @@ public class ExecutionLogic extends WfCommonLogic {
                 Collections.singletonList(process));
         process.setDeployment(nextDeployment);
         processDao.update(process);
-        processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
+        processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, null, deployment.getVersion(),
                 newDeploymentVersion), process, null);
         processDefinitionUpdateManager.after(newDefinition, affectedProcesses);
         return true;
@@ -587,12 +583,10 @@ public class ExecutionLogic extends WfCommonLogic {
         String oldNodeName = token.getNodeName();
         executionContext.getNode().cancel(executionContext);
         newNode.enter(executionContext);
-        AdminActionLog oldNodeLog = new AdminActionLog(user.getActor(), AdminActionLog.ACTION_MOVE_TOKEN, token, oldNodeName, newNode.getName());
-        oldNodeLog.setNodeId(oldNodeId);
-        processLogDao.addLog(oldNodeLog, process, token);
-        AdminActionLog newNodeLog = new AdminActionLog(user.getActor(), AdminActionLog.ACTION_MOVE_TOKEN, token, oldNodeName, newNode.getName());
-        newNodeLog.setNodeId(nodeId);
-        processLogDao.addLog(newNodeLog, process, token);
+        processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_MOVE_TOKEN, oldNodeId, token, oldNodeName, newNode.getName()),
+                process, token);
+        processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_MOVE_TOKEN, nodeId, token, oldNodeName, newNode.getName()),
+                process, token);
     }
 
     public void createToken(User user, Long processId, String nodeId) {
@@ -632,9 +626,8 @@ public class ExecutionLogic extends WfCommonLogic {
             ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
             node.enter(executionContext);
         }
-        AdminActionLog adminActionLog = new AdminActionLog(user.getActor(), AdminActionLog.ACTION_CREATE_TOKEN, token, token.getNodeName());
-        adminActionLog.setNodeId(nodeId);
-        processLogDao.addLog(adminActionLog, process, token);
+        processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_CREATE_TOKEN, nodeId, token, token.getNodeName()), process,
+                token);
     }
 
     private Node getDestinationNode(ProcessDefinition processDefinition, String nodeId) {
@@ -677,7 +670,7 @@ public class ExecutionLogic extends WfCommonLogic {
             Node node = token.getNodeNotNull(processDefinition);
             node.cancel(executionContext);
             token.end(processDefinition, null, TaskCompletionInfo.createForHandler("cancel"), false);
-            processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_REMOVE_TOKEN, token), token.getProcess(), token);
+            processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_REMOVE_TOKEN, node.getNodeId(), token), token.getProcess(), token);
             if (token == process.getRootToken()) {
                 process.end(executionContext, user.getActor());
                 tokenIds.remove(token.getId());
@@ -888,6 +881,22 @@ public class ExecutionLogic extends WfCommonLogic {
             }
         }
         return wfVariables;
+    }
+
+    public WfJob getJob(Long id) {
+        return new WfJob(jobDao.get(id));
+    }
+
+    public void updateJobDueDate(@NonNull User user, @NonNull Long processId, @NonNull Long jobId, Date dueDate) {
+        Process process = processDao.getNotNull(processId);
+        Job job = jobDao.get(jobId);
+        ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process);
+        Node node = processDefinition.getNode(job.getToken().getNodeId());
+        job.setDueDate(dueDate);
+        jobDao.update(job);
+        processLogDao.addLog(
+                new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPDATE_JOB_DUE_DATE, node.getNodeId(), CalendarUtil.formatDateTime(job
+                        .getDueDate())), process, null);
     }
 
     private List<WfToken> getTokens(Process process) throws ProcessDoesNotExistException {
