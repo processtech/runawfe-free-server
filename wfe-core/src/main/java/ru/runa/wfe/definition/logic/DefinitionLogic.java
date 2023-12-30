@@ -38,6 +38,7 @@ import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.DeploymentWithContent;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
@@ -88,10 +89,11 @@ public class DefinitionLogic extends WfCommonLogic {
         definition.getDeployment().setCategories(categories);
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
-        deploymentDao.deploy(definition.getDeployment(), null);
+        DeploymentWithContent deploymentWithContent = new DeploymentWithContent(definition.getDeployment(), processArchiveBytes);
+        deploymentWithContentDao.deploy(deploymentWithContent, null);
         permissionDao.setPermissions(user.getActor(), ApplicablePermissions.listVisible(SecuredObjectType.DEFINITION), definition.getDeployment());
         log.debug("Deployed process definition " + definition);
-        return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START_PROCESS, definition.getDeployment()));
+        return new WfDefinition(deploymentWithContent);
     }
 
     public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories) {
@@ -118,7 +120,7 @@ public class DefinitionLogic extends WfCommonLogic {
             definition.getDeployment().setCategory(oldDeployment.getCategory());
         }
         try {
-            ProcessDefinition oldDefinition = parseProcessDefinition(oldDeployment.getContent());
+            ProcessDefinition oldDefinition = processDefinitionLoader.getDefinition(oldDeployment.getId());
             boolean containsAllPreviousComments = definition.getChanges().containsAll(oldDefinition.getChanges());
             if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
                 if (!containsAllPreviousComments) {
@@ -138,9 +140,10 @@ public class DefinitionLogic extends WfCommonLogic {
         }
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
-        deploymentDao.deploy(definition.getDeployment(), oldDeployment);
+        DeploymentWithContent deploymentWithContent = new DeploymentWithContent(definition.getDeployment(), processArchiveBytes);
+        deploymentWithContentDao.deploy(deploymentWithContent, oldDeployment);
         log.debug("Process definition " + oldDeployment + " was successfully redeployed");
-        return new WfDefinition(definition, true);
+        return new WfDefinition(deploymentWithContent);
     }
 
     /**
@@ -148,19 +151,19 @@ public class DefinitionLogic extends WfCommonLogic {
      */
     public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes) {
         Preconditions.checkNotNull(processArchiveBytes, "processArchiveBytes is required!");
-        Deployment deployment = deploymentDao.getNotNull(definitionId);
-        permissionDao.checkAllowed(user, Permission.UPDATE, deployment);
+        DeploymentWithContent deploymentWithContent = deploymentWithContentDao.getNotNull(definitionId);
+        permissionDao.checkAllowed(user, Permission.UPDATE, deploymentWithContent);
         ProcessDefinition uploadedDefinition;
         try {
             uploadedDefinition = parseProcessDefinition(processArchiveBytes);
         } catch (Exception e) {
             throw new DefinitionArchiveFormatException(e);
         }
-        if (!deployment.getName().equals(uploadedDefinition.getName())) {
-            throw new DefinitionNameMismatchException("Expected definition name " + deployment.getName(), uploadedDefinition.getName(),
-                    deployment.getName());
+        if (!deploymentWithContent.getName().equals(uploadedDefinition.getName())) {
+            throw new DefinitionNameMismatchException("Expected definition name " + deploymentWithContent.getName(), uploadedDefinition.getName(),
+                    deploymentWithContent.getName());
         }
-        ProcessDefinition oldDefinition = getDefinition(deployment.getId());
+        ProcessDefinition oldDefinition = getDefinition(deploymentWithContent.getId());
         boolean containsAllPreviousComments = uploadedDefinition.getChanges().containsAll(oldDefinition.getChanges());
         if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
             if (!containsAllPreviousComments) {
@@ -177,14 +180,14 @@ public class DefinitionLogic extends WfCommonLogic {
         }
         List<Process> processes = processDefinitionUpdateManager.findApplicableProcesses(oldDefinition);
         Set<Process> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, uploadedDefinition, processes);
-        deployment.setContent(uploadedDefinition.getDeployment().getContent());
-        deployment.setUpdateDate(new Date());
-        deployment.setUpdateActor(user.getActor());
-        deploymentDao.update(deployment);
-        addUpdatedDefinitionInProcessLog(user, deployment);
+        deploymentWithContent.setContent(processArchiveBytes);
+        deploymentWithContent.setUpdateDate(new Date());
+        deploymentWithContent.setUpdateActor(user.getActor());
+        deploymentWithContentDao.update(deploymentWithContent);
+        addUpdatedDefinitionInProcessLog(user, deploymentWithContent.getName(), deploymentWithContent.getVersion());
         processDefinitionUpdateManager.after(uploadedDefinition, affectedProcesses);
-        log.debug("Process definition " + deployment + " was successfully updated");
-        return new WfDefinition(deployment);
+        log.debug("Process definition " + deploymentWithContent + " was successfully updated");
+        return new WfDefinition(deploymentWithContent);
     }
 
     public void setProcessDefinitionSubprocessBindingDate(User user, Long definitionId, Date date) {
@@ -197,10 +200,10 @@ public class DefinitionLogic extends WfCommonLogic {
                 + CalendarUtil.formatDateTime(date));
     }
 
-    private void addUpdatedDefinitionInProcessLog(User user, Deployment deployment) {
+    private void addUpdatedDefinitionInProcessLog(User user, String definitionName, Long definitionVersion) {
         ProcessFilter filter = new ProcessFilter();
-        filter.setDefinitionName(deployment.getName());
-        filter.setDefinitionVersion(deployment.getVersion());
+        filter.setDefinitionName(definitionName);
+        filter.setDefinitionVersion(definitionVersion);
         filter.setFinished(false);
         List<Process> processes = processDao.getProcesses(filter);
         for (Process process : processes) {
@@ -310,7 +313,7 @@ public class DefinitionLogic extends WfCommonLogic {
             permissionDao.checkAllowed(user, Permission.READ, deployment);
         }
         if (FileDataProvider.PAR_FILE.equals(fileName)) {
-            return deployment.getContent();
+            return deploymentWithContentDao.get(deployment.getId()).getContent();
         }
         return definition.getFileData(fileName);
     }
@@ -381,9 +384,7 @@ public class DefinitionLogic extends WfCommonLogic {
     }
 
     private ProcessDefinition parseProcessDefinition(byte[] data) {
-        Deployment deployment = new Deployment();
-        deployment.setContent(data);
-        ProcessArchive archive = new ProcessArchive(deployment);
+        ProcessArchive archive = new ProcessArchive(new Deployment(), data);
         return archive.parseProcessDefinition();
     }
 

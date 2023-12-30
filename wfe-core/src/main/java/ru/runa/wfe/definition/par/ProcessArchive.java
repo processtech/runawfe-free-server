@@ -64,10 +64,10 @@ public class ProcessArchive {
 
     private final Map<String, byte[]> fileData = Maps.newHashMap();
 
-    public ProcessArchive(Deployment deployment) {
+    public ProcessArchive(Deployment deployment, byte[] par) {
         try {
             this.deployment = deployment;
-            ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(deployment.getContent()));
+            ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(par));
             ZipEntry zipEntry = zis.getNextEntry();
             while (zipEntry != null) {
                 String entryName = zipEntry.getName();

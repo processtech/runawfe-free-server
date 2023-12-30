@@ -19,6 +19,7 @@ package ru.runa.wfe.definition.cache;
 
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dao.DeploymentDao;
+import ru.runa.wfe.definition.dao.DeploymentWithContentDao;
 import ru.runa.wfe.lang.ProcessDefinition;
 
 /**
@@ -36,7 +37,8 @@ interface ProcessDefinitionCache {
      * @throws DefinitionDoesNotExistException
      *             {@link ProcessDefinition} with specified identity doesn't exists.
      */
-    public ProcessDefinition getDefinition(DeploymentDao deploymentDao, Long definitionId) throws DefinitionDoesNotExistException;
+    public ProcessDefinition getDefinition(DeploymentDao deploymentDao, DeploymentWithContentDao deploymentWithContentDao, Long definitionId)
+            throws DefinitionDoesNotExistException;
 
     /**
      * Returns {@link ProcessDefinition} with specified name and latest version.
@@ -49,5 +51,6 @@ interface ProcessDefinitionCache {
      * @throws DefinitionDoesNotExistException
      *             {@link ProcessDefinition} with specified name doesn't exists.
      */
-    public ProcessDefinition getLatestDefinition(DeploymentDao deploymentDao, String definitionName) throws DefinitionDoesNotExistException;
+    public ProcessDefinition getLatestDefinition(DeploymentDao deploymentDao, DeploymentWithContentDao deploymentWithContentDao, String definitionName)
+            throws DefinitionDoesNotExistException;
 }

@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.commons.EntityWithType;
 import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.DeploymentWithContent;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -63,6 +64,19 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     }
 
     public WfDefinition(Deployment deployment) {
+        id = deployment.getId();
+        version = deployment.getVersion();
+        name = deployment.getName();
+        description = deployment.getDescription();
+        categories = deployment.getCategories();
+        createDate = deployment.getCreateDate();
+        createActor = deployment.getCreateActor();
+        updateDate = deployment.getUpdateDate();
+        updateActor = deployment.getUpdateActor();
+        subprocessBindingDate = deployment.getSubprocessBindingDate();
+    }
+
+    public WfDefinition(DeploymentWithContent deployment) {
         id = deployment.getId();
         version = deployment.getVersion();
         name = deployment.getName();

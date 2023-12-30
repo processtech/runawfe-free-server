@@ -31,6 +31,7 @@ import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.chat.logic.ChatComponentFacade;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dao.DeploymentDao;
+import ru.runa.wfe.definition.dao.DeploymentWithContentDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
@@ -71,6 +72,8 @@ public class WfCommonLogic extends CommonLogic {
 
     @Autowired
     protected DeploymentDao deploymentDao;
+    @Autowired
+    protected DeploymentWithContentDao deploymentWithContentDao;
     @Autowired
     protected NodeProcessDao nodeProcessDao;
     @Autowired
