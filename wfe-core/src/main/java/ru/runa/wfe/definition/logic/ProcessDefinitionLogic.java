@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -188,8 +189,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         }
         ParsedProcessDefinition oldDefinition = getDefinition(d.getId());
         checkCommentsOnDeploy(oldDefinition, parsed);
-        List<CurrentProcess> processes = processDefinitionUpdateManager.findApplicableProcesses(oldDefinition);
-        Set<CurrentProcess> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, parsed, processes);
+        Set<CurrentProcess> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, parsed, Optional.empty());
         d.setContent(processArchiveBytes);
         d.setUpdateDate(new Date());
         d.setUpdateActor(user.getActor());
