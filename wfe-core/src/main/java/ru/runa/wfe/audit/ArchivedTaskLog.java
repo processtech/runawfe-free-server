@@ -37,4 +37,10 @@ public abstract class ArchivedTaskLog extends ArchivedProcessLog implements Task
         }
         return null;
     }
+
+    @Override
+    @Transient
+    public String getSwimlaneName() {
+        return getAttribute(ATTR_SWIMLANE_NAME);
+    }
 }

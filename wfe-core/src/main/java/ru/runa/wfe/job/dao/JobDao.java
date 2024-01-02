@@ -92,4 +92,5 @@ public class JobDao extends GenericDao<Job> {
         val j = QJob.job;
         queryFactory.delete(j).where(j.process.eq(process)).execute();
     }
+
 }

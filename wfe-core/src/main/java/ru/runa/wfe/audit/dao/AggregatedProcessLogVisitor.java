@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import lombok.val;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
@@ -28,32 +30,16 @@ import ru.runa.wfe.audit.aggregated.TaskAssignmentAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskEndReason;
 import ru.runa.wfe.audit.aggregated.TimerAggregatedLog;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
-import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.lang.BaseReceiveMessageNode;
-import ru.runa.wfe.lang.InteractionNode;
-import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.TaskDefinition;
 
-public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
+@Component
+public class AggregatedProcessLogVisitor extends ProcessLogVisitor {
 
-    private final SessionFactory sessionFactory;
-    private final HibernateQueryFactory queryFactory;
-    private final CurrentProcess process;
-    private final ProcessDefinitionLoader processDefinitionLoader;
-
-    public UpdateAggregatedLogVisitor(
-            SessionFactory sessionFactory,
-            HibernateQueryFactory queryFactory,
-            ProcessDefinitionLoader processDefinitionLoader,
-            CurrentProcess process
-    ) {
-        this.sessionFactory = sessionFactory;
-        this.queryFactory = queryFactory;
-        this.processDefinitionLoader = processDefinitionLoader;
-        this.process = process;
-    }
+    @Autowired
+    private SessionFactory sessionFactory;
+    @Autowired
+    private HibernateQueryFactory queryFactory;
 
     @Override
     public void onNodeEnterLog(NodeEnterLog nodeEnterLog) {
@@ -100,16 +86,6 @@ public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
         if (getTaskLog(l.getTaskId()) != null) {
             return;
         }
-
-        String swimlaneName = null;
-        Node node = processDefinitionLoader.getDefinition(process).getNode(l.getNodeId());
-        if (node instanceof InteractionNode) {
-            List<TaskDefinition> tasks = ((InteractionNode) node).getTasks();
-            if (tasks != null && !tasks.isEmpty() && tasks.get(0).getSwimlane() != null) {
-                swimlaneName = tasks.get(0).getSwimlane().getName();
-            }
-        }
-
         TaskAggregatedLog tal = new TaskAggregatedLog();
         tal.setTaskId(l.getTaskId());
         tal.setProcessId(l.getProcessId());
@@ -119,7 +95,7 @@ public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
         tal.setNodeId(l.getNodeId());
         tal.setTaskName(l.getTaskName());
         tal.setTaskIndex(l.getTaskIndex());
-        tal.setSwimlaneName(swimlaneName);
+        tal.setSwimlaneName(l.getSwimlaneName());
         tal.setEndReason(TaskEndReason.PROCESSING);
         sessionFactory.getCurrentSession().save(tal);
     }

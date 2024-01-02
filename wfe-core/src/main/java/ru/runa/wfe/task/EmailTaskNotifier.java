@@ -8,13 +8,11 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailConfigParser;
 import ru.runa.wfe.commons.email.EmailUtils;
-import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.auth.UserHolder;
@@ -38,9 +36,6 @@ public class EmailTaskNotifier implements TaskNotifier {
 
     private EmailUtils.SwimlaneNameFilter includeSwimlaneNameFilter;
     private EmailUtils.SwimlaneNameFilter excludeSwimlaneNameFilter;
-
-    @Autowired
-    private ProcessDefinitionLoader processDefinitionLoader;
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -97,7 +92,7 @@ public class EmailTaskNotifier implements TaskNotifier {
         }
         try {
             log.debug("About " + task + " assigned to " + task.getExecutor() + ", previous: " + previousExecutor);
-            final String processName = processDefinitionLoader.getDefinition(task.getProcess()).getName();
+            final String processName = task.getProcess().getDefinition().getPack().getName();
             if (!EmailUtils.isProcessNameMatching(processName, includeProcessNameFilter, excludeProcessNameFilter)) {
                 log.debug("Ignored due to excluded process name " + processName);
                 return;

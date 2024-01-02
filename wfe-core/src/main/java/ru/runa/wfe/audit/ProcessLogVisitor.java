@@ -59,4 +59,5 @@ public abstract class ProcessLogVisitor {
     public void onAdminActionLog(AdminActionLog adminActionLog) {};
 
     public void onNodeInfoLog(NodeInfoLog nodeInfoLog) {};
+
 }

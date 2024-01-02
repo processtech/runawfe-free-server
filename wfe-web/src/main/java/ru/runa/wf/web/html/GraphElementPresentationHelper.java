@@ -198,6 +198,15 @@ public class GraphElementPresentationHelper {
         return area;
     }
 
+    public Area createSelectElementLink(NodeGraphElement element) {
+        Area area = new Area("RECT", element.getGraphConstraints());
+        String url = "javascript:selectProcessNode('" + element.getNodeId() + "', true);";
+        area.setHref(url);
+        area.setTitle(element.getName());
+        map.addElement(area);
+        return area;
+    }
+
     private long getSelectedTaskProcessId() {
         String selectedTaskProcessId = pageContext.getRequest().getParameter(TaskIdForm.SELECTED_TASK_PROCESS_ID_NAME);
         return selectedTaskProcessId != null

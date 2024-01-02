@@ -7,10 +7,8 @@ import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -46,10 +44,9 @@ public class WfProcess extends SecuredObject {
 
     public WfProcess(Process process, String errors) {
         this.id = process.getId();
-        ParsedProcessDefinition parsedProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process);
-        this.name = parsedProcessDefinition.getName();
-        this.definitionId = parsedProcessDefinition.getId();
-        this.version = parsedProcessDefinition.getVersion().intValue();
+        this.name = process.getDefinition().getPack().getName();
+        this.definitionId = process.getDefinition().getId();
+        this.version = process.getDefinition().getVersion().intValue();
         this.archived = process.isArchived();
         this.startDate = process.getStartDate();
         this.endDate = process.getEndDate();

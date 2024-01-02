@@ -1,5 +1,6 @@
 package ru.runa.wfe.service.delegate;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -7,9 +8,12 @@ import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.RestoreProcessStatus;
+import ru.runa.wfe.execution.dto.WfFrozenToken;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
+import ru.runa.wfe.execution.process.check.FrozenProcessFilter;
+import ru.runa.wfe.execution.process.check.FrozenProcessSearchData;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -335,4 +339,59 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
             throw handleException(e);
         }
     }
+
+    @Override
+    public List<WfFrozenToken> getFrozenTokens(User user, Map<String, FrozenProcessSearchData> searchData, Map<FrozenProcessFilter, String> filters) {
+        try {
+            return getExecutionService().getFrozenTokens(user, searchData, filters);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void moveToken(User user, Long processId, Long tokenId, String nodeId) {
+        try {
+            getExecutionService().moveToken(user, processId, tokenId, nodeId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void createToken(User user, Long processId, String nodeId) {
+        try {
+            getExecutionService().createToken(user, processId, nodeId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void removeTokens(User user, Long processId, List<Long> tokenIds) {
+        try {
+            getExecutionService().removeTokens(user, processId, tokenIds);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public WfJob getJob(Long id) {
+        try {
+            return getExecutionService().getJob(id);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void updateJobDueDate(User user, Long processId, Long jobId, Date dueDate) {
+        try {
+            getExecutionService().updateJobDueDate(user, processId, jobId, dueDate);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
 }

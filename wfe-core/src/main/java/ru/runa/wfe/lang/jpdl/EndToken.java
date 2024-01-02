@@ -32,7 +32,7 @@ public class EndToken extends Node {
         }
         // If this token was forked
         CurrentToken parentToken = executionContext.getCurrentToken().getParent();
-        if (parentToken != null && parentToken.getNodeType() == NodeType.FORK && parentToken.getActiveChildren().size() == 0) {
+        if (parentToken != null && parentToken.getNodeType() == NodeType.FORK && parentToken.getActiveChildren(false).size() == 0) {
             Set<Join> joins = Sets.newHashSet();
             for (CurrentToken childToken : parentToken.getChildren()) {
                 if (childToken.getNodeType() == NodeType.JOIN) {

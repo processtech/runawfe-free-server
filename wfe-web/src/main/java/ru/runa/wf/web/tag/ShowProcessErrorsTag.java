@@ -1,5 +1,6 @@
 package ru.runa.wf.web.tag;
 
+import java.util.List;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
@@ -27,7 +28,6 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
-import java.util.List;
 
 @Tag(bodyContent = BodyContent.JSP, name = "viewProcessErrors")
 public class ShowProcessErrorsTag extends BatchReturningTitledFormTag {

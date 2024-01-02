@@ -35,6 +35,7 @@ import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.ProcessDefinitionPack;
+import ru.runa.wfe.definition.ProcessDefinitionWithContent;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.definition.update.ProcessDefinitionUpdateManager;
@@ -100,7 +101,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
             secondsBeforeArchiving = null;
         }
         ProcessDefinitionPack p = new ProcessDefinitionPack();
-        ProcessDefinition d = new ProcessDefinition();
+        ProcessDefinitionWithContent d = new ProcessDefinitionWithContent();
         p.setLanguage(parsed.getLanguage());
         p.setName(parsed.getName());
         p.setDescription(parsed.getDescription());
@@ -113,11 +114,14 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         d.setVersion(1L);
         d.setSubVersion(0L);
         processDefinitionPackDao.create(p);
-        processDefinitionDao.create(d);
-        p.setLatest(d);
+        processDefinitionWithContentDao.create(d);
+        processDefinitionWithContentDao.flushPendingChanges();
+        ProcessDefinition ld = processDefinitionDao.get(d.getId());
+        Preconditions.checkNotNull(ld, "last definition is null (see #3264)");
+        p.setLatest(ld);
         permissionDao.setPermissions(user.getActor(), ApplicablePermissions.listVisible(SecuredObjectType.DEFINITION), p);
         log.debug("Deployed process definition " + parsed);
-        return new WfDefinition(d);
+        return new WfDefinition(p, d);
     }
 
     /**
@@ -149,7 +153,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         if (!Objects.equals(oldDefinition.getPack().getName(), parsed.getName())) {
             throw new DefinitionNameMismatchException(oldDefinition.getPack().getName(), parsed.getName());
         }
-        ParsedProcessDefinition parsedOld = parseProcessDefinition(oldDefinition.getContent());
+        ParsedProcessDefinition parsedOld = processDefinitionLoader.getDefinition(oldDefinition.getId());
         try {
             checkCommentsOnDeploy(parsedOld, parsed);
         } catch (InvalidDefinitionException e) {
@@ -164,24 +168,27 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         if (secondsBeforeArchiving != null) {
             p.setSecondsBeforeArchiving(secondsBeforeArchiving < 0 ? null : secondsBeforeArchiving);
         }
-        ProcessDefinition d = new ProcessDefinition();
+        ProcessDefinitionWithContent d = new ProcessDefinitionWithContent();
         d.setPack(p);
         d.setContent(processArchiveBytes);
         d.setCreateDate(new Date());
         d.setCreateActor(user.getActor());
         d.setVersion(oldDefinition.getPack().getLatest().getVersion() + 1);
         d.setSubVersion(0L);
-        processDefinitionDao.create(d);
-        p.setLatest(d);
+        processDefinitionWithContentDao.create(d);
+        processDefinitionWithContentDao.flushPendingChanges();
+        ProcessDefinition ld = processDefinitionDao.get(d.getId());
+        Preconditions.checkNotNull(ld, "last definition is null (see #3264)");
+        p.setLatest(ld);
         log.debug("Process definition " + oldDefinition + " was successfully redeployed");
-        return new WfDefinition(d);
+        return new WfDefinition(p, d);
     }
 
     /**
      * Updates process definition subversion.
      */
     public WfDefinition updateProcessDefinition(User user, Long processDefinitionId, @NonNull byte[] processArchiveBytes) {
-        val d = processDefinitionDao.getNotNull(processDefinitionId);
+        val d = processDefinitionWithContentDao.getNotNull(processDefinitionId);
         permissionDao.checkAllowed(user, Permission.UPDATE, d.getPack());
         val parsed = parseProcessDefinition(processArchiveBytes);
         if (!Objects.equals(d.getPack().getName(), parsed.getName())) {
@@ -194,11 +201,11 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         d.setUpdateDate(new Date());
         d.setUpdateActor(user.getActor());
         d.setSubVersion(d.getSubVersion() + 1);
-        processDefinitionDao.update(d);
-        addUpdatedDefinitionInProcessLog(user, d);
+        processDefinitionWithContentDao.update(d);
+        addUpdatedDefinitionInProcessLog(user, d.getPack().getName(), d.getVersion());
         processDefinitionUpdateManager.after(parsed, affectedProcesses);
         log.debug("Process definition " + d + " was successfully updated");
-        return new WfDefinition(d);
+        return new WfDefinition(d.getPack(), d);
     }
 
     private void checkCommentsOnDeploy(ParsedProcessDefinition oldDefinition, ParsedProcessDefinition definition) {
@@ -226,14 +233,15 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
                 + CalendarUtil.formatDateTime(date));
     }
 
-    private void addUpdatedDefinitionInProcessLog(User user, ProcessDefinition d) {
+    private void addUpdatedDefinitionInProcessLog(User user, String definitionName, Long definitionVersion) {
         ProcessFilter filter = new ProcessFilter();
-        filter.setDefinitionName(d.getPack().getName());
-        filter.setDefinitionVersion(d.getVersion());
+        filter.setDefinitionName(definitionName);
+        filter.setDefinitionVersion(definitionVersion);
         filter.setFinished(false);
         List<CurrentProcess> processes = currentProcessDao.getProcesses(filter);
         for (CurrentProcess process : processes) {
-            processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_CURRENT_PROCESS_VERSION), process, null);
+            processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_CURRENT_PROCESS_VERSION, null),
+                    process, null);
         }
     }
 
@@ -353,7 +361,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
             permissionDao.checkAllowed(user, Permission.READ, definition.getSecuredObject());
         }
         if (FileDataProvider.PAR_FILE.equals(fileName)) {
-            return processDefinitionDao.getNotNull(processDefinitionId).getContent();
+            return processDefinitionWithContentDao.getNotNull(processDefinitionId).getContent();
         }
         return definition.getFileData(fileName);
     }
@@ -434,8 +442,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         try {
             val d = new ProcessDefinition();
             d.setPack(new ProcessDefinitionPack());
-            d.setContent(data);
-            ProcessArchive archive = new ProcessArchive(d);
+            ProcessArchive archive = new ProcessArchive(d, data);
             return archive.parseProcessDefinition();
         } catch (DefinitionArchiveFormatException e) {
             throw e;

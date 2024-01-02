@@ -181,6 +181,8 @@ public class SecuredObjectFactory {
 
         add(SecuredSingleton.ERRORS);
 
+        add(SecuredSingleton.FROZEN_PROCESSES);
+
         add(SecuredObjectType.EXECUTOR, new Loader(SecuredObjectType.EXECUTOR) {
             @Override
             public SecuredObject findById(Long id) {

@@ -16,6 +16,7 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.definition.dao.ProcessDefinitionPackDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionWithContentDao;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
@@ -64,6 +65,8 @@ public class WfCommonLogic extends CommonLogic {
     protected ProcessDefinitionDao processDefinitionDao;
     @Autowired
     protected CurrentNodeProcessDao currentNodeProcessDao;
+    @Autowired
+    protected ProcessDefinitionWithContentDao processDefinitionWithContentDao;
     @Autowired
     protected NodeProcessDao nodeProcessDao;
     @Autowired

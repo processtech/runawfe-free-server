@@ -118,6 +118,15 @@ public class SystemServiceDelegate extends Ejb3Delegate implements SystemService
     }
 
     @Override
+    public String getTokenErrorStackTrace(User user, Long tokenId) {
+        try {
+            return getSystemService().getTokenErrorStackTrace(user, tokenId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public int getTokenErrorsCount(User user, BatchPresentation batchPresentation) {
         try {
             return getSystemService().getTokenErrorsCount(user, batchPresentation);
@@ -130,15 +139,6 @@ public class SystemServiceDelegate extends Ejb3Delegate implements SystemService
     public List<WfTokenError> getTokenErrorsByProcessId(User user, Long processId) {
         try {
             return getSystemService().getTokenErrorsByProcessId(user, processId);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
-    public WfTokenError getTokenError(User user, Long tokenId) {
-        try {
-            return getSystemService().getTokenError(user, tokenId);
         } catch (Exception e) {
             throw handleException(e);
         }

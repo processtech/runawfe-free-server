@@ -12,6 +12,7 @@ import ru.runa.wfe.definition.DefinitionHistoryClassPresentation;
 import ru.runa.wfe.execution.ArchivedProcessClassPresentation;
 import ru.runa.wfe.execution.CurrentProcessClassPresentation;
 import ru.runa.wfe.execution.CurrentProcessWithTasksClassPresentation;
+import ru.runa.wfe.execution.TokenClassPresentation;
 import ru.runa.wfe.relation.RelationClassPresentation;
 import ru.runa.wfe.relation.RelationPairClassPresentation;
 import ru.runa.wfe.report.ReportClassPresentation;
@@ -37,8 +38,9 @@ public enum ClassPresentationType {
     TASK(TaskClassPresentation.INSTANCE, "task"),
     TASK_OBSERVABLE(TaskObservableClassPresentation.INSTANCE, "task"),
     REPORTS(ReportClassPresentation.INSTANCE, "report"),
-    TOKEN_ERRORS(TokenErrorClassPresentation.getInstance(), "error"),
-    CHAT_ROOM(ChatRoomClassPresentation.getInstance(), "process");
+    TOKEN(TokenClassPresentation.INSTANCE, "token"),
+    TOKEN_ERRORS(TokenErrorClassPresentation.INSTANCE, "error"),
+    CHAT_ROOM(ChatRoomClassPresentation.INSTANCE, "process");
 
     private final Class<?> presentationClass;
     private final List<String> restrictions;

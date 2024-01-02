@@ -137,7 +137,7 @@ public class CurrentTokenDao extends GenericDao<CurrentToken> {
                 .fetch();
     }
 
-    public List<CurrentToken> findByProcessIdAndParentId(Long processId) {
+    public List<CurrentToken> findByProcessIdAndParentIsNull(Long processId) {
         val t = QCurrentToken.currentToken;
         return queryFactory.selectFrom(t).where(t.process.id.eq(processId).and(t.parent.isNull())).fetch();
     }

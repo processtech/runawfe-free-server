@@ -53,6 +53,7 @@ public class Resources {
     public static final String EXCEL_ICON = "/images/excel-icon.png";
     public static final String H_MORE_ICON = "/images/h-more-16.png";
     public static final String V_MORE_ICON = "/images/v-more-16.png";
+    public static final String CLASS_INPUT_DATE_TIME = "inputDateTime";
 
     /* Chat actions */
     public static final String IMAGE_CHAT_DELETE = "/images/chat_delete.png";

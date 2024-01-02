@@ -247,7 +247,7 @@ public class Task implements Assignable {
     @Transient
     @Override
     public String getSwimlaneName() {
-        return swimlane.getName();
+        return swimlane != null ? swimlane.getName() : null;
     }
 
     @Override

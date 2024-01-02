@@ -86,7 +86,14 @@ function Reload() {
 		</td>
 	</tr>
 	<tr>
-		<td align="right"></td>
+		<% if (Delegates.getExecutorService().isAdministrator(Commons.getUser(session))) { %>
+		<td align="right">
+			<% String href = "/wfe/manage_process_execution.do?processId=" + id;%>
+			<a href="<%= href %>">
+				<bean:message key="link.manage_execution" />
+			</a>
+		</td>
+		<% }%>
 		<td align="right">
 			<wf:showHistoryLink identifiableId='<%=id %>' href='<%= "/show_history.do?id=" + id %>'  />
 		</td>
@@ -116,6 +123,7 @@ function Reload() {
 <wf:processActiveTaskMonitor identifiableId='<%= id %>' />
 <wf:processSwimlaneMonitor identifiableId='<%= id %>' />
 <wf:processVariableMonitor identifiableId='<%= id %>' />
+<wf:processJobMonitor identifiableId='<%= id %>' />
 <% if(!graphMode) { %>
 	<wf:processGraphForm identifiableId='<%= id %>' taskId='<%= taskId %>' childProcessId='<%= childProcessId %>'/>
 <% } %>

@@ -16,7 +16,6 @@ import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailConfigParser;
 import ru.runa.wfe.commons.email.EmailUtils;
-import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dao.TaskDao;
 
@@ -33,8 +32,6 @@ public class ExpiredTasksNotifier {
     private EmailUtils.ProcessNameFilter excludeProcessNameFilter;
     @Autowired
     private TaskDao taskDao;
-    @Autowired
-    private ProcessDefinitionLoader processDefinitionLoader;
     private long scheduledTimerTaskPeriod;
 
     @Required
@@ -87,7 +84,7 @@ public class ExpiredTasksNotifier {
             if ((task.getDeadlineDate().getTime() + scheduledTimerTaskPeriod) < curDate.getTime()) {
                 continue;
             }
-            final String processName = processDefinitionLoader.getDefinition(task.getProcess()).getName();
+            final String processName = task.getProcess().getDefinition().getPack().getName();
             if (!EmailUtils.isProcessNameMatching(processName, includeProcessNameFilter, excludeProcessNameFilter)) {
                 log.debug("Ignored due to excluded process name " + processName);
                 return;

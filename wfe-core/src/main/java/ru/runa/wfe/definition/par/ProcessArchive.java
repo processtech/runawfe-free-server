@@ -55,10 +55,10 @@ public class ProcessArchive {
     private final ProcessDefinition processDefinition;
     private final Map<String, byte[]> fileData = Maps.newHashMap();
 
-    public ProcessArchive(@NonNull ProcessDefinition processDefinition) {
+    public ProcessArchive(@NonNull ProcessDefinition processDefinition, byte[] par) {
         try {
             this.processDefinition = processDefinition;
-            ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(processDefinition.getContent()));
+            ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(par));
             ZipEntry zipEntry = zis.getNextEntry();
             while (zipEntry != null) {
                 String entryName = zipEntry.getName();

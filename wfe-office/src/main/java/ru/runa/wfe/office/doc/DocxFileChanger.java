@@ -55,12 +55,14 @@ public class DocxFileChanger {
             }
             if (bodyElement instanceof XWPFTable) {
                 XWPFTable table = (XWPFTable) bodyElement;
+                List<Integer> emptyRowIndices = Lists.newArrayList();
                 List<XWPFTableRow> rows = table.getRows();
                 for (int i = 0; i < rows.size(); i++) {
                     XWPFTableRow row = rows.get(i);
                     List<XWPFTableCell> cells = row.getTableCells();
                     // try to expand cells by column
                     TableExpansionOperation tableExpansionOperation = new TableExpansionOperation(row);
+                    boolean templateRowIsEmpty = true;
                     for (int columnIndex = 0; columnIndex < cells.size(); columnIndex++) {
                         final XWPFTableCell cell = cells.get(columnIndex);
                         ColumnExpansionOperation operation = DocxUtils.parseIterationOperation(config, variableProvider, cell.getText(),
@@ -73,6 +75,10 @@ public class DocxFileChanger {
                             tableExpansionOperation.addOperation(columnIndex, operation);
                         }
                         String text0 = tableExpansionOperation.getStringValue(config, variableProvider, columnIndex, 0);
+                        if (templateRowIsEmpty && !tableExpansionOperation.isIndexOrNumberColumnExpansitonOperation(columnIndex) && text0 != null
+                                && !text0.trim().isEmpty()) {
+                            templateRowIsEmpty = false;
+                        }
                         if (!java.util.Objects.equals(text0, cell.getText())) {
                             DocxUtils.setCellText(cell, text0);
                         }
@@ -83,14 +89,29 @@ public class DocxFileChanger {
                         }
                     } else {
                         int templateRowIndex = table.getRows().indexOf(tableExpansionOperation.getTemplateRow());
+                        int rowIndexSafe = 1;
+                        if (templateRowIsEmpty) {
+                            emptyRowIndices.add(i);
+                            rowIndexSafe = 0;
+                        }
                         for (int rowIndex = 1; rowIndex < tableExpansionOperation.getRows(); rowIndex++) {
+                            boolean wholeRowIsEmpty = true;
                             XWPFTableRow dynamicRow = table.insertNewTableRow(templateRowIndex + rowIndex);
                             for (int columnIndex = 0; columnIndex < tableExpansionOperation.getTemplateRow().getTableCells().size(); columnIndex++) {
                                 dynamicRow.createCell();
                             }
                             for (int columnIndex = 0; columnIndex < dynamicRow.getTableCells().size(); columnIndex++) {
-                                String text = tableExpansionOperation.getStringValue(config, variableProvider, columnIndex, rowIndex);
+                                String text;
+                                if (tableExpansionOperation.isIndexOrNumberColumnExpansitonOperation(columnIndex)) {
+                                    text = tableExpansionOperation.getStringValue(config, variableProvider, columnIndex, rowIndexSafe);
+                                } else {
+                                    text = tableExpansionOperation.getStringValue(config, variableProvider, columnIndex, rowIndex);
+                                }
                                 DocxUtils.setCellText(dynamicRow.getCell(columnIndex), text, tableExpansionOperation.getTemplateCell(columnIndex));
+                                if (wholeRowIsEmpty && !tableExpansionOperation.isIndexOrNumberColumnExpansitonOperation(columnIndex) && text != null
+                                        && !text.trim().isEmpty()) {
+                                    wholeRowIsEmpty = false;
+                                }
                                 if (OfficeProperties.getDocxPlaceholderVMerge().equals(text)) {
                                     CTTcPr tcPr = dynamicRow.getCell(columnIndex).getCTTc().getTcPr();
                                     tcPr.addNewVMerge().setVal(STMerge.CONTINUE);
@@ -105,8 +126,16 @@ public class DocxFileChanger {
                                     }
                                 }
                             }
+                            if (wholeRowIsEmpty) {
+                                emptyRowIndices.add(templateRowIndex + rowIndex);
+                            } else {
+                                rowIndexSafe++;
+                            }
                         }
                     }
+                }
+                for (Integer i : Lists.reverse(emptyRowIndices)) {
+                    table.removeRow(i);
                 }
             }
         }

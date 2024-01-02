@@ -133,6 +133,8 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
 
     public static final SecuredObjectType PROCESS = new SecuredObjectType("PROCESS", false);
 
+    public static final SecuredObjectType FROZEN_PROCESSES = new SecuredObjectType("FROZEN_PROCESSES", true);
+
     public static final SecuredObjectType RELATIONS = new SecuredObjectType("RELATIONS", true);
     public static final SecuredObjectType RELATION = new SecuredObjectType("RELATION", RELATIONS);
 
@@ -140,6 +142,8 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
     public static final SecuredObjectType REPORT = new SecuredObjectType("REPORT", REPORTS);
     
     public static final SecuredObjectType SYSTEM = new SecuredObjectType("SYSTEM", true);
+
+    public static final SecuredObjectType TOKENS = new SecuredObjectType("TOKENS", true);
 
     public static final SecuredObjectType CHAT_ROOMS = new SecuredObjectType("CHAT_ROOMS", false);
 

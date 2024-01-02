@@ -1,5 +1,6 @@
 package ru.runa.wfe.service.impl;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,10 +21,13 @@ import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.ProcessDefinitionLogic;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.RestoreProcessStatus;
+import ru.runa.wfe.execution.dto.WfFrozenToken;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
+import ru.runa.wfe.execution.process.check.FrozenProcessFilter;
+import ru.runa.wfe.execution.process.check.FrozenProcessSearchData;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
@@ -379,4 +383,44 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public Set<Executor> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups) {
         return executionLogic.getAllExecutorsByProcessId(user, processId, expandGroups);
     }
+
+    @Override
+    @WebResult(name = "result")
+    public List<WfFrozenToken> getFrozenTokens(@WebParam(name = "user") @NonNull User user,
+            Map<String, FrozenProcessSearchData> searchData, Map<FrozenProcessFilter, String> filters) {
+        return executionLogic.getFrozenTokens(user, searchData, filters);
+    }
+
+    @Override
+    public void moveToken(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
+            @WebParam(name = "tokenId") @NonNull Long tokenId, @WebParam(name = "nodeId") @NonNull String nodeId) {
+        executionLogic.moveToken(user, processId, tokenId, nodeId);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public void createToken(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
+            @WebParam(name = "nodeId") @NonNull String nodeId) {
+        executionLogic.createToken(user, processId, nodeId);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public void removeTokens(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
+            @WebParam(name = "tokenIds") List<Long> tokenIds) {
+        executionLogic.removeTokens(user, processId, tokenIds);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public WfJob getJob(Long id) {
+        return executionLogic.getJob(id);
+    }
+
+    @Override
+    @WebMethod(exclude = true)
+    public void updateJobDueDate(User user, Long processId, Long jobId, Date dueDate) {
+        executionLogic.updateJobDueDate(user, processId, jobId, dueDate);
+    }
+
 }

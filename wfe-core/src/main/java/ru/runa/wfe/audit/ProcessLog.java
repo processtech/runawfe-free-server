@@ -21,7 +21,6 @@ import lombok.AllArgsConstructor;
  */
 public interface ProcessLog extends Attributes, Comparable<ProcessLog>, Serializable {
 
-    // TODO Consider using this to reduce class hiearchy.
     @AllArgsConstructor
     enum Type {
         ALL(CurrentProcessLog.class, ArchivedProcessLog.class),

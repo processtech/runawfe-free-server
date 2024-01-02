@@ -39,7 +39,7 @@ public class ParallelGateway extends Node {
         CurrentToken token = executionContext.getCurrentToken();
         executionLogic.endToken(token, executionContext.getParsedProcessDefinition(), null, null, false);
         log.debug("Executing " + this + " with " + token);
-        StateInfo stateInfo = findStateInfo(executionContext.getCurrentProcess().getRootToken(), true);
+        StateInfo stateInfo = findStateInfo(executionContext.getCurrentProcess().getId(), true);
         switch (stateInfo.state) {
             case LEAVING: {
                 log.debug("marking tokens as inactive " + stateInfo.tokensToPop);
@@ -92,9 +92,12 @@ public class ParallelGateway extends Node {
         }
     }
 
-    protected StateInfo findStateInfo(CurrentToken rootToken, boolean ignoreFailedTokens) {
+    private StateInfo findStateInfo(Long processId, boolean ignoreFailedTokens) {
         StateInfo stateInfo = new StateInfo();
-        fillTokensInfo(rootToken, stateInfo);
+        List<CurrentToken> tokens = ApplicationContextFactory.getCurrentTokenDao().findByProcessIdAndParentIsNull(processId);
+        for (CurrentToken token : tokens) {
+            fillTokensInfo(token, stateInfo);
+        }
         for (Transition transition : getArrivingTransitions()) {
             boolean transitionIsPassedByToken = false;
             for (CurrentToken token : stateInfo.arrivedTokens) {
@@ -233,7 +236,7 @@ public class ParallelGateway extends Node {
                         log.debug("no ended tokens found");
                         return;
                     }
-                    StateInfo stateInfo = gateway.findStateInfo(process.getRootToken(), true);
+                    StateInfo stateInfo = gateway.findStateInfo(process.getId(), true);
                     switch (stateInfo.state) {
                     case LEAVING: {
                         log.debug("marking tokens as inactive " + stateInfo.tokensToPop);
@@ -284,7 +287,7 @@ public class ParallelGateway extends Node {
                         log.warn("no failed tokens found");
                         return;
                     }
-                    StateInfo stateInfo = gateway.findStateInfo(process.getRootToken(), false);
+                    StateInfo stateInfo = gateway.findStateInfo(process.getId(), false);
                     switch (stateInfo.state) {
                         case LEAVING: {
                             log.debug("marking tokens as inactive " + stateInfo.tokensToPop);

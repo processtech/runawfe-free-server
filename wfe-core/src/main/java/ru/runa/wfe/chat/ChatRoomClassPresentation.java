@@ -26,7 +26,7 @@ import static ru.runa.wfe.execution.CurrentProcessClassPresentation.PROCESS_VARI
  */
 public class ChatRoomClassPresentation extends ClassPresentation {
     public static final String NEW_MESSAGES = "chat_rooms.new_messages";
-    private static final ClassPresentation INSTANCE = new ChatRoomClassPresentation();
+    public static final ClassPresentation INSTANCE = new ChatRoomClassPresentation();
 
     private ChatRoomClassPresentation() {
         super(ChatRoom.class, "", true, new FieldDescriptor[]{
@@ -47,10 +47,6 @@ public class ChatRoomClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "process.version"}).setVisible(false),
                 new FieldDescriptor(ERRORS, String.class.getName(), new DefaultDbSource(Token.class, "errorMessage"), false,
                         FieldFilterMode.NONE, "ru.runa.wf.web.html.ChatRoomErrorsTdBuilder", new Object[]{}).setVisible(false)});
-    }
-
-    public static ClassPresentation getInstance() {
-        return INSTANCE;
     }
 
     public static String getExecutorIdRestriction(Long id) {

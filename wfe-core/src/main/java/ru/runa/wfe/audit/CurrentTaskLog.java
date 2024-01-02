@@ -25,6 +25,7 @@ public abstract class CurrentTaskLog extends CurrentProcessLog implements TaskLo
         if (task.getIndex() != null) {
             addAttribute(ATTR_INDEX, task.getIndex().toString());
         }
+        addAttribute(ATTR_SWIMLANE_NAME, task.getSwimlaneName());
         setSeverity(Severity.INFO);
     }
 
@@ -66,4 +67,11 @@ public abstract class CurrentTaskLog extends CurrentProcessLog implements TaskLo
         }
         return null;
     }
+
+    @Override
+    @Transient
+    public String getSwimlaneName() {
+        return getAttribute(ATTR_SWIMLANE_NAME);
+    }
+
 }

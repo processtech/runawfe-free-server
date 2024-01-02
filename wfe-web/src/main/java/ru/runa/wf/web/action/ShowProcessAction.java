@@ -24,17 +24,19 @@ public class ShowProcessAction extends ForwardAction {
         if (!errors.isEmpty()) {
             StringBuilder processErrorsStringBuilder = new StringBuilder();
             for (WfTokenError tokenError : errors) {
-                processErrorsStringBuilder.append(getContent(tokenError)).append("<br>");
+                String errorStackTrace = Delegates.getSystemService().getTokenErrorStackTrace(Commons.getUser(request.getSession()),
+                        tokenError.getId());
+                processErrorsStringBuilder.append(getContent(tokenError, errorStackTrace, processId)).append("<br>");
             }
             request.setAttribute("processErrors", processErrorsStringBuilder.toString());
         }
         return forward;
     }
 
-    private String getContent(WfTokenError tokenError) {
+    private String getContent(WfTokenError tokenError, String stackTrace, Long processId) {
         String message = tokenError.getNodeName() + " (" + CalendarUtil.formatDateTime(tokenError.getErrorDate()) + ")";
-        if (tokenError.getStackTrace() != null) {
-            return String.format("<a href=\"javascript:showTokenErrorStackTrace(%s)\">%s</a>", tokenError.getId(), message);
+        if (stackTrace != null) {
+            return String.format("<a href=\"javascript:showTokenErrorStackTrace(%s, %s)\">%s</a>", tokenError.getId(), processId, message);
         }
         return message;
     }
