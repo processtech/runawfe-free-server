@@ -39,6 +39,7 @@ public class ChatFormTag extends TitledFormTag {
     @Setter
     @Attribute(required = true)
     private Long processId;
+    private boolean isArchived;
 
     @Override
     protected boolean isSubmitButtonVisible() {
@@ -49,11 +50,15 @@ public class ChatFormTag extends TitledFormTag {
     protected void fillFormElement(TD tdFormElement) {
         user = getUser();
         isAdmin = Delegates.getExecutorService().isAdministrator(user);
-        List<MessageAddedBroadcast> messages = Delegates.getChatService().getMessages(user, processId);
-
+        isArchived = Delegates.getExecutionService().getProcess(user, processId).isArchived();
+        List<MessageAddedBroadcast> messages = isArchived
+                ? Delegates.getChatService().getArchivedMessages(user, processId)
+                : Delegates.getChatService().getMessages(user, processId);
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, messages.size());
         navigation.addPagingNavigationTable(tdFormElement);
-        tdFormElement.addElement(new Table().addElement(getTextArea()).addElement(getButtons()));
+        if (!isArchived) {
+            tdFormElement.addElement(new Table().addElement(getTextArea()).addElement(getButtons()));
+        }
         tdFormElement.addElement(createMessages(messages));
         navigation.addPagingNavigationTable(tdFormElement);
     }
@@ -104,7 +109,7 @@ public class ChatFormTag extends TitledFormTag {
         Table table = new Table();
         table.setClass("fileHolder");
         for (ChatMessageFileDetailDto fileDto : message.getFiles()) {
-            table.addElement(new TR(new TD("<a href='/wfe/chatFileOutput?fileId=" + fileDto.getId() +
+            table.addElement(new TR(new TD("<a href='/wfe/chatFileOutput?fileId=" + fileDto.getId() + "&" + "archived=" + isArchived +
                     "' download='" + fileDto.getName() + "'>" + fileDto.getName() + "</a>").setClass("link")));
         }
         return new TR(new TD(table));
@@ -114,11 +119,13 @@ public class ChatFormTag extends TitledFormTag {
         final Div authorAndDateTime = new Div();
         authorAndDateTime.setClass("text message-card-header");
         authorAndDateTime.addElement(getAuthor(message)).addElement(" " + CalendarUtil.formatDateTime(message.getCreateDate()) + " ");
-        return new TR(new TD()
-                .addElement(authorAndDateTime)
-                .addElement(getDeleteMessageButton(message))
-                .addElement(getEditMessageButton(message))
-                .addElement(getReplyButton(message)));
+        TD td = new TD().addElement(authorAndDateTime);
+        if (!isArchived) {
+            td.addElement(getDeleteMessageButton(message))
+                    .addElement(getEditMessageButton(message))
+                    .addElement(getReplyButton(message));
+        }
+        return new TR(td);
     }
 
     private Element getAuthor(MessageAddedBroadcast message) {

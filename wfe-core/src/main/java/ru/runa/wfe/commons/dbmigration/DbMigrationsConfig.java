@@ -42,6 +42,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CorrectChatRoomViewRenameColumn;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
+import ru.runa.wfe.commons.dbmigration.impl.CreateChatArchivePatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateDigitalSignatureTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateEventSubprocessTriggerTable;
@@ -194,6 +195,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(RenameSequences.class);
         dbMigrations.add(AddArchivedProcessExternalData.class);
         dbMigrations.add(AddArchivedTokenNodeNameAndNodeEnterDateColumnsPatch.class);
+        dbMigrations.add(CreateChatArchivePatch.class);
         dbMigrations.add(CorrectChatRoomViewRenameColumn.class);
         dbMigrations.add(AddAsyncForTaskAndSubprocess.class);
         dbMigrations.add(AddAsyncForArchivedTaskAndSubprocess.class);

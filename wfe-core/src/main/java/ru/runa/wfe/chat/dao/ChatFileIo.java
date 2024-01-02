@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatFileIoException;
 import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.CurrentChatMessageFile;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.mapper.ChatMessageFileMapper;
 import ru.runa.wfe.commons.SystemProperties;
@@ -32,8 +33,8 @@ public class ChatFileIo {
     @Autowired
     private ChatMessageFileMapper messageFileMapper;
 
-    public List<ChatMessageFile> save(List<ChatMessageFileDto> dtos) {
-        List<ChatMessageFile> result = new ArrayList<>(dtos.size());
+    public List<CurrentChatMessageFile> save(List<ChatMessageFileDto> dtos) {
+        List<CurrentChatMessageFile> result = new ArrayList<>(dtos.size());
         try {
             for (ChatMessageFileDto dto : dtos) {
                 result.add(save(dto));
@@ -45,8 +46,8 @@ public class ChatFileIo {
         }
     }
 
-    public ChatMessageFile save(ChatMessageFileDto dto) {
-        ChatMessageFile result = messageFileMapper.toEntity(dto);
+    public CurrentChatMessageFile save(ChatMessageFileDto dto) {
+        CurrentChatMessageFile result = messageFileMapper.toEntity(dto);
         try {
             Path path = generateUuidPath();
             result.setUuid(path.getFileName().toString());
@@ -77,7 +78,7 @@ public class ChatFileIo {
         }
     }
 
-    public void delete(ChatMessageFile file) {
+    public void delete(CurrentChatMessageFile file) {
         try {
             Files.delete(Paths.get(storagePath + "/" + file.getUuid()));
         } catch (IOException exception) {
@@ -85,8 +86,8 @@ public class ChatFileIo {
         }
     }
 
-    public void delete(List<ChatMessageFile> files) {
-        for (ChatMessageFile file : files) {
+    public void delete(List<CurrentChatMessageFile> files) {
+        for (CurrentChatMessageFile file : files) {
             try {
                 delete(file);
             } catch (Exception exception) {

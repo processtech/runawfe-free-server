@@ -31,6 +31,8 @@ import ru.runa.wfe.commons.DbType;
  */
 @SuppressWarnings({ "unused", "SameParameterValue" })
 public abstract class DbMigration {
+    private static final int ORACLE_LENGTH_RESTRICTION = 30;
+
     protected final Log log = LogFactory.getLog(getClass());
     protected final Dialect dialect = ApplicationContextFactory.getDialect();
     protected final DbType dbType = ApplicationContextFactory.getDbType();
@@ -206,7 +208,7 @@ public abstract class DbMigration {
     }
 
     private static void checkIndentifierLength(String id) {
-        if (id != null && id.length() > 30) {
+        if (id != null && id.length() > ORACLE_LENGTH_RESTRICTION) {
             throw new RuntimeException("Identifier \"" + id + "\".length " + id.length() + " > 30 (Oracle restriction)");
         }
     }

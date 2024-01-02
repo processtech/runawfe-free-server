@@ -4,8 +4,9 @@ import java.util.List;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.runa.wfe.chat.ArchivedChatMessageFile;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.CurrentChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatFileDao;
 import ru.runa.wfe.chat.dao.ChatFileIo;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
@@ -23,7 +24,7 @@ public class ChatFileLogic extends WfCommonLogic {
     private ChatFileIo chatFileIo;
 
     public ChatMessageFileDto save(User user, ChatMessageFileDto dto) {
-        ChatMessageFile file = chatFileIo.save(dto);
+        CurrentChatMessageFile file = chatFileIo.save(dto);
         try {
             chatFileDao.create(file);
         } catch (Exception exception) {
@@ -33,11 +34,19 @@ public class ChatFileLogic extends WfCommonLogic {
         return chatFileIo.get(file);
     }
 
-    public List<ChatMessageFile> getByMessage(User user, ChatMessage message) {
+    public List<CurrentChatMessageFile> getByMessage(ChatMessage message) {
         return chatFileDao.getByMessage(message);
+    }
+
+    public List<ArchivedChatMessageFile> getByMessageFromArchive(ChatMessage message) {
+        return chatFileDao.getByMessageFromArchive(message);
     }
 
     public ChatMessageFileDto getById(User user, Long id) {
         return chatFileIo.get(chatFileDao.get(id));
+    }
+
+    public ChatMessageFileDto getFromArchive(User user, Long id) {
+        return chatFileIo.get(chatFileDao.getFromArchive(id));
     }
 }
