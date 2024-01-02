@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -665,7 +666,7 @@ public class ExecutionLogic extends WfCommonLogic {
         ParsedProcessDefinition oldDefinition = getDefinition(d.getId());
         ParsedProcessDefinition newDefinition = getDefinition(nextDefinition.getId());
         List<CurrentProcess> processes = processDefinitionUpdateManager.findApplicableProcesses(oldDefinition);
-        Set<CurrentProcess> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, newDefinition, processes);
+        Set<CurrentProcess> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, newDefinition, Optional.of(processes));
         for (CurrentProcess process : processes) {
             process.setDefinition(nextDefinition);
             currentProcessDao.update(process);
@@ -693,7 +694,7 @@ public class ExecutionLogic extends WfCommonLogic {
         ProcessDefinition nextDefinition = processDefinitionDao.getByNameAndVersion(d.getName(), newVersion);
         ParsedProcessDefinition newDefinition = getDefinition(nextDefinition.getId());
         Set<CurrentProcess> affectedProcesses = processDefinitionUpdateManager.before(getDefinition(d.getId()), newDefinition,
-                Collections.singletonList(process));
+                Optional.of(Collections.singletonList(process)));
         process.setDefinition(nextDefinition);
         currentProcessDao.update(process);
         processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, d.getVersion(),
