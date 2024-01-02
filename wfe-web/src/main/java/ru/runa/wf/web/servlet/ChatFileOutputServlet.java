@@ -17,7 +17,9 @@ public class ChatFileOutputServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = Commons.getUser(request.getSession());
         Long fileId = Long.parseLong(request.getParameter("fileId"));
-        ChatMessageFileDto file = Delegates.getChatService().getChatMessageFile(user, fileId);
+        ChatMessageFileDto file = Boolean.parseBoolean(request.getParameter("archived"))
+                ? Delegates.getChatService().getArchiveChatMessageFile(user, fileId)
+                : Delegates.getChatService().getChatMessageFile(user, fileId);
         String encodedFileName = HTMLUtils.encodeFileName(request, file.getName());
         response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"");
         response.getOutputStream().write(file.getBytes());

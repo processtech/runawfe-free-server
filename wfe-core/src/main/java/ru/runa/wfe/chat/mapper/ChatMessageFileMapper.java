@@ -1,6 +1,7 @@
 package ru.runa.wfe.chat.mapper;
 
 import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.CurrentChatMessageFile;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 
 /**
@@ -9,8 +10,8 @@ import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 public class ChatMessageFileMapper extends AbstractModelMapper<ChatMessageFile, ChatMessageFileDto> {
 
     @Override
-    public ChatMessageFile toEntity(ChatMessageFileDto dto) {
-        ChatMessageFile result = new ChatMessageFile();
+    public CurrentChatMessageFile toEntity(ChatMessageFileDto dto) {
+        CurrentChatMessageFile result = new CurrentChatMessageFile();
         result.setId(dto.getId());
         result.setName(dto.getName());
         return result;

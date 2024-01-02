@@ -434,6 +434,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         archivedProcessLogDao.deleteAll(process);
         archivedVariableDao.deleteAll(process);
         archivedSwimlaneDao.deleteAll(process);
+        chatComponentFacade.deleteArchivedByProcessId(process.getId());
         archivedProcessDao.delete(process);
         systemLogDao.create(new ArchivedProcessDeleteLog(user.getActor().getId(), process.getDefinition().getPack().getName(), process.getId()));
     }

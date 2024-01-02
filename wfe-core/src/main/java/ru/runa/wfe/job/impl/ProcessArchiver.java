@@ -271,6 +271,27 @@ public class ProcessArchiver {
                             + "select id, new_executor_name, old_executor_name, assignment_date, agglog_task_id " + "from bpm_agglog_assignment "
                             + "where agglog_task_id in (select id from bpm_agglog_task where process_id in " + pidsCsv + ")");
 
+                    stmt.executeUpdate(
+                            "insert into archived_chat_message "
+                            + "(id, create_date, create_actor_id, process_id, text, long_text) "
+                            + "select id, create_date, create_actor_id, process_id, text, long_text from chat_message "
+                            + "where process_id in " + pidsCsv
+                    );
+
+                    stmt.executeUpdate(
+                            "insert into archived_chat_message_file "
+                            + "(id, message_id, file_name, uuid) "
+                            + "select id, message_id, file_name, uuid from chat_message_file "
+                            + "where message_id in (select id from chat_message where process_id in " + pidsCsv + ")"
+                    );
+
+                    stmt.executeUpdate(
+                            "insert into archived_chat_msg_recipient "
+                            + "(id, message_id, actor_id, read_date, mentioned, file_name) "
+                            + "select id, message_id, actor_id, read_date, mentioned, file_name from chat_message_recipient "
+                            + "where message_id in (select id from chat_message where process_id in " + pidsCsv + ")"
+                    );
+
                     // Call handlers.
                     for (String handlerClassName : SystemProperties.getProcessArchiverStepHandlers()) {
                         ProcessArchiverStepHandler handler = ClassLoaderUtil.instantiate(handlerClassName);
@@ -304,6 +325,13 @@ public class ProcessArchiver {
                     // Also, I delete processes before tokens, because reverse FK cannot bpm_process.root_token_id is not null.
                     stmt.executeUpdate("update bpm_process set parent_id = null where id in " + pidsCsv);
                     stmt.executeUpdate("update bpm_token set process_id = null where process_id in " + pidsCsv);
+                    stmt.executeUpdate(
+                            "delete from chat_message_recipient where message_id in (select id from chat_message where process_id in " + pidsCsv + ")"
+                    );
+                    stmt.executeUpdate(
+                            "delete from chat_message_file where message_id in (select id from chat_message where process_id in " + pidsCsv + ")"
+                    );
+                    stmt.executeUpdate("delete from chat_message where process_id in " + pidsCsv);
                     stmt.executeUpdate("delete from bpm_process where id in " + pidsCsv);
 
                     // References process (already deleted above) and self.

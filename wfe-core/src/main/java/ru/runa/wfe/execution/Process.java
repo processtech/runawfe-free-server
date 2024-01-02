@@ -16,7 +16,6 @@ import ru.runa.wfe.security.SecuredObjectType;
  * @see ru.runa.wfe.commons.hibernate.WfeInterceptor
  */
 @MappedSuperclass
-@Access(AccessType.FIELD)
 public abstract class Process<T extends Token> extends SecuredObject {
     private static final long serialVersionUID = 1L;
 
