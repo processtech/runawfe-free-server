@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,26 +53,27 @@ public class ProcessDefinitionUpdateManager {
         return processes;
     }
 
-    public Set<Process> before(ProcessDefinition oldDefinition, ProcessDefinition newDefinition, List<Process> processes) {
+    public Set<Process> before(ProcessDefinition oldDefinition, ProcessDefinition newDefinition, Optional<List<Process>> processes) {
         Set<Process> affectedProcesses;
         TimeMeasurer timeMeasurer = new TimeMeasurer(log);
         if (SystemProperties.deleteTokensInMissingNodesOnDefinitionUpdate()) {
             timeMeasurer.jobStarted();
-            affectedProcesses = deleteTokensInMissingNodes(oldDefinition, newDefinition, processes);
+            List<Process> processesToCheck = processes.orElse(findApplicableProcesses(oldDefinition));
+            affectedProcesses = deleteTokensInMissingNodes(oldDefinition, newDefinition, processesToCheck);
             timeMeasurer.jobEnded("Token deletion in missing nodes");
         } else {
             affectedProcesses = new HashSet<>();
         }
         if (SystemProperties.isDefinitionCompatibilityCheckEnabled()) {
             timeMeasurer.jobStarted();
-            int limit = SystemProperties.getDefinitionCompatibilityCheckProcessesLimit();
-            List<Process> processesForValidation = limit == -1 || limit >= processes.size() ? processes : processes.subList(0, limit);
-            ProcessDefinitionUpdateData updateData = new ProcessDefinitionUpdateData(oldDefinition, newDefinition, processesForValidation);
+            Optional<Process> process = processes.isPresent() && processes.get().size() == 1 ?
+                    Optional.of(processes.get().get(0)) : Optional.empty();
+            ProcessDefinitionUpdateData updateData = new ProcessDefinitionUpdateData(oldDefinition, newDefinition, process);
             if (!SystemProperties.deleteTokensInMissingNodesOnDefinitionUpdate()) {
                 missingNodeProcessDefinitionUpdateValidator.validate(updateData);
             }
             parallelGatewayProcessDefinitionUpdateValidator.validate(updateData);
-            timeMeasurer.jobEnded("Validation of " + processesForValidation.size() + " processes");
+            timeMeasurer.jobEnded("Validation of " + oldDefinition);
         }
         return affectedProcesses;
     }

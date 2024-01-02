@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import lombok.NonNull;
 import net.bull.javamelody.MonitoredWithSpring;
@@ -375,7 +376,7 @@ public class ExecutionLogic extends WfCommonLogic {
         ProcessDefinition oldDefinition = getDefinition(deployment.getId());
         ProcessDefinition newDefinition = getDefinition(nextDeployment.getId());
         List<Process> processes = processDefinitionUpdateManager.findApplicableProcesses(oldDefinition);
-        Set<Process> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, newDefinition, processes);
+        Set<Process> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, newDefinition, Optional.of(processes));
         for (Process process : processes) {
             process.setDeployment(nextDeployment);
             processDao.update(process);
@@ -401,7 +402,7 @@ public class ExecutionLogic extends WfCommonLogic {
         Deployment nextDeployment = deploymentDao.findDeployment(deployment.getName(), newDeploymentVersion);
         ProcessDefinition newDefinition = getDefinition(nextDeployment.getId());
         Set<Process> affectedProcesses = processDefinitionUpdateManager.before(getDefinition(deployment.getId()), newDefinition,
-                Collections.singletonList(process));
+                Optional.of(Collections.singletonList(process)));
         process.setDeployment(nextDeployment);
         processDao.update(process);
         processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, null, deployment.getVersion(),
