@@ -182,6 +182,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(EnlargeMessageMaxSizePatch.class);
         dbMigrations.add(DropMessageNotNullConstraintPatch.class);
         dbMigrations.add(RenameColumnInChatMessageRecipientPatch.class);
+        dbMigrations.add(AddAsyncForTaskAndSubprocess.class);
         dbMigrations.add(DeleteBatchPresentationsRm3017.class);
         dbMigrations.add(DeleteBatchPresentationsRm3056.class);
         dbMigrations.add(CreateSignalTable.class);
@@ -196,18 +197,18 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddArchivedProcessExternalData.class);
         dbMigrations.add(AddArchivedTokenNodeNameAndNodeEnterDateColumnsPatch.class);
         dbMigrations.add(CreateChatArchivePatch.class);
-        dbMigrations.add(CorrectChatRoomViewRenameColumn.class);
-        dbMigrations.add(AddAsyncForTaskAndSubprocess.class);
+        dbMigrations.add(CorrectChatRoomViewRenameColumn.class); // moved here due to changes in ddl
         dbMigrations.add(AddAsyncForArchivedTaskAndSubprocess.class);
         dbMigrations.add(RecreateChatRoomView.class);
         dbMigrations.add(CreateDigitalSignatureTable.class);
-        // end develop patches
-        dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
-        dbMigrations.add(RefactorProcessDefinitionsRm2681.class);
-        dbMigrations.add(RecreateChatRoomView2.class);
+        dbMigrations.add(CreateEventSubprocessTriggerTable.class);
+        dbMigrations.add(RefactorProcessDefinitionsRm2681.class); //
         dbMigrations.add(AddStartProcessTimerJob.class);
         dbMigrations.add(AddStartProcessTimerJobRefactorRm2681.class);
-        dbMigrations.add(CreateEventSubprocessTriggerTable.class);
+        // end regular develop patches
+        dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
+        dbMigrations.add(RecreateChatRoomView2.class);
+        // end all develop patches
         return dbMigrations;
     }
 }
