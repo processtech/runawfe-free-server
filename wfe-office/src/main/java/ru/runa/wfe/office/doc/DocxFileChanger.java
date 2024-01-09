@@ -80,7 +80,7 @@ public class DocxFileChanger {
                             templateRowIsEmpty = false;
                         }
                         if (!java.util.Objects.equals(text0, cell.getText())) {
-                            DocxUtils.setCellText(cell, text0);
+                            DocxUtils.setCellText(cell, text0 == null ? "" : text0);
                         }
                     }
                     if (tableExpansionOperation.getRows() == 0) {
