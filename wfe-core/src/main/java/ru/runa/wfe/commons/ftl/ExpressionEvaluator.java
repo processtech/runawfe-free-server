@@ -4,8 +4,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import freemarker.ext.beans.BeansWrapper;
+import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,7 +20,9 @@ import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
+import ru.runa.wfe.commons.email.EmailUtils;
 import ru.runa.wfe.commons.web.WebHelper;
+import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -26,6 +31,7 @@ import ru.runa.wfe.var.dto.WfVariable;
 public class ExpressionEvaluator {
     private static final Pattern VARIABLE_REGEXP = Pattern.compile("\\$\\{(.*?[^\\\\])\\}");
     private static final Map<String, TemplateModel> staticModels = Maps.newHashMap();
+    private static final GetExecutorEmails GET_EXECUTOR_EMAILS = new GetExecutorEmails();
     static {
         BeansWrapper wrapper = BeansWrapper.getDefaultInstance();
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -137,20 +143,19 @@ public class ExpressionEvaluator {
 
     public static String process(User user, String template, VariableProvider variableProvider, WebHelper webHelper) {
         FormHashModel model = new FormHashModel(user, variableProvider, webHelper);
+        model.put("GetExecutorEmails", GET_EXECUTOR_EMAILS);
         model.putAll(staticModels);
-        // if (staticModels.size() > 0) {
-        // ClassLoader contextClassLoader =
-        // Thread.currentThread().getContextClassLoader();
-        // try {
-        // Thread.currentThread().setContextClassLoader(ClassLoaderUtil.getExtensionClassLoader());
-        // model.putAll(staticModels);
-        // return FreemarkerProcessor.process(template, model);
-        // } finally {
-        // Thread.currentThread().setContextClassLoader(contextClassLoader);
-        // }
-        // } else {
         return FreemarkerProcessor.process(template, model);
-        // }
     }
 
+    private static class GetExecutorEmails implements TemplateMethodModelEx {
+
+        @Override
+        public Object exec(List arguments) throws TemplateModelException {
+            Executor executor = (Executor) BeansWrapper.getDefaultInstance().unwrap((TemplateModel) arguments.get(0));
+            List<String> emails = EmailUtils.getEmails(executor);
+            return EmailUtils.concatenateEmails(emails);
+        }
+
+    }
 }

@@ -28,7 +28,6 @@
 	<component name="SelectFromValueList" class="ru.runa.wf.web.ftl.component.SelectFromValueList" />
 	<component name="ViewFile" class="ru.runa.wf.web.ftl.component.ViewFile" />
 	<component name="TreeviewSupport" class="ru.runa.wf.web.ftl.component.TreeviewSupport" />
-	<component name="GetExecutorEmails" class="ru.runa.wf.web.ftl.component.GetExecutorEmails" />
 	<component name="DisplayUserTypeList" class="ru.runa.wf.web.ftl.component.DisplayUserTypeList" />
 	<component name="MultipleSelectFromUserTypeList" class="ru.runa.wf.web.ftl.component.MultipleSelectFromUserTypeList" />
 	<component name="SingleSelectFromUserTypeList" class="ru.runa.wf.web.ftl.component.SingleSelectFromUserTypeList" />

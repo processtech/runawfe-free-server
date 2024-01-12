@@ -9,6 +9,7 @@ import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 
+@Deprecated
 public class DisplayLinkedLists extends FormComponent {
     private static final long serialVersionUID = 1L;
 
