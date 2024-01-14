@@ -4,6 +4,10 @@ import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
 
+/**
+ * @deprecated rm#3352
+ */
+@Deprecated
 public class HiddenFormat extends VariableFormat implements VariableInputSupport, VariableDisplaySupport {
 
     @Override
