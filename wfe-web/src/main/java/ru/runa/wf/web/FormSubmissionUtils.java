@@ -14,6 +14,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.apache.struts.action.ActionForm;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.RequestWebHelper;
+import ru.runa.wf.web.quick.QuickFormBuilder;
 import ru.runa.wf.web.servlet.UploadedFile;
 import ru.runa.wfe.commons.ftl.FormComponentExtractionModel;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionHandler;
@@ -119,8 +120,15 @@ public class FormSubmissionUtils {
             User user = Commons.getUser(request.getSession());
             FormComponentExtractionModel model = new FormComponentExtractionModel(variableProvider, user, new RequestWebHelper(request));
             if (interaction.getFormData() != null) {
-                String template = new String(interaction.getFormData(), Charsets.UTF_8);
-                FreemarkerProcessor.process(template, model);
+                String ftlFormData;
+                if ("quick".equals(interaction.getType())) {
+                    QuickFormBuilder quickFormBuilder = new QuickFormBuilder();
+                    quickFormBuilder.setInteraction(interaction);
+                    ftlFormData = quickFormBuilder.toFtlFormData(variableProvider);
+                } else {
+                    ftlFormData = new String(interaction.getFormData(), Charsets.UTF_8);
+                }
+                FreemarkerProcessor.process(ftlFormData, model);
             }
             HashMap<String, Object> variables = Maps.newHashMap();
             for (VariableDefinition variableDefinition : interaction.getVariables().values()) {

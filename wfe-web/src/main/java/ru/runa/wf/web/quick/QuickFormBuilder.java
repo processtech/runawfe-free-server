@@ -1,23 +1,21 @@
 package ru.runa.wf.web.quick;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.dom4j.Document;
-import org.dom4j.Element;
-
-import ru.runa.wf.web.ftl.FtlFormBuilder;
-import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.var.VariableProvider;
-import ru.runa.wfe.var.MapVariableProvider;
-import ru.runa.wfe.var.dto.QuickFormProperty;
-import ru.runa.wfe.var.dto.QuickFormVariable;
-import ru.runa.wfe.var.dto.WfVariable;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import ru.runa.wf.web.ftl.FtlFormBuilder;
+import ru.runa.wfe.commons.ftl.FreemarkerConfiguration;
+import ru.runa.wfe.commons.xml.XmlUtils;
+import ru.runa.wfe.var.MapVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.var.dto.QuickFormProperty;
+import ru.runa.wfe.var.dto.QuickFormVariable;
+import ru.runa.wfe.var.dto.WfVariable;
 
 public class QuickFormBuilder extends FtlFormBuilder {
     private static final String ELEMENT_TAGS = "tags";
@@ -27,9 +25,17 @@ public class QuickFormBuilder extends FtlFormBuilder {
     private static final String ELEMENT_PARAM = "param";
     private static final String ELEMENT_PROPERTIES = "properties";
     private static final String ELEMENT_PROPERTY = "property";
+    private static final String ELEMENT_PARAM_ITEM = "item";
+    private static final String ATTRIBUTE_MULTIPLE = "multiple";
+    private static final String ATTRIBUTE_MULTIPLE_VALUE_TRUE = "true";
 
     @Override
     protected String buildForm(VariableProvider variableProvider) {
+        String ftlFormData = toFtlFormData(variableProvider);
+        return processFreemarkerTemplate(ftlFormData, variableProvider, true);
+    }
+
+    public String toFtlFormData(VariableProvider variableProvider) {
         String quickForm = new String(interaction.getFormData(), Charsets.UTF_8);
         List<QuickFormVariable> templateVariables = new ArrayList<QuickFormVariable>();
         Document document = XmlUtils.parseWithoutValidation(quickForm);
@@ -40,26 +46,25 @@ public class QuickFormBuilder extends FtlFormBuilder {
             QuickFormVariable quickFormVariable = new QuickFormVariable();
             quickFormVariable.setTagName(tag);
             List<Element> paramElements = varElement.elements(ELEMENT_PARAM);
-            if (paramElements != null && paramElements.size() > 0) {
-                List<String> params = new ArrayList<String>();
+            int paramElementsSize = paramElements.size();
+            if (paramElements != null && paramElementsSize > 0) {
+                List<Object> params = new ArrayList<Object>(paramElementsSize);
                 int index = 0;
+                int mainVariableIndex = FreemarkerConfiguration.getTagMainVariableIndex(tag);
                 for (Element paramElement : paramElements) {
-                    if (index == 0) {
-                        // TODO excessive variable value invocation
+                    if (index == mainVariableIndex) {
                         WfVariable variable = variableProvider.getVariableNotNull(paramElement.getText());
                         quickFormVariable.setName(variable.getDefinition().getName());
                         quickFormVariable.setScriptingName(variable.getDefinition().getScriptingName());
                         quickFormVariable.setDescription(variable.getDefinition().getDescription());
-                    } else {
-                        params.add(paramElement.getText());
                     }
+                    params.add(getParamFromElement(paramElement));
                     index++;
                 }
-                quickFormVariable.setParams(params.toArray(new String[params.size()]));
+                quickFormVariable.setParams(params);
             }
             templateVariables.add(quickFormVariable);
         }
-
         List<QuickFormProperty> templateProperties = new ArrayList<QuickFormProperty>();
         Element propertiesElement = document.getRootElement().element(ELEMENT_PROPERTIES);
         if (propertiesElement != null) {
@@ -71,9 +76,7 @@ public class QuickFormBuilder extends FtlFormBuilder {
                 templateProperties.add(quickFormGpdProperty);
             }
         }
-
-        String template = processFormTemplate(interaction.getTemplateData(), templateVariables, templateProperties);
-        return processFreemarkerTemplate(template, variableProvider);
+        return processFormTemplate(interaction.getTemplateData(), templateVariables, templateProperties);
     }
 
     private String processFormTemplate(byte[] templateData, List<QuickFormVariable> templateVariables, List<QuickFormProperty> templateProperties) {
@@ -84,6 +87,20 @@ public class QuickFormBuilder extends FtlFormBuilder {
         }
         VariableProvider variableProvider = new MapVariableProvider(map);
         Preconditions.checkNotNull(templateData, "Template is required");
-        return processFreemarkerTemplate(new String(templateData, Charsets.UTF_8), variableProvider);
+        return processFreemarkerTemplate(new String(templateData, Charsets.UTF_8), variableProvider, false);
+    }
+
+    private static Object getParamFromElement(Element element) {
+        String isMultiple = element.attributeValue(ATTRIBUTE_MULTIPLE);
+        if (isMultiple != null && isMultiple.equals(ATTRIBUTE_MULTIPLE_VALUE_TRUE)) {
+            List<Element> paramItemElements = element.elements(ELEMENT_PARAM_ITEM);
+            List<String> result = new ArrayList<>(paramItemElements.size());
+            for (Element i : paramItemElements) {
+                result.add(i.getText());
+            }
+            return result;
+        } else {
+            return element.getText();
+        }
     }
 }

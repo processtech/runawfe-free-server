@@ -7,7 +7,7 @@
 	<component name="MultipleSelectFromListUserVariables" class="ru.runa.wf.web.ftl.component.legacy.LegacyMultipleSelectFromListUserVariables" />
 
 	<!-- actual -->
-	<component name="AjaxGroupMembers" class="ru.runa.wf.web.ftl.component.AjaxGroupMembers" />
+	<component name="AjaxGroupMembers" class="ru.runa.wf.web.ftl.component.AjaxGroupMembers" mainVariableIndex="1" />
 	<component name="ChooseRelationName" class="ru.runa.wf.web.ftl.component.ChooseRelationName" />
 	<component name="ChooseActorByRelation" class="ru.runa.wf.web.ftl.component.ChooseActorByRelation" />
 	<component name="ChooseExecutorByRelation" class="ru.runa.wf.web.ftl.component.ChooseExecutorByRelation" />
