@@ -1,9 +1,15 @@
 package ru.runa.wf.web.ftl.component;
 
+import com.google.common.base.Preconditions;
+import freemarker.ext.beans.BeansWrapper;
+import freemarker.ext.beans.BeansWrapperBuilder;
+import freemarker.template.Configuration;
+import freemarker.template.SimpleHash;
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.commons.ftl.FreemarkerProcessor;
@@ -13,15 +19,6 @@ import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.UserTypeFormat;
-
-import com.google.common.base.Preconditions;
-
-import freemarker.ext.beans.BeansWrapper;
-import freemarker.ext.beans.BeansWrapperBuilder;
-import freemarker.template.Configuration;
-import freemarker.template.SimpleHash;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
 
 public abstract class AbstractUserTypeList extends FormComponent {
     private static final long serialVersionUID = 1L;
