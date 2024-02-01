@@ -73,5 +73,4 @@ public class TaskFormTag extends WFFormTag {
     protected boolean isSubmitButtonEnabled() {
         return !Delegates.getTaskService().getTask(getUser(), getTaskId()).isReadOnly();
     }
-
 }

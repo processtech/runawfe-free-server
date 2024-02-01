@@ -46,9 +46,8 @@ public class StartFormTag extends WFFormTag {
     }
 
     @Override
-    protected String getSubmitButtonName() {
+    protected String getDefaultSubmitButtonName() {
         String processStartButtonName = WebResources.getButtonName("process.processStartButtonName");
-
         return processStartButtonName != null ? processStartButtonName :
                 MessagesProcesses.LABEL_START_PROCESS.message(pageContext);
     }

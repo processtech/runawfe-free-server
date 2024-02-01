@@ -108,6 +108,7 @@ public class JpdlXmlReader {
     private static final String GLOBAL = "global";
     private static final String VALIDATE_AT_START = "validateAtStart";
     private static final String DISABLE_CASCADING_SUSPENSION = "disableCascadingSuspension";
+    private static final String EXECUTION_BUTTON = "taskButtonLabelBySingleTransitionName";
 
     private static Map<String, Class<? extends Node>> nodeTypes = Maps.newHashMap();
     static {
@@ -150,6 +151,10 @@ public class JpdlXmlReader {
             String nodeAsyncExecutionString = root.attributeValue(NODE_ASYNC_EXECUTION);
             if (!Strings.isNullOrEmpty(nodeAsyncExecutionString)) {
                 parsedProcessDefinition.setNodeAsyncExecution("new".equals(nodeAsyncExecutionString));
+            }
+            String executionButton = root.attributeValue(EXECUTION_BUTTON);
+            if (executionButton != null) {
+                parsedProcessDefinition.setTaskButtonLabelBySingleTransitionName(Boolean.valueOf(executionButton));
             }
 
             // 1: read most content
@@ -261,6 +266,10 @@ public class JpdlXmlReader {
                 taskDefinition.setReassignSwimlaneToTaskPerformer(Boolean.valueOf(reassignSwimlaneToTaskPerformer));
             }
             taskDefinition.setIgnoreSubsitutionRules(Boolean.valueOf(element.attributeValue(IGNORE_SUBSTITUTION_RULES, "false")));
+        }
+        String executionButton = element.attributeValue(EXECUTION_BUTTON);
+        if (executionButton != null) {
+            taskDefinition.setTaskButtonLabelBySingleTransitionName(Boolean.valueOf(executionButton));
         }
     }
 
