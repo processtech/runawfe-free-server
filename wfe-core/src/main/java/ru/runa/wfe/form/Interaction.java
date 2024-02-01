@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
+import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.lang.dto.WfTransition;
@@ -37,6 +38,7 @@ public class Interaction implements Serializable {
     @XmlTransient
     private final HashMap<String, Object> defaultVariableValues = Maps.newHashMap();
     private final List<WfTransition> outputTransitions = Lists.newArrayList();
+    private boolean taskButtonLabelBySingleTransitionName;
 
     protected Interaction() {
     }
@@ -58,6 +60,12 @@ public class Interaction implements Serializable {
             if (!transition.isTimerTransition()) {
                 outputTransitions.add(new WfTransition(transition));
             }
+        }
+        if (outputTransitions.size() == 1 && node instanceof InteractionNode) {
+            Boolean nodeExecutionButton = ((InteractionNode) node).getFirstTaskNotNull().isTaskButtonLabelBySingleTransitionName();
+            Boolean processExecutionButton = node.getParsedProcessDefinition().isTaskButtonLabelBySingleTransitionName();
+            this.taskButtonLabelBySingleTransitionName = nodeExecutionButton == null ? processExecutionButton != null && processExecutionButton
+                    : nodeExecutionButton;
         }
     }
 
@@ -126,6 +134,10 @@ public class Interaction implements Serializable {
 
     public List<WfTransition> getOutputTransitions() {
         return outputTransitions;
+    }
+
+    public boolean isTaskButtonLabelBySingleTransitionName() {
+        return taskButtonLabelBySingleTransitionName;
     }
 
 }

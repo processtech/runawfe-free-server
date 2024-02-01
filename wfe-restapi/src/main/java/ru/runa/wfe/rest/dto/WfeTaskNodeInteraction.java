@@ -20,4 +20,5 @@ public class WfeTaskNodeInteraction {
     private Map<String, WfeVariableDefinition> variableDefinitions;
     private List<String> requiredVariableNames;
     private List<WfeTransition> outputTransitions;
+    private boolean taskButtonLabelBySingleTransitionName;
 }
