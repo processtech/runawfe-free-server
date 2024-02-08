@@ -43,7 +43,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.Variable;
 
 @Component
@@ -64,8 +63,6 @@ public class ChatLogic extends WfCommonLogic {
     @Autowired
     private RecipientCalculator recipientCalculator;
     @Autowired
-    private ExecutorLogic executorLogic;
-    @Autowired
     private ChatFileDao fileDao;
     @Autowired
     private ChatMessageRecipientDao recipientDao;
@@ -74,7 +71,7 @@ public class ChatLogic extends WfCommonLogic {
 
     public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(User user, AddMessageRequest request) {
         final CurrentChatMessage newMessage = messageRequestMapper.toEntity(request);
-        newMessage.setCreateActor(executorLogic.getActor(user, user.getActor().getName()));
+        newMessage.setCreateActor(executorDao.getActor(user.getActor().getName()));
         final long processId = request.getProcessId();
         final Set<Actor> recipients = recipientCalculator.calculateRecipients(user, request.getIsPrivate(), request.getText(), processId);
 
@@ -114,7 +111,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public WfChatMessageBroadcast<MessageDeletedBroadcast> deleteMessage(User user, DeleteMessageRequest request) {
-        if (!executorLogic.isAdministrator(user)) {
+        if (!executorDao.isAdministrator(user.getActor())) {
             throw new AuthorizationException("Allowed for admin only");
         }
         final CurrentChatMessage message = chatMessageDao.getNotNull(request.getId());
@@ -153,7 +150,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public void deleteMessages(User user, Long processId) {
-        if (!executorLogic.isAdministrator(user)) {
+        if (!executorDao.isAdministrator(user.getActor())) {
             throw new AuthorizationException("Allowed for admin only");
         }
         chatComponentFacade.deleteByProcessId(processId);
