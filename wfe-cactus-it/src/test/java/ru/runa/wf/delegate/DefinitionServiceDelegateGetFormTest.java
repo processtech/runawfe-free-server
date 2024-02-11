@@ -61,7 +61,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
 
     public void testGetFormTestByAuthorizedUser() {
         initTaskData();
-        Interaction interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), task.getDefinitionVersionId(), task.getNodeId());
+        Interaction interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), task.getDefinitionId(), task.getNodeId());
         // TODO assertEquals("form name differ from original", STATE_1_NAME,
         // interaction.getStateName());
         // TODO assertEquals("form name differ from original", STATE_1_TYPE,
@@ -71,14 +71,14 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
 
     public void testGetFormTestByUnauthorizedUser() {
         initTaskData();
-        definitionService.getTaskNodeInteraction(h.getUnauthorizedUser(), task.getDefinitionVersionId(), task.getNodeId());
+        definitionService.getTaskNodeInteraction(h.getUnauthorizedUser(), task.getDefinitionId(), task.getNodeId());
     }
 
     public void testGetFormTestByFakeUser() {
         initTaskData();
         try {
             task = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation()).get(0);
-            definitionService.getTaskNodeInteraction(h.getFakeUser(), task.getDefinitionVersionId(), task.getNodeId());
+            definitionService.getTaskNodeInteraction(h.getFakeUser(), task.getDefinitionId(), task.getNodeId());
             fail();
         } catch (AuthenticationException e) {
             // Expected.
@@ -99,7 +99,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
         List<WfTask> tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation());
         assertTrue(tasks.size() > 0);
 
-        Interaction interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), tasks.get(0).getDefinitionVersionId(),
+        Interaction interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), tasks.get(0).getDefinitionId(),
                 tasks.get(0).getNodeId());
 
         // TODO assertEquals("state name differs from expected", STATE_1_NAME,
@@ -137,7 +137,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
             h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), null);
 
             tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation());
-            interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), tasks.get(0).getDefinitionVersionId(),
+            interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), tasks.get(0).getDefinitionId(),
                     tasks.get(0).getNodeId());
 
             // TODO assertEquals("state name differs from expected",

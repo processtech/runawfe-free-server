@@ -1,13 +1,11 @@
 package ru.runa.wfe.execution;
 
 import java.util.Date;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 import ru.runa.wfe.definition.ProcessDefinition;
-import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.IdBasedSecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
 /**
@@ -16,7 +14,7 @@ import ru.runa.wfe.security.SecuredObjectType;
  * @see ru.runa.wfe.commons.hibernate.WfeInterceptor
  */
 @MappedSuperclass
-public abstract class Process<T extends Token> extends SecuredObject {
+public abstract class Process<T extends Token> extends IdBasedSecuredObject {
     private static final long serialVersionUID = 1L;
 
     @Column(name = "PARENT_ID")

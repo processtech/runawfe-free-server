@@ -25,7 +25,7 @@ public final class SecuredSingleton extends SecuredObject {
     }
 
     @Override
-    public final Long getId() {
+    public Long getSecuredObjectId() {
         return 0L;
     }
 

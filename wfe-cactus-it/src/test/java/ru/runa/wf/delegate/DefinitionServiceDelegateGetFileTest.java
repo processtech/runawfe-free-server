@@ -29,7 +29,7 @@ public class DefinitionServiceDelegateGetFileTest extends ServletTestCase {
 
         h.deployValidProcessDefinition();
         h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.READ), WfServiceTestHelper.VALID_PROCESS_NAME);
-        definitionId = definitionService.getLatestProcessDefinition(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME).getVersionId();
+        definitionId = definitionService.getLatestProcessDefinition(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME).getId();
     }
 
     @Override

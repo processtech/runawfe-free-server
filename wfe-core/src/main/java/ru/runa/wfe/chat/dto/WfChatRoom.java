@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.IdBasedSecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
 /**
@@ -21,7 +21,7 @@ import ru.runa.wfe.security.SecuredObjectType;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 @XmlAccessorType(XmlAccessType.FIELD)
-public class WfChatRoom extends SecuredObject {
+public class WfChatRoom extends IdBasedSecuredObject {
     private WfProcess process;
     private Long newMessagesCount;
 

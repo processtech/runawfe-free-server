@@ -26,8 +26,6 @@ import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SecuredSingleton;
-import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "processDefinitionInfoForm")
 public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
@@ -51,17 +49,13 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         nameTR.addElement(new TD(definitionName).setClass(Resources.CLASS_LIST_TABLE_TD));
         TD nameTD = new TD();
         nameTD.setClass(Resources.CLASS_LIST_TABLE_TD);
-        if (Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE_DEFINITION, SecuredSingleton.SYSTEM)) {
-            nameTD.addElement(definition.getName() + " (");
-            Map<String, String> parameters = new HashMap<>();
-            parameters.put(ListDefinitionsHistoryFormTag.NAME_PARAMETER, definition.getName());
-            parameters.put(PagingNavigationHelper.PAGE_PARAMETER, PagingNavigationHelper.FIRST_PAGE);
-            String historyUrl = Commons.getActionUrl(ListDefinitionsHistoryFormTag.ACTION_PATH, parameters, pageContext, PortletUrlType.Render);
-            nameTD.addElement(new A(historyUrl, MessagesProcesses.TITLE_DEFINITIONS_HISTORY.message(pageContext)));
-            nameTD.addElement(")");
-        } else {
-            nameTD.addElement(definition.getName());
-        }
+        nameTD.addElement(definition.getName() + " (");
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put(ListDefinitionsHistoryFormTag.NAME_PARAMETER, definition.getName());
+        parameters.put(PagingNavigationHelper.PAGE_PARAMETER, PagingNavigationHelper.FIRST_PAGE);
+        String historyUrl = Commons.getActionUrl(ListDefinitionsHistoryFormTag.ACTION_PATH, parameters, pageContext, PortletUrlType.Render);
+        nameTD.addElement(new A(historyUrl, MessagesProcesses.TITLE_DEFINITIONS_HISTORY.message(pageContext)));
+        nameTD.addElement(")");
         nameTR.addElement(nameTD);
 
         TR versionTR = new TR();

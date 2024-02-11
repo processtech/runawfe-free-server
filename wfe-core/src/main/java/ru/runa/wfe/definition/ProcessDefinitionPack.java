@@ -20,13 +20,13 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.IdBasedSecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
 @Entity
 @Table(name = "BPM_PROCESS_DEFINITION_PACK")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class ProcessDefinitionPack extends SecuredObject {
+public class ProcessDefinitionPack extends IdBasedSecuredObject {
     private static final long serialVersionUID = 1L;
     private Long id;
     private String name;

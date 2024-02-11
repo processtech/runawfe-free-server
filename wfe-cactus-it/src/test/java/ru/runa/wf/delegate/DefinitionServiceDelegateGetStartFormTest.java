@@ -31,7 +31,7 @@ public class DefinitionServiceDelegateGetStartFormTest extends ServletTestCase {
         definitionService = Delegates.getDefinitionService();
 
         h.deployValidProcessDefinition();
-        definitionId = definitionService.getLatestProcessDefinition(h.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME).getVersionId();
+        definitionId = definitionService.getLatestProcessDefinition(h.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME).getId();
     }
 
     @Override

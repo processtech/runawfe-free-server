@@ -431,7 +431,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
             WfServiceTestHelper th2 = testInstance.h;
             User user = th2.getAuthorizedUser();
             WfProcess process = th2.getExecutionService().getProcess(user, testInstance.processId);
-            UserTypeMap type = new UserTypeMap(th2.getDefinitionService().getUserType(user, process.getDefinitionVersionId(), "UT"));
+            UserTypeMap type = new UserTypeMap(th2.getDefinitionService().getUserType(user, process.getDefinitionId(), "UT"));
             type.put("fieldLong", longVal);
             type.put("fieldString", str);
             type.put("fieldListString", list);
@@ -443,7 +443,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
             WfServiceTestHelper th2 = testInstance.h;
             User user = th2.getAuthorizedUser();
             WfProcess process = th2.getExecutionService().getProcess(user, testInstance.processId);
-            UserTypeMap type = new UserTypeMap(th2.getDefinitionService().getUserType(user, process.getDefinitionVersionId(), "UK"));
+            UserTypeMap type = new UserTypeMap(th2.getDefinitionService().getUserType(user, process.getDefinitionId(), "UK"));
             type.put("fieldStringK", str);
             type.put("fieldLongK", longVal);
             return type;

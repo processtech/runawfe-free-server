@@ -136,16 +136,10 @@ public class ServiceTestHelper {
         createProfileServiceDelegate();
     }
 
-//    @SafeVarargs
-//    public final <T> ArrayList<T> list(T... oo) {
-//        return Lists.newArrayList(oo);
-//    }
-
     public ArrayList<Long> toIds(Collection<? extends SecuredObject> list) {
-        // TODO Use java8 map.
         val ids = new ArrayList<Long>(list.size());
         for (SecuredObject securedObject : list) {
-            ids.add(securedObject.getId());
+            ids.add(securedObject.getSecuredObjectId());
         }
         return ids;
     }

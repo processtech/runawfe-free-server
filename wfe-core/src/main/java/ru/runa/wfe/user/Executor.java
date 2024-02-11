@@ -24,7 +24,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Polymorphism;
 import org.hibernate.annotations.PolymorphismType;
-import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.IdBasedSecuredObject;
 import ru.runa.wfe.user.jaxb.ExecutorAdapter;
 
 /*
@@ -42,7 +42,7 @@ import ru.runa.wfe.user.jaxb.ExecutorAdapter;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlJavaTypeAdapter(ExecutorAdapter.class)
-public abstract class Executor extends SecuredObject implements Comparable<Executor> {
+public abstract class Executor extends IdBasedSecuredObject implements Comparable<Executor> {
     private static final long serialVersionUID = 1L;
 
     public static final String UNAUTHORIZED_EXECUTOR_NAME = "__unauthorized__";

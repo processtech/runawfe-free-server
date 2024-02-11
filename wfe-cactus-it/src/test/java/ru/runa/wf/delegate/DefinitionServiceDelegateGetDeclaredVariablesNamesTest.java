@@ -37,7 +37,7 @@ public class DefinitionServiceDelegateGetDeclaredVariablesNamesTest extends Serv
         h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.READ), DEFINITION_WITH_VARIABLES_XML);
 
         definitionWithVariablesXmlId = definitionService
-                .getLatestProcessDefinition(h.getAuthorizedUser(), DEFINITION_WITH_VARIABLES_XML).getVersionId();
+                .getLatestProcessDefinition(h.getAuthorizedUser(), DEFINITION_WITH_VARIABLES_XML).getId();
     }
 
     @Override

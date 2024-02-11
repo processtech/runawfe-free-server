@@ -39,16 +39,15 @@ public class DefinitionServiceDelegateGetProcessDefinitionStubTest extends Servl
         Collection<Permission> permissions = Lists.newArrayList(Permission.READ);
         h.setPermissionsToAuthorizedActorOnDefinitionByName(permissions, WfServiceTestHelper.VALID_PROCESS_NAME);
 
-        WfDefinition process = definitionService.getLatestProcessDefinition(h.getAuthorizedUser(),
+        WfDefinition definition = definitionService.getLatestProcessDefinition(h.getAuthorizedUser(),
                 WfServiceTestHelper.VALID_PROCESS_NAME);
-        long processId = process.getVersionId();
-        WfDefinition actualProcess = definitionService.getProcessDefinition(h.getAuthorizedUser(), processId);
-        assertEquals("definitionDelegate.getLatestDefinitionStub returns different process by the same processId", process.getName(),
-                actualProcess.getName());
-        assertEquals("definitionDelegate.getLatestDefinitionStub returns different process by the same processId", process.getVersionId(),
-                actualProcess.getVersionId());
-        assertEquals("definitionDelegate.getLatestDefinitionStub returns different process by the same processId", process.getVersionId(),
-                actualProcess.getVersionId());
+        WfDefinition actualDefinition = definitionService.getProcessDefinition(h.getAuthorizedUser(), definition.getId());
+        assertEquals("definitionDelegate.getLatestDefinitionStub returns different process by the same processId", definition.getName(),
+                actualDefinition.getName());
+        assertEquals("definitionDelegate.getLatestDefinitionStub returns different process by the same processId", definition.getId(),
+                actualDefinition.getId());
+        assertEquals("definitionDelegate.getLatestDefinitionStub returns different process by the same processId", definition.getId(),
+                actualDefinition.getId());
     }
 
     public void testGetProcessDefinitionStubByAuthorizedUserWithoutREADPermission() {

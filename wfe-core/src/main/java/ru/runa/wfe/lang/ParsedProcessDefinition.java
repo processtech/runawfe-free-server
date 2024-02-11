@@ -65,7 +65,7 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
         private static final long serialVersionUID = 1L;
 
         @Override
-        public Long getId() {
+        public Long getSecuredObjectId() {
             return ParsedProcessDefinition.this.packId;
         }
 

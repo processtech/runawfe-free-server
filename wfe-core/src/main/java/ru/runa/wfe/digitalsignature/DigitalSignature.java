@@ -1,14 +1,7 @@
 package ru.runa.wfe.digitalsignature;
 
 import com.google.common.base.MoreObjects;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.security.SecuredObject;
-import ru.runa.wfe.security.SecuredObjectType;
-
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,9 +10,13 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
 import javax.persistence.Transient;
-import java.util.Date;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import ru.runa.wfe.security.IdBasedSecuredObject;
+import ru.runa.wfe.security.SecuredObjectType;
 
 @Entity
 @Table(name = "DIGITAL_SIGNATURE")
@@ -27,7 +24,7 @@ import java.util.Date;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class DigitalSignature extends SecuredObject {
+public class DigitalSignature extends IdBasedSecuredObject {
     private static final long serialVersionUID = 1L;
 
     @Transient

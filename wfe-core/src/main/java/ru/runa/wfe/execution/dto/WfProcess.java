@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.IdBasedSecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.var.dto.WfVariable;
 
@@ -18,7 +18,7 @@ import ru.runa.wfe.var.dto.WfVariable;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public class WfProcess extends SecuredObject {
+public class WfProcess extends IdBasedSecuredObject {
     private static final long serialVersionUID = 4862220986262286596L;
     public static final String SELECTED_TRANSITION_KEY = "RUNAWFE_SELECTED_TRANSITION";
     public static final String TRANSIENT_VARIABLES = "RUNAWFE_TRANSIENT_VARIABLES";

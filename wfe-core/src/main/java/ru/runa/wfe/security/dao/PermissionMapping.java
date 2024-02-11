@@ -59,7 +59,7 @@ public class PermissionMapping {
     public PermissionMapping(Executor executor, SecuredObject securedObject, Permission permission) {
         setExecutor(executor);
         setObjectType(securedObject.getSecuredObjectType());
-        setObjectId(securedObject.getId());
+        setObjectId(securedObject.getSecuredObjectId());
         setPermission(permission);
     }
 

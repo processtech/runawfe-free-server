@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import lombok.val;
+import lombok.var;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.junit.ArrayAssert;

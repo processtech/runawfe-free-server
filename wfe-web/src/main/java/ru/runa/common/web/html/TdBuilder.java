@@ -32,7 +32,7 @@ public interface TdBuilder {
              * Introduced to prevent fake CurrentProcess instance construction in TaskProcessIdTdBuilder.build() just for permissions check.
              */
             public Long getSecuredObjectId(Object o, Env env) {
-                return getSecuredObject(o, env).getId();
+                return getSecuredObject(o, env).getSecuredObjectId();
             }
         }
 

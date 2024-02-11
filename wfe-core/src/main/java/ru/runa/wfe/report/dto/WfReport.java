@@ -8,10 +8,10 @@ import ru.runa.wfe.commons.EntityWithType;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportParameter;
-import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.IdBasedSecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
-public class WfReport extends SecuredObject implements Comparable<WfReport>, EntityWithType {
+public class WfReport extends IdBasedSecuredObject implements Comparable<WfReport>, EntityWithType {
 
     private static final long serialVersionUID = 1L;
 

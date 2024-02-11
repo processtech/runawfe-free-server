@@ -127,10 +127,6 @@ public class WfServiceTestHelper extends ServiceTestHelper {
         super.releaseResources();
     }
 
-    public void setPermissionsToAuthorizedActorOnDefinition(Collection<Permission> permissions, WfDefinition definition) {
-        authorizationService.setPermissions(adminUser, getAuthorizedActor().getId(), permissions, definition);
-    }
-
     public void setPermissionsToAuthorizedActorOnProcessInstance(Collection<Permission> permissions, WfProcess instance) {
         authorizationService.setPermissions(adminUser, getAuthorizedActor().getId(), permissions, instance);
     }

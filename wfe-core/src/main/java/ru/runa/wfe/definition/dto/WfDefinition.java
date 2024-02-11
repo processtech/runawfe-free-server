@@ -101,9 +101,13 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         return SecuredObjectType.DEFINITION;
     }
 
-    @Override
     public Long getId() {
         return id;
+    }
+
+    @Override
+    public Long getSecuredObjectId() {
+        return packId;
     }
 
     public Long getPackId() {

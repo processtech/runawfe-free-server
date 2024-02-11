@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.IdBasedSecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
 @Data
 @NoArgsConstructor
-public class WfFrozenToken extends SecuredObject {
+public class WfFrozenToken extends IdBasedSecuredObject {
     private static final long serialVersionUID = 1L;
     private Long id;
     private Long processId;
