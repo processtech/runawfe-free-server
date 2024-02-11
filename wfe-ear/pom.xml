@@ -34,7 +34,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
-			<artifactId>ooxml-schemas</artifactId>
+			<artifactId>poi-ooxml-schemas</artifactId>
 			<type>jar</type>
 		</dependency>
 		<dependency>
