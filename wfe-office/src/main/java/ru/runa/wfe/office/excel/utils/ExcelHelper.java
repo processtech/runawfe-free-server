@@ -4,6 +4,7 @@ import java.util.Date;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import static org.apache.poi.ss.usermodel.CellType.BLANK;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
@@ -60,20 +61,20 @@ public class ExcelHelper {
     public static Object getCellValue(Cell cell, VariableFormat elementFormat) {
         Object value;
         switch (cell.getCellType()) {
-        case Cell.CELL_TYPE_STRING:
+        case STRING:
             value = cell.getRichStringCellValue().getString();
             break;
-        case Cell.CELL_TYPE_NUMERIC:
+        case NUMERIC:
             if (DateUtil.isCellDateFormatted(cell)) {
                 value = cell.getDateCellValue();
             } else {
                 value = cell.getNumericCellValue();
             }
             break;
-        case Cell.CELL_TYPE_BOOLEAN:
+        case BOOLEAN:
             value = cell.getBooleanCellValue();
             break;
-        case Cell.CELL_TYPE_FORMULA:
+        case FORMULA:
             value = cell.getCellFormula();
             break;
         default:
@@ -86,7 +87,7 @@ public class ExcelHelper {
         if (cell == null) {
             return true;
         }
-        return cell.getCellType() == Cell.CELL_TYPE_BLANK;
+        return cell.getCellType() == BLANK;
     }
 
 }
