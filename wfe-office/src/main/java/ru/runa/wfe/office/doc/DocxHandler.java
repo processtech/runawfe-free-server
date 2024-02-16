@@ -32,6 +32,7 @@ public class DocxHandler extends OfficeFilesSupplierHandler<DocxConfig> {
         }
         OutputStream outputStream = config.getFileOutputStream(result, variableProvider, true);
         document.write(outputStream);
+        outputStream.close();
         return result;
     }
 }
