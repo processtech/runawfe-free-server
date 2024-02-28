@@ -248,7 +248,7 @@ public class SystemProperties {
     }
 
     public static boolean isDefinitionCompatibilityCheckEnabled() {
-        return RESOURCES.getBooleanProperty("definition.compatibility.check.enabled", false);
+        return RESOURCES.getBooleanProperty("definition.compatibility.check.enabled", true);
     }
 
     public static boolean isCheckProcessStartPermissions() {
