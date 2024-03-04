@@ -61,7 +61,7 @@ public class Interaction implements Serializable {
                 outputTransitions.add(new WfTransition(transition));
             }
         }
-        if (outputTransitions.size() == 1 && node instanceof InteractionNode) {
+        if (outputTransitions.size() == 1 && node instanceof InteractionNode && !((InteractionNode) node).getTasks().isEmpty()) {
             Boolean nodeExecutionButton = ((InteractionNode) node).getFirstTaskNotNull().isTaskButtonLabelBySingleTransitionName();
             Boolean processExecutionButton = node.getParsedProcessDefinition().isTaskButtonLabelBySingleTransitionName();
             this.taskButtonLabelBySingleTransitionName = nodeExecutionButton == null ? processExecutionButton != null && processExecutionButton
