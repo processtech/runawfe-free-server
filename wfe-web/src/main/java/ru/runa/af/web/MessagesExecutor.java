@@ -16,6 +16,8 @@ public final class MessagesExecutor {
     public static final StrutsMessage ACTOR_CODE = new StrutsMessage("label.actor_code");
     public static final StrutsMessage ACTOR_IS_ACTIVE = new StrutsMessage("label.actor_is_active");
     public static final StrutsMessage ACTOR_EMAIL = new StrutsMessage("label.actor_email");
+    public static final StrutsMessage ACTOR_SEND_NOTIFICATIONS_ABOUT_TASKS = new StrutsMessage("label.send_notifications_about_tasks");
+    public static final StrutsMessage ACTOR_SEND_NOTIFICATIONS_ABOUT_CHAT_MESSAGES = new StrutsMessage("label.send_notifications_about_chat_messages");
     public static final StrutsMessage ACTOR_PHONE = new StrutsMessage("label.actor_phone");
     public static final StrutsMessage ACTOR_TITLE = new StrutsMessage("label.actor_title");
     public static final StrutsMessage ACTOR_DEPARTMENT = new StrutsMessage("label.actor_department");
@@ -82,6 +84,5 @@ public final class MessagesExecutor {
     public static final StrutsMessage DIGITAL_SIGNATURE_DATE_OF_ISSUE = new StrutsMessage("label.digital_signature_date_of_issue");
     public static final StrutsMessage DIGITAL_SIGNATURE_DATE_OF_EXPIRY = new StrutsMessage("label.digital_signature_date_of_expiry");
     public static final StrutsMessage DIGITAL_SIGNATURE_VALIDITY_IN_MONTH = new StrutsMessage("label.digital_signature_validity");
-
 
 }

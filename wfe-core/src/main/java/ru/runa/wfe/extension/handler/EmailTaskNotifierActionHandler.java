@@ -1,11 +1,13 @@
 package ru.runa.wfe.extension.handler;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.io.ByteStreams;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailConfigParser;
@@ -19,11 +21,6 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.dao.ExecutorDao;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.io.ByteStreams;
 
 /**
  * Created on 28.10.2008

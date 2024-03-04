@@ -89,7 +89,7 @@ public class ExpiredTasksNotifier {
                 log.debug("Ignored due to excluded process name " + processName);
                 return;
             }
-            List<String> emailsToSend = EmailUtils.getEmails(task.getExecutor());
+            List<String> emailsToSend = EmailUtils.getEmails(task.getExecutor(), true);
             if (onlyIfTaskActorEmailDefined && emailsToSend.isEmpty()) {
                 log.debug("Ignored due to empty email of executor: " + task.getExecutor().getName());
                 return;

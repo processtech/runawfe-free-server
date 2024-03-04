@@ -24,6 +24,8 @@ public class Actor extends Executor {
     private String phone;
     private String title;
     private String department;
+    private boolean taskEmailNotificationsEnabled = true;
+    private boolean chatEmailNotificationsEnabled = true;
 
     protected Actor() {
     }
@@ -158,5 +160,23 @@ public class Actor extends Executor {
             }
         }
         return "";
+    }
+
+    @Column(name = "TASK_EMAIL_NOTIFICATIONS")
+    public boolean getTaskEmailNotificationsEnabled() {
+        return taskEmailNotificationsEnabled;
+    }
+
+    public void setTaskEmailNotificationsEnabled(boolean taskEmailNotificationsEnabled) {
+        this.taskEmailNotificationsEnabled = taskEmailNotificationsEnabled;
+    }
+
+    @Column(name = "CHAT_EMAIL_NOTIFICATIONS")
+    public boolean getChatEmailNotificationsEnabled() {
+        return chatEmailNotificationsEnabled;
+    }
+
+    public void setChatEmailNotificationsEnabled(boolean chatEmailNotificationsEnabled) {
+        this.chatEmailNotificationsEnabled = chatEmailNotificationsEnabled;
     }
 }

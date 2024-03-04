@@ -86,7 +86,8 @@ public class EmailTaskNotifier implements TaskNotifier {
     }
 
     @Override
-    public void onTaskAssigned(ParsedProcessDefinition parsedProcessDefinition, VariableProvider variableProvider, Task task, Executor previousExecutor) {
+    public void onTaskAssigned(ParsedProcessDefinition parsedProcessDefinition, VariableProvider variableProvider, Task task,
+            Executor previousExecutor) {
         if (!enabled || configBytes == null) {
             return;
         }
@@ -104,7 +105,7 @@ public class EmailTaskNotifier implements TaskNotifier {
             }
 
             EmailConfig config = EmailConfigParser.parse(configBytes);
-            List<String> emailsToSend = EmailUtils.getEmails(task.getExecutor());
+            List<String> emailsToSend = EmailUtils.getEmails(task.getExecutor(), true);
             List<String> emailsWereSent = EmailUtils.getEmails(previousExecutor);
             emailsToSend.removeAll(emailsWereSent);
             if (onlyIfTaskActorEmailDefined && emailsToSend.isEmpty()) {
