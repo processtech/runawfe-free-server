@@ -1,14 +1,11 @@
 package ru.runa.af.web.form;
 
+import com.google.common.base.Strings;
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-
-import com.google.common.base.Strings;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.MessagesException;
 import ru.runa.common.web.form.IdForm;
@@ -43,6 +40,10 @@ public class UpdateExecutorDetailsForm extends IdForm {
 
     private String department;
 
+    private boolean taskEmailNotificationsEnabled;
+
+    private boolean chatEmailNotificationsEnabled;
+
     public static final String EMAIL_INPUT_NAME = "email";
 
     public static final String PHONE_INPUT_NAME = "phone";
@@ -50,6 +51,10 @@ public class UpdateExecutorDetailsForm extends IdForm {
     public static final String TITLE_INPUT_NAME = "title";
 
     public static final String DEPARTMENT_INPUT_NAME = "department";
+
+    public static final String TASK_EMAIL_NOTIFICATIONS_ENABLED_INPUT_NAME = "taskEmailNotificationsEnabled";
+
+    public static final String CHAT_EMAIL_NOTIFICATIONS_ENABLED_INPUT_NAME = "chatEmailNotificationsEnabled";
 
     public String getDescription() {
         return description;
@@ -105,6 +110,22 @@ public class UpdateExecutorDetailsForm extends IdForm {
 
     public void setDepartment(String department) {
         this.department = department;
+    }
+
+    public boolean getTaskEmailNotificationsEnabled() {
+        return taskEmailNotificationsEnabled;
+    }
+
+    public void setTaskEmailNotificationsEnabled(boolean taskEmailNotificationsEnabled) {
+        this.taskEmailNotificationsEnabled = taskEmailNotificationsEnabled;
+    }
+
+    public boolean getChatEmailNotificationsEnabled() {
+        return chatEmailNotificationsEnabled;
+    }
+
+    public void setChatEmailNotificationsEnabled(boolean chatEmailNotificationsEnabled) {
+        this.chatEmailNotificationsEnabled = chatEmailNotificationsEnabled;
     }
 
     @Override

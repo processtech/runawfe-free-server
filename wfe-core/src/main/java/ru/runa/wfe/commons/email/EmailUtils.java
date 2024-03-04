@@ -198,17 +198,23 @@ public class EmailUtils {
     }
 
     public static List<String> getEmails(Executor executor) {
+        return getEmails(executor, false);
+    }
+
+    public static List<String> getEmails(Executor executor, boolean filterByTaskEmailNotificationsEnabled) {
         List<String> emails = Lists.newArrayList();
         if (executor instanceof Actor) {
             Actor actor = (Actor) executor;
-            if (actor.isActive() && !Utils.isNullOrEmpty(actor.getEmail())) {
+            boolean filterPassed = filterByTaskEmailNotificationsEnabled ? actor.getTaskEmailNotificationsEnabled() : true;
+            if (filterPassed && actor.isActive() && !Utils.isNullOrEmpty(actor.getEmail())) {
                 emails.add(actor.getEmail().trim());
             }
         } else if (executor instanceof Group) {
             ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
             Collection<Actor> actors = executorDao.getGroupActors((Group) executor);
             for (Actor actor : actors) {
-                if (actor.isActive() && !Utils.isNullOrEmpty(actor.getEmail())) {
+                boolean filterPassed = filterByTaskEmailNotificationsEnabled ? actor.getTaskEmailNotificationsEnabled() : true;
+                if (filterPassed && actor.isActive() && !Utils.isNullOrEmpty(actor.getEmail())) {
                     emails.add(actor.getEmail().trim());
                 }
             }
@@ -232,7 +238,7 @@ public class EmailUtils {
 
     public static List<String> filterEmails(final List<String> emailsToSend, EmailsFilter includeFilter, EmailsFilter excludeFilter) {
         List<String> filteredEmailsToSend = new LinkedList<>(emailsToSend);
-        for (Iterator<String> i = filteredEmailsToSend.iterator(); i.hasNext(); ) {
+        for (Iterator<String> i = filteredEmailsToSend.iterator(); i.hasNext();) {
             String email = i.next();
             if ((includeFilter != null) && (!includeFilter.isMatching(email))) {
                 i.remove();
@@ -264,7 +270,8 @@ public class EmailUtils {
         return SwimlaneNameFilter.create(filters);
     }
 
-    public static boolean isSwimlaneNameMatching(String swimlaneName, SwimlaneNameFilter includeSwimlaneNameFiler, SwimlaneNameFilter excludeSwimlaneNameFiler) {
+    public static boolean isSwimlaneNameMatching(String swimlaneName, SwimlaneNameFilter includeSwimlaneNameFiler,
+            SwimlaneNameFilter excludeSwimlaneNameFiler) {
         if (includeSwimlaneNameFiler != null && !includeSwimlaneNameFiler.isMatching(swimlaneName)) {
             return false;
         }

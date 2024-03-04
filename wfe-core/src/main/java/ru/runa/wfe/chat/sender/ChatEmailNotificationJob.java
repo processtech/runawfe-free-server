@@ -8,14 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import lombok.extern.apachecommons.CommonsLog;
 import javax.annotation.Resource;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatEmailNotificationBuilder;
-import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.CurrentChatMessage;
 import ru.runa.wfe.chat.CurrentChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatFileDao;
@@ -85,7 +83,7 @@ public class ChatEmailNotificationJob {
 
     @Transactional(readOnly = true)
     public Map<Actor, ChatEmailNotificationBuilder> getEmailBuildersByActorsWithPagination(int pageIndex, int pageSize) {
-        List<Actor> actors = executorDao.getAllActorsHaveEmailWithPagination(pageIndex, pageSize);
+        List<Actor> actors = executorDao.getActorsForChatNotificationsWithPagination(pageIndex, pageSize);
         Map<Actor, ChatEmailNotificationBuilder> result = new HashMap<>(actors.size());
         for (Actor actor : actors) {
             List<CurrentChatMessage> messages = chatMessageDao.getNewMessagesByActor(actor);

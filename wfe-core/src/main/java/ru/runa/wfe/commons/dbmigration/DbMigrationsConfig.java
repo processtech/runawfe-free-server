@@ -31,6 +31,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddStartProcessTimerJobRefactorRm268
 import ru.runa.wfe.commons.dbmigration.impl.AddSubProcessIndexColumn;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubprocessBindingDatePatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubprocessRootIdColumn;
+import ru.runa.wfe.commons.dbmigration.impl.AddTaskAndChatEmailNotificationsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTitleAndDepartmentColumnsToActorPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenMessageSelectorPatch;
@@ -205,6 +206,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(RefactorProcessDefinitionsRm2681.class); //
         dbMigrations.add(AddStartProcessTimerJob.class);
         dbMigrations.add(AddStartProcessTimerJobRefactorRm2681.class);
+        dbMigrations.add(AddTaskAndChatEmailNotificationsPatch.class);
         // end regular develop patches
         dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
         dbMigrations.add(RecreateChatRoomView2.class);
