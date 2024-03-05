@@ -18,7 +18,6 @@
 package ru.runa.wfe.user;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Strings;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -47,8 +46,7 @@ public class Actor extends Executor {
     }
 
     public Actor(String name, String description, String fullName, Long code, String email, String phone, String title, String department) {
-        super(name, description);
-        setFullName(fullName != null ? fullName : "");
+        super(name, description, fullName);
         setCode(code);
         setEmail(email != null ? email : "");
         setPhone(phone != null ? phone : "");
@@ -65,13 +63,7 @@ public class Actor extends Executor {
     }
 
     public Actor(String name, String description) {
-        this(name, description, null);
-    }
-
-    @Override
-    @Column(name = "FULL_NAME", nullable = false, length = 1024)
-    public String getFullName() {
-        return super.getFullName();
+        this(name, description, name);
     }
 
     @Transient
@@ -144,12 +136,6 @@ public class Actor extends Executor {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).add("id", getId()).add("name", getName()).add("code", getCode()).toString();
-    }
-
-    @Transient
-    @Override
-    public String getLabel() {
-        return Strings.isNullOrEmpty(getFullName()) ? super.getLabel() : getFullName();
     }
 
     @Transient

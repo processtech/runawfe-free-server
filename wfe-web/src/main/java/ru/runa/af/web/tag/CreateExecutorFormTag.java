@@ -24,7 +24,7 @@ import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.CreateExecutorAction;
-import ru.runa.af.web.form.CreateExecutorForm;
+import ru.runa.af.web.form.UpdateExecutorDetailsForm;
 import ru.runa.af.web.html.ExecutorTableBuilder;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.TitledFormTag;
@@ -39,7 +39,7 @@ public class CreateExecutorFormTag extends TitledFormTag {
 
     @Override
     protected String getTitle() {
-        if (CreateExecutorForm.TYPE_ACTOR.equals(type)) {
+        if (UpdateExecutorDetailsForm.TYPE_ACTOR.equals(type)) {
             return MessagesExecutor.TITLE_CREATE_ACTOR.message(pageContext);
         } else {
             return MessagesExecutor.TITLE_CREATE_GROUP.message(pageContext);
@@ -58,14 +58,14 @@ public class CreateExecutorFormTag extends TitledFormTag {
     @Override
     public void fillFormElement(TD tdFormElement) {
         Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.CREATE_EXECUTOR, SecuredSingleton.SYSTEM);
-        boolean isActor = CreateExecutorForm.TYPE_ACTOR.equals(type);
+        boolean isActor = UpdateExecutorDetailsForm.TYPE_ACTOR.equals(type);
         ExecutorTableBuilder builder = new ExecutorTableBuilder(isActor, pageContext);
         tdFormElement.addElement(builder.buildTable());
         tdFormElement.addElement(createHiddenType());
     }
 
     private Input createHiddenType() {
-        return new Input(Input.HIDDEN, CreateExecutorForm.EXECUTOR_TYPE_INPUT_NAME, type);
+        return new Input(Input.HIDDEN, UpdateExecutorDetailsForm.EXECUTOR_TYPE_INPUT_NAME, type);
     }
 
     @Override

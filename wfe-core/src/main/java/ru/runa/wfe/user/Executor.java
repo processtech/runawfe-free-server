@@ -73,10 +73,12 @@ public abstract class Executor extends SecuredObjectBase implements Comparable<E
     protected Executor() {
     }
 
-    protected Executor(String name, String description) {
+    protected Executor(String name, String description, String fullName) {
         Preconditions.checkNotNull(name, "name");
         setName(name);
         setDescription(description);
+        Preconditions.checkNotNull(fullName, "fullName");
+        setFullName(fullName);
         this.createDate = new Date();
     }
 
@@ -121,7 +123,7 @@ public abstract class Executor extends SecuredObjectBase implements Comparable<E
         this.version = version;
     }
 
-    @Column(name = "FULL_NAME", insertable = false, updatable = false, length = 1024)
+    @Column(name = "FULL_NAME", nullable = false, length = 1024)
     public String getFullName() {
         return fullName;
     }
@@ -164,6 +166,16 @@ public abstract class Executor extends SecuredObjectBase implements Comparable<E
         return MoreObjects.toStringHelper(this).add("id", getId()).add("name", getName()).toString();
     }
 
+    /**
+     * @deprecated use `getFullName()` directly.
+     *
+     */
+    @Transient
+    @Deprecated
+    public String getLabel() {
+        return getFullName();
+    }
+
     @Transient
     protected String getComparisonValue() {
         return getName();
@@ -175,11 +187,6 @@ public abstract class Executor extends SecuredObjectBase implements Comparable<E
             return -1;
         }
         return getComparisonValue().compareTo(o.getComparisonValue());
-    }
-
-    @Transient
-    public String getLabel() {
-        return name;
     }
 
 }

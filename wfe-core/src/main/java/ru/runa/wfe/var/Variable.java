@@ -21,9 +21,9 @@
  */
 package ru.runa.wfe.var;
 
+import com.google.common.base.MoreObjects;
 import java.util.Arrays;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -41,13 +41,11 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.VariableCreateLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
@@ -59,8 +57,6 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
-
-import com.google.common.base.MoreObjects;
 
 /**
  * Base class for classes that store variable values in the database.
@@ -226,7 +222,7 @@ public abstract class Variable<T extends Object> {
         if (SystemProperties.isV3CompatibilityMode() && value != null && String[].class == value.getClass()) {
             string = Arrays.toString((String[]) value);
         } else if (value instanceof Executor) {
-            string = ((Executor) value).getLabel();
+            string = ((Executor) value).getFullName();
         } else {
             string = String.valueOf(value);
         }

@@ -33,7 +33,7 @@ public class UserOrGroupFilterTDFormatter extends FilterTDFormatter {
         labelInput.setID(labelInputId);
         if (!Strings.isNullOrEmpty(stringConditions[0])) {
             Actor actor = Delegates.getExecutorService().getExecutorByName(Commons.getUser(pageContext.getSession()), stringConditions[0]);
-            labelInput.setValue(actor.getLabel());
+            labelInput.setValue(actor.getFullName());
         }
         td.addElement(nameInput);
         td.addElement(labelInput);

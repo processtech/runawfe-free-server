@@ -17,15 +17,12 @@
  */
 package ru.runa.af.web.form;
 
+import com.google.common.base.Strings;
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-
-import com.google.common.base.Strings;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.MessagesException;
 import ru.runa.common.web.form.IdForm;
@@ -67,6 +64,14 @@ public class UpdateExecutorDetailsForm extends IdForm {
     public static final String TITLE_INPUT_NAME = "title";
 
     public static final String DEPARTMENT_INPUT_NAME = "department";
+
+    public static final String EXECUTOR_TYPE_INPUT_NAME = "executorType";
+
+    public static final String TYPE_GROUP = "group";
+
+    public static final String TYPE_ACTOR = "actor";
+
+    private String executorType;
 
     public String getDescription() {
         return description;
@@ -139,8 +144,8 @@ public class UpdateExecutorDetailsForm extends IdForm {
         } else if (getDescription().length() > 1024) {
             errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_VALIDATION.getKey()));
         }
-        if (getFullName() == null) {
-            setFullName("");
+        if (this.getExecutorType().equals(UpdateExecutorDetailsForm.TYPE_ACTOR) && Strings.isNullOrEmpty(getFullName())) {
+            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_FILL_REQUIRED_VALUES.getKey()));
         } else if (getFullName().length() > WebResources.VALIDATOR_STRING_255) {
             errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_VALIDATION.getKey()));
         }
@@ -168,5 +173,13 @@ public class UpdateExecutorDetailsForm extends IdForm {
 
     public void setCode(Long code) {
         this.code = code;
+    }
+
+    public String getExecutorType() {
+        return executorType;
+    }
+
+    public void setExecutorType(String string) {
+        executorType = string;
     }
 }

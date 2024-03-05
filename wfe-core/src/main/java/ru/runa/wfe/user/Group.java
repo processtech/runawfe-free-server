@@ -55,7 +55,7 @@ public class Group extends Executor {
     }
 
     public Group(String name, String description, String activeDirectoryGroup) {
-        super(name, description);
+        super(name, description, name);
         this.ldapGroupName = activeDirectoryGroup;
     }
 
@@ -77,5 +77,9 @@ public class Group extends Executor {
     @Transient
     public boolean isTemporary() {
         return false;
+    }
+
+    protected void updateFullName() {
+        setFullName(getName());
     }
 }

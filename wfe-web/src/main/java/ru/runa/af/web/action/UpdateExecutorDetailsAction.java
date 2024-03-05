@@ -19,11 +19,9 @@ package ru.runa.af.web.action;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.af.web.form.UpdateExecutorDetailsForm;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
@@ -54,10 +52,10 @@ public class UpdateExecutorDetailsAction extends ActionBase {
             ExecutorService executorService = Delegates.getExecutorService();
             Executor executor = executorService.getExecutor(getLoggedUser(request), form.getId());
             executor.setDescription(form.getDescription());
-            executor.setFullName(form.getFullName());
             executor.setName(form.getNewName());
             if (executor instanceof Actor) {
                 Actor actor = (Actor) executor;
+                actor.setFullName(form.getFullName());
                 actor.setCode(form.getCode());
                 actor.setPhone(form.getPhone());
                 actor.setEmail(form.getEmail());
@@ -65,6 +63,7 @@ public class UpdateExecutorDetailsAction extends ActionBase {
                 actor.setDepartment(form.getDepartment());
             } else {
                 Group group = (Group) executor;
+                group.setFullName(executor.getName());
                 group.setLdapGroupName(form.getEmail());
             }
             executorService.update(getLoggedUser(request), executor);
