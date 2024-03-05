@@ -115,7 +115,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         if (context.readonly) {
             Input result = createInput(context, "text", "inputString", null);
             if (context.variable.getValue() instanceof Executor) {
-                result.setValue(((Executor) context.variable.getValue()).getLabel());
+                result.setValue(((Executor) context.variable.getValue()).getFullName());
             }
             return new GenerateHtmlForVariableResult(context, result.toString());
         }
@@ -367,22 +367,18 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
     private static String createExecutorSelect(User user, String variableName, VariableFormat variableFormat, Object value, boolean enabled) {
         BatchPresentation batchPresentation;
-        int sortColumn = 0;
-        boolean javaSort = false;
         if (ActorFormat.class == variableFormat.getClass()) {
             batchPresentation = BatchPresentationFactory.ACTORS.createNonPaged();
-            sortColumn = 1;
         } else if (ExecutorFormat.class == variableFormat.getClass()) {
             batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
-            javaSort = true;
         } else if (GroupFormat.class == variableFormat.getClass()) {
             batchPresentation = BatchPresentationFactory.GROUPS.createNonPaged();
         } else {
             throw new InternalApplicationException("Unexpected format " + variableFormat);
         }
-        batchPresentation.setFieldsToSort(new int[] { sortColumn }, new boolean[] { true });
+        batchPresentation.setFieldsToSort(new int[] { 1 }, new boolean[] { true });
         List<Executor> executors = (List<Executor>) Delegates.getExecutorService().getExecutors(user, batchPresentation);
-        return createExecutorSelect(variableName, executors, value, javaSort, enabled);
+        return createExecutorSelect(variableName, executors, value, false, enabled);
     }
 
     public static String createExecutorSelect(String variableName, List<? extends Executor> executors, Object value, boolean javaSort, boolean enabled) {
@@ -400,7 +396,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             if (Objects.equals(executor, value) || value instanceof String && value.equals(executor.getName())) {
                 html.append(" selected");
             }
-            html.append(">").append(executor.getLabel()).append("</option>");
+            html.append(">").append(executor.getFullName()).append("</option>");
         }
         html.append("</select>");
         return html.toString();
@@ -418,7 +414,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         html.append(" js-executor-type=\"").append(type.name()).append("\"");
         html.append(" js-including-temporary-groups=\"").append(includingTemporaryGroups).append("\"");
         if (value != null) {
-            html.append(" value=\"").append(value.getLabel()).append("\"");
+            html.append(" value=\"").append(value.getFullName()).append("\"");
         }
         html.append("/>");
         return html.toString();

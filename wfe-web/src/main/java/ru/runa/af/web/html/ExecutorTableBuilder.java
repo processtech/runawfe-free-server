@@ -18,10 +18,8 @@
 package ru.runa.af.web.html;
 
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.Table;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.form.UpdateExecutorDetailsForm;
 import ru.runa.common.web.HTMLUtils;
@@ -72,7 +70,7 @@ public class ExecutorTableBuilder {
         Input nameInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.NEW_NAME_INPUT_NAME, executor.getName(), enabled, true);
         table.addElement(HTMLUtils.createRow(MessagesExecutor.EXECUTOR_NAME.message(pageContext), nameInput));
         if (actor != null) {
-            Input fullNameInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.FULL_NAME_INPUT_NAME, actor.getFullName(), enabled, false);
+            Input fullNameInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.FULL_NAME_INPUT_NAME, actor.getFullName(), enabled, true);
             table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_FULL_NAME.message(pageContext), fullNameInput));
         }
         Input descriptionInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.DESCRIPTION_INPUT_NAME, executor.getDescription(), enabled, false);

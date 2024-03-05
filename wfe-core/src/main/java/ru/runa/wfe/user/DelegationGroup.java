@@ -1,11 +1,9 @@
 package ru.runa.wfe.user;
 
+import com.google.common.base.MoreObjects;
 import java.util.Date;
-
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-
-import com.google.common.base.MoreObjects;
 
 /**
  * Delegation group
@@ -29,6 +27,7 @@ public class DelegationGroup extends TemporaryGroup {
         delegationGroup.setName(groupName);
         delegationGroup.setDescription(taskId.toString());
         delegationGroup.setProcessId(processId);
+        delegationGroup.updateFullName();
         return delegationGroup;
     }
 

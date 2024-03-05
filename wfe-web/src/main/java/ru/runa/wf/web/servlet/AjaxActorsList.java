@@ -15,6 +15,7 @@ import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.ExecutorClassPresentation;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
@@ -59,19 +60,12 @@ public class AjaxActorsList extends JsonAjaxCommand {
     }
 
     private BatchPresentation getPresentation(String target, Integer page, Integer perPage, String hint) {
-        BatchPresentationFactory factory;
-        int filterIndex;
-        if ("actor".equals(target)) {
-            factory = BatchPresentationFactory.ACTORS;
-            filterIndex = 1;
-        } else {
-            factory = BatchPresentationFactory.GROUPS;
-            filterIndex = 0;
-        }
+        BatchPresentationFactory factory = "actor".equals(target) ? BatchPresentationFactory.ACTORS : BatchPresentationFactory.GROUPS;
         BatchPresentation batchPresentation = factory.createDefault();
         batchPresentation.setRangeSize(perPage);
         batchPresentation.setFieldsToSort(new int[] { 1 }, new boolean[] { true });
         if (!Strings.isNullOrEmpty(hint)) {
+            int filterIndex = batchPresentation.getType().getFieldIndex(ExecutorClassPresentation.FULL_NAME);
             batchPresentation.getFilteredFields().put(filterIndex, new StringFilterCriteria(hint + StringFilterCriteria.ANY_SYMBOLS, true));
         }
         batchPresentation.setPageNumber(page);
@@ -83,9 +77,9 @@ public class AjaxActorsList extends JsonAjaxCommand {
         JSONObject r = new JSONObject();
         r.put("id", executor.getId());
         r.put("name", executor.getName());
+        r.put("fullname", executor.getFullName());
         if (executor instanceof Actor) {
             r.put("type", "actor");
-            r.put("fullname", executor.getLabel());
         } else if (executor instanceof Group) {
             r.put("type", "group");
         }

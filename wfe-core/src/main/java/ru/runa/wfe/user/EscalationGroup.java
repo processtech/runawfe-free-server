@@ -1,20 +1,16 @@
 package ru.runa.wfe.user;
 
+import com.google.common.base.MoreObjects;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-
 import org.hibernate.annotations.ForeignKey;
-
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.task.Task;
-
-import com.google.common.base.MoreObjects;
 
 /**
  * Used for assigning escalated tasks.
@@ -74,6 +70,7 @@ public class EscalationGroup extends TemporaryGroup {
         escalationGroup.setLevel(escalationLevel);
         escalationGroup.setProcessId(process.getId());
         escalationGroup.setNodeId(task.getNodeId());
+        escalationGroup.updateFullName();
         return escalationGroup;
     }
 
