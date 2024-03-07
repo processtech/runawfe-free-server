@@ -125,6 +125,10 @@ public class GraphImageBuilder {
         // subprocess node that triggered by event has no any transition, so it can be found only in EnterLog
         for (CurrentNodeEnterLog enterLog : logs.getLogs(CurrentNodeEnterLog.class)) {
             AbstractFigure figure = allNodeFigures.get(enterLog.getNodeId());
+            if (figure == null) {
+                // rm3451: it can be due to old records in bpm_log
+                continue;
+            }
             if (figure.getNode() instanceof SubprocessNode && ((SubprocessNode) figure.getNode()).isTriggeredByEvent()) {
                 fillSubprocess(figure, activeNodeIds);
             }
