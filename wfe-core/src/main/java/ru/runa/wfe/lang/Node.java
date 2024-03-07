@@ -183,7 +183,7 @@ public abstract class Node extends GraphElement {
                 eventToken.setNodeName(tokenNodeNameExtractor.extract(boundaryNode));
                 eventToken.setNodeEnterDate(new Date());
                 ApplicationContextFactory.getCurrentTokenDao().create(eventToken);
-                ExecutionContext eventExecutionContext = new ExecutionContext(getParsedProcessDefinition(), eventToken);
+                ExecutionContext eventExecutionContext = new ExecutionContext(executionContext.getParsedProcessDefinition(), eventToken);
                 eventExecutionContext.addLog(new CurrentNodeEnterLog((Node) boundaryEvent));
                 ((Node) boundaryEvent).handle(eventExecutionContext);
             }

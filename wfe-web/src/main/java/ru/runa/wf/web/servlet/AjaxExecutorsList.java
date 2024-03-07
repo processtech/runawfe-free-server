@@ -46,17 +46,17 @@ public class AjaxExecutorsList extends JsonAjaxCommand {
             List<Executor> executors = new ArrayList<>();
             switch (type) {
                 case actor: {
-                    executors.addAll(getExecutors(user, type, includingTemporaryGroups, true, hint));
+                    executors.addAll(getExecutors(user, type, includingTemporaryGroups, hint));
                     break;
                 }
                 case group: {
-                    executors.addAll(getExecutors(user, type, includingTemporaryGroups, false, hint));
+                    executors.addAll(getExecutors(user, type, includingTemporaryGroups, hint));
                     break;
                 }
                 case executor: {
                     Set<Executor> executorSet = new HashSet<>();
-                    executorSet.addAll(getExecutors(user, type, includingTemporaryGroups, true, hint));
-                    executorSet.addAll(getExecutors(user, type, includingTemporaryGroups, false, hint));
+                    executorSet.addAll(getExecutors(user, type, includingTemporaryGroups, hint));
+                    executorSet.addAll(getExecutors(user, type, includingTemporaryGroups, hint));
                     executors.addAll(executorSet);
                     break;
                 }
@@ -67,13 +67,10 @@ public class AjaxExecutorsList extends JsonAjaxCommand {
                 if (executor.getName().startsWith(ru.runa.wfe.user.SystemExecutors.SYSTEM_EXECUTORS_PREFIX)) {
                     continue;
                 }
-                if (Strings.isNullOrEmpty(executor.getLabel())) {
-                    continue;
-                }
                 JSONObject r = new JSONObject();
                 r.put("id", executor.getId());
                 r.put("value", executor.getName());
-                r.put("label", executor.getLabel());
+                r.put("label", executor.getFullName());
                 data.add(r);
             }
             data.sort(new Comparator<JSONObject>() {
@@ -97,19 +94,18 @@ public class AjaxExecutorsList extends JsonAjaxCommand {
         }
     }
 
-    private List<? extends Executor> getExecutors(User user, Type type, boolean includingTemporaryGroups, boolean hintByFullName, String hint) {
+    private List<? extends Executor> getExecutors(User user, Type type, boolean includingTemporaryGroups, String hint) {
         BatchPresentation batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
         batchPresentation.setRangeSize(20); // to omit system executors and executors with empty names
         if (type.getFilterValue() != null) {
             int typeFieldIndex = batchPresentation.getType().getFieldIndex(ExecutorClassPresentation.TYPE);
             batchPresentation.getFilteredFields().put(typeFieldIndex, new StringFilterCriteria(type.getFilterValue()));
         }
-        int nameFieldIndex = batchPresentation.getType().getFieldIndex(hintByFullName ? ExecutorClassPresentation.FULL_NAME : ExecutorClassPresentation.NAME);
+        int nameFieldIndex = batchPresentation.getType().getFieldIndex(ExecutorClassPresentation.FULL_NAME);
         if (!Strings.isNullOrEmpty(hint)) {
             batchPresentation.getFilteredFields().put(nameFieldIndex, new StringFilterCriteria(hint + StringFilterCriteria.ANY_SYMBOLS, true));
         }
         batchPresentation.setFieldsToSort(new int[] { nameFieldIndex }, new boolean[] { true });
-        List<? extends Executor> executors;
         if (includingTemporaryGroups) {
             return Delegates.getExecutorService().getExecutors(user, batchPresentation);
         } else {

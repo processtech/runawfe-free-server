@@ -1,6 +1,8 @@
 <%@ page pageEncoding="UTF-8" %>
 <%@ page import="ru.runa.common.web.Commons" %>
 <%@ page import="ru.runa.wfe.security.SecuredObjectType" %>
+<%@ page import="ru.runa.wfe.user.Executor" %>
+<%@ page import="ru.runa.wfe.user.Actor" %>
 <%@ page import="ru.runa.wfe.service.delegate.Delegates" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
@@ -10,9 +12,11 @@
 <%
 	long id = Long.parseLong(request.getParameter("id"));
 	String returnAction="/manage_executor.do?id=" + id;
-	SecuredObjectType securedObjectType = Delegates.getExecutorService().getExecutor(Commons.getUser(pageContext.getSession()), id).getSecuredObjectType();
+	Executor executor = Delegates.getExecutorService().getExecutor(Commons.getUser(pageContext.getSession()), id);
+    SecuredObjectType securedObjectType = executor.getSecuredObjectType();
+    String executorType = executor instanceof Actor ? "actor" : "group";
 %>
-<wf:updateExecutorDetailsForm identifiableId="<%= id %>">
+<wf:updateExecutorDetailsForm identifiableId="<%= id %>" type="<%= executorType %>">
     <table width="100%">
     <tr>
 		<td align="right">

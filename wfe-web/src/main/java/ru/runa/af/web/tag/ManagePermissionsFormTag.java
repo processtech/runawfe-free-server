@@ -92,7 +92,7 @@ public class ManagePermissionsFormTag extends SecuredObjectFormTag2 {
             name = ((Relation) so).getName();
         } else if (so instanceof Executor) {
             type = so.getClass().getSimpleName();
-            name = new A("manage_executor.do?id=" + identifiableId).addElement(((Executor) so).getLabel()).setClass(linkClass).toString();
+            name = new A("manage_executor.do?id=" + identifiableId).addElement(((Executor) so).getFullName()).setClass(linkClass).toString();
         } else if (so instanceof WfReport) {
             name = ((WfReport) so).getName();
         }

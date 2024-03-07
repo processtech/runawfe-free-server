@@ -57,6 +57,7 @@ import ru.runa.wfe.commons.dbmigration.impl.DeleteBatchPresentationsRm3056;
 import ru.runa.wfe.commons.dbmigration.impl.DropMessageNotNullConstraintPatch;
 import ru.runa.wfe.commons.dbmigration.impl.DropQuotedMessageIdsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.EnlargeMessageMaxSizePatch;
+import ru.runa.wfe.commons.dbmigration.impl.ExecutorIfFullNameIsNullOrEmptySetToName;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandChatColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandVarcharPatch;
@@ -187,6 +188,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(DeleteBatchPresentationsRm3017.class);
         dbMigrations.add(DeleteBatchPresentationsRm3056.class);
         dbMigrations.add(CreateSignalTable.class);
+        dbMigrations.add(ExecutorIfFullNameIsNullOrEmptySetToName.class);
         // start develop patches
         dbMigrations.add(SplitProcessDefinitionVersion.class);
         dbMigrations.add(AddSubprocessRootIdColumn.class);

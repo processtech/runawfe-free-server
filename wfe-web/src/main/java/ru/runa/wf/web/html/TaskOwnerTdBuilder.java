@@ -1,7 +1,6 @@
 package ru.runa.wf.web.html;
 
 import org.apache.ecs.html.TD;
-
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.html.TdBuilder;
 import ru.runa.wfe.task.dto.WfTask;
@@ -38,7 +37,7 @@ public class TaskOwnerTdBuilder implements TdBuilder {
         if (env.getPageContext() != null) {
             return HTMLUtils.getExecutorName(getOwner(object), env.getPageContext());
         }
-        return getOwner(object).getLabel();
+        return getOwner(object).getFullName();
     }
 
     @Override

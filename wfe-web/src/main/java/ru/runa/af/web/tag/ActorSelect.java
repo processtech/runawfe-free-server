@@ -26,7 +26,7 @@ public class ActorSelect extends Select {
         } else {
             batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
         }
-        batchPresentation.setFieldsToSort(new int[] { 0 }, new boolean[] { true });
+        batchPresentation.setFieldsToSort(new int[] { 1 }, new boolean[] { true });
         List<Executor> executors = (List<Executor>) Delegates.getExecutorService().getExecutors(user, batchPresentation);
         ArrayList<Option> options = new ArrayList<>();
         for (Executor executor : executors) {
@@ -34,8 +34,8 @@ public class ActorSelect extends Select {
                 continue;
             }
             String label = executor.getName();
-            if (executor instanceof Actor && !Strings.isNullOrEmpty(executor.getLabel())) {
-                label += " (" + executor.getLabel() + ")";
+            if (executor instanceof Actor) {
+                label += " (" + executor.getFullName() + ")";
             }
             boolean isCurrent = executor.getName().equals(current);
             if (isCurrent) {

@@ -27,6 +27,7 @@ public class DelegationGroup extends TemporaryGroup {
         delegationGroup.setName(groupName);
         delegationGroup.setDescription(taskId.toString());
         delegationGroup.setProcessId(processId);
+        delegationGroup.updateFullName();
         return delegationGroup;
     }
 

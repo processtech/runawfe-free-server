@@ -1,15 +1,18 @@
 package ru.runa.wf.web.ftl.component;
 
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-
+import java.util.Set;
+import java.util.stream.Collectors;
+import ru.runa.wf.web.FormSubmissionUtils;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionPostProcessor;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.format.BooleanFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
 
 public class EditUserTypeList extends AbstractUserTypeList implements FormComponentSubmissionPostProcessor {
     private static final long serialVersionUID = 1L;
@@ -27,19 +30,41 @@ public class EditUserTypeList extends AbstractUserTypeList implements FormCompon
 
     @Override
     public Object postProcessValue(Object input) throws Exception {
-        List<UserTypeMap> list = (List<UserTypeMap>) input;
-        if (!list.isEmpty()) {
-            // reset boolean values which are not presented in columns list (#152#note-26).
-            List<String> attributeNames = getMultipleParameter(4);
-            for (VariableDefinition definition : list.get(0).getUserType().getAttributes()) {
-                if (BooleanFormat.class.getName().equals(definition.getFormat()) && !attributeNames.contains(definition.getName())) {
-                    for (UserTypeMap userTypeMap : list) {
-                        userTypeMap.remove(definition.getName());
-                    }
+        List<UserTypeMap> newList = (List<UserTypeMap>) input;
+        if (newList.isEmpty()) {
+            return newList;
+        }
+        String variableName = getParameterAsString(0);
+        List<UserTypeMap> oldList = variableProvider.getValue(List.class, variableName);
+        if (oldList == null) {
+            return newList;
+        }
+        String indexesString = webHelper.getRequest().getParameter(variableName + FormSubmissionUtils.INDEXES_SUFFIX);       
+        List<Integer> indexesList = Arrays.stream(indexesString.split(","))
+            .map(Integer::parseInt)
+            .collect(Collectors.toList());
+        Set<String> hiddenAttributeNames = new HashSet<>(oldList.get(0).keySet());
+        hiddenAttributeNames.removeAll(getEditableAttributeNames());
+        if (hiddenAttributeNames.isEmpty()) {
+            return newList;
+        }
+        // adjust values for user type hidden attributes (#413)
+        for (int i = 0; i < indexesList.size(); i++) {
+            UserTypeMap newValue = newList.get(i);
+            int oldListIndex = indexesList.get(i);
+            for (String attributeName : hiddenAttributeNames) {
+                Object value = null;
+                if (oldListIndex < oldList.size()) {
+                    value = oldList.get(oldListIndex).get(attributeName);
                 }
+                newValue.put(attributeName, value);
             }
         }
-        return list;
+        return newList;
+    }
+
+    protected List<String> getEditableAttributeNames() {
+        return getMultipleParameter(4);
     }
 
     public class EditUserTypeListModel extends UserTypeListModel {

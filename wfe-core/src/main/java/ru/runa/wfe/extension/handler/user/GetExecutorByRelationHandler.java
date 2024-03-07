@@ -40,7 +40,7 @@ public class GetExecutorByRelationHandler extends CommonParamBasedHandler {
         if (pairs.size() == 0) {
             String option = handlerData.getInputParamValueNotNull(String.class, "missedCaseOption");
             if ("THROW_ERROR".equals(option)) {
-                throw new Exception("Relation " + (inversed ? "!" : "") + "'" + relationName + "' does not defined for " + parameter.getLabel());
+                throw new Exception("Relation " + (inversed ? "!" : "") + "'" + relationName + "' does not defined for " + parameter.getName());
             }
             handlerData.setOutputParam("result", null);
             return;
@@ -49,7 +49,7 @@ public class GetExecutorByRelationHandler extends CommonParamBasedHandler {
             log.warn(pairs);
             String option = handlerData.getInputParamValueNotNull(String.class, "multipleCaseOption");
             if ("THROW_ERROR".equals(option)) {
-                throw new Exception("Relation " + (inversed ? "!" : "") + "'" + relationName + "' has multiple choice for " + parameter.getLabel());
+                throw new Exception("Relation " + (inversed ? "!" : "") + "'" + relationName + "' has multiple choice for " + parameter.getName());
             }
         }
         Executor result;

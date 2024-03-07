@@ -56,6 +56,14 @@ public class UpdateExecutorDetailsForm extends IdForm {
 
     public static final String CHAT_EMAIL_NOTIFICATIONS_ENABLED_INPUT_NAME = "chatEmailNotificationsEnabled";
 
+    public static final String EXECUTOR_TYPE_INPUT_NAME = "executorType";
+
+    public static final String TYPE_GROUP = "group";
+
+    public static final String TYPE_ACTOR = "actor";
+
+    private String executorType;
+
     public String getDescription() {
         return description;
     }
@@ -143,8 +151,8 @@ public class UpdateExecutorDetailsForm extends IdForm {
         } else if (getDescription().length() > 1024) {
             errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_VALIDATION.getKey()));
         }
-        if (getFullName() == null) {
-            setFullName("");
+        if (this.getExecutorType().equals(UpdateExecutorDetailsForm.TYPE_ACTOR) && Strings.isNullOrEmpty(getFullName())) {
+            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_FILL_REQUIRED_VALUES.getKey()));
         } else if (getFullName().length() > WebResources.VALIDATOR_STRING_255) {
             errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_VALIDATION.getKey()));
         }
@@ -172,5 +180,13 @@ public class UpdateExecutorDetailsForm extends IdForm {
 
     public void setCode(Long code) {
         this.code = code;
+    }
+
+    public String getExecutorType() {
+        return executorType;
+    }
+
+    public void setExecutorType(String string) {
+        executorType = string;
     }
 }

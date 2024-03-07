@@ -1,13 +1,11 @@
 package ru.runa.wfe.user;
 
+import com.google.common.base.MoreObjects;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
-import com.google.common.base.MoreObjects;
 
 /**
  * Used for dynamic assignment multiple executors in swimlanes.
@@ -31,6 +29,7 @@ public class TemporaryGroup extends Group {
         temporaryGroup.setName(GROUP_PREFIX + nameSuffix);
         temporaryGroup.setDescription(description);
         temporaryGroup.setProcessId(processId);
+        temporaryGroup.updateFullName();
         return temporaryGroup;
     }
 

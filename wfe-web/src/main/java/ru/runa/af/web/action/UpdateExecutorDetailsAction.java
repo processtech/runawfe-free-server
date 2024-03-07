@@ -37,10 +37,10 @@ public class UpdateExecutorDetailsAction extends ActionBase {
             User loggedUser = getLoggedUser(request);
             Executor executor = executorService.getExecutor(loggedUser, form.getId());
             executor.setDescription(form.getDescription());
-            executor.setFullName(form.getFullName());
             executor.setName(form.getNewName());
             if (executor instanceof Actor) {
                 Actor actor = (Actor) executor;
+                actor.setFullName(form.getFullName());
                 actor.setCode(form.getCode());
                 actor.setPhone(form.getPhone());
                 actor.setEmail(form.getEmail());
@@ -53,6 +53,7 @@ public class UpdateExecutorDetailsAction extends ActionBase {
                 }
             } else {
                 Group group = (Group) executor;
+                group.setFullName(executor.getName());
                 group.setLdapGroupName(form.getEmail());
             }
             executorService.update(loggedUser, executor);

@@ -80,7 +80,7 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         table.addElement(createdByTR);
         String createdByMessage = Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.CREATE_ACTOR, pageContext);
         createdByTR.addElement(new TD(createdByMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
-        String createdBy = definition.getCreateActor() != null ? definition.getCreateActor().getLabel() : "";
+        String createdBy = definition.getCreateActor() != null ? definition.getCreateActor().getFullName() : "";
         createdByTR.addElement(new TD(createdBy).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         if (definition.getUpdateDate() != null) {
@@ -94,7 +94,7 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
             table.addElement(updatedByTR);
             String updatedByMessage = Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.UPDATE_ACTOR, pageContext);
             updatedByTR.addElement(new TD(updatedByMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
-            String updatedBy = definition.getUpdateActor() != null ? definition.getUpdateActor().getLabel() : "";
+            String updatedBy = definition.getUpdateActor() != null ? definition.getUpdateActor().getFullName() : "";
             updatedByTR.addElement(new TD(updatedBy).setClass(Resources.CLASS_LIST_TABLE_TD));
         }
 
