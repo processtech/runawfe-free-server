@@ -33,7 +33,7 @@ public class CurrentVariableUpdateLog extends CurrentVariableLog implements Vari
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { getVariableName(), getVariableNewValueForPattern() };
+        return new Object[] { getVariableNameNotNull(), getVariableNewValueForPattern() };
     }
 
     @Override

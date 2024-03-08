@@ -17,6 +17,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddCreateDateColumns;
 import ru.runa.wfe.commons.dbmigration.impl.AddDeploymentAuditPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddDueDateExpressionToJobAndTask;
 import ru.runa.wfe.commons.dbmigration.impl.AddEmbeddedFileForBotTask;
+import ru.runa.wfe.commons.dbmigration.impl.AddExtraColumnsToBpmLog;
 import ru.runa.wfe.commons.dbmigration.impl.AddHierarchyProcess;
 import ru.runa.wfe.commons.dbmigration.impl.AddMultiTaskIndexToTaskPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddNodeIdToProcessLogPatch;
@@ -209,6 +210,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddStartProcessTimerJob.class);
         dbMigrations.add(AddStartProcessTimerJobRefactorRm2681.class);
         dbMigrations.add(AddTaskAndChatEmailNotificationsPatch.class);
+        dbMigrations.add(AddExtraColumnsToBpmLog.class);
         // end regular develop patches
         dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
         dbMigrations.add(RecreateChatRoomView2.class);

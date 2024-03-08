@@ -16,7 +16,6 @@ import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogVisitor;
 import ru.runa.wfe.audit.ProcessLogsCleanLog;
 import ru.runa.wfe.commons.dao.ArchiveAwareGenericDao;
-import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
@@ -29,16 +28,14 @@ import ru.runa.wfe.user.User;
 public class ProcessLogDao extends ArchiveAwareGenericDao<BaseProcessLog, CurrentProcessLog, CurrentProcessLogDao, ArchivedProcessLog, ArchivedProcessLogDao> {
 
     private ProcessDao processDao;
-    private ProcessDefinitionLoader processDefinitionLoader;
     private SystemLogDao systemLogDao;
     private List<ProcessLogVisitor> processLogVisitors;
 
     @Autowired
-    public ProcessLogDao(CurrentProcessLogDao currentDao, ArchivedProcessLogDao archivedDao, ProcessDao processDao, ProcessDefinitionLoader loader,
+    public ProcessLogDao(CurrentProcessLogDao currentDao, ArchivedProcessLogDao archivedDao, ProcessDao processDao,
             SystemLogDao systemLogDao, List<ProcessLogVisitor> processLogVisitors) {
         super(currentDao, archivedDao);
         this.processDao = processDao;
-        this.processDefinitionLoader = loader;
         this.systemLogDao = systemLogDao;
         this.processLogVisitors = processLogVisitors;
     }

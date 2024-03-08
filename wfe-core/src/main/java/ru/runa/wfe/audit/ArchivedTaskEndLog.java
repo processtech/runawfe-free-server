@@ -18,11 +18,7 @@ public class ArchivedTaskEndLog extends ArchivedTaskLog implements TaskEndLog {
     @Override
     @Transient
     public String getActorName() {
-        String actorName = getAttribute(ATTR_ACTOR_NAME);
-        if (actorName != null) {
-            return actorName;
-        }
-        return "";
+        return getExecutorNameOrNull();
     }
 
     @Override

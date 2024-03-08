@@ -26,7 +26,7 @@ public class ArchivedAdminActionLog extends ArchivedProcessLog implements AdminA
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        List<Object> result = Lists.newArrayList(new ExecutorNameValue(getAttributeNotNull(ATTR_ACTOR_NAME)));
+        List<Object> result = Lists.newArrayList(new ExecutorNameValue(getExecutorNameNotNull()));
         for (int i = 0; i < 10; i++) {
             String param = getAttribute(ATTR_PARAM + i);
             if (param != null) {

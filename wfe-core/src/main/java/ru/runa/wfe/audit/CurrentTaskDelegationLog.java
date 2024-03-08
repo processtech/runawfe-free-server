@@ -27,8 +27,8 @@ public class CurrentTaskDelegationLog extends CurrentTaskLog implements TaskDele
 
     public CurrentTaskDelegationLog(Task task, Actor actor, List<? extends Executor> executors) {
         super(task);
+        setExecutorName(actor.getName());
         addAttribute(ATTR_ACTOR_ID, actor.getId().toString());
-        addAttribute(ATTR_ACTOR_NAME, actor.getName());
         List<Long> ids = Lists.newArrayList();
         for (Executor executor : executors) {
             ids.add(executor.getId());
@@ -50,12 +50,6 @@ public class CurrentTaskDelegationLog extends CurrentTaskLog implements TaskDele
 
     @Override
     @Transient
-    public String getActorName() {
-        return getAttribute(ATTR_ACTOR_NAME);
-    }
-
-    @Override
-    @Transient
     public Long getActorId() {
         String actorIdString = getAttribute(ATTR_ACTOR_ID);
         return actorIdString != null ? Long.parseLong(actorIdString) : null;
@@ -64,7 +58,7 @@ public class CurrentTaskDelegationLog extends CurrentTaskLog implements TaskDele
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { getTaskName(), new ExecutorIdsValue(getExecutorIds()), new ExecutorNameValue(getActorName()) };
+        return new Object[] { getTaskName(), new ExecutorIdsValue(getExecutorIds()), new ExecutorNameValue(getExecutorNameNotNull()) };
     }
 
     @Override

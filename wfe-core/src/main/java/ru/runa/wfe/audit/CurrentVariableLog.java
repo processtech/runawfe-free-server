@@ -24,10 +24,6 @@ public abstract class CurrentVariableLog extends CurrentProcessLog implements Va
         setVariableName(variable.getName());
     }
 
-    public void setVariableName(String variableName) {
-        addAttribute(ATTR_VARIABLE_NAME, variableName);
-    }
-
     protected void setVariableNewValue(CurrentVariable<?> variable, Object newValue, VariableDefinition variableDefinition) {
         String newValueString;
         if (newValue instanceof Executor) {
@@ -49,12 +45,6 @@ public abstract class CurrentVariableLog extends CurrentProcessLog implements Va
     @Transient
     public Type getType() {
         return Type.VARIABLE;
-    }
-
-    @Override
-    @Transient
-    public String getVariableName() {
-        return getAttributeNotNull(ATTR_VARIABLE_NAME);
     }
 
     @Override

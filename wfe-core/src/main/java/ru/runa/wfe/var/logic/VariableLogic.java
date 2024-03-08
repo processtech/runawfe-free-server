@@ -125,9 +125,11 @@ public class VariableLogic extends WfCommonLogic {
             if (leaveLog == null) {
                 throw new InternalApplicationException("Task " + processId + ", " + taskId + " does not seems completed");
             }
-            filter.setCreateDateTo(leaveLog.getCreateDate());
-            filter.setIdTo(leaveLog.getId());
-            return getHistoricalVariableOnDate(user, filter);
+            VariableHistoryStateFilter variableHistoryStateFilter = new VariableHistoryStateFilter(processId);
+            variableHistoryStateFilter.setVariableName(variableName);
+            variableHistoryStateFilter.setCreateDateTo(leaveLog.getCreateDate());
+            variableHistoryStateFilter.setIdTo(leaveLog.getId());
+            return getHistoricalVariableOnDate(user, variableHistoryStateFilter);
         }
         Date taskCreateDate = null;
         Date taskCompletePressedDate = null;

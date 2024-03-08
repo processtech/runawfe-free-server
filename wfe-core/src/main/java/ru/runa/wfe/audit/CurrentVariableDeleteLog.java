@@ -31,7 +31,7 @@ public class CurrentVariableDeleteLog extends CurrentVariableLog implements Vari
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { getVariableName() };
+        return new Object[] { getVariableNameNotNull() };
     }
 
     @Override

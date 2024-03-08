@@ -8,8 +8,5 @@ public interface TaskDelegationLog extends TaskLog {
     String getExecutorIds();
 
     @Transient
-    String getActorName();
-
-    @Transient
     Long getActorId();
 }

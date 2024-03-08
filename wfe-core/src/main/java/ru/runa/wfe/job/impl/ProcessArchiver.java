@@ -3,8 +3,8 @@ package ru.runa.wfe.job.impl;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
-import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.dialect.Dialect;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -255,8 +255,8 @@ public class ProcessArchiver {
 
                     // No FKs, but has process_id and token_id fields.
                     stmt.executeUpdate("insert into archived_log "
-                            + "      (discriminator, id, process_id, node_id, token_id, create_date, severity, bytes, content) "
-                            + "select discriminator, id, process_id, node_id, token_id, create_date, severity, bytes, content " + "from bpm_log "
+                            + "      (discriminator, id, process_id, node_id, token_id, NODE_NAME, EXECUTOR_NAME, SWIMLANE_NAME, VARIABLE_NAME, TASK_ID, create_date, severity, bytes, content) "
+                            + "select discriminator, id, process_id, node_id, token_id, NODE_NAME, EXECUTOR_NAME, SWIMLANE_NAME, VARIABLE_NAME, TASK_ID, create_date, severity, bytes, content " + "from bpm_log "
                             + "where process_id in " + pidsCsv);
 
                     // No FKs, but has process_id field.
