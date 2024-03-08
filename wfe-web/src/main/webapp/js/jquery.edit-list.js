@@ -16,7 +16,7 @@
 				copy.children().each(function() {
 					updateAfterTemplateCopy(this, rowIndex);
 				});
-				var rowElementHtml = "<div row='" + rowIndex + "' style='margin-bottom:4px;'>";
+				var rowElementHtml = "<div row='" + rowIndex + "'>";
 				rowElementHtml += copy.html();
 				rowElementHtml += "</div>";
 				var rowElement = $(rowElementHtml);
@@ -33,9 +33,6 @@
 				var rowIndex = parseInt(rowElement.attr("row"));
 				container.trigger("onBeforeRowRemoved", [rowIndex]);
 				settings.onBeforeRowRemoved.call(this, [rowIndex]);
-				rowElement.find(".inputFileDelete").each(function() {
-					$(this).click();
-				});
 				rowElement.remove();
 				updateIndexes(container);
 				container.trigger("onRowRemoved", [rowIndex]);
