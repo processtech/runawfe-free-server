@@ -34,6 +34,7 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.VariableHistoryStateFilter;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
@@ -180,8 +181,29 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
+    public WfVariableHistoryState getHistoricalVariables(@NonNull User user, @NonNull VariableHistoryStateFilter filter) {
+        long processId = filter.getProcessId();
+        WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, filter);
+        for (WfVariable variable : result.getVariables()) {
+            FileVariablesUtil.proxyFileVariables(user, processId, variable);
+        }
+        return result;
+    }
+
+    @WebMethod(exclude = true)
+    @Override
     public WfVariableHistoryState getHistoricalVariables(@NonNull User user, @NonNull Long processId, Long taskId) {
-        WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, processId, taskId);
+        WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, processId, taskId, null);
+        for (WfVariable variable : result.getVariables()) {
+            FileVariablesUtil.proxyFileVariables(user, processId, variable);
+        }
+        return result;
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public WfVariableHistoryState getHistoricalVariables(@NonNull User user, @NonNull Long processId, Long taskId, String variableName) {
+        WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, processId, taskId, variableName);
         for (WfVariable variable : result.getVariables()) {
             FileVariablesUtil.proxyFileVariables(user, processId, variable);
         }

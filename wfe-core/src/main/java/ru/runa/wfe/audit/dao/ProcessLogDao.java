@@ -13,13 +13,18 @@ import ru.runa.wfe.audit.ProcessLogsCleanLog;
 import ru.runa.wfe.audit.QNodeEnterLog;
 import ru.runa.wfe.audit.QProcessLog;
 import ru.runa.wfe.audit.Severity;
+import ru.runa.wfe.audit.VariableHistoryStateFilter;
 import ru.runa.wfe.commons.ClassLoaderUtil;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
 import ru.runa.wfe.user.User;
+import ru.runa.wfe.var.UserType;
+
+import static ru.runa.wfe.audit.Attributes.ATTR_VARIABLE_NAME;
 
 /**
  * DAO for {@link ProcessLog}.
@@ -56,6 +61,7 @@ public class ProcessLogDao extends GenericDao<ProcessLog> {
                 "invalid filter root class name");
 
         boolean filterBySeverity = filter.getSeverities().size() != 0 && filter.getSeverities().size() != Severity.values().length;
+        String variableName = filter instanceof VariableHistoryStateFilter ? ((VariableHistoryStateFilter) filter).getVariableName() : null;
         String hql = "from " + filter.getRootClassName() + " where processId = :processId";
         if (filter.getIdFrom() != null) {
             hql += " and id >= :idFrom";
@@ -77,6 +83,9 @@ public class ProcessLogDao extends GenericDao<ProcessLog> {
         }
         if (filterBySeverity) {
             hql += " and severity in (:severities)";
+        }
+        if (!Utils.isNullOrEmpty(variableName)) {
+            hql += " and (content like :contentLikeExpression or content like :contentLikeExpressionWithUserTypeDELIM))";
         }
         hql += " order by id asc";
         Query query = sessionFactory.getCurrentSession().createQuery(hql);
@@ -101,6 +110,10 @@ public class ProcessLogDao extends GenericDao<ProcessLog> {
         }
         if (filterBySeverity) {
             query.setParameterList("severities", filter.getSeverities());
+        }
+        if (!Utils.isNullOrEmpty(variableName)) {
+            query.setParameter("contentLikeExpression", "%<" + ATTR_VARIABLE_NAME + ">" + variableName + "</" + ATTR_VARIABLE_NAME + ">%");
+            query.setParameter("contentLikeExpressionWithUserTypeDELIM", "%<" + ATTR_VARIABLE_NAME + ">" + variableName + UserType.DELIM + "%");
         }
         return query.list();
     }
