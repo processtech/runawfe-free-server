@@ -20,8 +20,7 @@ public class GetProcessVariableValueAjaxCommand extends JsonAjaxCommand {
         String variableName = request.getParameter("variableName");
         WfVariable variable = date.equals("null")
                 ? Delegates.getExecutionService().getVariable(user, processId, variableName)
-                : ProcessVariableMonitorTag.getHistoricalVariables(user, date, processId).stream()
-                .filter(v -> v.getDefinition().getName().equals(variableName))
+                : ProcessVariableMonitorTag.getHistoricalVariables(user, date, processId, variableName).stream()
                 .findAny().orElseThrow(() -> new IllegalArgumentException(variableName));
         JSONObject object = new JSONObject();
         object.put("text", ViewUtil.getOutput(user, new AjaxWebHelper(request), processId, variable));
