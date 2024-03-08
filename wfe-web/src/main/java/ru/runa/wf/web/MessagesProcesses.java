@@ -81,6 +81,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage LINK_UPDATE_VARIABLE = new StrutsMessage("link.update_variable");
     public static final StrutsMessage BUTTON_UPDATE_VARIABLE = new StrutsMessage("button.update_variable");
     public static final StrutsMessage VARIABLE_WAS_UPDATED = new StrutsMessage("variable.was_updated");
+    public static final StrutsMessage VARIABLE_HAS_NOT_CHANGES = new StrutsMessage("variable.has_not_changed");
     public static final StrutsMessage BUTTON_FORM = new StrutsMessage("button.form");
     public static final StrutsMessage BUTTON_COMPLETE = new StrutsMessage("button.complete");
     public static final StrutsMessage BUTTON_ACCEPT_TASK = new StrutsMessage("button.accept_task");
