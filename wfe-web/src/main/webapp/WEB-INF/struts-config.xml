@@ -602,7 +602,7 @@
 			scope="request" unknown="false" validate="false">
 		</action>
 		<action path="/updateProcessVariable"
-			type="ru.runa.wf.web.action.UpdateProcessVariableAction" name="commonProcessForm"
+			type="ru.runa.wf.web.action.UpdateProcessVariableAction" name="variableForm"
 			scope="request" unknown="false" validate="false">
 			<forward name="success" path="/update_process_variables.do"
 				redirect="false" />

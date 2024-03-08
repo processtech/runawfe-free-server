@@ -1,16 +1,18 @@
 package ru.runa.wf.web;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.RequestWebHelper;
 import ru.runa.wf.web.servlet.UploadedFile;
@@ -21,16 +23,11 @@ import ru.runa.wfe.commons.ftl.FreemarkerProcessor;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.client.DelegateExecutorLoader;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
 
 @SuppressWarnings("unchecked")
 public class FormSubmissionUtils {
@@ -105,16 +102,13 @@ public class FormSubmissionUtils {
         return variables;
     }
 
-    public static Object extractVariable(HttpServletRequest request, ActionForm actionForm, VariableDefinition variableDefinition) throws Exception {
-        Map<String, String> formatErrorsForFields = Maps.newHashMap();
-        Map<String, Object> inputs = Maps.newHashMap(actionForm.getMultipartRequestHandler().getAllElements());
-        inputs.putAll(getUserInputFiles(request, request.getParameter("id")));
-        Object variableValue = extractVariable(request, inputs, variableDefinition, formatErrorsForFields);
-        if (formatErrorsForFields.size() > 0) {
-            throw new VariablesFormatException(formatErrorsForFields.keySet());
-        }
-        if (!Objects.equal(IGNORED_VALUE, variableValue)) {
-            return variableValue;
+    public static Object extractVariable(HttpServletRequest request, ActionForm actionForm, WfVariable variable) throws Exception {
+        Map<String, String> errors = Maps.newHashMap();
+        Map<String, Object> userInput = Maps.newHashMap(actionForm.getMultipartRequestHandler().getAllElements());
+        userInput.putAll(getUserInputFiles(request, request.getParameter("id")));
+        Object variableValue = extractVariable(request, userInput, variable.getDefinition(), errors);
+        if (errors.size() > 0) {
+            throw new VariablesFormatException(errors.keySet());
         }
         return variableValue;
     }
