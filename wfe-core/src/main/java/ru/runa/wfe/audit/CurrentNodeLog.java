@@ -21,7 +21,7 @@ public abstract class CurrentNodeLog extends CurrentProcessLog implements NodeLo
     public CurrentNodeLog(Node node) {
         this.node = node;
         setNodeId(node.getNodeId());
-        addAttribute(ATTR_NODE_NAME, node.getName());
+        setNodeName(node.getName());
         addAttribute(ATTR_NODE_TYPE, node.getNodeType().name());
         setSeverity(Severity.INFO);
     }
@@ -43,12 +43,6 @@ public abstract class CurrentNodeLog extends CurrentProcessLog implements NodeLo
 
     @Override
     @Transient
-    public String getNodeName() {
-        return getAttributeNotNull(ATTR_NODE_NAME);
-    }
-
-    @Override
-    @Transient
     public NodeType getNodeType() {
         return NodeType.valueOf(getAttributeNotNull(ATTR_NODE_TYPE));
     }
@@ -56,6 +50,6 @@ public abstract class CurrentNodeLog extends CurrentProcessLog implements NodeLo
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { getNodeName() };
+        return new Object[] { getNodeNameNotNull() };
     }
 }

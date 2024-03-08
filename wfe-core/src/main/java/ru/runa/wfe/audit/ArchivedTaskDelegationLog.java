@@ -24,12 +24,6 @@ public class ArchivedTaskDelegationLog extends ArchivedTaskLog implements TaskDe
 
     @Override
     @Transient
-    public String getActorName() {
-        return getAttribute(ATTR_ACTOR_NAME);
-    }
-
-    @Override
-    @Transient
     public Long getActorId() {
         String actorIdString = getAttribute(ATTR_ACTOR_ID);
         return actorIdString != null ? Long.parseLong(actorIdString) : null;
@@ -38,7 +32,7 @@ public class ArchivedTaskDelegationLog extends ArchivedTaskLog implements TaskDe
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { getTaskName(), new ExecutorIdsValue(getExecutorIds()), new ExecutorNameValue(getActorName()) };
+        return new Object[] { getTaskName(), new ExecutorIdsValue(getExecutorIds()), new ExecutorNameValue(getExecutorNameNotNull()) };
     }
 
     @Override

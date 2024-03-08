@@ -16,12 +16,6 @@ public abstract class ArchivedNodeLog extends ArchivedProcessLog implements Node
 
     @Override
     @Transient
-    public String getNodeName() {
-        return getAttributeNotNull(ATTR_NODE_NAME);
-    }
-
-    @Override
-    @Transient
     public NodeType getNodeType() {
         return NodeType.valueOf(getAttributeNotNull(ATTR_NODE_TYPE));
     }
@@ -35,6 +29,6 @@ public abstract class ArchivedNodeLog extends ArchivedProcessLog implements Node
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { getNodeName() };
+        return new Object[] { getNodeNameNotNull() };
     }
 }

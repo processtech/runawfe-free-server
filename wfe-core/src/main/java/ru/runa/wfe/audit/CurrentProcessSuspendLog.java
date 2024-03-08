@@ -20,8 +20,8 @@ public class CurrentProcessSuspendLog extends CurrentProcessLog implements Proce
     }
 
     public CurrentProcessSuspendLog(Actor actor) {
-        addAttribute(ATTR_ACTOR_NAME, actor.getName());
         setSeverity(Severity.DEBUG);
+        setExecutorName(actor.getName());
     }
 
     @Override
@@ -32,14 +32,8 @@ public class CurrentProcessSuspendLog extends CurrentProcessLog implements Proce
 
     @Override
     @Transient
-    public String getActorName() {
-        return getAttributeNotNull(ATTR_ACTOR_NAME);
-    }
-
-    @Override
-    @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { new ExecutorNameValue(getActorName()) };
+        return new Object[] { new ExecutorNameValue(getExecutorNameNotNull()) };
     }
 
     @Override

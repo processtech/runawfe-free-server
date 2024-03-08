@@ -22,6 +22,7 @@ public class CurrentTransitionLog extends CurrentProcessLog implements Transitio
 
     public CurrentTransitionLog(Transition transition) {
         setNodeId(transition.getNodeId());
+        setNodeName(transition.getName());
         addAttribute(ATTR_TRANSITION_ID, transition.getName());
         addAttribute(ATTR_NODE_ID_FROM, transition.getFrom().getTransitionNodeId(false));
         addAttribute(ATTR_NODE_ID_TO, transition.getTo().getTransitionNodeId(true));

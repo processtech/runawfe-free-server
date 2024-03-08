@@ -18,11 +18,16 @@ public class ArchivedSwimlaneAssignLog extends ArchivedProcessLog implements Swi
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { getAttributeNotNull(ATTR_MESSAGE), new ExecutorNameValue(getAttribute(ATTR_NEW_VALUE)) };
+        return new Object[] { getSwimlaneNameNotNull(), new ExecutorNameValue(getAttribute(ATTR_NEW_VALUE)) };
     }
 
     @Override
     public void processBy(ProcessLogVisitor visitor) {
         visitor.onSwimlaneAssignLog(this);
+    }
+
+    @Transient
+    private String getSwimlaneNameNotNull() {
+        return super.getSwimlaneName() != null ? super.getSwimlaneName() : getAttributeNotNull(ATTR_MESSAGE);
     }
 }

@@ -9,8 +9,7 @@ import ru.runa.wfe.audit.VariableHistoryStateFilter;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.var.UserType;
-
-import static ru.runa.wfe.audit.Attributes.ATTR_VARIABLE_NAME;
+import ru.runa.wfe.var.format.ListFormat;
 
 class CommonProcessLogDao {
 
@@ -41,7 +40,7 @@ class CommonProcessLogDao {
             hql += " and severity in (:severities)";
         }
         if (!Utils.isNullOrEmpty(variableName)) {
-            hql += " and (content like :contentLikeExpression or content like :contentLikeExpressionWithUserTypeDELIM))";
+            hql += " and (variableName = :variableName or variableName like :userTypeVariableName or variableName like :listVariableName)";
         }
         hql += " order by id asc";
         Query query = ApplicationContextFactory.getSessionFactory().getCurrentSession().createQuery(hql);
@@ -68,8 +67,9 @@ class CommonProcessLogDao {
             query.setParameterList("severities", filter.getSeverities());
         }
         if (!Utils.isNullOrEmpty(variableName)) {
-            query.setParameter("contentLikeExpression", "%<" + ATTR_VARIABLE_NAME + ">" + variableName + "</" + ATTR_VARIABLE_NAME + ">%");
-            query.setParameter("contentLikeExpressionWithUserTypeDELIM", "%<" + ATTR_VARIABLE_NAME + ">" + variableName + UserType.DELIM + "%");
+            query.setParameter("variableName", variableName);
+            query.setParameter("userTypeVariableName", variableName + UserType.DELIM + "%");
+            query.setParameter("listVariableName", variableName + ListFormat.COMPONENT_QUALIFIER_START + "%");
         }
         return query.list();
     }

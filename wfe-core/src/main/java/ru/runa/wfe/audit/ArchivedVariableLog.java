@@ -14,12 +14,6 @@ public abstract class ArchivedVariableLog extends ArchivedProcessLog implements 
 
     @Override
     @Transient
-    public String getVariableName() {
-        return getAttributeNotNull(ATTR_VARIABLE_NAME);
-    }
-
-    @Override
-    @Transient
     public String getVariableNewValueAttribute() {
         return getAttribute(ATTR_NEW_VALUE);
     }
