@@ -19,9 +19,9 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.UpdateProcessSwimlaneAction;
 import ru.runa.wf.web.ftl.component.GenerateHtmlForVariable;
 import ru.runa.wf.web.servlet.AjaxExecutorsList.Type;
-import ru.runa.wfe.execution.dto.WfSwimlane;
+import ru.runa.wfe.execution.dto.WfProcess;
+import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.User;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updateProcessSwimlanes")
 public class UpdateProcessSwimlanesFormTag extends TitledFormTag {
@@ -41,10 +41,9 @@ public class UpdateProcessSwimlanesFormTag extends TitledFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        User user = getUser();
-        Long processId = getProcessId();
-        List<WfSwimlane> swimlanes = Delegates.getExecutionService().getProcessSwimlanes(user, processId);
-        if (WebResources.isUpdateProcessSwimlanesEnabled() && Delegates.getExecutorService().isAdministrator(user)) {
+        WfProcess process = Delegates.getExecutionService().getProcess(getUser(), processId);
+        List<SwimlaneDefinition> swimlaneDefinitions = Delegates.getDefinitionService().getSwimlaneDefinitions(getUser(), process.getDefinitionId());
+        if (WebResources.isUpdateProcessSwimlanesEnabled() && Delegates.getExecutorService().isAdministrator(getUser())) {
             getForm().setEncType(Form.ENC_UPLOAD);
             String labelTDWidth = "150px";
 
@@ -64,8 +63,9 @@ public class UpdateProcessSwimlanesFormTag extends TitledFormTag {
 
             Select swimlaneSelect = new Select("swimlaneSelect");
             swimlaneSelect.setID("swimlaneSelect");
-            for (WfSwimlane swimlane : swimlanes) {
-                swimlaneSelect.addElement(HTMLUtils.createOption(swimlane.getDefinition().getName(), swimlane.equals(swimlanes.get(0))));
+            for (SwimlaneDefinition swimlaneDefinition : swimlaneDefinitions) {
+                swimlaneSelect
+                        .addElement(HTMLUtils.createOption(swimlaneDefinition.getName(), swimlaneDefinition.equals(swimlaneDefinitions.get(0))));
             }
             TD selectTd = new TD();
             selectTd.addElement(swimlaneSelect);

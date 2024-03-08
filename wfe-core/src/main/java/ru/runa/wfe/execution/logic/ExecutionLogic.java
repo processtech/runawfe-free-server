@@ -412,21 +412,15 @@ public class ExecutionLogic extends WfCommonLogic {
 
     public List<WfSwimlane> getProcessSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {
         Process process = processDao.getNotNull(processId);
-        ProcessDefinition processDefinition = getDefinition(process);
         permissionDao.checkAllowed(user, Permission.READ, process);
-        List<SwimlaneDefinition> swimlanes = processDefinition.getSwimlanes();
-        List<WfSwimlane> result = Lists.newArrayListWithExpectedSize(swimlanes.size());
-        for (SwimlaneDefinition swimlaneDefinition : swimlanes) {
-            Swimlane swimlane = swimlaneDao.findByProcessAndName(process, swimlaneDefinition.getName());
-            Executor assignedExecutor = null;
-            if (swimlane != null && swimlane.getExecutor() != null) {
-                if (permissionDao.isAllowed(user, Permission.READ, swimlane.getExecutor())) {
-                    assignedExecutor = swimlane.getExecutor();
-                } else {
-                    assignedExecutor = Actor.UNAUTHORIZED_ACTOR;
-                }
+        List<Swimlane> swimlanes = swimlaneDao.findByProcess(process);
+        List<WfSwimlane> result = new ArrayList<>(swimlanes.size());
+        for (Swimlane swimlane : swimlanes) {
+            Executor assignedExecutor = swimlane.getExecutor();
+            if (swimlane.getExecutor() != null && !permissionDao.isAllowed(user, Permission.READ, swimlane.getExecutor())) {
+                assignedExecutor = Actor.UNAUTHORIZED_ACTOR;
             }
-            result.add(new WfSwimlane(swimlaneDefinition, swimlane, assignedExecutor));
+            result.add(new WfSwimlane(swimlane, assignedExecutor));
         }
         return result;
     }
@@ -435,13 +429,11 @@ public class ExecutionLogic extends WfCommonLogic {
         List<Swimlane> list = swimlaneDao.findByNamePatternInActiveProcesses(namePattern);
         List<WfSwimlane> listSwimlanes = Lists.newArrayList();
         for (Swimlane swimlane : list) {
-            ProcessDefinition processDefinition = getDefinition(swimlane.getProcess());
-            SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlane.getName());
             Executor assignedExecutor = swimlane.getExecutor();
-            if (assignedExecutor == null || !permissionDao.isAllowed(user, Permission.READ, assignedExecutor)) {
+            if (assignedExecutor != null && !permissionDao.isAllowed(user, Permission.READ, assignedExecutor)) {
                 assignedExecutor = Actor.UNAUTHORIZED_ACTOR;
             }
-            listSwimlanes.add(new WfSwimlane(swimlaneDefinition, swimlane, assignedExecutor));
+            listSwimlanes.add(new WfSwimlane(swimlane, assignedExecutor));
         }
         return listSwimlanes;
     }
