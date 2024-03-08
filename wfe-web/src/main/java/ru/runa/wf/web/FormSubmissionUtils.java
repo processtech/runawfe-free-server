@@ -37,7 +37,7 @@ public class FormSubmissionUtils {
     private static final String USER_DEFINED_VARIABLES = "UserInputVariables";
     private static final String USER_INPUT_ERRORS = "UserInputErrors";
     private static final String USER_INPUT_FILES = "UserInputFiles";
-    private static final String FILES_MAP_QUALIFIER = ":";
+    public static final String FILES_MAP_QUALIFIER = ":";
 
     public static void saveUserInputErrors(HttpServletRequest request, Map<String, String> errors) {
         request.setAttribute(USER_INPUT_ERRORS, errors);
@@ -166,7 +166,7 @@ public class FormSubmissionUtils {
         return result;
     }
 
-    private static Map<String, UploadedFile> getUserInputFiles(HttpServletRequest request) {
+    public static Map<String, UploadedFile> getUserInputFiles(HttpServletRequest request) {
         Map<String, UploadedFile> map = (Map<String, UploadedFile>) request.getSession().getAttribute(USER_INPUT_FILES);
         if (map == null) {
             map = Maps.newHashMap();

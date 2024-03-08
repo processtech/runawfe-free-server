@@ -57,6 +57,7 @@ import ru.runa.wfe.var.format.TimeFormat;
 import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableDisplaySupport;
 import ru.runa.wfe.var.format.VariableFormat;
+import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 import ru.runa.wfe.var.format.VariableInputSupport;
 
@@ -160,7 +161,8 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
     public GenerateHtmlForVariableResult onFile(FileFormat fileFormat, GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
         Object value = context.variable.getValue();
-        return new GenerateHtmlForVariableResult(context, getFileComponent(webHelper, variableName, (FileVariable) value, !context.readonly));
+        boolean allowMultiple = variableName.endsWith(VariableFormatContainer.COMPONENT_QUALIFIER_END) ? true : false;
+        return new GenerateHtmlForVariableResult(context, getFileComponent(webHelper, variableName, (FileVariable) value, !context.readonly, allowMultiple));
     }
 
     @Override
@@ -186,7 +188,8 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             result.addElement(ViewUtil.getHiddenInput(indexesVariable));
             Div templateElementDiv = createTemplateElement(context);
             templateElementDiv.addElement(templateComponentResult.content.replace("[]", "{}"));
-            templateElementDiv.addElement(createRemoveElement(context));
+            Input removeButton = (componentFormat instanceof FileFormat) ? createFileRemoveElement(context) : createRemoveElement(context);
+            templateElementDiv.addElement(removeButton);
             result.addElement(templateElementDiv);
         }
         for (int row = 0; row < list.size(); row++) {
@@ -195,7 +198,8 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             GenerateHtmlForVariableResult componentGeneratedHtml = componentFormat.processBy(this, context.copyFor(componentVariable));
             Div rowElement = createCollectionRowElement(context, row, componentGeneratedHtml);
             if (!context.readonly) {
-                rowElement.addElement(createRemoveElement(context));
+                Input removeButton = (componentFormat instanceof FileFormat) ? createFileRemoveElement(context) : createRemoveElement(context);
+                rowElement.addElement(removeButton);
                 result.addElement(new Div().addElement(rowElement));
             } else {
                 result.addElement(rowElement);
@@ -424,10 +428,11 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
     }
 
-    public static String getFileComponent(WebHelper webHelper, String variableName, FileVariable value, boolean enabled) {
+    public static String getFileComponent(WebHelper webHelper, String variableName, FileVariable value, boolean enabled, boolean allowMultiple) {
         if (!WebResources.isAjaxFileInputEnabled()) {
             return "<input type=\"file\" name=\"" + variableName + "\" class=\"inputFile\" />";
         }
+        String multiple = allowMultiple ? " multiple " : "";
         Preconditions.checkNotNull(webHelper, "webHelper");
         String id = webHelper.getRequest().getParameter("id");
         UploadedFile file = FormSubmissionUtils.getUserInputFiles(webHelper.getRequest(), id).get(variableName);
@@ -450,7 +455,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         html += "<div class=\"dropzone\" " + (file != null ? hideStyle : "") + ">";
         html += "<label class=\"inputFileAttach\">";
         html += "<div class=\"inputFileAttachButtonDiv\"><img src=\"" + attachImageUrl + "\" />" + uploadFileTitle + "</div>";
-        html += "<input class=\"inputFile inputFileAjax\" name=\"" + variableName + "\" type=\"file\">";
+        html += "<input class=\"inputFile inputFileAjax\" name=\"" + variableName + "\" type=\"file\" " + multiple + ">";
         html += "</label></div>";
         html += "<div class=\"progressbar\" " + (file == null ? hideStyle : "") + ">";
         html += "<div class=\"line\" style=\"width: " + (file != null ? "10" : "") + "0%;\"></div>";
@@ -544,6 +549,17 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         removeButton.setValue(" - ");
         removeButton.setStyle("width: 30px;");
         removeButton.setClass("remove");
+        return removeButton;
+    }
+
+    private Input createFileRemoveElement(GenerateHtmlForVariableContext context) {
+        Input removeButton = new Input();
+        removeButton.setName("remove_" + context.variable.getDefinition().getScriptingNameWithoutDots());
+        removeButton.setType("button");
+        removeButton.setValue(" - ");
+        removeButton.setStyle("width: 30px;");
+        removeButton.setClass("remove");
+        removeButton.setStyle("display: none;");
         return removeButton;
     }
 
