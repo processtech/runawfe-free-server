@@ -1,12 +1,10 @@
 package ru.runa.af.web.form;
 
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-
 import ru.runa.af.web.orgfunction.FunctionDef;
 import ru.runa.af.web.orgfunction.SubstitutionDefinitions;
 import ru.runa.common.web.Commons;
@@ -44,7 +42,7 @@ public class SubstitutionForm extends IdForm {
                     params = new String[0];
                 }
                 User user = Commons.getUser(request.getSession());
-                FunctionDef functionDef = SubstitutionDefinitions.getByClassNameNotNull(function);
+                FunctionDef functionDef = SubstitutionDefinitions.getInstance().getByClassNameNotNull(function);
                 if (functionDef.getParams().size() != params.length) {
                     errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(ERROR_KEY));
                 } else {

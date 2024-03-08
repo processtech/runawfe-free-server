@@ -3,6 +3,8 @@ package ru.runa.common.web;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import lombok.extern.apachecommons.CommonsLog;
+import ru.runa.af.web.orgfunction.SubstitutionCriteriaDefinitions;
+import ru.runa.af.web.orgfunction.SubstitutionDefinitions;
 import ru.runa.common.Version;
 import ru.runa.wf.logic.bot.BotStationResources;
 import ru.runa.wfe.bot.BotStation;
@@ -32,6 +34,8 @@ public class InitializeListener implements ServletContextListener {
         } catch (Throwable th) {
             log.error("Unable to autostart bot stations", th);
         }
+        SubstitutionDefinitions.getInstance().parseConfiguration();
+        SubstitutionCriteriaDefinitions.getInstance().parseConfiguration();
     }
 
     @Override

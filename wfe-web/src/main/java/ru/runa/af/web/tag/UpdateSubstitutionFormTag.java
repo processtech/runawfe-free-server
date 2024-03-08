@@ -67,7 +67,7 @@ public class UpdateSubstitutionFormTag extends SecuredObjectFormTag {
     @Override
     public void fillFormData(TD tdFormElement) {
         StringBuffer paramsDiv = new StringBuffer("<div id='rh' style='display: none;'>");
-        List<FunctionDef> functions = SubstitutionDefinitions.getAll();
+        List<FunctionDef> functions = SubstitutionDefinitions.getInstance().getAll();
         int i = 0;
         for (FunctionDef functionDef : functions) {
             paramsDiv.append("<div id='").append(functionDef.getClassName()).append("'>");
@@ -150,7 +150,7 @@ public class UpdateSubstitutionFormTag extends SecuredObjectFormTag {
                 table.addElement(HTMLUtils.createSelectRow(MessagesExecutor.LABEL_SWIMLANE_ORGFUNCTION.message(pageContext),
                         SubstitutionForm.FUNCTION_INPUT_NAME, functionOptions, true, true));
                 if (function.length() > 0) {
-                    FunctionDef functionDef = SubstitutionDefinitions.getByClassNameNotNull(function);
+                    FunctionDef functionDef = SubstitutionDefinitions.getInstance().getByClassNameNotNull(function);
                     if (functionDef != null) {
                         for (int i = 0; i < functionDef.getParams().size(); i++) {
                             String value = "";
@@ -181,7 +181,7 @@ public class UpdateSubstitutionFormTag extends SecuredObjectFormTag {
         }
 
         private Option[] getFunctionOptions(String selectedValue) {
-            List<FunctionDef> definitions = SubstitutionDefinitions.getAll();
+            List<FunctionDef> definitions = SubstitutionDefinitions.getInstance().getAll();
             Option[] options = new Option[definitions.size()];
             for (int i = 0; i < options.length; i++) {
                 String value = String.valueOf(definitions.get(i).getClassName());
