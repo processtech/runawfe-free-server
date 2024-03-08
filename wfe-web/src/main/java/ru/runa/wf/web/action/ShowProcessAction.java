@@ -34,7 +34,7 @@ public class ShowProcessAction extends ForwardAction {
     }
 
     private String getContent(WfTokenError tokenError, String stackTrace, Long processId) {
-        String message = tokenError.getNodeName() + " (" + CalendarUtil.formatDateTime(tokenError.getErrorDate()) + ")";
+        String message = tokenError.getNodeName() + " (" + tokenError.getNodeId() + ", " + CalendarUtil.formatDateTime(tokenError.getErrorDate()) + ")";
         if (stackTrace != null) {
             return String.format("<a href=\"javascript:showTokenErrorStackTrace(%s, %s)\">%s</a>", tokenError.getId(), processId, message);
         }
