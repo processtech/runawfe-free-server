@@ -22,7 +22,7 @@ import ru.runa.common.web.html.StringsHeaderBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.ProcessVariablesRowBuilder;
-import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.VariableHistoryStateFilter;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
@@ -96,15 +96,20 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
     }
 
     public static List<WfVariable> getHistoricalVariables(User user, String date, Long processId) {
+        return getHistoricalVariables(user, date, processId, null);
+    }
+
+    public static List<WfVariable> getHistoricalVariables(User user, String date, Long processId, String variableName) {
         Date historicalDateTo = CalendarUtil.convertToDate(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
         Calendar dateToCalendar = CalendarUtil.dateToCalendar(historicalDateTo);
         dateToCalendar.add(Calendar.SECOND, 5);
         historicalDateTo = dateToCalendar.getTime();
         dateToCalendar.add(Calendar.SECOND, -10);
         Date historicalDateFrom = dateToCalendar.getTime();
-        ProcessLogFilter historyFilter = new ProcessLogFilter(processId);
+        VariableHistoryStateFilter historyFilter = new VariableHistoryStateFilter(processId);
         historyFilter.setCreateDateTo(historicalDateTo);
         historyFilter.setCreateDateFrom(historicalDateFrom);
+        historyFilter.setVariableName(variableName);
         return Delegates.getExecutionService().getHistoricalVariables(user, historyFilter).getVariables();
     }
 

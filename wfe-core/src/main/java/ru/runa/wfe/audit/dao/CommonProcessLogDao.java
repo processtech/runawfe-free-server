@@ -5,13 +5,19 @@ import org.hibernate.Query;
 import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.Severity;
+import ru.runa.wfe.audit.VariableHistoryStateFilter;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.var.UserType;
+
+import static ru.runa.wfe.audit.Attributes.ATTR_VARIABLE_NAME;
 
 class CommonProcessLogDao {
 
     @SuppressWarnings("unchecked")
     static List<BaseProcessLog> getAll(final ProcessLogFilter filter, Class<? extends BaseProcessLog> entityClass) {
         boolean filterBySeverity = filter.getSeverities().size() != 0 && filter.getSeverities().size() != Severity.values().length;
+        String variableName = filter instanceof VariableHistoryStateFilter ? ((VariableHistoryStateFilter) filter).getVariableName() : null;
         String hql = "from " + entityClass.getName() + " where processId = :processId";
         if (filter.getIdFrom() != null) {
             hql += " and id >= :idFrom";
@@ -33,6 +39,9 @@ class CommonProcessLogDao {
         }
         if (filterBySeverity) {
             hql += " and severity in (:severities)";
+        }
+        if (!Utils.isNullOrEmpty(variableName)) {
+            hql += " and (content like :contentLikeExpression or content like :contentLikeExpressionWithUserTypeDELIM))";
         }
         hql += " order by id asc";
         Query query = ApplicationContextFactory.getSessionFactory().getCurrentSession().createQuery(hql);
@@ -57,6 +66,10 @@ class CommonProcessLogDao {
         }
         if (filterBySeverity) {
             query.setParameterList("severities", filter.getSeverities());
+        }
+        if (!Utils.isNullOrEmpty(variableName)) {
+            query.setParameter("contentLikeExpression", "%<" + ATTR_VARIABLE_NAME + ">" + variableName + "</" + ATTR_VARIABLE_NAME + ">%");
+            query.setParameter("contentLikeExpressionWithUserTypeDELIM", "%<" + ATTR_VARIABLE_NAME + ">" + variableName + UserType.DELIM + "%");
         }
         return query.list();
     }

@@ -645,7 +645,7 @@
 			scope="request" unknown="false" validate="false">
 		</action>
 		<action path="/updateProcessVariable"
-			type="ru.runa.wf.web.action.UpdateProcessVariableAction" name="commonProcessForm"
+			type="ru.runa.wf.web.action.UpdateProcessVariableAction" name="variableForm"
 			scope="request" unknown="false" validate="false">
 			<forward name="chatPage" path="/chat_page.do" redirect="true" />
 			<forward name="manageProcess" path="/manage_process.do" redirect="true" />

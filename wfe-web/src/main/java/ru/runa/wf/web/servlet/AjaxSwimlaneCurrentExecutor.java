@@ -1,6 +1,5 @@
 package ru.runa.wf.web.servlet;
 
-import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONAware;
@@ -8,10 +7,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.web.JsonAjaxCommand;
-import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
+import ru.runa.wfe.var.dto.WfVariable;
 
 public class AjaxSwimlaneCurrentExecutor extends JsonAjaxCommand {
 
@@ -34,18 +33,8 @@ public class AjaxSwimlaneCurrentExecutor extends JsonAjaxCommand {
         if (swimlaneName == null || swimlaneName.isEmpty()) {
             throw new InternalApplicationException("swimlaneName cannot be empty");
         }
-        List<WfSwimlane> swimlanes = Delegates.getExecutionService().getProcessSwimlanes(user, processId);
-        WfSwimlane targetSwimlane = null;
-        for (WfSwimlane swimlane : swimlanes) {
-            if (swimlaneName.equals(swimlane.getDefinition().getName())) {
-                targetSwimlane = swimlane;
-                break;
-            }
-        }
-        if (targetSwimlane == null) {
-            throw new InternalApplicationException("swimlane not found");
-        }
-        Executor currentExecutor = targetSwimlane.getExecutor();
+        WfVariable swimlane = Delegates.getExecutionService().getVariable(user, processId, swimlaneName);
+        Executor currentExecutor = (Executor) swimlane.getValue();
         JSONObject root = new JSONObject();
         root.put("currentExecutorName", currentExecutor != null ? currentExecutor.getFullName() : "");
         return root;

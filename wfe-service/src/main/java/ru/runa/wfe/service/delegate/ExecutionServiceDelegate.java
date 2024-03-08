@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.VariableHistoryStateFilter;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.RestoreProcessStatus;
@@ -151,9 +152,27 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
-    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException {
+    public WfVariableHistoryState getHistoricalVariables(User user, VariableHistoryStateFilter filter) {
+        try {
+            return getExecutionService().getHistoricalVariables(user, filter);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) {
         try {
             return getExecutionService().getHistoricalVariables(user, processId, taskId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, String variableName) {
+        try {
+            return getExecutionService().getHistoricalVariables(user, processId, taskId, variableName);
         } catch (Exception e) {
             throw handleException(e);
         }

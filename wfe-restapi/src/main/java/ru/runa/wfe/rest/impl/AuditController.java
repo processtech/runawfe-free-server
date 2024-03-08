@@ -15,18 +15,21 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.SystemLog;
+import ru.runa.wfe.audit.VariableHistoryStateFilter;
 import ru.runa.wfe.audit.logic.AuditLogic;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.rest.auth.AuthUser;
 import ru.runa.wfe.rest.converter.WfeProcessLogFilterMapper;
 import ru.runa.wfe.rest.converter.WfeProcessLogMapper;
 import ru.runa.wfe.rest.converter.WfeSystemLogMapper;
+import ru.runa.wfe.rest.converter.WfeVariableHistoryStateFilterMapper;
 import ru.runa.wfe.rest.converter.WfeVariablesSnapshotMapper;
 import ru.runa.wfe.rest.dto.WfePagedList;
 import ru.runa.wfe.rest.dto.WfePagedListFilter;
 import ru.runa.wfe.rest.dto.WfeProcessLog;
 import ru.runa.wfe.rest.dto.WfeProcessLogFilter;
 import ru.runa.wfe.rest.dto.WfeSystemLog;
+import ru.runa.wfe.rest.dto.WfeVariableHistoryStateFilter;
 import ru.runa.wfe.rest.dto.WfeVariablesSnapshot;
 import ru.runa.wfe.var.logic.VariableLogic;
 
@@ -57,16 +60,17 @@ public class AuditController {
 
     @PostMapping("process/{id}/variables/snapshot")
     public WfeVariablesSnapshot getProcessVariablesSnapshot(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
-            @RequestBody WfeProcessLogFilter request) {
-        ProcessLogFilter filter = Mappers.getMapper(WfeProcessLogFilterMapper.class).map(request);
+            @RequestBody WfeVariableHistoryStateFilter request) {
+        VariableHistoryStateFilter filter = Mappers.getMapper(WfeVariableHistoryStateFilterMapper.class).map(request);
         filter.setProcessId(id);
         return Mappers.getMapper(WfeVariablesSnapshotMapper.class).map(variableLogic.getHistoricalVariables(authUser.getUser(), filter));
     }
 
     @GetMapping("process/{id}/variables/snapshot")
     public WfeVariablesSnapshot getProcessVariablesSnapshot(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
-            @RequestParam(required = false) Long taskId) {
-        return Mappers.getMapper(WfeVariablesSnapshotMapper.class).map(variableLogic.getHistoricalVariables(authUser.getUser(), id, taskId));
+            @RequestParam(required = false) Long taskId, @RequestParam(required = false) String variableName) {
+        return Mappers.getMapper(WfeVariablesSnapshotMapper.class).map(
+                variableLogic.getHistoricalVariables(authUser.getUser(), id, taskId, variableName));
     }
 
 }

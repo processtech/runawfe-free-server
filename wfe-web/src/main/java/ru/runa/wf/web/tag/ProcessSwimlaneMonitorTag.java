@@ -20,7 +20,9 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.ProcessSwimlaneRowBuilder;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
+import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
+import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -49,7 +51,9 @@ public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
             A a = new A(updateSwimlaneUrl, MessagesProcesses.LINK_UPDATE_SWIMLANE.message(pageContext));
             updateVariableTR.addElement(new TD(a));
         }
-        List<WfSwimlane> swimlanes = Delegates.getExecutionService().getProcessSwimlanes(getUser(), getIdentifiableId());
+        WfProcess process = Delegates.getExecutionService().getProcess(getUser(), getIdentifiableId());
+        List<SwimlaneDefinition> swimlaneDefinitions = Delegates.getDefinitionService().getSwimlaneDefinitions(getUser(), process.getDefinitionId());
+        List<WfSwimlane> swimlanes = Delegates.getExecutionService().getProcessSwimlanes(getUser(), process.getId());
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_SWIMLANE_NAME.message(pageContext));
         if (SystemProperties.isGlobalObjectsEnabled()) {
@@ -58,7 +62,7 @@ public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
         headerNames.add(MessagesProcesses.LABEL_SWIMLANE_ASSIGNMENT.message(pageContext));
         headerNames.add(MessagesExecutor.LABEL_SWIMLANE_ORGFUNCTION.message(pageContext));
         HeaderBuilder headerBuilder = new StringsHeaderBuilder(headerNames);
-        RowBuilder rowBuilder = new ProcessSwimlaneRowBuilder(swimlanes, pageContext);
+        RowBuilder rowBuilder = new ProcessSwimlaneRowBuilder(swimlaneDefinitions, swimlanes, pageContext);
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
     }
 

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.VariableHistoryStateFilter;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
@@ -214,7 +215,14 @@ public interface ExecutionService {
     Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds);
 
     /**
-     * Gets all process variables state on specified date.
+     * @deprecated
+     *            Use {@link #getHistoricalVariables(User user, VariableHistoryStateFilter filter)} instead.
+     */
+    @Deprecated
+    WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException;
+
+    /**
+     * Gets one process variable state on specified date.
      *
      * @param user
      *            authorized user
@@ -222,7 +230,13 @@ public interface ExecutionService {
      *            Criteria for filtering logs.
      * @return not <code>null</code>
      */
-    WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException;
+    WfVariableHistoryState getHistoricalVariables(User user, VariableHistoryStateFilter filter) throws ProcessDoesNotExistException;
+
+    /**
+     * @deprecated Use {@link #getHistoricalVariables(User user, Long processId, Long taskId, String variableName)} instead.
+     */
+    @Deprecated
+    WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException;
 
     /**
      * Get process variable state for completed task.
@@ -233,9 +247,11 @@ public interface ExecutionService {
      *            Process id to load variables.
      * @param taskId
      *            Task id or null, for loading start form state.
+     * @param variableName
+     *            Variable name or null, for loading start form state.
      * @return not <code>null</code>
      */
-    WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException;
+    WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, String variableName) throws ProcessDoesNotExistException;
 
     /**
      * Gets variable by name from process.
