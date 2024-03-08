@@ -4853,6 +4853,12 @@
         <tag-class>ru.runa.af.web.tag.UpdateExecutorDetailsFormTag</tag-class>
         <body-content>JSP</body-content>
         <attribute>
+            <name>type</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
             <name>action</name>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
