@@ -32,7 +32,7 @@ public class ShowDefinitionHistoryDiffAction extends ActionBase {
     public static final String ACTION = "/show_definitions_history_diff";
     public static final String DEFINITION_NAME = "definitionName";
     public static final String NUM_CONTEXT_LINES = "numContextLines";
-    private static final Set<String> EXTENSIONS = Sets.newHashSet("xml", "ftl", "quick", "html", "css", "js");
+    private static final Set<String> EXTENSIONS = Sets.newHashSet("xml", "ftl", "quick", "html", "css", "js", "json");
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
