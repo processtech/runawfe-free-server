@@ -156,6 +156,7 @@ public class AggregatedProcessLogVisitor extends ProcessLogVisitor {
     }
 
     private void saveAssignment(TaskAggregatedLog tal, Date assignmentDate, String newExecutorName) {
+        newExecutorName = Strings.nullToEmpty(newExecutorName);
         // Insert new record if last executor name is different from newExecutorName,
         // and if same record does not already exists (this check is for import operation: assignment may already be saved before import).
         // Instead of loading all detail rows via Hibernate collections, here I check both conditions using single optimized SQL query.
