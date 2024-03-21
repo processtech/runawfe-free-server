@@ -31,7 +31,7 @@ import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.NodeGraphElementVisitor;
-import ru.runa.wfe.job.dao.JobDao;
+import ru.runa.wfe.job.dao.TimerJobDao;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.ss.logic.SubstitutionLogic;
@@ -78,7 +78,7 @@ public class WfCommonLogic extends CommonLogic {
     @Autowired
     protected ProcessLogDao processLogDao;
     @Autowired
-    protected JobDao jobDao;
+    protected TimerJobDao timerJobDao;
     @Autowired
     protected CurrentSwimlaneDao currentSwimlaneDao;
     @Autowired
@@ -208,7 +208,7 @@ public class WfCommonLogic extends CommonLogic {
             deleteProcess(user, subProcess);
         }
         processLogDao.deleteAll(process);
-        jobDao.deleteByProcess(process);
+        timerJobDao.deleteByProcess(process);
         currentVariableDao.deleteAll(process);
         taskDao.deleteAll(process);
         currentSwimlaneDao.deleteAll(process);

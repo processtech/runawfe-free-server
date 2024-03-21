@@ -2,7 +2,6 @@ package ru.runa.wf.web.tag;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
 import ru.runa.common.web.html.HeaderBuilder;
@@ -12,7 +11,6 @@ import ru.runa.common.web.html.TableBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.ProcessJobRowBuilder;
 import ru.runa.wfe.job.dto.WfJob;
-import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -28,8 +26,7 @@ public class ProcessJobMonitorTag extends ProcessBaseFormTag {
 
     @Override
     protected void fillFormData(TD tdFormElement) {
-        List<WfJob> jobs = Delegates.getExecutionService().getProcessJobs(getUser(), getIdentifiableId(), true).stream()
-                .filter(job -> job.getNodeType() == NodeType.TIMER).collect(Collectors.toList());
+        List<WfJob> jobs = Delegates.getExecutionService().getProcessJobs(getUser(), getIdentifiableId(), true);
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_JOB_NAME.message(pageContext));
         headerNames.add(MessagesProcesses.LABEL_JOB_NODE_ID.message(pageContext));

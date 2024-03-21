@@ -4,6 +4,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.List;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.CurrentActionLog;
 import ru.runa.wfe.audit.CurrentCreateTimerLog;
@@ -16,8 +17,8 @@ import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
-import ru.runa.wfe.job.TimerJob;
-import ru.runa.wfe.job.dao.JobDao;
+import ru.runa.wfe.job.DueDateInProcessTimerJob;
+import ru.runa.wfe.job.dao.TimerJobDao;
 import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.Delegation;
@@ -35,7 +36,7 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
     private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
 
     @Autowired
-    private transient JobDao jobDao;
+    private transient TimerJobDao timerJobDao;
 
     @Override
     public List<BoundaryEvent> getBoundaryEvents() {
@@ -85,9 +86,7 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
 
     @Override
     public void cancelBoundaryEvent(CurrentToken token) {
-        jobDao.deleteByToken(token);
-        // TODO 212
-        // executionContext.addLog(new CurrentActionLog(this));
+        timerJobDao.deleteByToken(token);
     }
 
     @Override
@@ -101,7 +100,7 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
         return TaskCompletionInfo.createForTimer(getLeavingTransitions().get(0).getName());
     }
 
-    public void onTimerJob(ExecutionContext executionContext, TimerJob timerJob) {
+    public void onTimerJob(ExecutionContext executionContext, DueDateInProcessTimerJob job) {
         try {
             if (actionDelegation != null) {
                 ActionHandler actionHandler = actionDelegation.getInstance();
@@ -112,8 +111,8 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
             if (!getLeavingTransitions().isEmpty()) {
                 cancelBoundaryEvent(executionContext.getCurrentToken());
                 leave(executionContext);
-            } else if (Boolean.TRUE.equals(executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION))) {
-                log.debug("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
+            } else if (Boolean.TRUE.equals(executionContext.getTransientVariable(DueDateInProcessTimerJob.STOP_RE_EXECUTION))) {
+                log.debug("Deleting " + job + " due to STOP_RE_EXECUTION");
                 cancelBoundaryEvent(executionContext.getCurrentToken());
             } else if (repeatDurationString != null) {
                 // restart timer
@@ -122,30 +121,30 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
                     BusinessCalendar businessCalendar = ApplicationContextFactory.getBusinessCalendar();
                     // clear expression for ignorance from
                     // ExecutionContext.updateRelatedObjectsDueToDateVariableChange
-                    timerJob.setDueDateExpression(null);
-                    timerJob.setDueDate(businessCalendar.apply(timerJob.getDueDate(), repeatDurationString));
-                    log.debug("Restarting " + timerJob + " for repeat execution at " + CalendarUtil.formatDateTime(timerJob.getDueDate()));
+                    job.setDueDateExpression(null);
+                    job.setDueDate(businessCalendar.apply(job.getDueDate(), repeatDurationString));
+                    log.debug("Restarting " + job + " for repeat execution at " + CalendarUtil.formatDateTime(job.getDueDate()));
                 }
             } else {
-                log.debug("Deleting " + timerJob + " after execution");
+                log.debug("Deleting " + job + " after execution");
                 cancelBoundaryEvent(executionContext.getCurrentToken());
             }
-            ApplicationContextFactory.getExecutionLogic().removeTokenError(timerJob.getToken());
+            ApplicationContextFactory.getExecutionLogic().removeTokenError(job.getToken());
         } catch (Throwable th) {
-            ApplicationContextFactory.getExecutionLogic().failToken(timerJob.getToken(), th);
+            ApplicationContextFactory.getExecutionLogic().failToken(job.getToken(), th);
             throw Throwables.propagate(th);
         }
     }
 
     private void createTimerJob(ExecutionContext executionContext, Date dueDate) {
-        TimerJob timerJob = new TimerJob(executionContext.getCurrentToken());
-        timerJob.setName(getName());
-        timerJob.setDueDateExpression(dueDateExpression);
-        timerJob.setDueDate(dueDate);
-        timerJob.setRepeatDurationString(repeatDurationString);
-        jobDao.create(timerJob);
-        log.debug("Created " + timerJob);
-        executionContext.addLog(new CurrentCreateTimerLog(executionContext.getNode(), timerJob.getDueDate()));
+        val job = new DueDateInProcessTimerJob(executionContext.getCurrentToken());
+        job.setName(getName());
+        job.setDueDateExpression(dueDateExpression);
+        job.setDueDate(dueDate);
+        job.setRepeatDurationString(repeatDurationString);
+        timerJobDao.create(job);
+        log.debug("Created " + job);
+        executionContext.addLog(new CurrentCreateTimerLog(executionContext.getNode(), job.getDueDate()));
     }
 
 }

@@ -18,7 +18,7 @@ import ru.runa.wfe.execution.QCurrentProcess;
 import ru.runa.wfe.execution.QCurrentToken;
 import ru.runa.wfe.execution.QSignal;
 import ru.runa.wfe.execution.process.check.FrozenProcessFilter;
-import ru.runa.wfe.job.QJob;
+import ru.runa.wfe.job.QDueDateInProcessTimerJob;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.task.QTask;
 
@@ -88,7 +88,7 @@ public class FrozenTokenDao extends CommonDao {
     public List<CurrentToken> findByExecutionStatusIsActiveAndNodeTypeIsTimerAndTimerJobIsExpiredAndFilter(
             @Nullable Map<FrozenProcessFilter, String> filters) {
         QCurrentToken t = QCurrentToken.currentToken;
-        QJob j = QJob.job;
+        QDueDateInProcessTimerJob j = QDueDateInProcessTimerJob.dueDateInProcessTimerJob;
         BooleanExpression be = t.nodeType.eq(NodeType.TIMER).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))
                 .and(j.process.eq(t.process)).and(j.token.eq(t)).and(j.dueDate.loe(new Date()));
         if (filters != null && !filters.isEmpty()) {

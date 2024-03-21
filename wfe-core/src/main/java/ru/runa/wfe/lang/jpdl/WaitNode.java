@@ -8,7 +8,7 @@ import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.bc.BusinessDuration;
 import ru.runa.wfe.commons.bc.BusinessDurationParser;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.job.TimerJob;
+import ru.runa.wfe.job.DueDateInProcessTimerJob;
 import ru.runa.wfe.lang.Action;
 import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.BaseTaskNode;
@@ -29,47 +29,47 @@ public class WaitNode extends Node {
     protected void execute(ExecutionContext executionContext) throws Exception {
     }
 
-    public static void onTimerJob(ExecutionContext executionContext, TimerJob timerJob) {
+    public static void onTimerJob(ExecutionContext executionContext, DueDateInProcessTimerJob job) {
         try {
             ActionEvent actionEvent = executionContext.getNode().getEventNotNull(ActionEvent.TIMER);
             for (Action timerAction : actionEvent.getActions()) {
                 // multiple timers are discriminated actions by name
-                if (Objects.equal(timerJob.getName(), timerAction.getName())) {
+                if (Objects.equal(job.getName(), timerAction.getName())) {
                     timerAction.execute(executionContext);
-                } else if (Objects.equal(timerJob.getName(), timerAction.getNodeId())) {
+                } else if (Objects.equal(job.getName(), timerAction.getNodeId())) {
                     // back compatibility mode (pre 4.1.0)
                     timerAction.execute(executionContext);
                 }
             }
-            if (timerJob.getOutTransitionName() != null) {
-                Transition transition = executionContext.getNode().getLeavingTransitionNotNull(timerJob.getOutTransitionName());
+            if (job.getOutTransitionName() != null) {
+                Transition transition = executionContext.getNode().getLeavingTransitionNotNull(job.getOutTransitionName());
                 if (executionContext.getNode() instanceof BaseTaskNode) {
                     ((BaseTaskNode) executionContext.getNode()).endTokenTasks(executionContext, TaskCompletionInfo.createForTimer(
-                            (String) transition.getName()));
+                            transition.getName()));
                 }
-                log.debug("Leaving " + timerJob + " from " + executionContext.getNode() + " by transition " + timerJob.getOutTransitionName());
+                log.debug("Leaving " + job + " from " + executionContext.getNode() + " by transition " + job.getOutTransitionName());
                 executionContext.getNode().leave(executionContext, transition);
-            } else if (Boolean.TRUE.equals(executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION))) {
-                log.debug("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
-                ApplicationContextFactory.getJobDao().deleteByToken(timerJob.getToken());
-            } else if (timerJob.getRepeatDurationString() != null) {
+            } else if (Boolean.TRUE.equals(executionContext.getTransientVariable(DueDateInProcessTimerJob.STOP_RE_EXECUTION))) {
+                log.debug("Deleting " + job + " due to STOP_RE_EXECUTION");
+                ApplicationContextFactory.getJobDao().deleteByToken(job.getToken());
+            } else if (job.getRepeatDurationString() != null) {
                 // restart timer
-                BusinessDuration repeatDuration = BusinessDurationParser.parse(timerJob.getRepeatDurationString());
+                BusinessDuration repeatDuration = BusinessDurationParser.parse(job.getRepeatDurationString());
                 if (repeatDuration.getAmount() > 0) {
                     BusinessCalendar businessCalendar = ApplicationContextFactory.getBusinessCalendar();
                     // clear expression for ignorance from
                     // ExecutionContext.updateRelatedObjectsDueToDateVariableChange
-                    timerJob.setDueDateExpression(null);
-                    timerJob.setDueDate(businessCalendar.apply(timerJob.getDueDate(), timerJob.getRepeatDurationString()));
-                    log.debug("Restarting " + timerJob + " for repeat execution at " + CalendarUtil.formatDateTime(timerJob.getDueDate()));
+                    job.setDueDateExpression(null);
+                    job.setDueDate(businessCalendar.apply(job.getDueDate(), job.getRepeatDurationString()));
+                    log.debug("Restarting " + job + " for repeat execution at " + CalendarUtil.formatDateTime(job.getDueDate()));
                 }
             } else {
-                log.debug("Deleting " + timerJob + " after execution");
-                ApplicationContextFactory.getJobDao().deleteByToken(timerJob.getToken());
+                log.debug("Deleting " + job + " after execution");
+                ApplicationContextFactory.getJobDao().deleteByToken(job.getToken());
             }
-            ApplicationContextFactory.getExecutionLogic().removeTokenError(timerJob.getToken());
+            ApplicationContextFactory.getExecutionLogic().removeTokenError(job.getToken());
         } catch (Throwable th) {
-            ApplicationContextFactory.getExecutionLogic().failToken(timerJob.getToken(), th);
+            ApplicationContextFactory.getExecutionLogic().failToken(job.getToken(), th);
             throw Throwables.propagate(th);
         }
     }

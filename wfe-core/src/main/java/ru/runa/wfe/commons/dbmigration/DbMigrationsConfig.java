@@ -27,6 +27,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddProcessExternalData;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessLogCleanBeforeDateColumnPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbmigration.impl.AddSettingsTable;
+import ru.runa.wfe.commons.dbmigration.impl.AddStartEventSubprocessTimerJob;
 import ru.runa.wfe.commons.dbmigration.impl.AddStartProcessTimerJob;
 import ru.runa.wfe.commons.dbmigration.impl.AddStartProcessTimerJobRefactorRm2681;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubProcessIndexColumn;
@@ -211,6 +212,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddStartProcessTimerJobRefactorRm2681.class);
         dbMigrations.add(AddTaskAndChatEmailNotificationsPatch.class);
         dbMigrations.add(AddExtraColumnsToBpmLog.class);
+        dbMigrations.add(AddStartEventSubprocessTimerJob.class);
         // end regular develop patches
         dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
         dbMigrations.add(RecreateChatRoomView2.class);

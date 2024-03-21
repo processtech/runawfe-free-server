@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.FrozenTokenDao;
 import ru.runa.wfe.execution.dto.WfFrozenToken;
-import ru.runa.wfe.job.dao.JobDao;
 
 @Component
 public class FrozenProcessInTimerNodeSeeker implements FrozenProcessSeeker {
@@ -17,8 +16,6 @@ public class FrozenProcessInTimerNodeSeeker implements FrozenProcessSeeker {
     private final String nameId = FrozenProcessesSearchParameter.SEARCH_FROZEN_IN_TIMER_NODES.getName();
     private final String nameLabel = FrozenProcessesSearchParameter.SEARCH_FROZEN_IN_TIMER_NODES.getNameLabel();
 
-    @Autowired
-    private JobDao jobDao;
     @Autowired
     private FrozenTokenDao frozenTokenDao;
 

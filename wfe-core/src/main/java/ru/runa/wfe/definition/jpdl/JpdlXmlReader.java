@@ -17,7 +17,7 @@ import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.definition.logic.SwimlaneUtils;
-import ru.runa.wfe.job.TimerJob;
+import ru.runa.wfe.job.DueDateInProcessTimerJob;
 import ru.runa.wfe.lang.Action;
 import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.AsyncCompletionMode;
@@ -392,7 +392,7 @@ public class JpdlXmlReader {
             if (SystemProperties.isV3CompatibilityMode()) {
                 name = element.attributeValue(NAME_ATTR, node.getName());
             } else {
-                name = node.getNodeId() + (TimerJob.ESCALATION_NAME.equals(element.attributeValue(NAME_ATTR)) ? "/" + TimerJob.ESCALATION_NAME : "")
+                name = node.getNodeId() + (DueDateInProcessTimerJob.ESCALATION_NAME.equals(element.attributeValue(NAME_ATTR)) ? "/" + DueDateInProcessTimerJob.ESCALATION_NAME : "")
                         + "/timer-" + timerNumber++;
             }
             CreateTimerAction createTimerAction = ApplicationContextFactory.createAutowiredBean(CreateTimerAction.class);
@@ -400,7 +400,7 @@ public class JpdlXmlReader {
             createTimerAction.setName(name);
             createTimerAction.setTransitionName(element.attributeValue(TRANSITION_ATTR));
             String durationString = element.attributeValue(DUEDATE_ATTR);
-            if (Strings.isNullOrEmpty(durationString) && node instanceof TaskNode && TimerJob.ESCALATION_NAME.equals(name)) {
+            if (Strings.isNullOrEmpty(durationString) && node instanceof TaskNode && DueDateInProcessTimerJob.ESCALATION_NAME.equals(name)) {
                 durationString = ((TaskNode) node).getFirstTaskNotNull().getDeadlineDuration();
                 if (Strings.isNullOrEmpty(durationString)) {
                     throw new InvalidDefinitionException(parsedProcessDefinition.getName(), "No '" + DUEDATE_ATTR + "' specified for timer in " + node);

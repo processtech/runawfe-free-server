@@ -162,7 +162,7 @@ public abstract class Node extends GraphElement {
      */
     public void enter(ExecutionContext executionContext) {
         if (executionContext.getCurrentToken().hasEnded()) {
-            throw new IllegalStateException("Execution in ended token does not allowed");
+            throw new IllegalStateException("Execution in ended " + executionContext.getCurrentToken() + " does not allowed");
         }
         log.debug("Entering " + this + " with " + executionContext);
         CurrentToken token = executionContext.getCurrentToken();

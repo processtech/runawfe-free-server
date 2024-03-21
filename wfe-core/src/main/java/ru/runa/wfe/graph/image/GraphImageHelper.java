@@ -1,6 +1,6 @@
 package ru.runa.wfe.graph.image;
 
-import ru.runa.wfe.job.TimerJob;
+import ru.runa.wfe.job.DueDateInProcessTimerJob;
 import ru.runa.wfe.lang.Action;
 import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.GraphElement;
@@ -15,7 +15,7 @@ public class GraphImageHelper {
         int result = 0;
         for (Action action : actionEvent.getActions()) {
             if (action instanceof CreateTimerAction || action instanceof CancelTimerAction
-                    || (action.getName() != null && action.getName().contains(TimerJob.ESCALATION_NAME))) {
+                    || (action.getName() != null && action.getName().contains(DueDateInProcessTimerJob.ESCALATION_NAME))) {
                 continue;
             }
             result++;

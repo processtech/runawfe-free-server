@@ -91,9 +91,9 @@ import ru.runa.wfe.graph.image.GraphImageBuilder;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.ProcessGraphInfoVisitor;
-import ru.runa.wfe.job.Job;
-import ru.runa.wfe.job.TimerJob;
-import ru.runa.wfe.job.dao.JobDao;
+import ru.runa.wfe.job.DueDateInProcessTimerJob;
+import ru.runa.wfe.job.InProcessTimerJob;
+import ru.runa.wfe.job.dao.TimerJobDao;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.lang.AsyncCompletionMode;
 import ru.runa.wfe.lang.BaseTaskNode;
@@ -158,6 +158,8 @@ public class ExecutionLogic extends WfCommonLogic {
     private EventSubprocessTriggerDao eventSubprocessTriggerDao;
     @Autowired
     private FrozenProcessSeekManager frozenProcessSeekManager;
+    @Autowired
+    private TimerJobDao timerJobDao;
 
     public void cancelProcess(User user, Long processId, String reason) throws ProcessDoesNotExistException {
         CurrentProcess process = currentProcessDao.getNotNull(processId);
@@ -262,8 +264,7 @@ public class ExecutionLogic extends WfCommonLogic {
 
         // make sure all the timers for this process are canceled
         // after the process end updates are posted to the database
-        JobDao jobDao = ApplicationContextFactory.getJobDao();
-        jobDao.deleteByProcess(process);
+        timerJobDao.deleteByProcess(process);
         // flush just created tasks
         ApplicationContextFactory.getTaskDao().flushPendingChanges();
         endAsyncActivitiesRecursively(executionContext, taskCompletionInfo, canceller);
@@ -502,11 +503,11 @@ public class ExecutionLogic extends WfCommonLogic {
             return Collections.emptyList();
         }
         val cp = (CurrentProcess) p;
-        List<TimerJob> jobs = jobDao.findByProcess(cp);
+        List<InProcessTimerJob> jobs = timerJobDao.findByProcess(cp);
         if (recursive) {
             List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocessesRecursive(cp);
             for (CurrentProcess subProcess : subprocesses) {
-                jobs.addAll(jobDao.findByProcess(subProcess));
+                jobs.addAll(timerJobDao.findByProcess(subProcess));
             }
         }
         return jobs.stream().map(job -> new WfJob(job)).collect(Collectors.toList());
@@ -1236,18 +1237,17 @@ public class ExecutionLogic extends WfCommonLogic {
     }
 
     public WfJob getJob(Long id) {
-        return new WfJob(jobDao.get(id));
+        return new WfJob((InProcessTimerJob) timerJobDao.get(id));
     }
 
     public void updateJobDueDate(@NonNull User user, @NonNull Long processId, @NonNull Long jobId, Date dueDate) {
         CurrentProcess process = currentProcessDao.getNotNull(processId);
-        Job job = jobDao.get(jobId);
+        DueDateInProcessTimerJob job = (DueDateInProcessTimerJob) timerJobDao.get(jobId);
         ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(process);
         Node node = parsedProcessDefinition.getNode(job.getToken().getNodeId());
         job.setDueDate(dueDate);
-        jobDao.update(job);
-        processLogDao.addLog(
-new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPDATE_JOB_DUE_DATE, node.getNodeId(),
+        timerJobDao.update(job);
+        processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPDATE_JOB_DUE_DATE, node.getNodeId(),
                 CalendarUtil.formatDateTime(job
                         .getDueDate())), process, null);
     }

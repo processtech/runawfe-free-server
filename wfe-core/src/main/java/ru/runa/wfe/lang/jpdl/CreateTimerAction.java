@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.CurrentCreateTimerLog;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.job.TimerJob;
-import ru.runa.wfe.job.dao.JobDao;
+import ru.runa.wfe.job.DueDateInProcessTimerJob;
+import ru.runa.wfe.job.dao.TimerJobDao;
 import ru.runa.wfe.lang.Action;
 import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.GraphElement;
@@ -20,19 +20,19 @@ public class CreateTimerAction extends Action {
     private String repeatDurationString;
 
     @Autowired
-    private transient JobDao jobDao;
+    private transient TimerJobDao timerJobDao;
 
     @Override
     public void execute(ExecutionContext executionContext) {
-        TimerJob timerJob = new TimerJob(executionContext.getCurrentToken());
-        timerJob.setName(getName());
-        timerJob.setDueDateExpression(dueDate);
-        timerJob.setDueDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), dueDate));
-        timerJob.setRepeatDurationString(repeatDurationString);
-        timerJob.setOutTransitionName(transitionName);
-        jobDao.create(timerJob);
-        log.debug("Created " + timerJob + " for duration '" + dueDate + "'");
-        executionContext.addLog(new CurrentCreateTimerLog(executionContext.getNode(), timerJob.getDueDate()));
+        DueDateInProcessTimerJob job = new DueDateInProcessTimerJob(executionContext.getCurrentToken());
+        job.setName(getName());
+        job.setDueDateExpression(dueDate);
+        job.setDueDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), dueDate));
+        job.setRepeatDurationString(repeatDurationString);
+        job.setOutTransitionName(transitionName);
+        timerJobDao.create(job);
+        log.debug("Created " + job + " for duration '" + dueDate + "'");
+        executionContext.addLog(new CurrentCreateTimerLog(executionContext.getNode(), job.getDueDate()));
     }
 
     public String getDueDate() {
@@ -65,7 +65,7 @@ public class CreateTimerAction extends Action {
         for (ActionEvent actionEvent : graphElement.getEvents().values()) {
             for (Action action : actionEvent.getActions()) {
                 if (action instanceof CreateTimerAction) {
-                    if (!includeEscalation && action.getName().contains(TimerJob.ESCALATION_NAME)) {
+                    if (!includeEscalation && action.getName().contains(DueDateInProcessTimerJob.ESCALATION_NAME)) {
                         continue;
                     }
                     list.add((CreateTimerAction) action);
