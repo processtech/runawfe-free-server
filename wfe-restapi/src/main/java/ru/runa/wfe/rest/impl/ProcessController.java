@@ -224,12 +224,12 @@ public class ProcessController {
         return Mappers.getMapper(WfeTokenMapper.class).map(tokens);
     }
 
-    @PostMapping("{id}/moveToken")
+    @PostMapping("{id}/moveToken/{tokenId}/{nodeId}")
     public void moveToken(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @PathVariable Long tokenId, @PathVariable String nodeId) {
         executionLogic.moveToken(authUser.getUser(), id, tokenId, nodeId);
     }
 
-    @PostMapping("{id}/createToken")
+    @PostMapping("{id}/createToken/{nodeId}")
     public void createToken(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @PathVariable String nodeId) {
         executionLogic.createToken(authUser.getUser(), id, nodeId);
     }

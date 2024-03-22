@@ -82,7 +82,7 @@ public class ExecutorController {
     }
 
     @DeleteMapping
-    public void removeExecutors(@AuthenticationPrincipal AuthUser authUser, @RequestBody List<Long> ids) {
+    public void removeExecutors(@AuthenticationPrincipal AuthUser authUser, @RequestParam List<Long> ids) {
         executorLogic.remove(authUser.getUser(), ids);
     }
 
