@@ -68,12 +68,6 @@
 				</plugins>
 			</build>
 		</profile>
-		<profile>
-			<id>spa</id>
-			<modules>
-				<module>../wfe-spa</module>
-			</modules>
-		</profile>
 	</profiles>
 
 	<dependencyManagement>
