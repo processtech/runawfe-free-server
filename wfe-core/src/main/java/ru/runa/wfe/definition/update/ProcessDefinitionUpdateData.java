@@ -1,6 +1,6 @@
 package ru.runa.wfe.definition.update;
 
-import java.util.List;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -18,5 +18,10 @@ import ru.runa.wfe.lang.ProcessDefinition;
 public class ProcessDefinitionUpdateData {
     private final ProcessDefinition oldDefinition;
     private final ProcessDefinition newDefinition;
-    private final List<Process> processes;
+    private final Optional<Process> process;
+
+    public boolean inBatchMode() {
+        return !process.isPresent();
+    }
+
 }

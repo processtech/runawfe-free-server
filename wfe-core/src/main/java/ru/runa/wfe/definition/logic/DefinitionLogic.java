@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
@@ -178,8 +179,7 @@ public class DefinitionLogic extends WfCommonLogic {
                         + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
             }
         }
-        List<Process> processes = processDefinitionUpdateManager.findApplicableProcesses(oldDefinition);
-        Set<Process> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, uploadedDefinition, processes);
+        Set<Process> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, uploadedDefinition, Optional.empty());
         deploymentWithContent.setContent(processArchiveBytes);
         deploymentWithContent.setUpdateDate(new Date());
         deploymentWithContent.setUpdateActor(user.getActor());
