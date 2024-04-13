@@ -83,12 +83,11 @@ public class ViewLogsAction extends ActionBase {
 
                 String logFileContent;
                 if (form.getMode() == ViewLogForm.MODE_READBEGIN) {
-                    logFileContent = wrapLines(searchLines(file, form), form, new ArrayList<>());
+                    logFileContent = wrapLines(searchLines(file, form), form);
                 } else {
-                    logFileContent = wrapLines(searchLinesReverse(file, form), form, new ArrayList<>());
+                    logFileContent = wrapLines(searchLinesReverse(file, form), form);
                 }
                 request.setAttribute("logFileContent", logFileContent);
-
                 int allLinesCount = countLines(file);
                 form.setAllLinesCount(allLinesCount);
 
@@ -104,18 +103,9 @@ public class ViewLogsAction extends ActionBase {
         }
     }
 
-    private String wrapLines(String lines, ViewLogForm form, List<Integer> lineNumbers) {
+    private String wrapLines(String lines, ViewLogForm form) {
         StringBuilder b = new StringBuilder(lines.length() + 200);
         b.append("<table class=\"log\"><tr><td class=\"lineNumbers\">");
-        if (lineNumbers != null) {
-            for (Integer num : lineNumbers) {
-                b.append(num).append("<br>");
-            }
-        } else {
-            for (int i = form.getStartLine(); i <= form.getEndLine(); i++) {
-                b.append(i).append("<br>");
-            }
-        }
         b.append("</td><td class=\"content\">");
         b.append(lines);
         b.append("</td></tr></table>");
@@ -214,25 +204,34 @@ public class ViewLogsAction extends ActionBase {
         int linesFound = 0;
         boolean isLineWithStackTrace;
         boolean isStackTraceLine;
-        boolean isPrevResult = false;
-        boolean isIntoStackTrace = false;
-
-        while (((line = isReverse ? ((ReversedLinesFileReader) reader).readLine() : ((LineNumberReader) reader).readLine()) != null)) {
+        String previouslyReadedLine = null;
+        while (true) {
+            if (previouslyReadedLine != null) {
+                line = previouslyReadedLine;
+                previouslyReadedLine = null;
+            } else {
+                line = isReverse ? ((ReversedLinesFileReader) reader).readLine() : ((LineNumberReader) reader).readLine();
+                if (line == null) {
+                    break;
+                }
+            }
             boolean result = isTrueResult(form, line);
             isStackTraceLine = isStackTrace(line);
             stackTraceLines = new ArrayList<>();
             isLineWithStackTrace = false;
             if (isReverse) {
                 if (isStackTraceLine) {
+                    boolean searchResultInThisRecord = result;
                     stackTraceLines.add(line);
                     String stackTraceLine;
-                    while (((stackTraceLine = ((ReversedLinesFileReader) reader).readLine()) != null)
-                            && isStackTrace(stackTraceLine)) {
+                    while (((stackTraceLine = ((ReversedLinesFileReader) reader).readLine()) != null) && isStackTrace(stackTraceLine)) {
+                        searchResultInThisRecord = searchResultInThisRecord || isTrueResult(form, stackTraceLine);
                         stackTraceLines.add(stackTraceLine);
                     }
                     if (stackTraceLine != null) {
                         result = isTrueResult(form, stackTraceLine);
-                        if (result) {
+                        searchResultInThisRecord = searchResultInThisRecord || result;
+                        if (searchResultInThisRecord) {
                             stackTraceLines.add(stackTraceLine);
                             isLineWithStackTrace = true;
                         }
@@ -240,17 +239,20 @@ public class ViewLogsAction extends ActionBase {
                     line = "";
                 }
             } else {
-                if (isStackTraceLine) {
-                    if (isPrevResult) {
-                        isIntoStackTrace = true;
-                    }
-                } else {
-                    isPrevResult = result;
-                    isIntoStackTrace = false;
+                boolean searchResultInThisRecord = result;
+                stackTraceLines.add(line);
+                String stackTraceLine;
+                while (((stackTraceLine = ((LineNumberReader) reader).readLine()) != null) && isStackTrace(stackTraceLine)) {
+                    searchResultInThisRecord = searchResultInThisRecord || isTrueResult(form, stackTraceLine);
+                    stackTraceLines.add(stackTraceLine);
                 }
+                if (stackTraceLine != null) { // first line from next record
+                    previouslyReadedLine = stackTraceLine;
+                }
+                isLineWithStackTrace = searchResultInThisRecord;
             }
 
-            if (result || isIntoStackTrace || isLineWithStackTrace) {
+            if (result || isLineWithStackTrace) {
                 linesFound++;
                 if (linesFound < form.getStartLine()) {
                     continue;
@@ -307,10 +309,11 @@ public class ViewLogsAction extends ActionBase {
         line = StringEscapeUtils.escapeHtml(line);
         line = line.replaceAll("\\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
         if (form.getSearch() != null && !form.getSearch().equals("")) {
-            line = line.replaceAll(form.getSearch(), "<b>" + form.getSearch() + "</b>");
+            line = form.isSearchCaseSensitive() ? line.replaceAll(form.getSearch(), "<b>" + form.getSearch() + "</b>")
+                    : replaceWithBoldIgnoreCase(line, form.getSearch());
         }
         if (line.length() > form.getLimitLineCharactersCount()) {
-            line = configureLine(line, isStackTrace, form);
+            line = configureLine(line, isStackTrace, form.getLimitLineCharactersCount());
         }
         if (isReverse) {
             pageLines.insert(0, line + "<br>");
@@ -319,32 +322,46 @@ public class ViewLogsAction extends ActionBase {
         }
     }
 
-    private String configureLine(String line, boolean isStackTrace, ViewLogForm form) {
-        if (StringEscapeUtils.unescapeHtml(line).length() <= form.getLimitLineCharactersCount()) {
+    private String replaceWithBoldIgnoreCase(String text, String searchString) {
+        int searchStringLength = searchString.length();
+        StringBuilder result = new StringBuilder();
+        int beginSearchWithIndex = 0;
+        while (true) {
+            int searchStringBeginIndex = StringUtils.indexOfIgnoreCase(text, searchString, beginSearchWithIndex);
+            if (searchStringBeginIndex == -1) { // if the string was not found
+                result.append(text, beginSearchWithIndex, text.length());
+                break;
+            }
+            int searchStringEndIndex = searchStringBeginIndex + searchStringLength;
+            result.append(text, beginSearchWithIndex, searchStringBeginIndex);
+            result.append("<b>");
+            result.append(text, searchStringBeginIndex, searchStringEndIndex);
+            result.append("</b>");
+            beginSearchWithIndex = searchStringEndIndex;
+        }
+        return result.toString();
+    }
+
+    private String configureLine(String line, boolean isStackTrace, int limitLineCharactersCount) {
+        if (StringEscapeUtils.unescapeHtml(line).length() <= limitLineCharactersCount) {
             return line;
         }
-
         StringBuilder resultLine = new StringBuilder();
-        line = StringEscapeUtils.unescapeHtml(line);
-
-        while (line.length() > form.getLimitLineCharactersCount()) {
-            int finalSplitIndex = line.substring(0, form.getLimitLineCharactersCount()).lastIndexOf(" ") + 1;
+        while (line.length() > limitLineCharactersCount) {
+            int finalSplitIndex = line.substring(0, limitLineCharactersCount).lastIndexOf(" ") + 1;
             char[] arrayChars = line.toCharArray();
             while (finalSplitIndex < arrayChars.length && arrayChars[finalSplitIndex] != ' ') {
                 finalSplitIndex++;
             }
-
-            resultLine.append(StringEscapeUtils.escapeHtml(line.substring(0, finalSplitIndex)));
+            resultLine.append(line.substring(0, finalSplitIndex));
             line = line.substring(finalSplitIndex);
-
             if (!line.isEmpty()) {
                 resultLine.append("<br>");
-                if (line.length() < form.getLimitLineCharactersCount()) {
+                if (line.length() < limitLineCharactersCount) {
                     resultLine.append(line);
                 }
             }
         }
-
-        return StringEscapeUtils.unescapeHtml(resultLine.toString());
+        return resultLine.toString();
     }
 }
