@@ -39,6 +39,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenMessageSelectorPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenNodeNameAndNodeEnterDateColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTransactionalBotSupport;
+import ru.runa.wfe.commons.dbmigration.impl.AddTransitionNameForArchivedAgglogTask;
 import ru.runa.wfe.commons.dbmigration.impl.AddTransitionNameForTaskPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddUuidAndDropBytesChatMessageFilePatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddVariableUniqueKeyPatch;
@@ -213,6 +214,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddTaskAndChatEmailNotificationsPatch.class);
         dbMigrations.add(AddExtraColumnsToBpmLog.class);
         dbMigrations.add(AddStartEventSubprocessTimerJob.class);
+        dbMigrations.add(AddTransitionNameForArchivedAgglogTask.class);
         // end regular develop patches
         dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
         dbMigrations.add(RecreateChatRoomView2.class);
