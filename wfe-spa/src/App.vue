@@ -1,23 +1,21 @@
 <template>
-  <v-fade-transition mode="out-in">
-    <router-view />
-  </v-fade-transition>
+  <router-view />
 </template>
 
 <script lang="ts">
-  import Vue from 'vue';
-  import './styles/overrides.sass';
+import { mapActions } from 'pinia'
+import { defineComponent } from 'vue'
+import { useThemeStore } from './stores/theme-store'
 
-  export default Vue.extend({
-    name: 'App' as string,
-    metaInfo: {
-      title: 'Рабочий стол',
-      titleTemplate: '%s | Runawfe-Professional',
-      meta: [
-        { charset: 'utf-8' },
-        { httpEquiv: 'X-UA-Compatible', content: 'IE=edge' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      ],
-    },
-  });
+export default defineComponent({
+  name: 'App',
+
+  created() {
+    this.initTheming()
+  },
+
+  methods: {
+    ...mapActions(useThemeStore, { initTheming: 'init' })
+  },
+});
 </script>

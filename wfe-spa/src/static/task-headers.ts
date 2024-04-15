@@ -1,0 +1,58 @@
+import type { TableHeader } from '@/ts/table-header'
+
+export const taskHeaders: Readonly<TableHeader []> = Object.freeze([
+  {
+      title: 'Задача',
+      align: 'start',
+      value: 'name',
+      visible: true,
+      width: '20em',
+      format: 'string',
+      filterable: true,
+      sortable: true,
+  },
+  {
+      title: 'Описание',
+      value: 'description',
+      visible: false,
+      width: '20em',
+      format: 'string',
+      filterable: true,
+  },
+  {
+      title: 'Номер экземпляра',
+      value: 'processId',
+      visible: true,
+      width: '8em',
+      format: 'long',
+      filterable: true,
+      sortable: true,
+  },
+  {
+      title: 'Процесс',
+      value: 'definitionName',
+      visible: true,
+      width: '20em',
+      format: 'string',
+      filterable: true,
+      sortable: true,
+  },
+  {
+      title: 'Создана',
+      value: 'createDate',
+      visible: true,
+      width: '12em',
+      format: 'date-time',
+      filterable: true,
+      sortable: true,
+  },
+  {
+      title: 'Время окончания',
+      value: 'deadlineDate',
+      visible: true,
+      width: '12em',
+      format: 'date-time',
+      filterable: true,
+      sortable: true,
+  },
+])

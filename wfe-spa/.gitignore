@@ -11,3 +11,8 @@ workspace.code-workspace
 # IDEA
 .idea
 *.iml
+
+*swp
+*swo
+
+*tsbuildinfo

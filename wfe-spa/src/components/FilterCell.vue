@@ -1,192 +1,51 @@
 <template>
-    <td :bgcolor="header.bcolor" v-if="header.filterable">
-        <span v-if="header.format === 'DateTime'">
-            <tr>
-                <td>
-                    <v-text-field
-                        v-model="startDate"
-                        type="datetime-local"
-                        dense
-                        outlined
-                        clearable
-                        hide-details
-                        @blur="applyHeaderValue(dateTimeValue(), false)"
-                        @keydown.enter="applyHeaderValue(dateTimeValue(), true)"
-                    />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <v-text-field
-                        v-model="endDate"
-                        type="datetime-local"
-                        dense
-                        outlined
-                        clearable
-                        hide-details
-                        @blur="applyHeaderValue(dateTimeValue(), false)"
-                        @keydown.enter="applyHeaderValue(dateTimeValue(), true)"
-                    />
-                </td>
-            </tr>
-        </span>
-        <span v-else-if="header.format === 'Long'">
-            <tr>
-                <td>
-                    <v-text-field
-                        color="primary"
-                        label="от"
-                        v-model="startNumber"
-                        dense
-                        outlined
-                        clearable
-                        hide-details
-                        @blur="applyHeaderValue(numberRangeValue(), false)"
-                        @keydown.enter="applyHeaderValue(numberRangeValue(), true)"
-                    />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <v-text-field
-                        color="primary"
-                        label="до"
-                        v-model="endNumber"
-                        dense
-                        outlined
-                        clearable
-                        hide-details
-                        @blur="applyHeaderValue(numberRangeValue(), false)"
-                        @keydown.enter="applyHeaderValue(numberRangeValue(), true)"
-                    />
-                </td>
-            </tr>
-        </span>
-        <span v-else-if="header.format === 'String' && header.selectOptions">
-            <v-select
-                v-model="selectedValue"
-                :items="header.selectOptions"
-                dense
-                clearable
-                @blur="applyHeaderValue(selectedValue, false)"
-                @keydown.enter="applyHeaderValue(selectedValue, true)"
-            />
-        </span>
-        <span v-else>
-            <v-text-field
-                color="primary"
-                v-bind:value="value"
-                dense
-                outlined
-                clearable
-                hide-details
-                label="Содержит"
-                @blur="applyHeaderValue($event.target.value, false)"
-                @keydown.enter="applyHeaderValue($event.target.value, true)"
-            />
-        </span>
-    </td>
-    <td :bgcolor="header.bcolor" v-else>
-    </td>
+  <td v-if="header.filterable" class="py-1">
+    <component :is="header.format + '-filter-format'"
+      @updateInput="updateFilters"
+      :initValue="filter[header.value]"
+      :options="header.options"
+      ref="cell"
+    />
+  </td>
+  <td v-else></td>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { PropOptions } from 'vue';
+import { defineComponent, type PropType } from 'vue'
+import type { TableHeader } from '../ts/table-header'
+import { wfeRouter } from '../logic/wfe-router'
 
-export default Vue.extend({
-    name: "FilterCell",
-    props: {
-        value: String,
-        header: {
-            type: Object
-        },
+export default defineComponent({
+  name: 'FilterCell',
+
+  props: {
+    header: {
+      type: Object as PropType<TableHeader>,
+      required: true,
     },
-    data() {
-        return {
-            startDate: '',
-            endDate: '',
-            startNumber: '',
-            endNumber: '',
-            selectedValue: '',
-        }
+  },
+
+  computed: {
+    filter: (): { [key: string]: string } => wfeRouter.queryObject('filter')
+  },
+
+  watch: {
+    '$route.query.filter': function(filter: string) {
+      if (!filter) {
+        // @ts-ignore TODO try to fix type error
+        this.$refs.cell?.clear()
+      }
     },
-    mounted: function () {
-        if(this.header.format === 'DateTime') {
-            if(this.value) {
-                const [startDate, endDate] = this.value.split('|');
-                if(startDate) {
-                    this.startDate = this.getDateTimeFromValue(startDate);
-                }
-                if(endDate) {
-                    this.endDate = this.getDateTimeFromValue(endDate);
-                }
-            }
-        } else if(this.header.format === 'Long') {
-            if(this.value) {
-                const [startNumber, endNumber] = this.value.split('-');
-                if(startNumber) {
-                    this.startNumber = startNumber;
-                }
-                if(endNumber) {
-                    this.endNumber = endNumber;
-                }
-            }
-        } else if(this.header.format === 'String' && this.header.selectOptions) {
-            if(this.value) {
-                this.selectedValue = this.value;
-            }
-        }
+  },
+
+  methods: {
+    updateFilters(value: string) {
+      const filter = {...this.filter, ...{ [this.header.value]: value }}
+      if (!value) {
+        delete filter[this.header.value]
+      }
+      wfeRouter.mergeQueryParams({ filter })
     },
-    methods: {
-        getDateTimeFromValue (val) {
-            //local date to yyyy-MM-ddThh:mm
-            if (val) {
-                const [date, time] =  val.split(' ');
-                const [day, month, year] = date.split('.');
-                return `${year}-${month}-${day}T${time}`
-            }
-            return '';
-        },
-        formatDate (val) {
-            //val always: yyyy-MM-ddThh:mm
-            if (val) {
-                const [date, time] = val.split('T');
-                const [year, month, day] = date.split('-');
-                return `${day}.${month}.${year} ${time}`;
-            }
-            return '';
-        },
-        dateTimeValue () {
-            const startDate = this.formatDate(this.startDate);
-            const endDate = this.formatDate(this.endDate);
-            if (startDate || endDate) {
-                return [startDate, endDate].join('|');
-            } else {
-                return '';
-            }
-        },
-        numberRangeValue () {
-            if(this.startNumber) {
-                this.startNumber = this.startNumber.replace(/\D/g, '');
-            }
-            if(this.endNumber) {
-                this.endNumber = this.endNumber.replace(/\D/g, '');
-            }
-            if (this.startNumber || this.endNumber) {
-                return [this.startNumber, this.endNumber].join('-');
-            } else {
-                return '';
-            }
-        },
-        applyHeaderValue (val, reload: boolean) {
-            this.$emit('input', val);
-            if(reload) {
-                this.$emit('update-filter-and-reload-event');
-            } else {
-                this.$emit('update-filter-event');
-            }
-        }
-    },
+  },
 });
 </script>

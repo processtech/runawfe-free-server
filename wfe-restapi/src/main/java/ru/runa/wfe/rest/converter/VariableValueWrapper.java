@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.mapstruct.factory.Mappers;
 import ru.runa.wfe.rest.dto.WfeFileVariable;
 import ru.runa.wfe.rest.dto.WfeVariable;
+import ru.runa.wfe.rest.dto.WfeVariableType;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.var.UserType;
+import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.FileVariable;
@@ -59,6 +63,26 @@ public class VariableValueWrapper {
         public Map<String, Object> getCustomUserTypeFields(UserTypeFormat userTypeFormat) {
             return new LinkedHashMap<>();
         }
-    }
 
+        @Override
+        public Object onUserType(UserTypeFormat userTypeFormat, WfVariable variable) {
+            if (variable.getValue() == null) {
+                return null;
+            }
+            UserTypeMap value = (UserTypeMap) variable.getValue();
+            String namePrefix = variable.getDefinition().getName() + UserType.DELIM;
+            return userTypeFormat.getUserType().getAttributes().stream()
+                    .map(attributeDefinition -> {
+                        WfeVariable result = new WfeVariable();
+                        result.setName(attributeDefinition.getName());
+                        result.setType(WfeVariableType.findByJavaClass(attributeDefinition.getFormatNotNull().getJavaClass()));
+                        result.setFormat(attributeDefinition.getFormatNotNull().getName());
+                        Object attributeValue = value.get(attributeDefinition.getName());
+                        VariableDefinition attributeVariable = new VariableDefinition(namePrefix + attributeDefinition.getName(), null, attributeDefinition);
+                        result.setValue(attributeVariable.getFormatNotNull().processBy(this, new WfVariable(attributeVariable, attributeValue)));
+                        return result;
+                    })
+                    .collect(Collectors.toList());
+        }
+    }
 }

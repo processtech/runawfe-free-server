@@ -23,10 +23,10 @@
         @click:append="showConfirmedPassword = !showConfirmedPassword"
       />
       <v-btn
-        color="primary"
+        color="accent"
         class="mt-5"
         :disabled="!valid"
-        @click.native="changePassword"
+        @click="changePassword"
       >
         Применить
       </v-btn>
@@ -34,10 +34,10 @@
   </v-card>
 </template>
 
-<script>
-import Vue from 'vue';
+<script lang="ts">
+import { defineComponent } from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'ProfilePasswordForm',
   data() {
     return {
@@ -49,7 +49,6 @@ export default Vue.extend({
       confirmedPassword: '',
       rules: {
         required: value => !!value || 'Обязательное поле',
-        // is there way to implement it using typescript?
         confirm: value => value === this.password || 'Пароли не совпадают'
       },
     }

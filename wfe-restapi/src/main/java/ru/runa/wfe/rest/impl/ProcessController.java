@@ -3,6 +3,7 @@ package ru.runa.wfe.rest.impl;
 import com.google.common.base.Strings;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -175,8 +176,21 @@ public class ProcessController {
 
     @GetMapping("{id}/variables")
     public List<WfeVariable> getProcessVariables(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        List<WfVariable> variables = variableLogic.getVariables(authUser.getUser(), id);
+        List<WfVariable> variables = variableLogic.getVariables(authUser.getUser(), id)
+            .stream()
+            .filter(v -> v.getDefinition().getFormatNotNull().getClass().getAnnotation(Deprecated.class) == null)
+            .collect(Collectors.toList());
         return Mappers.getMapper(WfeVariableMapper.class).map(variables);
+    }
+
+    @PostMapping("/variablesNames")
+    public List<String> getVariableNames(@AuthenticationPrincipal AuthUser authUser, @RequestBody List<Long> ids) {
+        return variableLogic.getVariables(authUser.getUser(), ids).values()
+                .stream()
+                .flatMap(List::stream)
+                .filter(v -> v.getDefinition().getFormatNotNull().getClass().getAnnotation(Deprecated.class) == null)
+                .map(v -> v.getDefinition().getName())
+                .collect(Collectors.toList());
     }
 
     @PatchMapping("{id}/variables")
