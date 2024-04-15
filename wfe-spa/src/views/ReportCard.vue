@@ -38,8 +38,8 @@
                                 Информация об отчете:
                             </v-card-title>
                             <v-card-text style="color: rgba(0, 0, 0, 1);">
-                                <template v-for="(value, name, index) in report.getInfo()">
-                                    <div :key="index" class="mb-1">
+                                <template v-for="(value, name, index) in report.getInfo()" :key="index">
+                                    <div class="mb-1">
                                         <span class="d-inline-block" style="width: 20em">{{ $__ucfirst(name) }}: </span>
                                         <span class="d-inline-block">{{ value }}</span>
                                     </div>
@@ -96,14 +96,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import Vue, { defineComponent } from 'vue';
 import { WfeReport } from '../ts/WfeReport';
 import ReportParameters from './ReportParameters.vue';
 import { WfeReportBuildResult } from '../ts/WfeReportBuildResult';
-import { WfeReportParameter } from '../ts/WfeReportParameter';
-import { get, sync } from 'vuex-pathify';
 
-export default Vue.extend({
+export default defineComponent({
     name: "ReportCard",
     components:{
         ReportParameters

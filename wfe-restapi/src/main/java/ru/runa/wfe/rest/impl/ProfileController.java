@@ -57,7 +57,7 @@ public class ProfileController {
     private List<WfeGroup> getGroupsDto(User user) {
         WfeGroupMapper groupDtoMapper = Mappers.getMapper(WfeGroupMapper.class);
         List<Group> groups = executorLogic.getExecutorGroups(
-user, user.getActor(), BatchPresentationFactory.GROUPS.createNonPaged(), false);
+                user, user.getActor(), BatchPresentationFactory.GROUPS.createNonPaged(), false);
         return groupDtoMapper.map(groups);
     }
 

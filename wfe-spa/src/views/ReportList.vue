@@ -1,154 +1,88 @@
 <template>
-    <v-container
-        id="reports-view"
-        fluid
-        tag="section"
+  <wfe-table>
+    <v-data-table-server
+      class="bg-primary-background"
+      :headers="filteredHeaders"
+      :header-props="{ class: 'text-primary-text' }"
+      :items="items"
+      item-key="id"
+      :item-class="rowProps"
+      :items-per-page="options.itemsPerPage"
+      :sort-by="options.sortBy"
+      :items-per-page-options="[ 20, 50, 100, 500 ]"
+      :items-per-page-text="'Строк на странице'"
+      :items-length="total"
+      :loading="loading"
+      @click:row="(event, row) => $router.push({ path: `/report/${row.item.id}/card` })"
+      @update:options="updateOptions"
+      hover
+      show-current-page
     >
-        <v-data-table
-            class="elevation-1 wfe-report-table"
-            :headers="headers"
-            :items="reports"
-            item-key="id"
-            :options.sync="options"
-            :server-items-length="total"
-            :loading="loading"
-            :footer-props="{
-                disablePagination: false,
-                disableItemsPerPage: false,
-                itemsPerPageAllText: 'Все',
-                itemsPerPageText: 'Строк на странице',
-            }"
-            >
-            <template v-slot:[`footer.page-text`]="items">
-                {{ items.pageStart }} - {{ items.pageStop }} из {{ items.itemsLength }}
-            </template>
-            <template v-slot:no-data>
-                Данные отсутствуют
-            </template>
-            <template v-slot:[`body.prepend`]>
-                <tr v-if="filterVisible" class="filter-row">
-                    <td v-for="header in headers" :key="header.value">
-                        <v-text-field
-                            color="primary"
-                            v-model="filter[header.value]" 
-                            dense 
-                            outlined 
-                            clearable 
-                            hide-details
-                        />
-                    </td>
-                </tr>
-            </template>
-            <template v-slot:[`item.name`]="{ item }">
-                <card-link :routeName="`Карточка отчета`" :id="item.id" :text="item.name" />
-            </template>
-            <template v-slot:top>
-                <v-toolbar flat>
-                    <v-spacer/>
-                    <v-btn 
-                        text 
-                        icon 
-                        @click="filterVisible = !filterVisible" 
-                        v-model="filterVisible" 
-                        color="rgba(0, 0, 0, 0.67)"
-                    >
-                        <v-icon>mdi-filter</v-icon>
-                    </v-btn>
-                    <columns-visibility :initialHeaders="initialHeaders" />
-                </v-toolbar>
-            </template>
-        </v-data-table>
-    </v-container>
+      <template v-slot:top>
+        <table-toolbar>
+          <template v-slot:filterControl>
+            <filter-control-btn @toggleFilter="showFilters = !showFilters" />
+          </template>
+          <template v-slot:columnsControl>
+            <table-columns-control :headers="headers" />
+          </template>
+        </table-toolbar>
+      </template>
+      <template v-slot:[`item.name`]="{ item }">
+        <a
+          @click.stop="() => $router.push(`/report/${item.id}/card/`)"
+          class="text--primary text-decoration-underline"
+        >
+          {{ item.name }}
+        </a>
+      </template>
+      <template v-slot:no-data>Данные отсутствуют</template>
+      <template v-slot:[`body.prepend`]>
+        <tr v-if="showFilters">
+          <filter-cell v-for="header in filteredHeaders"
+            :header="header"
+            :key="header.value"
+          />
+        </tr>
+      </template>
+    </v-data-table-server>
+  </wfe-table>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { get, sync } from 'vuex-pathify';
-import { Options, Sorting } from '../ts/Options';
+import { createWfeTableOptions } from '../logic/wfe-table-component-options-factory'
+import { reportService } from '../services/report-service'
+import { WfeReport } from '../ts/WfeReport'
 
-export default Vue.extend({
-    name: "ReportList",
-    
-    data() {
-        return {
-            timeout: 10000,
-            dialog: false,
-            filterVisible: false,
-            filter: {
-                name: null,
-                description: null,
-                type: null,
-            },
-            total: 0,
-            reports: [],
-            loading: true,
-            options: new Options(),
-            initialHeaders: [
-                {
-                    text: 'Название',
-                    align: 'start', 
-                    value: 'name',
-                    visible: true,
-                    width: '20em',
-                },
-                { 
-                    text: 'Описание', 
-                    value:'description',
-                    visible: false,
-                    width: '20em',
-                },
-                { 
-                    text: 'Тип', 
-                    value: 'category',
-                    visible: true,
-                    width: '12em',
-                }
-            ]
-        }
+export default createWfeTableOptions<WfeReport>({
+  name: 'ReportList',
+  headers: [
+    {
+      title: 'Название',
+      align: 'start',
+      value: 'name',
+      visible: true,
+      width: '20em',
+      format: 'string',
+      filterable: true,
     },
-    computed: {
-        headers(): any {
-            return this.initialHeaders.filter((h: any) => {
-                return h.visible;
-            });
-        },
+    {
+      title: 'Описание',
+      value:'description',
+      visible: false,
+      width: '20em',
+      format: 'string',
+      filterable: true,
     },
-    watch: {
-        options: {
-            handler () {
-                this.getDataFromApi()
-            },
-            deep: true,
-        },
-        filter: {
-            handler () {
-                this.getDataFromApi()
-            },
-            deep: true,
-        }
-    },
-    methods: {
-        getDataFromApi () {
-            this.loading = true;
-            const { page, itemsPerPage, sortBy, sortDesc } = this.options;
-            const query = {
-                filters: this.filter,
-                pageNumber: page,
-                pageSize: itemsPerPage,
-                sortings: Sorting.convert(sortBy, sortDesc),
-                variables: []
-            };
-            this.$apiClient().then((client: any) => {
-                client['report-controller'].getReportsUsingPOST(null, { requestBody: query }).then((data: any) => {
-                    const body = data.body;
-                    if (body) {
-                        this.reports = body.data;
-                        this.total = body.total;
-                    }
-                    this.loading = false;
-                });
-            });
-        },
-    },
-});
+    {
+      title: 'Тип',
+      value: 'category',
+      visible: true,
+      width: '12em',
+      format: 'string',
+      filterable: true,
+    }
+  ],
+  visibleColumns: ['name', 'category'],
+}, reportService.getReports)
 </script>

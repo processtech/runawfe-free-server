@@ -1,2 +1,4 @@
 # http://stackoverflow.com/a/31286842
 * text=auto
+package-lock.json binary
+*.svg binary

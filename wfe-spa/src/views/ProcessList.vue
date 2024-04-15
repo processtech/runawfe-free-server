@@ -1,167 +1,106 @@
 <template>
-    <v-container
-        id="processes-view"
-        fluid
-        tag="section"
+  <wfe-table>
+    <v-data-table-server
+      class="bg-primary-background"
+      :headers="filteredHeaders"
+      :items="items"
+      :header-props="{ class: 'text-primary-text' }"
+      :row-props="rowProps"
+      item-key="id"
+      :sort-by="options.sortBy"
+      :items-per-page="options.itemsPerPage"
+      :items-per-page-options="[ 10, 20, 50, 100 ]"
+      :items-per-page-text="'Строк на странице'"
+      :items-length="total"
+      :loading="loading"
+      @update:options="updateOptions"
+      hover
+      @click:row="(event, row) => $router.push(`/process/${row.item.id}/card/`)"
+      show-current-page
     >
-        <wfe-tables
-            :initialHeaders="initialHeaders"
-            :records="processes"
-            :colors="colors"
-            :total="total"
-            :loading="loading"
-            :routeName="`Карточка процесса`"
-            :prefixLocalStorageName="`runawfe@process-list`"
-            :dynamic="true"
-            :options="options"
-            @get-data-event="onGetData"
-        />
-    </v-container>
+      <template v-slot:top>
+        <table-toolbar>
+          <template v-slot:filterControl>
+            <filter-control-btn @toggleFilter="showFilters = !showFilters" />
+          </template>
+          <template v-slot:columnsControl>
+            <table-columns-control :headers="headers">
+              <template v-slot:variables>
+                <variable-columns-control :processIds="items.map(i => i.id)" />
+              </template>
+            </table-columns-control>
+          </template>
+          <template v-slot:colorsControl>
+            <colors-description-control :colors="colors" />
+          </template>
+        </table-toolbar>
+      </template>
+      <template v-slot:[`item.id`]="{ item }">
+        <span
+          @click.stop="$router.push(`/process/${item.id}/card`)"
+          class="cursor-pointer text-decoration-underline"
+        >
+          {{ item.id }}
+        </span>
+      </template>
+      <template v-slot:[`item.definitionName`]="{ item }">
+        <span
+          @click.stop="$router.push(`/process/definition/${item.definitionId}/card`)"
+          class="cursor-pointer text-decoration-underline"
+        >
+          {{ item.definitionName }}
+        </span>
+      </template>
+      <template v-slot:[`item.startDate`]="{ item }">
+        {{ formatDateTime(new Date(item.startDate)) }}
+      </template>
+      <template v-slot:[`item.endDate`]="{ item }">
+        {{ item.endDate ? formatDateTime(new Date(item.startDate)) : '' }}
+      </template>
+      <template v-slot:no-data>Данные отсутствуют</template>
+      <template v-slot:[`body.prepend`]>
+        <tr v-if="showFilters">
+          <filter-cell v-for="header in filteredHeaders"
+            :header="header"
+            :key="header.value"
+          />
+        </tr>
+      </template>
+      <template v-for="(variable, i) in variables" v-slot:[`item.${variable}`]="{ item }">
+        <variable-cell :variable="item.variables.find(v => v.name === variable)" :key="i" />
+      </template>
+    </v-data-table-server>
+  </wfe-table>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { get, sync } from 'vuex-pathify';
-import { Sorting, Select } from '../ts/Options';
-import Constants from '../ts/Constants';
+import { createWfeTableOptions } from '../logic/wfe-table-component-options-factory'
+import { processHeaders } from '../static/process-headers'
+import { processService } from '../services/process-service'
+import { WfeProcess } from '../ts/WfeProcess'
 
-export default Vue.extend({
-    name: "ProcessList",
-
-    data() {
-        return {
-            total: 0,
-            processes: [],
-            loading: true,
-            colors: [
-                {
-                    value: 'process1',
-                    desc: 'Установленный срок окончания процесса подходит к концу'
-                },
-                {
-                    value: 'process2',
-                    desc: 'Процесс не завершён в установленный срок'
-                },
-            ],
-            initialHeaders: [
-                {
-                    text: '№ экз.',
-                    align: 'start',
-                    value: 'id',
-                    visible: true,
-                    width: '3em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'Long',
-                    filterable: true,
-                },
-                {
-                    text: 'Процесс',
-                    value: 'definitionName',
-                    visible: true,
-                    width: '20em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'String',
-                    link: true,
-                    filterable: true,
-                },
-                {
-                    text: 'Статус',
-                    value: 'executionStatus',
-                    visible: true,
-                    width: '20em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'String',
-                    selectOptions:[new Select('Активен','ACTIVE'), new Select('Завершен','ENDED'),
-                                   new Select('Приостановлен','SUSPENDED'), new Select('Имеет ошибки выполнения','FAILED')],
-                    filterable: true,
-                },
-                {
-                    text: 'Запущен',
-                    value: 'startDate',
-                    visible: true,
-                    width: '10em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'DateTime',
-                    filterable: true,
-                },
-                {
-                    text: 'Окончен',
-                    value: 'endDate',
-                    visible: true,
-                    width: '10em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'DateTime',
-                    filterable: true,
-                },
-            ]
-        }
+export default createWfeTableOptions<WfeProcess>({
+  name: 'ProcessList',
+  headers: [...processHeaders],
+  visibleColumns: ['id', 'definitionName', 'executionStatus', 'startDate', 'endDate'],
+  colors: [
+    {
+      value: 'warning',
+      description: 'Установленный срок окончания процесса подходит к концу'
     },
-    mounted() {
-    },
-    computed: {
-        items: sync('app/items'),
-        options(): any {
-            return this.items.find(h => h.to === Constants.PROCESSES_PATH).options;
-        }
-    },
-    watch: {
-    },
-    methods: {
-        getClass (process: any) {
-            let cl = '';
-            const timestamp = new Date().getTime();
-            if (process.endDate != null && process.endDate > timestamp) {
-                cl = 'process2';
-            }
-            return cl;
-        },
-        getClasses (processes: any) {
-            processes.forEach(process => {
-                process.class = this.getClass(process);
-            });
-        },
-        getFilters (filter) {
-            let result = Object.assign({}, filter);
-            for (let prop in filter) {
-                if (filter.hasOwnProperty(prop)) {
-                    if (filter[prop] !== null && filter[prop] !== '') {
-                        let header = this.initialHeaders.find(h => h.value === prop);
-                        if(!header || (header.format !== 'DateTime' && header.format !== 'Long' && !header.selectOptions)) {
-                            result[prop] = '*' + filter[prop].trim() + '*/i';
-                        }
-                    }
-                }
-            }
-            return result;
-        },
-        onGetData (options, filter, variables) {
-            this.items.find(h => h.to === Constants.PROCESSES_PATH).options = options;
-            localStorage.setItem(Constants.PROCESSES_OPTIONS, JSON.stringify(options));
-            this.loading = true;
-            const { page, itemsPerPage, sortBy, sortDesc } = options;
-            const query = {
-                filters: this.getFilters(filter),
-                pageNumber: page,
-                pageSize: itemsPerPage,
-                sortings: Sorting.convert(sortBy, sortDesc),
-                variables: variables
-            };
-            this.$apiClient().then((client: any) => {
-                client['process-controller'].getProcessesUsingPOST(null, { requestBody: query }).then((data: any) => {
-                    const body = data.body;
-                    if (body) {
-                        this.processes = body.data;
-                        this.total = body.total;
-                        this.getClasses(this.processes);
-                    }
-                    this.loading = false;
-                }).catch((error: any) => {
-                    this.loading = false;
-                    this.processes = [];
-                    this.total = 0;
-                });
-            });
-        },
-    },
-});
+    {
+      value: 'error',
+      description: 'Процесс не завершён в установленный срок'
+    }
+  ],
+  itemClassFunc: (process: WfeProcess): string => {
+    const timestamp = new Date().getTime()
+    // TODO add a class when process deadline is over
+    if (new Date(process.endDate).getTime() < timestamp) {
+      return 'bg-error'
+    } else {
+      return ''
+    }
+  },
+}, processService.getProcesses)
 </script>

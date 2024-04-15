@@ -119,6 +119,12 @@ public class ExecutorController {
         return new WfePagedList<>(executors.size(), Mappers.getMapper(WfeExecutorMapper.class).map(executors));
     }
 
+    @GetMapping("/list/{type}")
+    public WfePagedList<WfeExecutor> getExecutorsByType(@AuthenticationPrincipal AuthUser authUser, @PathVariable WfeExecutor.Type type) {
+        List<? extends Executor> executors = executorLogic.getExecutors(authUser.getUser(), type.toBatchPresentation());
+        return new WfePagedList<>(executors.size(), Mappers.getMapper(WfeExecutorMapper.class).map(executors));
+    }
+
     @PostMapping("{id}/groups")
     public WfePagedList<WfeGroup> getExecutorGroups(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestBody WfePagedListFilter filter, @RequestParam(required = false) boolean isExclude) {

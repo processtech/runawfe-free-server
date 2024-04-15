@@ -1,29 +1,24 @@
-import Vue from 'vue';
-import Vuetify from 'vuetify';
+import { createVuetify } from 'vuetify'
+import { themes } from '@/static/themes'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
 
-Vue.use(Vuetify);
-
-const theme = {
-  primary: '#4CAF50',
-  secondary: '#9C27b0',
-  accent: '#4CAF50',
-  info: '#00CAE3',
-  success: '#4CAF50',
-  warning: '#FB8C00',
-  error: '#FF5252',
+function mapThemes(): Record<string, { dark: boolean, colors: { [key: string]: string } }> {
+  return Object.entries(themes)
+    .map(([name, theme]) => ({
+      [`${name}-light`]: { dark: false, colors: theme.light },
+      [`${name}-dark`]: { dark: true, colors: theme.dark },
+    }))
+    .reduce((t, acc) => {
+      Object.keys(t).forEach(key => acc[key] = t[key])
+      return acc
+    }, {})
 }
 
-export default new Vuetify({
-  breakpoint: {
-    mobileBreakpoint: 960
-  },
-  icons: {
-    iconfont: 'mdi'
-  },
+export const vuetify = createVuetify({
   theme: {
-    themes: {
-      dark: theme,
-      light: theme,
-    },
+    themes: mapThemes()
   },
-});
+  components,
+  directives,
+})

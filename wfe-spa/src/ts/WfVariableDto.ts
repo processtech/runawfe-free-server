@@ -1,5 +1,5 @@
-export class WfeVariable {
-    name: string = '';
-    value: any;
-    format: string = '';
+export default interface WfeVariable {
+  name: string;
+  value: any;
+  format: string;
 }

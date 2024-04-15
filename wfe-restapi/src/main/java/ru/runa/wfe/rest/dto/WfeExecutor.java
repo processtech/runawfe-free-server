@@ -3,6 +3,8 @@ package ru.runa.wfe.rest.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.BatchPresentationFactory;
 
 @Data
 @NoArgsConstructor
@@ -15,10 +17,21 @@ public class WfeExecutor {
     private String fullName;
 
     public enum Type {
-        USER,
-        GROUP,
-        TEMPORARY_GROUP,
-        DELEGATION_GROUP,
-        ESCALATION_GROUP
+        EXECUTOR(BatchPresentationFactory.EXECUTORS.createNonPaged()),
+        USER(BatchPresentationFactory.ACTORS.createNonPaged()),
+        GROUP(BatchPresentationFactory.GROUPS.createNonPaged()),
+        TEMPORARY_GROUP(BatchPresentationFactory.GROUPS.createNonPaged()),
+        DELEGATION_GROUP(BatchPresentationFactory.GROUPS.createNonPaged()),
+        ESCALATION_GROUP(BatchPresentationFactory.GROUPS.createNonPaged());
+
+        private BatchPresentation batchPresentation;
+
+        Type(BatchPresentation batchPresentation) {
+            this.batchPresentation = batchPresentation;
+        }
+
+        public BatchPresentation toBatchPresentation() {
+            return batchPresentation;
+        }
     }
 }

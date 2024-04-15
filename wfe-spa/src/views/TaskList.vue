@@ -1,187 +1,128 @@
 <template>
-    <v-container
-        id="my-tasks-view"
-        fluid
-        tag="section"
+  <wfe-table>
+    <v-data-table-server
+      class="bg-primary-background"
+      :headers="filteredHeaders"
+      :header-props="{ class: 'text-primary-text' }"
+      :items="items"
+      item-key="id"
+      :row-props="rowProps"
+      :items-per-page="options.itemsPerPage"
+      :sort-by="options.sortBy"
+      :items-per-page-options="[ 20, 50, 100, 500 ]"
+      :items-per-page-text="'Строк на странице'"
+      :items-length="total"
+      :loading="loading"
+      @update:options="updateOptions"
+      hover
+      show-current-page
+      @click:row="(event, row) => $router.push(`/task/${row.item.id}/card/`)"
     >
-        <wfe-tables
-            :initialHeaders="initialHeaders"
-            :records="tasks"
-            :colors="colors"
-            :total="total"
-            :loading="loading"
-            :routeName="`Карточка задачи`"
-            :prefixLocalStorageName="`runawfe@task-list`"
-            :dynamic="true"
-            :options="options"
-            @get-data-event="onGetData"
-        />
-    </v-container>
+      <template v-slot:top>
+        <table-toolbar>
+          <template v-slot:filterControl>
+            <filter-control-btn @toggleFilter="showFilters = !showFilters" />
+          </template>
+          <template v-slot:columnsControl>
+            <table-columns-control :headers="headers">
+              <template v-slot:variables>
+                <variable-columns-control :processIds="items.map(i => i.id)" />
+              </template>
+            </table-columns-control>
+          </template>
+          <template v-slot:colorsControl>
+            <colors-description-control :colors="colors" />
+          </template>
+        </table-toolbar>
+      </template>
+      <template v-slot:[`item.name`]="{ item }">
+        <span
+          @click.stop="$router.push(`/task/${item.id}/card/`)"
+          class="cursor-pointer text-decoration-underline"
+        >
+          {{ item.name }}
+        </span>
+      </template>
+      <template v-slot:[`item.processId`]="{ item }">
+        <span
+          @click.stop="$router.push(`/process/${item.processId}/card`)"
+          class="cursor-pointer text-decoration-underline"
+        >
+          {{ item.processId }}
+        </span>
+      </template>
+      <template v-slot:[`item.definitionName`]="{ item }">
+        <span
+          @click.stop="$router.push(`/process/definition/${item.definitionId}/card`)"
+          class="cursor-pointer text-decoration-underline"
+        >
+          {{ item.definitionName }}
+        </span>
+      </template>
+      <template v-slot:[`item.createDate`]="{ item }">
+        {{ formatDateTime(new Date(item.createDate)) }}
+      </template>
+      <template v-slot:[`item.deadlineDate`]="{ item }">
+        {{ item.deadlineDate ? formatDateTime(new Date(item.deadlineDate)) : '' }}
+      </template>
+      <template v-slot:no-data>Данные отсутствуют</template>
+      <template v-slot:[`body.prepend`]>
+        <tr v-if="showFilters">
+          <filter-cell v-for="header in filteredHeaders" :header="header" :key="header.value" />
+        </tr>
+      </template>
+      <template v-for="(variable, i) in variables" v-slot:[`item.${variable}`]="{ item }">
+        <variable-cell :variable="item.variables.find(v => v.name === variable)" :key="i"/>
+      </template>
+    </v-data-table-server>
+  </wfe-table>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { sync } from 'vuex-pathify';
-import { Sorting } from '../ts/Options';
-import Constants from '../ts/Constants';
+import { taskService } from '../services/task-service'
+import { WfeTask } from '../ts/WfeTask'
+import { taskHeaders } from '../static/task-headers'
+import { createWfeTableOptions } from '../logic/wfe-table-component-options-factory'
+import VariableColumnsControl from '../components/VariableColumnsControl.vue'
 
-export default Vue.extend({
-    name: "TaskList",
-    data() {
-        return {
-            total: 0,
-            tasks: [],
-            loading: true,
-            colors: [
-                {
-                    value: 'task1',
-                    desc: 'Установленный срок задачи подходит к концу'
-                },
-                {
-                    value: 'task2',
-                    desc: 'Задача не выполнена в установленный срок'
-                },
-                {
-                    value: 'task3',
-                    desc: 'Задача получена по эскалации'
-                },
-                {
-                    value: 'task4',
-                    desc: 'Задача получена по замещению'
-                }
-            ],
-            initialHeaders: [
-                {
-                    text: 'Задача',
-                    align: 'start',
-                    value: 'name',
-                    visible: true,
-                    width: '20em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'String',
-                    link: true,
-                    filterable: true,
-                },
-                {
-                    text: 'Описание',
-                    value: 'description',
-                    visible: false,
-                    width: '20em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'String',
-                    filterable: true,
-                },
-                {
-                    text: '№ экз.',
-                    value: 'processId',
-                    visible: true,
-                    width: '7em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'Long',
-                    filterable: true,
-                },
-                {
-                    text: 'Процесс',
-                    value: 'definitionName',
-                    visible: true,
-                    width: '20em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'String',
-                    filterable: true,
-                },
-                {
-                    text: 'Создана',
-                    value: 'createDate',
-                    visible: true,
-                    width: '12em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'DateTime',
-                    filterable: true,
-                },
-                {
-                    text: 'Время окончания',
-                    value: 'deadlineDate',
-                    visible: true,
-                    width: '12em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'DateTime',
-                    filterable: true,
-                },
-            ]
-        }
+export default createWfeTableOptions<WfeTask>({
+  name: 'TaskList',
+  headers: [...taskHeaders],
+  visibleColumns: ['name', 'processId', 'definitionName', 'createDate', 'deadlineDate'],
+  colors: [
+    {
+      value: 'warning',
+      description: 'Установленный срок задачи подходит к концу'
     },
-    mounted() {
+    {
+      value: 'error',
+      description: 'Задача не выполнена в установленный срок'
     },
-    computed: {
-        items: sync('app/items'),
-        options(): any {
-            return this.items.find(h => h.to === Constants.TASKS_PATH).options;
-        }
+    {
+      value: 'task-escalation',
+      description: 'Задача получена по эскалации'
     },
-    watch: {
-    },
-    methods: {
-        getClass (task: any) {
-            let cl = '';
-            const timestamp = new Date().getTime();
-            if (task.acquiredBySubstitution) {
-                cl = 'task4';
-            } else if (task.escalated) {
-                cl = 'task3';
-            } else if (task.deadlineDate != null && task.deadlineDate < timestamp) {
-                cl = 'task2';
-            } else if (task.deadlineWarningDate != null && task.deadlineWarningDate < timestamp) {
-                cl = 'task1';
-            }
-            return cl;
-        },
-        getClasses (tasks: any) {
-            tasks.forEach(task => {
-                task.class = this.getClass(task);
-            });
-        },
-        getFilters (filter) {
-            let result = Object.assign({}, filter);
-            for (let prop in filter) {
-                if (filter.hasOwnProperty(prop)) {
-                    if (filter[prop] !== null && filter[prop] !== '') {
-                        let header = this.initialHeaders.find(h => h.value === prop);
-                        if(!header || (header.format !== 'DateTime' && header.format !== 'Long' && !header.selectOptions)) {
-                            result[prop] = '*' + filter[prop].trim() + '*/i';
-                        }
-                    }
-                }
-            }
-            return result;
-        },
-        onGetData (options, filter, variables) {
-            this.items.find(h => h.to === Constants.TASKS_PATH).options = options;
-            localStorage.setItem(Constants.TASKS_OPTIONS, JSON.stringify(options));
-            this.loading = true;
-            const { page, itemsPerPage, sortBy, sortDesc } = options;
-            const query = {
-                filters: this.getFilters(filter),
-                pageNumber: page,
-                pageSize: itemsPerPage,
-                sortings: Sorting.convert(sortBy, sortDesc),
-                variables: variables
-            };
-            this.$apiClient().then((client: any) => {
-                client['task-controller'].getMyTasksUsingPOST(null, { requestBody: query }).then((data: any) => {
-                    const body = data.body;
-                    if (body) {
-                        this.tasks = body.data;
-                        this.total = body.total;
-                        this.getClasses(this.tasks);
-                    }
-                    this.loading = false;
-                }).catch((error: any) => {
-                    this.loading = false;
-                    this.tasks = [];
-                    this.total = 0;
-                });;
-            });
-        },
+    {
+      value: 'task-substitution',
+      description: 'Задача получена по замещению'
     }
-});
+  ],
+  itemClassFunc: (task: WfeTask): string => {
+    let cssClass: string
+    const timestamp = new Date().getTime();
+    if (task.acquiredBySubstitution) {
+      cssClass = 'task-substitution'
+    } else if (task.escalated) {
+      cssClass = 'task-escalation'
+    } else if (new Date(task?.deadlineDate).getTime() < timestamp) {
+      cssClass = 'error'
+    } else if (new Date(task?.deadlineWarningDate).getTime() < timestamp) {
+      cssClass = 'warning'
+    }
+    if (task.firstOpen) {
+      cssClass += ' font-weight-bold'
+    }
+    return 'bg-' + cssClass
+  }
+}, taskService.getTasks)
 </script>

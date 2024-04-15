@@ -1,163 +1,65 @@
 <template>
-    <v-container
-        id="processes-definition-view"
-        fluid
-        tag="section"
+  <wfe-table>
+    <v-data-table-server
+      class="bg-primary-background primaryText--text"
+      :headers="filteredHeaders"
+      :header-props="{ class: 'text-primary-text' }"
+      :items="items"
+      :row-props="rowProps"
+      item-key="id"
+      :sort-by="options.sortBy"
+      :items-per-page="options.itemsPerPage"
+      :items-per-page-options="[ 10, 20, 50, 100 ]"
+      :items-per-page-text="'Строк на странице'"
+      :items-length="total"
+      :loading="loading"
+      @click:row="(e, row) => $emit('rowClick', row.item.id)"
+      @update:options="updateOptions"
+      hover
     >
-        <wfe-tables
-            :initialHeaders="initialHeaders"
-            :records="definitions"
-            :loading="loading"
-            :routeName="`ProcessDefinitionCard`"
-            :prefixLocalStorageName="`runawfe@definition-list`"
-            :dynamic="false"
-            :options="options"
-            @get-data-event="onGetData"
-            :footerProps= "{
-                disablePagination: false,
-                disableItemsPerPage: false,
-                itemsPerPageAllText: 'Все',
-                itemsPerPageText: 'Строк на странице',
-                itemsPerPageOptions: [10, 20, 100, 500]
-            }"
-        />
-    </v-container>
+      <template v-slot:top>
+        <table-toolbar>
+          <template v-slot:filterControl>
+            <filter-control-btn @toggleFilter="showFilters = !showFilters" />
+          </template>
+          <template v-slot:columnsControl>
+            <table-columns-control :headers="headers" />
+          </template>
+        </table-toolbar>
+      </template>
+      <template v-slot:[`item.start`]="{ item }">
+        <v-icon
+          color="accent"
+          size="large"
+          class="mr-2"
+          :disabled="!item.canBeStarted"
+          @click.stop="() =>$router.push(`/process/definition/${item.id}/card/`)"
+        >
+          mdi-play-circle
+        </v-icon>
+      </template>
+      <template v-slot:[`item.createDate`]="{ item }">
+        {{ formatDate(new Date(item.createDate)) }}
+      </template>
+      <template v-slot:no-data>Данные отсутствуют</template>
+      <template v-slot:[`body.prepend`]>
+        <tr v-show="showFilters">
+          <filter-cell v-for="header in filteredHeaders" :header="header" :key="header.value" />
+        </tr>
+      </template>
+    </v-data-table-server>
+  </wfe-table>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { sync } from 'vuex-pathify';
-import { Sorting } from '../ts/Options';
-import Constants from '../ts/Constants';
+import { processDefinitionHeaders } from '../static/process-definition-headers'
+import { WfeProcessDefinition } from '../ts/WfeProcessDefinition'
+import { processDefinitionService } from '../services/process-definition-service'
+import { createWfeTableOptions } from '../logic/wfe-table-component-options-factory'
 
-export default Vue.extend({
-    name: "ProcessDefinitionList",
-
-    data() {
-        return {
-            total: 0,
-            definitions: [],
-            loading: true,
-            initialHeaders: [
-                {
-                    text: 'Запустить',
-                    value: 'start',
-                    align: 'center',
-                    visible: true,
-                    sortable: false,
-                    width: '1px',
-                    bcolor: Constants.WHITE_COLOR,
-                    filterable: false,
-                },
-                {
-                    text: 'Имя',
-                    align: 'start',
-                    value: 'name',
-                    visible: true,
-                    width: '20em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'String',
-                    filterable: true,
-                },
-                {
-                    text: 'Описание',
-                    value:'description',
-                    visible: false,
-                    width: '20em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'String',
-                    filterable: true,
-                },
-                {
-                    text: 'Дата загрузки',
-                    value: 'createDate',
-                    visible: true,
-                    width: '12em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'DateTime',
-                    filterable: true,
-                },
-                {
-                    text: 'Автор загрузки',
-                    value: 'createActor',
-                    visible: true,
-                    sortable: false,
-                    width: '12em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'Actor',
-                    filterable: true,
-                },
-                {
-                    text: 'Дата обновления',
-                    value: 'updateDate',
-                    visible: false,
-                    width: '12em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'DateTime',
-                    filterable: true,
-                },
-                {
-                    text: 'Автор обновления',
-                    value: 'updateActor',
-                    visible: false,
-                    sortable: false,
-                    width: '12em',
-                    bcolor: Constants.WHITE_COLOR,
-                    format: 'Actor',
-                    filterable: true,
-                }
-            ]
-        }
-    },
-    computed: {
-        items: sync('app/items'),
-        options(): any {
-            return this.items.find(h => h.to === Constants.DEFINITIONS_PATH).options;
-        }
-    },
-    watch: {
-    },
-    methods: {
-        getFilters (filter) {
-            let result = Object.assign({}, filter);
-            for (let prop in filter) {
-                if (filter.hasOwnProperty(prop)) {
-                    if (filter[prop] !== null && filter[prop] !== '') {
-                        let header = this.initialHeaders.find(h => h.value === prop);
-                        if(!header || (header.format !== 'DateTime' && header.format !== 'Long' && !header.selectOptions)) {
-                            result[prop] = '*' + filter[prop].trim() + '*/i';
-                        }
-                    }
-                }
-            }
-            return result;
-        },
-        onGetData (options, filter) {
-            this.items.find(h => h.to === Constants.DEFINITIONS_PATH).options = options;
-            localStorage.setItem(Constants.DEFINITIONS_OPTIONS, JSON.stringify(options));
-            this.loading = true;
-            const { page, itemsPerPage, sortBy, sortDesc } = options;
-            const query = {
-                filters: this.getFilters(filter),
-                pageNumber: page,
-                pageSize: itemsPerPage,
-                sortings: Sorting.convert(sortBy, sortDesc),
-            };
-            this.$apiClient().then((client: any) => {
-                client['definition-controller'].getProcessDefinitionsUsingPOST(null, { requestBody: query }).then((data: any) => {
-                    const body = data.body;
-                    if (body) {
-                        this.definitions = body.data;
-                        this.total = body.total;
-                    }
-                    this.loading = false;
-                }).catch((error: any) => {
-                    this.loading = false;
-                    this.definitions = [];
-                    this.total = 0;
-                });
-            });
-        },
-    },
-});
+export default createWfeTableOptions<WfeProcessDefinition>({
+  name: 'ProcessDefinitionList',
+  headers: [...processDefinitionHeaders],
+  visibleColumns: ['start', 'name', 'createDate', 'createActor'],
+}, processDefinitionService.getDefinitions)
 </script>

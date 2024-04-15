@@ -1,19 +1,16 @@
-# Сборка приложения.
+### Запус с сервером
 
-runawfe-server/wfe-app> mvn clean package -P spa
-Подложить runawfe.ear в wildly и запустить:
-* http://localhost:8080/wfe/
-* http://localhost:8080/spa/
+- Из каталога `wfe-app` запустить сборку, указав профиль spa: `mvn clean install -P spa`
+- Задеплоить и запустить, новый интерфейс доступен по адресу http://localhost:8080/spa/
 
-# Запуск приложения в браузере в режиме отладки.
+### Запуск в лайв режиме
 
-runawfe-server/wfe-app> mvn clean package
-Подложить runawfe.ear в wildly и запустить:
-* http://localhost:8080/wfe/
+Требуется node версии не ниже 18, для управления и установкb версий nodejs удобно использовать
+nvm - https://github.com/nvm-sh/nvm
 
-runawfe-server/wfe-spa> npm install (nvm use lts/dubnium, если проблема с версиями)
-runawfe-server/wfe-spa> npm run debug
+- Собрать и запустить сервер
+- Установить зависимости - в каталоге `wfe-spa` выполнить `npm i` (требуется при первом запуске)
+- Затем выполнить `npm run dev` и перейти на http://127.0.0.1:3000/
 
-# Альтернативный запуск приложения в режиме production с помощью встроенного http-server из NodeJS.
-# URL: http://localhost:8080 (порт может отличаться в зависимость от конфигурации)
->>>npm start
+Если прежде на компьюетере запускалось приложение версии Vue2, перед установкой зависимостей
+необходимо удалить директории `node_modules` и `dist`

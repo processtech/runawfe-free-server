@@ -41,7 +41,7 @@
                                             color="white"
                                             line-width="2"
                                             padding="30"
-                                            
+
                                         ></v-sparkline>
                                     </v-sheet>
 
@@ -62,8 +62,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import SwaggerClient from 'swagger-client';
-import { get, sync } from 'vuex-pathify';
 
 export default Vue.extend({
     name: "Desktop",
@@ -176,10 +174,10 @@ export default Vue.extend({
       }
     },
     watch: {
-        
+
     },
     methods: {
-        
+
     },
 });
 </script>

@@ -177,10 +177,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import Vue, { defineComponent } from 'vue';
 import { WfeExecutor } from '../ts/WfeExecutor';
 
-export default Vue.extend({
+export default defineComponent({
     props: {
         parameter: {
             type: Object,

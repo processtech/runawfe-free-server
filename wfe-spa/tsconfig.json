@@ -1,39 +1,14 @@
 {
-    "compilerOptions": {
-      "outDir": "dist",
-      "baseUrl": ".",
-      "paths": {
-        "@/*": [ 
-          "src/*"
-        ],
-      },
-      "typeRoots": [
-        "src/@types/",
-        "node_modules/@types/",
-        "node_modules/vuetify/types",
-        "node_modules/vuex-pathify/types",
-      ],
-      "moduleResolution": "node",
-      "sourceMap": true,
-      "noImplicitAny": true,
-      "lib": [
-        "ES5", 
-        "ES2015", 
-        "DOM", 
-        "ScriptHost",
-      ], // Набор библиотечных файлов полифилов, которые будут включены в итоговый выходной файл.
-      "module": "ES2015", // Определяет тип импорта кода в итоговом файле.
-      "target": "ES5", // Тип кода создаваемого итогового файла.
-      "strict": true,
-      "allowJs": true,
-      "allowSyntheticDefaultImports": true,
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
     },
-    "include": [
-      "src/*.ts",
-      "src/**/*.ts",
-      "src/**/*.vue",
-    ],
-    "exclude": [
-      "node_modules",
-    ]
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node"]
+  }
 }
