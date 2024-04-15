@@ -33,6 +33,7 @@
 	<component name="MultipleSelectFromUserTypeList" class="ru.runa.wf.web.ftl.component.MultipleSelectFromUserTypeList" />
 	<component name="SingleSelectFromUserTypeList" class="ru.runa.wf.web.ftl.component.SingleSelectFromUserTypeList" />
     <component name="EditUserTypeList" class="ru.runa.wf.web.ftl.component.EditUserTypeList" />
+	<component name="EditAndDisplayUserTypeList" class="ru.runa.wf.web.ftl.component.EditAndDisplayUserTypeList" />
     <component name="SelectFromInternalStorage" class="ru.runa.wf.web.ftl.component.SelectFromInternalStorage" />
 	<component name="EdsInteraction" class="ru.runa.wf.web.ftl.component.EdsInteraction" />
 </configuration>
