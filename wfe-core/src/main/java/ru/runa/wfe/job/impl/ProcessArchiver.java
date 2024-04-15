@@ -261,8 +261,8 @@ public class ProcessArchiver {
 
                     // No FKs, but has process_id field.
                     stmt.executeUpdate("insert into archived_agglog_task "
-                            + "      (id, initial_actor_name, complete_actor_name, end_reason, swimlane_name, token_id, task_name, task_id, create_date, end_date, deadline_date, node_id, task_index, process_id) "
-                            + "select id, initial_actor_name, complete_actor_name, end_reason, swimlane_name, token_id, task_name, task_id, create_date, end_date, deadline_date, node_id, task_index, process_id "
+                            + "      (id, initial_actor_name, complete_actor_name, end_reason, swimlane_name, token_id, task_name, task_id, create_date, end_date, deadline_date, node_id, task_index, process_id, transition_name) "
+                            + "select id, initial_actor_name, complete_actor_name, end_reason, swimlane_name, token_id, task_name, task_id, create_date, end_date, deadline_date, node_id, task_index, process_id, transition_name "
                             + "from bpm_agglog_task " + "where process_id in " + pidsCsv);
 
                     // References archived_agglog_task.
