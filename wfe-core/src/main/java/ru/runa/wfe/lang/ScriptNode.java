@@ -57,4 +57,8 @@ public class ScriptNode extends Node implements BoundaryEventContainer {
         return MoreObjects.toStringHelper(this).add("id", getNodeId()).toString();
     }
 
+    public Delegation getDelegation() {
+        return delegation;
+    }
+
 }

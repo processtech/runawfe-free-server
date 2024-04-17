@@ -124,6 +124,20 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_JOB_UNITS = new StrutsMessage("label.job.units");
     public static final StrutsMessage TITLE_MANAGE_JOB = new StrutsMessage("title.job");
     public static final StrutsMessage BUTTON_SAVE_JOB = new StrutsMessage("button.job.save");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_SHOW_LOGS = new StrutsMessage("label.process_graph.show_logs");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_SHOW_ELEMENT_DETAILS = new StrutsMessage(
+            "label.process_graph.show_element_definition_details");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_NAME = new StrutsMessage("label.process_graph.tooltip.name");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_SWIMLANE = new StrutsMessage("label.process_graph.tooltip.swimlane");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_HANDLER = new StrutsMessage("label.process_graph.tooltip.handler");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_CONFIGURATION = new StrutsMessage("label.process_graph.tooltip.configuration");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_DURATION = new StrutsMessage("label.process_graph.tooltip.duration");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_VARIABLE_MAPPING = new StrutsMessage(
+            "label.process_graph.tooltip.variable_mapping");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_ROUTING_DATA = new StrutsMessage("label.process_graph.tooltip.routing_data");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_CONTENT_DATA = new StrutsMessage("label.process_graph.tooltip.content_data");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_SUBPROCESS = new StrutsMessage("label.process_graph.tooltip.subprocess");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_COMPOSITION = new StrutsMessage("label.process_graph.tooltip.composition");
 
     public static final StrutsMessage LABEL_SEND_PROCESS_SIGNAL = new StrutsMessage("label.send_process_signal");
     public static final StrutsMessage ROUTING_PARAMETER_NAME = new StrutsMessage("label.routing_parameter_name");
