@@ -231,4 +231,9 @@ public class WebResources {
     public static int getChatMaxMessageSize() {
         return RESOURCES.getIntegerProperty("chat.max.message.size.bytes", DEFAULT_CHAT_MAX_MESSAGE_SIZE);
     }
+
+    public static int getProcessDefinitionDiffContextLinesCount() {
+        return RESOURCES.getIntegerProperty("process.definition.diff.context.lines.count", 3);
+    }
+
 }

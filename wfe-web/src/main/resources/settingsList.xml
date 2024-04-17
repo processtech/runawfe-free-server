@@ -232,7 +232,9 @@
 		<property title="process.started"/>
 		<property title="chat.enabled">
 			<value>true</value>
-			<value>false</value></property>
+			<value>false</value>
+		</property>
+		<property title="process.definition.diff.context.lines.count" pattern="\d*"/>
 	</properties_file>
 
 	<properties_file title="office.properties">
