@@ -757,7 +757,7 @@
 		<action path="/manage_processes" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/wf/manage_processes.jsp" />
 
-		<action path="/manage_process" type="ru.runa.wf.web.action.ShowProcessAction"
+		<action path="/manage_process" type="ru.runa.wf.web.action.ShowProcessAction" scope="request"
 			parameter="/WEB-INF/wf/manage_process.jsp" />
 
 		<action path="/submit_start_process" type="org.apache.struts.actions.ForwardAction"

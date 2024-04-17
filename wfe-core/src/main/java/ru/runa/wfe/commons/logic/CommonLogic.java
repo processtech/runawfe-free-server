@@ -23,6 +23,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.runa.wfe.bot.dao.BotDao;
+import ru.runa.wfe.bot.dao.BotTaskDao;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.dao.LocalizationDao;
@@ -35,8 +37,8 @@ import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.security.SecurityCheckProperties;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
@@ -61,6 +63,10 @@ public class CommonLogic {
     protected SettingDao settingDao;
     @Autowired
     private DataFileCreator dataFileCreator;
+    @Autowired
+    protected BotDao botDao;
+    @Autowired
+    protected BotTaskDao botTaskDao;
 
     // For the sake of mering DAO and logic layers:
     @Autowired
