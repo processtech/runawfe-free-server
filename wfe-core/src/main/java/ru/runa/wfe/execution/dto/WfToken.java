@@ -10,12 +10,14 @@ import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.dto.WfNode;
+import ru.runa.wfe.security.IdBasedSecuredObject;
+import ru.runa.wfe.security.SecuredObjectType;
 
 /**
  * @since 4.3.0
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public class WfToken implements Serializable {
+public class WfToken extends IdBasedSecuredObject implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long parentId;
     private Long id;
@@ -50,6 +52,7 @@ public class WfToken implements Serializable {
         return parentId;
     }
 
+    @Override
     public Long getId() {
         return id;
     }
@@ -107,4 +110,10 @@ public class WfToken implements Serializable {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("id", id).add("name", name).toString();
     }
+
+    @Override
+    public SecuredObjectType getSecuredObjectType() {
+        return SecuredObjectType.TOKENS;
+    }
+
 }

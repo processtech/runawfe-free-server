@@ -71,6 +71,15 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
+    public List<MessageAddedBroadcast> getArchivedMessages(User user, Long processId) {
+        try {
+            return getChatService().getArchivedMessages(user, processId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public Long getNewMessagesCount(User user) {
         try {
             return getChatService().getNewMessagesCount(user);
@@ -107,6 +116,15 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
+    public ChatMessageFileDto getArchiveChatMessageFile(User user, Long fileId) {
+        try {
+            return getChatService().getArchiveChatMessageFile(user, fileId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public void deleteChatMessages(User user, Long processId) {
         try {
             getChatService().deleteChatMessages(user, processId);
@@ -114,5 +132,4 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
             throw handleException(e);
         }
     }
-
 }

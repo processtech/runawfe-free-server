@@ -12,4 +12,8 @@ public interface TaskLog extends ProcessLog {
 
     @Transient
     Integer getTaskIndex();
+
+    @Transient
+    String getSwimlaneName();
+
 }

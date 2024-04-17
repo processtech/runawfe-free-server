@@ -74,6 +74,11 @@ public interface SystemService {
     List<WfTokenError> getTokenErrors(User user, BatchPresentation batchPresentation);
 
     /**
+     * Get token errors without stack trace.
+     */
+    String getTokenErrorStackTrace(User user, Long tokenId);
+
+    /**
      * Get token errors count.
      */
     int getTokenErrorsCount(User user, BatchPresentation batchPresentation);
@@ -82,11 +87,6 @@ public interface SystemService {
      * Get token errors by processId.
      */
     List<WfTokenError> getTokenErrorsByProcessId(User user, Long processId);
-
-    /**
-     * Get token error by tokenId.
-     */
-    WfTokenError getTokenError(User user, Long tokenId);
 
     /**
      * Get system errors.

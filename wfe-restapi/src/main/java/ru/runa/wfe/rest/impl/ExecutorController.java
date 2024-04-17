@@ -82,7 +82,7 @@ public class ExecutorController {
     }
 
     @DeleteMapping
-    public void removeExecutors(@AuthenticationPrincipal AuthUser authUser, @RequestBody List<Long> ids) {
+    public void removeExecutors(@AuthenticationPrincipal AuthUser authUser, @RequestParam List<Long> ids) {
         executorLogic.remove(authUser.getUser(), ids);
     }
 
@@ -116,6 +116,12 @@ public class ExecutorController {
     public WfePagedList<WfeExecutor> getExecutors(@AuthenticationPrincipal AuthUser authUser, @RequestBody WfePagedListFilter filter) {
         BatchPresentation batchPresentation = filter.toBatchPresentation(ClassPresentationType.EXECUTOR);
         List<? extends Executor> executors = executorLogic.getExecutors(authUser.getUser(), batchPresentation);
+        return new WfePagedList<>(executors.size(), Mappers.getMapper(WfeExecutorMapper.class).map(executors));
+    }
+
+    @GetMapping("/list/{type}")
+    public WfePagedList<WfeExecutor> getExecutorsByType(@AuthenticationPrincipal AuthUser authUser, @PathVariable WfeExecutor.Type type) {
+        List<? extends Executor> executors = executorLogic.getExecutors(authUser.getUser(), type.toBatchPresentation());
         return new WfePagedList<>(executors.size(), Mappers.getMapper(WfeExecutorMapper.class).map(executors));
     }
 

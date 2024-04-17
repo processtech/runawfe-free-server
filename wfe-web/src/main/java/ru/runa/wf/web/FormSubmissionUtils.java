@@ -14,6 +14,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.apache.struts.action.ActionForm;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.RequestWebHelper;
+import ru.runa.wf.web.quick.QuickFormBuilder;
 import ru.runa.wf.web.servlet.UploadedFile;
 import ru.runa.wfe.commons.ftl.FormComponentExtractionModel;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionHandler;
@@ -24,6 +25,7 @@ import ru.runa.wfe.service.client.DelegateExecutorLoader;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 
@@ -35,7 +37,7 @@ public class FormSubmissionUtils {
     private static final String USER_DEFINED_VARIABLES = "UserInputVariables";
     private static final String USER_INPUT_ERRORS = "UserInputErrors";
     private static final String USER_INPUT_FILES = "UserInputFiles";
-    private static final String FILES_MAP_QUALIFIER = ":";
+    public static final String FILES_MAP_QUALIFIER = ":";
 
     public static void saveUserInputErrors(HttpServletRequest request, Map<String, String> errors) {
         request.setAttribute(USER_INPUT_ERRORS, errors);
@@ -99,16 +101,13 @@ public class FormSubmissionUtils {
         return variables;
     }
 
-    public static Object extractVariable(HttpServletRequest request, ActionForm actionForm, VariableDefinition variableDefinition) {
-        Map<String, String> formatErrorsForFields = Maps.newHashMap();
-        Map<String, Object> inputs = Maps.newHashMap(actionForm.getMultipartRequestHandler().getAllElements());
-        inputs.putAll(getUserInputFiles(request, request.getParameter("id")));
-        Object variableValue = extractVariable(request, inputs, variableDefinition, formatErrorsForFields);
-        if (formatErrorsForFields.size() > 0) {
-            throw new VariablesFormatException(formatErrorsForFields.keySet());
-        }
-        if (!Objects.equal(IGNORED_VALUE, variableValue)) {
-            return variableValue;
+    public static Object extractVariable(HttpServletRequest request, ActionForm actionForm, WfVariable variable) throws Exception {
+        Map<String, String> errors = Maps.newHashMap();
+        Map<String, Object> userInput = Maps.newHashMap(actionForm.getMultipartRequestHandler().getAllElements());
+        userInput.putAll(getUserInputFiles(request, request.getParameter("id")));
+        Object variableValue = extractVariable(request, userInput, variable.getDefinition(), errors);
+        if (errors.size() > 0) {
+            throw new VariablesFormatException(errors.keySet());
         }
         return variableValue;
     }
@@ -119,8 +118,15 @@ public class FormSubmissionUtils {
             User user = Commons.getUser(request.getSession());
             FormComponentExtractionModel model = new FormComponentExtractionModel(variableProvider, user, new RequestWebHelper(request));
             if (interaction.getFormData() != null) {
-                String template = new String(interaction.getFormData(), Charsets.UTF_8);
-                FreemarkerProcessor.process(template, model);
+                String ftlFormData;
+                if ("quick".equals(interaction.getType())) {
+                    QuickFormBuilder quickFormBuilder = new QuickFormBuilder();
+                    quickFormBuilder.setInteraction(interaction);
+                    ftlFormData = quickFormBuilder.toFtlFormData(variableProvider);
+                } else {
+                    ftlFormData = new String(interaction.getFormData(), Charsets.UTF_8);
+                }
+                FreemarkerProcessor.process(ftlFormData, model);
             }
             HashMap<String, Object> variables = Maps.newHashMap();
             for (VariableDefinition variableDefinition : interaction.getVariables().values()) {
@@ -160,7 +166,7 @@ public class FormSubmissionUtils {
         return result;
     }
 
-    private static Map<String, UploadedFile> getUserInputFiles(HttpServletRequest request) {
+    public static Map<String, UploadedFile> getUserInputFiles(HttpServletRequest request) {
         Map<String, UploadedFile> map = (Map<String, UploadedFile>) request.getSession().getAttribute(USER_INPUT_FILES);
         if (map == null) {
             map = Maps.newHashMap();

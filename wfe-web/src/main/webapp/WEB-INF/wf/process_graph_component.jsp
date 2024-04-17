@@ -19,7 +19,8 @@
 		childProcessId = Long.parseLong(childProcessIdString);
 	}
 	String subprocessId = request.getParameter("subprocessId");
+	String graphMode = request.getParameter("graphMode");
 %>
 
-<wf:processGraphForm identifiableId='<%= id %>' taskId='<%= taskId %>' childProcessId='<%= childProcessId %>' subprocessId='<%= subprocessId %>'>
+<wf:processGraphForm identifiableId='<%= id %>' taskId='<%= taskId %>' childProcessId='<%= childProcessId %>' subprocessId='<%= subprocessId %>' graphMode='<%= graphMode %>'>
 </wf:processGraphForm>

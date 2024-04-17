@@ -1,9 +1,6 @@
 package ru.runa.wf.delegate;
 
 import com.google.common.collect.Lists;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.List;
 import lombok.val;
 import org.apache.cactus.ServletTestCase;
@@ -57,7 +54,7 @@ public class GetTaskListTest extends ServletTestCase {
         val parBytes = WfServiceTestHelper.readBytesFromFile(WfServiceTestHelper.ORGANIZATION_FUNCTION_PAR_FILE_NAME);
         val def = h.getDefinitionService().deployProcessDefinition(h.getAuthorizedUser(), parBytes, Lists.newArrayList("testProcess"), null);
 
-        h.setPermissionsToAuthorizedActorOnDefinition(Lists.newArrayList(Permission.DELETE, Permission.START_PROCESS), def);
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.DELETE, Permission.START_PROCESS), def.getName());
     }
 
     @Override

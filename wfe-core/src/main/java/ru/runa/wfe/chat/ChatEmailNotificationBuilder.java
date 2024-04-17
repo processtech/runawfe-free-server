@@ -24,10 +24,10 @@ public class ChatEmailNotificationBuilder {
 
     private int newMessagesCount;
     private Actor actor;
-    private Map<Process<CurrentToken>, List<ChatMessage>> messages = new HashMap<>();
+    private Map<Process<CurrentToken>, List<CurrentChatMessage>> messages = new HashMap<>();
     private Map<Process<CurrentToken>, String> processesNames = new HashMap<>();
     private Map<Process<CurrentToken>, Boolean> permissions = new HashMap<>();
-    private Map<ChatMessage, List<ChatMessageFile>> files = new HashMap<>();
+    private Map<CurrentChatMessage, List<CurrentChatMessageFile>> files = new HashMap<>();
 
     public ChatEmailNotificationBuilder baseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
@@ -44,7 +44,7 @@ public class ChatEmailNotificationBuilder {
         return this;
     }
 
-    public ChatEmailNotificationBuilder messages(Map<Process<CurrentToken>, List<ChatMessage>> messages) {
+    public ChatEmailNotificationBuilder messages(Map<Process<CurrentToken>, List<CurrentChatMessage>> messages) {
         this.messages = messages;
         return this;
     }
@@ -59,7 +59,7 @@ public class ChatEmailNotificationBuilder {
         return this;
     }
 
-    public ChatEmailNotificationBuilder files(Map<ChatMessage, List<ChatMessageFile>> files) {
+    public ChatEmailNotificationBuilder files(Map<CurrentChatMessage, List<CurrentChatMessageFile>> files) {
         this.files = files;
         return this;
     }
@@ -119,9 +119,9 @@ public class ChatEmailNotificationBuilder {
 
     private String createMessageRows(Process<CurrentToken> process) {
         StringBuilder result = new StringBuilder();
-        Map<ChatMessage, List<ChatMessageFile>> messagesByProcess = getMessagesByProcess(process);
+        Map<CurrentChatMessage, List<CurrentChatMessageFile>> messagesByProcess = getMessagesByProcess(process);
         int messageCount = 0;
-        for (Map.Entry<ChatMessage, List<ChatMessageFile>> entry : messagesByProcess.entrySet()) {
+        for (Map.Entry<CurrentChatMessage, List<CurrentChatMessageFile>> entry : messagesByProcess.entrySet()) {
             result.append("<tr><td style='padding: 0 10px;'>");
             result.append(createMessageTable(entry.getKey(), entry.getValue()));
             result.append("</td></tr>");
@@ -135,15 +135,15 @@ public class ChatEmailNotificationBuilder {
         return result.toString();
     }
 
-    private Map<ChatMessage, List<ChatMessageFile>> getMessagesByProcess(Process<CurrentToken> process) {
-        Map<ChatMessage, List<ChatMessageFile>> result = new LinkedHashMap<>();
-        for (ChatMessage message : messages.get(process)) {
+    private Map<CurrentChatMessage, List<CurrentChatMessageFile>> getMessagesByProcess(Process<CurrentToken> process) {
+        Map<CurrentChatMessage, List<CurrentChatMessageFile>> result = new LinkedHashMap<>();
+        for (CurrentChatMessage message : messages.get(process)) {
             result.put(message, files.get(message));
         }
         return result;
     }
 
-    private String createMessageTable(ChatMessage message, List<ChatMessageFile> files) {
+    private String createMessageTable(CurrentChatMessage message, List<CurrentChatMessageFile> files) {
         return "<table style='padding: 10px; width: 100%; padding: 0 10px; border-radius: 0 10px 10px 10px; " +
                 "background-color: rgb(0%, 0%, 0%, 0.04);'>\n" +
                 "   <tbody>" +
@@ -172,7 +172,7 @@ public class ChatEmailNotificationBuilder {
         return actor.getName();
     }
 
-    private String createFileFieldRow(List<ChatMessageFile> files) {
+    private String createFileFieldRow(List<CurrentChatMessageFile> files) {
         if (files.isEmpty()) {
             return "";
         }

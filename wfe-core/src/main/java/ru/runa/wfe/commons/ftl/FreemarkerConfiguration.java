@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.apachecommons.CommonsLog;
@@ -18,6 +19,16 @@ public class FreemarkerConfiguration {
     private static final String TAG_ELEMENT = "component";
     private static final String NAME_ATTR = "name";
     private static final String CLASS_ATTR = "class";
+    /**
+     * Только для Quick форм. Номер параметра в компоненте, соответствующего главной переменной. В этом параметре содержится название главной
+     * переменной.
+     */
+    private static final String MAIN_VARIABLE_INDEX_ATTR = "mainVariableIndex";
+    /**
+     * Только для Quick форм. Отображает названия компонентов на соответствующие этим компонентам значения индекса главной переменной
+     * (mainVariableIndex).
+     */
+    private static final Map<String, Integer> tagMainVariableIndexes = new HashMap<>();
     private static final Map<String, Class<? extends FormComponent>> definitions = Maps.newHashMap();
 
     static {
@@ -31,6 +42,10 @@ public class FreemarkerConfiguration {
                     List<Element> tagElements = root.elements(TAG_ELEMENT);
                     for (Element tagElement : tagElements) {
                         String name = tagElement.attributeValue(NAME_ATTR);
+                        String mainVariableIndex = tagElement.attributeValue(MAIN_VARIABLE_INDEX_ATTR);
+                        if (mainVariableIndex != null) {
+                            tagMainVariableIndexes.put(name, Integer.parseInt(mainVariableIndex));
+                        }
                         try {
                             String className = tagElement.attributeValue(CLASS_ATTR);
                             @SuppressWarnings("unchecked")
@@ -67,5 +82,9 @@ public class FreemarkerConfiguration {
             return ClassLoaderUtil.instantiate(componentClass);
         }
         return null;
+    }
+
+    public static int getTagMainVariableIndex(String tagName) {
+        return tagMainVariableIndexes.getOrDefault(tagName, 0);
     }
 }

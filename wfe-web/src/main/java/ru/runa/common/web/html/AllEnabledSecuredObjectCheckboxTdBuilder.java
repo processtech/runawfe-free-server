@@ -15,7 +15,7 @@ public class AllEnabledSecuredObjectCheckboxTdBuilder extends CheckboxTdBuilder 
     @Override
     protected String getIdValue(Object object) {
         SecuredObject securedObject = (SecuredObject) object;
-        return String.valueOf(securedObject.getId());
+        return String.valueOf(securedObject.getSecuredObjectId());
     }
 
     @Override

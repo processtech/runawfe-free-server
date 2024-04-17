@@ -1,6 +1,7 @@
 package ru.runa.wf.web;
 
 import ru.runa.common.web.StrutsMessage;
+import ru.runa.wfe.execution.process.check.FrozenProcessesSearchParameter;
 
 public final class MessagesProcesses {
 
@@ -13,9 +14,12 @@ public final class MessagesProcesses {
     public static final StrutsMessage TITLE_REDEPLOY_DEFINITION = new StrutsMessage("title.redeploy_definition");
     public static final StrutsMessage BUTTON_DEPLOY_DEFINITION = new StrutsMessage("button.deploy_definition");
     public static final StrutsMessage BUTTON_UNDEPLOY_DEFINITION = new StrutsMessage("button.undeploy_definition");
-    public static final StrutsMessage TITLE_DEFINITIONS_HISTORY = new StrutsMessage("title.definitions_history");
+    public static final StrutsMessage TITLE_PROCESS_DEFINITION_HISTORY = new StrutsMessage("title.process_definition_history");
+    public static final StrutsMessage LABEL_HISTORY = new StrutsMessage("label.history");
+    public static final StrutsMessage TITLE_PROCESS_DEFINITION_FILE_ANNOTATION = new StrutsMessage("title.process_definition_file_annotation");
     public static final StrutsMessage TITLE_PROCESSES = new StrutsMessage("title.processes");
     public static final StrutsMessage TITLE_INSANCE_SWINLANE_LIST = new StrutsMessage("title.process_swimlane_list");
+    public static final StrutsMessage TITLE_INSANCE_JOB_LIST = new StrutsMessage("title.process_job_list");
     public static final StrutsMessage TITLE_INSANCE_TASKS_LIST = new StrutsMessage("title.process_tasks_list");
     public static final StrutsMessage TITLE_INSANCE_VARIABLE_LIST = new StrutsMessage("title.process_variable_list");
     public static final StrutsMessage TITLE_PROCESS = new StrutsMessage("title.process");
@@ -31,6 +35,10 @@ public final class MessagesProcesses {
     public static final StrutsMessage TITLE_VIEW_ONLY = new StrutsMessage("title.task_view_only");
     public static final StrutsMessage TITLE_PROCESS_GRAPH = new StrutsMessage("title.process_graph");
     public static final StrutsMessage TITLE_HISTORY = new StrutsMessage("title.history");
+    public static final StrutsMessage TITLE_TOKENS = new StrutsMessage("title.tokens");
+    public static final StrutsMessage TITLE_MOVE_TOKEN = new StrutsMessage("title.move_token");
+    public static final StrutsMessage BUTTON_MOVE = new StrutsMessage("button.move");
+    public static final StrutsMessage TITLE_CREATE_TOKEN = new StrutsMessage("title.create_token");
     public static final StrutsMessage LABEL_REDEPLOY_PROCESS_DEFINIION = new StrutsMessage("label.redeploy_process_definition");
     public static final StrutsMessage LABEL_SHOW_DEPLOY_DEFINITION_CONTROLS = new StrutsMessage("label.show_deploy_definition_controls");
     public static final StrutsMessage LABEL_HIDE_DEPLOY_DEFINITION_CONTROLS = new StrutsMessage("label.hide_deploy_definition_controls");
@@ -76,12 +84,15 @@ public final class MessagesProcesses {
     public static final StrutsMessage LINK_UPDATE_VARIABLE = new StrutsMessage("link.update_variable");
     public static final StrutsMessage BUTTON_UPDATE_VARIABLE = new StrutsMessage("button.update_variable");
     public static final StrutsMessage VARIABLE_WAS_UPDATED = new StrutsMessage("variable.was_updated");
+    public static final StrutsMessage VARIABLE_HAS_NOT_CHANGES = new StrutsMessage("variable.has_not_changed");
     public static final StrutsMessage BUTTON_FORM = new StrutsMessage("button.form");
     public static final StrutsMessage BUTTON_COMPLETE = new StrutsMessage("button.complete");
     public static final StrutsMessage BUTTON_ACCEPT_TASK = new StrutsMessage("button.accept_task");
     public static final StrutsMessage BUTTON_DELEGATE_TASK = new StrutsMessage("button.delegate_task");
     public static final StrutsMessage BUTTON_DELEGATE_TASKS = new StrutsMessage("button.delegate_tasks");
     public static final StrutsMessage BUTTON_EXPORT_EXCEL = new StrutsMessage("button.export_excel");
+    public static final StrutsMessage BUTTON_ANNOTATE_CHANGES = new StrutsMessage("button.annotate_changes");
+    public static final StrutsMessage LABEL_ANNOTATION_CHANGES = new StrutsMessage("label.annotation_changes");
     public static final StrutsMessage TITLE_UPDATE_VARIABLE = new StrutsMessage("title.update_variable");
     public static final StrutsMessage LABEL_VARIABLE_NAME = new StrutsMessage("label.variable_name");
     public static final StrutsMessage LABEL_VARIABLE_VALUE = new StrutsMessage("label.variable_value");
@@ -111,6 +122,28 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_EXPAND = new StrutsMessage("label.expand");
     public static final StrutsMessage LABEL_COLLAPSE_ALL = new StrutsMessage("label.collapse.all");
     public static final StrutsMessage LABEL_EXPAND_ALL = new StrutsMessage("label.expand.all");
+    public static final StrutsMessage LABEL_JOB_NAME = new StrutsMessage("label.job.name");
+    public static final StrutsMessage LABEL_JOB_NODE_ID = new StrutsMessage("label.job.node_id");
+    public static final StrutsMessage LABEL_JOB_CREATION_DATE = new StrutsMessage("label.job.creation_date");
+    public static final StrutsMessage LABEL_JOB_DUE_DATE_EXPRESSION = new StrutsMessage("label.job.due_date_expression");
+    public static final StrutsMessage LABEL_JOB_DUE_DATE = new StrutsMessage("label.job.due_date");
+    public static final StrutsMessage LABEL_JOB_UNITS = new StrutsMessage("label.job.units");
+    public static final StrutsMessage TITLE_MANAGE_JOB = new StrutsMessage("title.job");
+    public static final StrutsMessage BUTTON_SAVE_JOB = new StrutsMessage("button.job.save");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_SHOW_LOGS = new StrutsMessage("label.process_graph.show_logs");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_SHOW_ELEMENT_DETAILS = new StrutsMessage(
+            "label.process_graph.show_element_definition_details");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_NAME = new StrutsMessage("label.process_graph.tooltip.name");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_SWIMLANE = new StrutsMessage("label.process_graph.tooltip.swimlane");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_HANDLER = new StrutsMessage("label.process_graph.tooltip.handler");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_CONFIGURATION = new StrutsMessage("label.process_graph.tooltip.configuration");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_DURATION = new StrutsMessage("label.process_graph.tooltip.duration");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_VARIABLE_MAPPING = new StrutsMessage(
+            "label.process_graph.tooltip.variable_mapping");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_ROUTING_DATA = new StrutsMessage("label.process_graph.tooltip.routing_data");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_CONTENT_DATA = new StrutsMessage("label.process_graph.tooltip.content_data");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_SUBPROCESS = new StrutsMessage("label.process_graph.tooltip.subprocess");
+    public static final StrutsMessage LABEL_PROCESS_GRAPH_TOOLTIP_COMPOSITION = new StrutsMessage("label.process_graph.tooltip.composition");
 
     public static final StrutsMessage LABEL_SEND_PROCESS_SIGNAL = new StrutsMessage("label.send_process_signal");
     public static final StrutsMessage ROUTING_PARAMETER_NAME = new StrutsMessage("label.routing_parameter_name");
@@ -127,4 +160,34 @@ public final class MessagesProcesses {
     public static final StrutsMessage PROCESS_LOG_CLEAN_FAIL = new StrutsMessage("process_log_clean.fail");
 
     public static final StrutsMessage TITLE_CHAT_ROOMS = new StrutsMessage("title.chat_rooms");
+    public static final StrutsMessage BUTTON_SEARCH_FROZEN_PROCESSES = new StrutsMessage("button.search_frozen_processes");
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_IN_PARALLEL_GATEWAYS = new StrutsMessage(
+            FrozenProcessesSearchParameter.SEARCH_FROZEN_IN_PARALLEL_GATEWAYS.getNameLabel());
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_HINT_TO_USE_FILTERS = new StrutsMessage("label.process_frozen.hint_to_use_filters");
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_IN_UNEXPECTED_NODES = new StrutsMessage(
+            FrozenProcessesSearchParameter.SEARCH_FROZEN_IN_UNEXPECTED_NODES.getNameLabel());
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_IN_TASK_NODES = new StrutsMessage(
+            FrozenProcessesSearchParameter.SEARCH_FROZEN_IN_TASK_NODES.getNameLabel());
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_IN_TIMER_NODES = new StrutsMessage(
+            FrozenProcessesSearchParameter.SEARCH_FROZEN_IN_TIMER_NODES.getNameLabel());
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_BY_SUBPROCESSES = new StrutsMessage(
+            FrozenProcessesSearchParameter.SEARCH_FROZEN_BY_SUBPROCESSES.getNameLabel());
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_BY_AWAITING_A_SIGNAL = new StrutsMessage(
+            FrozenProcessesSearchParameter.SEARCH_FROZEN_BY_SIGNAL_TIME_EXCEEDED.getNameLabel());
+    public static final StrutsMessage LABEL_PROCESS_FROZEN_BY_SIGNAL = new StrutsMessage(
+            FrozenProcessesSearchParameter.SEARCH_FROZEN_BY_SIGNAL.getNameLabel());
+    public static final StrutsMessage LABEL_DAY_DURATION = new StrutsMessage("label.frozen_processes.day_duration");
+    public static final StrutsMessage LABEL_NO_FROZEN_PROCESSES = new StrutsMessage("label.no_frozen_processes");
+    public static final StrutsMessage FROZEN_PROCESS_NAME = new StrutsMessage("frozen_processes.process_name");
+    public static final StrutsMessage FROZEN_PROCESS_ID = new StrutsMessage("frozen_processes.process_id");
+    public static final StrutsMessage FROZEN_PROCESS_VERSION = new StrutsMessage("frozen_processes.process_version");
+    public static final StrutsMessage FROZEN_PROCESS_NODE_ID = new StrutsMessage("frozen_processes.node_id");
+    public static final StrutsMessage FROZEN_PROCESS_NODE_NAME = new StrutsMessage("frozen_processes.node_name");
+    public static final StrutsMessage FROZEN_PROCESS_NODE_TYPE = new StrutsMessage("frozen_processes.node_type");
+    public static final StrutsMessage FROZEN_PROCESS_NODE_ENTER_DATE = new StrutsMessage("frozen_processes.node_enter_date");
+    public static final StrutsMessage FROZEN_PROCESS_CAUSE = new StrutsMessage("frozen_processes.cause");
+    public static final StrutsMessage LABEL_LOADED = new StrutsMessage("label.loaded");
+    public static final StrutsMessage LABEL_FILE = new StrutsMessage("label.file");
+    public static final StrutsMessage LABEL_VERSIONS_LIMIT = new StrutsMessage("label.versions_limit");
+
 }

@@ -1,7 +1,5 @@
 package ru.runa.report.web.tag;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -15,6 +13,7 @@ import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.report.impl.ReportParameterModel;
 import ru.runa.wfe.report.impl.ReportParameterModel.ListValuesData;
 import ru.runa.wfe.service.delegate.Delegates;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
@@ -135,15 +134,11 @@ public class ReportParameterCreateModelOperation implements ReportParameterTypeV
     private ReportParameterModel createExecutorsSelectionModel(WfReportParameter data, BatchPresentation batch, boolean nameSelection) {
         ReportParameterModel model = new ReportParameterModel(data);
         List<? extends Executor> executors = Delegates.getExecutorService().getExecutors(user, batch);
-        if (executors == null) {
-            executors = Lists.newArrayList();
-        }
         List<ReportParameterModel.ListValuesData> listData = new ArrayList<ReportParameterModel.ListValuesData>();
         listData.add(new ListValuesData("All", null));
         for (Executor executor : executors) {
             Object selectionValue = nameSelection ? executor.getName() : executor.getId().toString();
-            String displayName = Strings.isNullOrEmpty(executor.getFullName()) ? executor.getName()
-                    : executor.getName() + " (" + executor.getFullName() + ")";
+            String displayName = executor instanceof Actor ? executor.getName() + " (" + executor.getFullName() + ")" : executor.getName();
             listData.add(new ListValuesData(displayName, selectionValue));
         }
         model.setListValues(listData);

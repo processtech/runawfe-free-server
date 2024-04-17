@@ -1,13 +1,14 @@
 package ru.runa.wfe.chat.mapper;
 
-import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import java.util.Date;
+import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.CurrentChatMessage;
+import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 
 public class AddMessageRequestMapper extends AbstractModelMapper<ChatMessage, AddMessageRequest> {
     @Override
-    public ChatMessage toEntity(AddMessageRequest dto) {
-        ChatMessage message = new ChatMessage();
+    public CurrentChatMessage toEntity(AddMessageRequest dto) {
+        CurrentChatMessage message = new CurrentChatMessage();
         message.setText(dto.getText());
         message.setCreateDate(new Date());
         return message;

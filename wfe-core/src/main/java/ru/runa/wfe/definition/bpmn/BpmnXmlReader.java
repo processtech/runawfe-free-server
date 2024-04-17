@@ -85,6 +85,7 @@ public class BpmnXmlReader {
     private static final String BUSINESS_RULE = "businessRuleTask";
     private static final String DEFAULT_TASK_DEADLINE = "defaultTaskDeadline";
     private static final String TASK_DEADLINE = "taskDeadline";
+    private static final String TASK_BUTTON_LABEL_BY_SINGLE_TRANSITION_NAME = "taskButtonLabelBySingleTransitionName";
     private static final String USER_TASK = "userTask";
     private static final String MULTI_TASK = "multiTask";
     private static final String START_EVENT = "startEvent";
@@ -194,6 +195,9 @@ public class BpmnXmlReader {
             }
             if (processProperties.containsKey(TRIGGERED_BY_EVENT)) {
                 parsedProcessDefinition.setTriggeredByEvent("true".equals(processProperties.get(TRIGGERED_BY_EVENT)));
+            }
+            if (processProperties.containsKey(TASK_BUTTON_LABEL_BY_SINGLE_TRANSITION_NAME)) {
+                parsedProcessDefinition.setTaskButtonLabelBySingleTransitionName(Boolean.valueOf(processProperties.get(TASK_BUTTON_LABEL_BY_SINGLE_TRANSITION_NAME)));
             }
             // 1: read most content
             readSwimlanes(parsedProcessDefinition, process);
@@ -516,6 +520,9 @@ public class BpmnXmlReader {
             taskDefinition.setDeadlineDuration(properties.get(TASK_DEADLINE));
         } else {
             taskDefinition.setDeadlineDuration(defaultTaskDeadline);
+        }
+        if (properties.containsKey(TASK_BUTTON_LABEL_BY_SINGLE_TRANSITION_NAME)) {
+            taskDefinition.setTaskButtonLabelBySingleTransitionName(Boolean.valueOf(properties.get(TASK_BUTTON_LABEL_BY_SINGLE_TRANSITION_NAME)));
         }
         if (node instanceof MultiTaskNode) {
             MultiTaskNode taskNode = (MultiTaskNode) node;

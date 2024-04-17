@@ -1,13 +1,12 @@
 package ru.runa.wfe.lang.bpmn2;
 
+import com.google.common.base.Preconditions;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.DecisionHandler;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
-
-import com.google.common.base.Preconditions;
 
 public class ExclusiveGateway extends Node {
     private static final long serialVersionUID = 1L;
@@ -47,6 +46,10 @@ public class ExclusiveGateway extends Node {
             log.debug("gateway " + name + " is treated as merge gateway");
             leave(executionContext, getDefaultLeavingTransitionNotNull());
         }
+    }
+
+    public Delegation getDelegation() {
+        return delegation;
     }
 
 }

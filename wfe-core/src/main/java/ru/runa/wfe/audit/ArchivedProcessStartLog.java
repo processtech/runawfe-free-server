@@ -17,14 +17,8 @@ public class ArchivedProcessStartLog extends ArchivedProcessLog implements Proce
 
     @Override
     @Transient
-    public String getActorName() {
-        return getAttributeNotNull(ATTR_ACTOR_NAME);
-    }
-
-    @Override
-    @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { new ExecutorNameValue(getActorName()) };
+        return new Object[] { new ExecutorNameValue(getExecutorNameNotNull()) };
     }
 
     @Override

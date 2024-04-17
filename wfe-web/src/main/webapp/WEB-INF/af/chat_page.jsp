@@ -3,6 +3,8 @@
 <%@ page import="ru.runa.wfe.commons.web.PortletUrlType" %>
 <%@ page import="ru.runa.wf.web.MessagesProcesses" %>
 <%@ page import="com.google.common.collect.ImmutableMap" %>
+<%@ page import="ru.runa.wfe.service.delegate.Delegates" %>
+<%@ page import="ru.runa.wfe.user.User" %>
 <%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles" %>
@@ -35,7 +37,11 @@
     </tiles:put>
 
     <tiles:put name="body" type="string">
-        <% Long processId = getId(request); %>
+        <%
+	        Long processId = getId(request);
+        	User user = Commons.getUser(pageContext.getSession());
+	        boolean isArchived = Delegates.getExecutionService().getProcess(user, processId).isArchived();
+        %>
         <table class="box">
             <tr>
                 <th class="box">
@@ -61,9 +67,11 @@
                 </td>
             </tr>
         </table>
+        <% if (!isArchived) { %>
         <div class="form-toggler">
             <span onclick="toogleVariablesEditor()">Update process variable values</span>
         </div>
+        <%} %>
         <wf:chatForm processId='<%= processId %>' title='<%= "" %>'/>
     </tiles:put>
 

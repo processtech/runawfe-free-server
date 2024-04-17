@@ -1,5 +1,6 @@
 package ru.runa.wfe.lang.bpmn2;
 
+import lombok.Getter;
 import lombok.Setter;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.handler.var.BusinessRuleHandler;
@@ -10,6 +11,7 @@ import ru.runa.wfe.lang.Transition;
 
 public class BusinessRule extends Node {
     private static final long serialVersionUID = 1235L;
+    @Getter
     @Setter
     private Delegation delegation;
 

@@ -25,7 +25,7 @@ public final class SecuredSingleton extends SecuredObject {
     }
 
     @Override
-    public final Long getId() {
+    public Long getSecuredObjectId() {
         return 0L;
     }
 
@@ -40,7 +40,9 @@ public final class SecuredSingleton extends SecuredObject {
     public static final SecuredSingleton BOTSTATIONS = new SecuredSingleton(SecuredObjectType.BOTSTATIONS);
     public static final SecuredSingleton DATASOURCES = new SecuredSingleton(SecuredObjectType.DATASOURCES);
     public static final SecuredSingleton ERRORS = new SecuredSingleton(SecuredObjectType.ERRORS);
+    public static final SecuredSingleton FROZEN_PROCESSES = new SecuredSingleton(SecuredObjectType.FROZEN_PROCESSES);
     public static final SecuredSingleton RELATIONS = new SecuredSingleton(SecuredObjectType.RELATIONS);
     public static final SecuredSingleton REPORTS = new SecuredSingleton(SecuredObjectType.REPORTS);
     public static final SecuredSingleton SYSTEM = new SecuredSingleton(SecuredObjectType.SYSTEM);
+    public static final SecuredSingleton TOKENS = new SecuredSingleton(SecuredObjectType.TOKENS);
 }

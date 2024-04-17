@@ -40,6 +40,11 @@ public abstract class BaseProcessLog implements ProcessLog {
     private String serializedAttributes;
     protected byte[] bytes;
     protected String nodeId;
+    private String nodeName;
+    private String executorName;
+    private String swimlaneName;
+    private String variableName;
+    private Long taskId;
 
     @Override
     @Column(name = "TOKEN_ID")
@@ -74,6 +79,71 @@ public abstract class BaseProcessLog implements ProcessLog {
 
     protected void setContent(String serializedAttributes) {
         this.serializedAttributes = serializedAttributes;
+    }
+    
+    @Column(name = "NODE_NAME")
+    public String getNodeName() {
+        return nodeName;
+    }
+
+    public void setNodeName(String nodeName) {
+        this.nodeName = nodeName;
+    }
+
+    @Transient
+    protected String getNodeNameNotNull() {
+        return nodeName != null ? nodeName : getAttributeNotNull(ATTR_NODE_NAME);
+    }
+
+    @Column(name = "EXECUTOR_NAME")
+    public String getExecutorName() {
+        return executorName;
+    }
+
+    public void setExecutorName(String executorName) {
+        this.executorName = executorName;
+    }
+
+    @Transient
+    protected String getExecutorNameNotNull() {
+        return executorName != null ? executorName : getAttributeNotNull(ATTR_ACTOR_NAME);
+    }
+
+    @Transient
+    protected String getExecutorNameOrNull() {
+        return executorName != null ? executorName : getAttribute(ATTR_ACTOR_NAME);
+    }
+
+    @Column(name = "SWIMLANE_NAME")
+    public String getSwimlaneName() {
+        return swimlaneName;
+    }
+
+    public void setSwimlaneName(String swimlaneName) {
+        this.swimlaneName = swimlaneName;
+    }
+
+    @Column(name = "VARIABLE_NAME")
+    public String getVariableName() {
+        return variableName;
+    }
+
+    public void setVariableName(String variableName) {
+        this.variableName = variableName;
+    }
+
+    @Transient
+    protected String getVariableNameNotNull() {
+        return variableName != null ? variableName : getAttributeNotNull(ATTR_VARIABLE_NAME);
+    }
+
+    @Column(name = "TASK_ID")
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
     }
 
     public void serializeAttributes() {

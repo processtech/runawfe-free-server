@@ -76,4 +76,12 @@ public class BotDao extends GenericDao<Bot> {
         val b = QBot.bot;
         return queryFactory.selectFrom(b).where(b.botStation.id.eq(botStationId)).fetch();
     }
+
+    /**
+     * Load all {@linkplain Bot}s names.
+     */
+    public List<String> getAllNames() {
+        QBot b = QBot.bot;
+        return queryFactory.select(b.username).from(b).fetch();
+    }
 }

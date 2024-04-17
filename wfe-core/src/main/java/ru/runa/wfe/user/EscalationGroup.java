@@ -68,6 +68,7 @@ public class EscalationGroup extends TemporaryGroup {
         escalationGroup.setLevel(escalationLevel);
         escalationGroup.setProcessId(process.getId());
         escalationGroup.setNodeId(task.getNodeId());
+        escalationGroup.updateFullName();
         return escalationGroup;
     }
 

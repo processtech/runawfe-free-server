@@ -100,7 +100,7 @@ public class AuthorizationServiceDelegateIsAllowedReturnsArrayTest extends Servl
                     Lists.newArrayList(SecuredSingleton.SYSTEM, h.getBaseGroupActor(), h.getBaseGroup()));
             fail("No Exception: Secured objects should be of the same secured object type (SYSTEM)");
         } catch (InternalApplicationException e) {
-            assertEquals("Found objects of different types: (SYSTEM," + SecuredSingleton.SYSTEM.getId() + ") and (EXECUTOR,"
+            assertEquals("Found objects of different types: (SYSTEM," + SecuredSingleton.SYSTEM.getSecuredObjectId() + ") and (EXECUTOR,"
                     + h.getBaseGroupActor().getId() + ")", e.getMessage());
         }
     }

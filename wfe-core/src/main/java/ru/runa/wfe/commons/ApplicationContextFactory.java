@@ -31,10 +31,10 @@ import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
-import ru.runa.wfe.execution.dao.SignalDao;
 import ru.runa.wfe.execution.dao.EventSubprocessTriggerDao;
+import ru.runa.wfe.execution.dao.SignalDao;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
-import ru.runa.wfe.job.dao.JobDao;
+import ru.runa.wfe.job.dao.TimerJobDao;
 import ru.runa.wfe.relation.dao.RelationDao;
 import ru.runa.wfe.relation.dao.RelationPairDao;
 import ru.runa.wfe.report.dao.ReportDefinitionDao;
@@ -67,8 +67,8 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(InitializerLogic.class);
     }
 
-    public static JobDao getJobDao() {
-        return getContext().getBean(JobDao.class);
+    public static TimerJobDao getJobDao() {
+        return getContext().getBean(TimerJobDao.class);
     }
 
     public static TaskDao getTaskDao() {

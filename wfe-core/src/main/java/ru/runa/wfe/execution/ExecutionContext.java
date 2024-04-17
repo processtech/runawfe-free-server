@@ -28,8 +28,8 @@ import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
-import ru.runa.wfe.job.TimerJob;
-import ru.runa.wfe.job.dao.JobDao;
+import ru.runa.wfe.job.DueDateInProcessTimerJob;
+import ru.runa.wfe.job.dao.TimerJobDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
@@ -77,7 +77,7 @@ public class ExecutionContext {
     @Autowired
     private TaskDao taskDao;
     @Autowired
-    private JobDao jobDao;
+    private TimerJobDao timerJobDao;
     @Autowired
     private CurrentSwimlaneDao currentSwimlaneDao;
     @Autowired
@@ -410,8 +410,8 @@ public class ExecutionContext {
             task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), task.getDeadlineDateExpression()));
             log.info(String.format("Changed deadlineDate for %s from %s to %s", task, oldDate, task.getDeadlineDate()));
         }
-        List<TimerJob> jobs = jobDao.findByProcessAndDeadlineExpressionContaining(getCurrentProcess(), variableName);
-        for (TimerJob job : jobs) {
+        List<DueDateInProcessTimerJob> jobs = timerJobDao.findByProcessAndDeadlineExpressionContaining(getCurrentProcess(), variableName);
+        for (val job : jobs) {
             Date oldDate = job.getDueDate();
             job.setDueDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), job.getDueDateExpression()));
             log.info(String.format("Changed dueDate for %s from %s to %s", job, oldDate, job.getDueDate()));

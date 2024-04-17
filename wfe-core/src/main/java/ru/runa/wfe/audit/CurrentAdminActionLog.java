@@ -16,9 +16,10 @@ public class CurrentAdminActionLog extends CurrentProcessLog implements AdminAct
     public CurrentAdminActionLog() {
     }
 
-    public CurrentAdminActionLog(Actor actor, String actionName, Object... data) {
-        addAttribute(ATTR_ACTOR_NAME, actor.getName());
+    public CurrentAdminActionLog(Actor actor, String actionName, String nodeId, Object... data) {
+        setExecutorName(actor.getName());
         addAttribute(ATTR_ACTION, actionName);
+        setNodeId(nodeId);
         if (data != null) {
             for (int i = 0; i < data.length; i++) {
                 addAttribute(ATTR_PARAM + i, String.valueOf(data[i]));
@@ -42,7 +43,7 @@ public class CurrentAdminActionLog extends CurrentProcessLog implements AdminAct
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        List<Object> result = Lists.newArrayList(new ExecutorNameValue(getAttributeNotNull(ATTR_ACTOR_NAME)));
+        List<Object> result = Lists.newArrayList(new ExecutorNameValue(getExecutorNameNotNull()));
         for (int i = 0; i < 10; i++) {
             String param = getAttribute(ATTR_PARAM + i);
             if (param != null) {

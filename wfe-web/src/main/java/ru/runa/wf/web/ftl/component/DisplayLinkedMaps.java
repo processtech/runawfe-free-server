@@ -1,16 +1,15 @@
 package ru.runa.wf.web.ftl.component;
 
-import java.util.List;
-import java.util.Map;
-
-import ru.runa.wfe.commons.ftl.FormComponent;
-import ru.runa.wfe.var.dto.WfVariable;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
+import ru.runa.wfe.commons.ftl.FormComponent;
+import ru.runa.wfe.var.dto.WfVariable;
 
+@Deprecated
 public class DisplayLinkedMaps extends FormComponent {
     private static final long serialVersionUID = 1L;
 

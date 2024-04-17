@@ -1,13 +1,13 @@
 package ru.runa.wf.web.ftl.component;
 
 import java.util.List;
-
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.extension.handler.var.ListIndexUtils;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 
+@Deprecated
 public class DisplayListElement extends FormComponent {
     private static final long serialVersionUID = 1L;
 

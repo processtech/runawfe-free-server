@@ -7,7 +7,6 @@ import org.apache.cactus.ServletTestCase;
 import org.hibernate.TransientObjectException;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.filter.AnywhereStringFilterCriteria;
 import ru.runa.wfe.presentation.filter.StringFilterCriteria;
@@ -97,7 +96,7 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
                 WfServiceTestHelper.createVariablesMap("var2", "var2Value"));
         FieldDescriptor[] fields = batchPresentation.getAllFields();
         for (int i = 0; i < fields.length; ++i) {
-            if (fields[i].displayName.startsWith(ClassPresentation.editable_prefix)) {
+            if (fields[i].variablePrototype) {
                 batchPresentation.addDynamicField(i, "var1");
             }
         }
@@ -121,7 +120,7 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
                 WfServiceTestHelper.createVariablesMap("var2", "var2Value"));
         FieldDescriptor[] fields = batchPresentation.getAllFields();
         for (int i = 0; i < fields.length; ++i) {
-            if (fields[i].displayName.startsWith(ClassPresentation.editable_prefix)) {
+            if (fields[i].variablePrototype) {
                 batchPresentation.addDynamicField(i, "var1");
             }
         }

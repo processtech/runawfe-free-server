@@ -30,7 +30,7 @@ public class DisplayMultipleSelectInList extends FormComponent {
             } else if (option instanceof Executor) {
                 Executor executor = (Executor) option;
                 optionValue = "ID" + executor.getId();
-                optionLabel = executor.getLabel();
+                optionLabel = executor.getFullName();
             } else {
                 optionValue = String.valueOf(option);
                 optionLabel = optionValue;

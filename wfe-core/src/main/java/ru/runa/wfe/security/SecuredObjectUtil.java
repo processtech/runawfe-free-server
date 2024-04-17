@@ -1,6 +1,5 @@
 package ru.runa.wfe.security;
 
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -31,10 +30,10 @@ public class SecuredObjectUtil {
         val type = objects.get(0).getSecuredObjectType();
         for (val o : objects) {
             if (o.getSecuredObjectType() != type) {
-                throw new InternalApplicationException("Found objects of different types: (" + type + "," + objects.get(0).getId() + ") and ("
-                        + o.getSecuredObjectType() + "," + o.getId() + ")");
+                throw new InternalApplicationException("Found objects of different types: (" + type + "," + objects.get(0).getSecuredObjectId()
+                        + ") and (" + o.getSecuredObjectType() + "," + o.getSecuredObjectId() + ")");
             }
-            ids.add(o.getId());
+            ids.add(o.getSecuredObjectId());
         }
         return new Pair<>(type, ids);
     }

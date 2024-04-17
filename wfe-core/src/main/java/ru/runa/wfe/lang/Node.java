@@ -20,6 +20,7 @@ import ru.runa.wfe.execution.logic.TokenNodeNameExtractor;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
+import ru.runa.wfe.task.TaskCompletionInfo;
 
 public abstract class Node extends GraphElement {
     private static final long serialVersionUID = 1L;
@@ -161,7 +162,7 @@ public abstract class Node extends GraphElement {
      */
     public void enter(ExecutionContext executionContext) {
         if (executionContext.getCurrentToken().hasEnded()) {
-            throw new IllegalStateException("Execution in ended token does not allowed");
+            throw new IllegalStateException("Execution in ended " + executionContext.getCurrentToken() + " does not allowed");
         }
         log.debug("Entering " + this + " with " + executionContext);
         CurrentToken token = executionContext.getCurrentToken();
@@ -182,7 +183,7 @@ public abstract class Node extends GraphElement {
                 eventToken.setNodeName(tokenNodeNameExtractor.extract(boundaryNode));
                 eventToken.setNodeEnterDate(new Date());
                 ApplicationContextFactory.getCurrentTokenDao().create(eventToken);
-                ExecutionContext eventExecutionContext = new ExecutionContext(getParsedProcessDefinition(), eventToken);
+                ExecutionContext eventExecutionContext = new ExecutionContext(executionContext.getParsedProcessDefinition(), eventToken);
                 eventExecutionContext.addLog(new CurrentNodeEnterLog((Node) boundaryEvent));
                 ((Node) boundaryEvent).handle(eventExecutionContext);
             }
@@ -229,6 +230,11 @@ public abstract class Node extends GraphElement {
      * override this method to customize the node behavior.
      */
     public void cancel(ExecutionContext executionContext) {
+        List<CurrentToken> activeTokens = executionContext.getCurrentToken().getActiveChildren(true);
+        for (CurrentToken token : activeTokens) {
+            ApplicationContextFactory.getExecutionLogic().endToken(token, executionContext.getParsedProcessDefinition(), null,
+                    TaskCompletionInfo.createForHandler("cancel"), false);
+        }
     }
 
     /**
@@ -309,9 +315,9 @@ public abstract class Node extends GraphElement {
         if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessStartNode)) {
             ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
             List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
-            List<CurrentToken> activeTokens = executionContext.getCurrentToken().getActiveChildren();
+            List<CurrentToken> activeTokens = executionContext.getCurrentToken().getActiveChildren(false);
             log.debug("Ending boundary event tokens " + activeTokens + " for " + boundaryEvents);
-            for (CurrentToken token : executionContext.getCurrentToken().getActiveChildren()) {
+            for (CurrentToken token : executionContext.getCurrentToken().getActiveChildren(false)) {
                 Node node = token.getNodeNotNull(executionContext.getParsedProcessDefinition());
                 if (boundaryEvents.contains(node)) {
                     executionLogic.endToken(token, executionContext.getParsedProcessDefinition(), null, null, false);

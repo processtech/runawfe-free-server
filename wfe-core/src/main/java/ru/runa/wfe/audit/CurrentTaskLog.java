@@ -20,7 +20,9 @@ public abstract class CurrentTaskLog extends CurrentProcessLog implements TaskLo
 
     public CurrentTaskLog(Task task) {
         setNodeId(task.getNodeId());
-        addAttribute(ATTR_TASK_ID, task.getId().toString());
+        setTaskId(task.getId());
+        setSwimlaneName(task.getSwimlaneName());
+        setNodeName(task.getName());
         addAttribute(ATTR_TASK_NAME, task.getName());
         if (task.getIndex() != null) {
             addAttribute(ATTR_INDEX, task.getIndex().toString());
@@ -30,7 +32,11 @@ public abstract class CurrentTaskLog extends CurrentProcessLog implements TaskLo
 
     public CurrentTaskLog(CurrentProcess process, StartNode startNode) {
         setNodeId(startNode.getNodeId());
-        addAttribute(ATTR_TASK_ID, String.valueOf(-1 * process.getId()));
+        setTaskId(-1 * process.getId());
+        if (!startNode.getTasks().isEmpty()) {
+            setSwimlaneName(startNode.getFirstTaskNotNull().getSwimlane().getName());
+        }
+        setNodeName(startNode.getName());
         addAttribute(ATTR_TASK_NAME, startNode.getName());
         setSeverity(Severity.INFO);
     }
@@ -39,16 +45,6 @@ public abstract class CurrentTaskLog extends CurrentProcessLog implements TaskLo
     @Transient
     public Type getType() {
         return Type.TASK;
-    }
-
-    @Override
-    @Transient
-    public Long getTaskId() {
-        String taskIdString = getAttribute(ATTR_TASK_ID);
-        if (taskIdString != null) {
-            return Long.parseLong(taskIdString);
-        }
-        return null;
     }
 
     @Override
@@ -66,4 +62,11 @@ public abstract class CurrentTaskLog extends CurrentProcessLog implements TaskLo
         }
         return null;
     }
+
+    @Override
+    @Transient
+    public String getSwimlaneName() {
+        return super.getSwimlaneName() != null ? super.getSwimlaneName() : getAttribute(ATTR_SWIMLANE_NAME);
+    }
+
 }

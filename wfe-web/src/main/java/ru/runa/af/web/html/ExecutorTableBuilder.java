@@ -1,10 +1,11 @@
 package ru.runa.af.web.html;
 
 import javax.servlet.jsp.PageContext;
-
+import org.apache.ecs.html.Div;
 import org.apache.ecs.html.Input;
+import org.apache.ecs.html.Label;
+import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.form.UpdateExecutorDetailsForm;
 import ru.runa.common.web.HTMLUtils;
@@ -55,7 +56,7 @@ public class ExecutorTableBuilder {
         Input nameInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.NEW_NAME_INPUT_NAME, executor.getName(), enabled, true);
         table.addElement(HTMLUtils.createRow(MessagesExecutor.EXECUTOR_NAME.message(pageContext), nameInput));
         if (actor != null) {
-            Input fullNameInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.FULL_NAME_INPUT_NAME, actor.getFullName(), enabled, false);
+            Input fullNameInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.FULL_NAME_INPUT_NAME, actor.getFullName(), enabled, true);
             table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_FULL_NAME.message(pageContext), fullNameInput));
         }
         Input descriptionInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.DESCRIPTION_INPUT_NAME, executor.getDescription(), enabled, false);
@@ -66,7 +67,8 @@ public class ExecutorTableBuilder {
             table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_CODE.message(pageContext), codeInput));
 
             Input emailInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.EMAIL_INPUT_NAME, actor.getEmail(), enabled, false);
-            table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_EMAIL.message(pageContext), emailInput));
+            TD emailTableData = this.createEmailTableData(emailInput, actor);
+            table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_EMAIL.message(pageContext), emailTableData));
 
             Input phoneInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.PHONE_INPUT_NAME, actor.getPhone(), enabled, false);
             table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_PHONE.message(pageContext), phoneInput));
@@ -82,5 +84,27 @@ public class ExecutorTableBuilder {
             table.addElement(HTMLUtils.createRow(MessagesExecutor.GROUP_AD.message(pageContext), adLdapGroupInput));
         }
         return table;
+    }
+
+    private TD createEmailTableData(Input emailInput, Actor actor) {
+        TD result = new TD();
+        Div divForEmail = new Div();
+        result.addElement(divForEmail);
+        divForEmail.addElement(emailInput);
+        Div divForCheckboxes = new Div();
+        result.addElement(divForCheckboxes);
+        Label sendMessagesAboutTasksLabel = new Label();
+        divForCheckboxes.addElement(sendMessagesAboutTasksLabel);
+        Input taskEmailNotificationsEnabledCheckbox = HTMLUtils.createCheckboxInput(UpdateExecutorDetailsForm.TASK_EMAIL_NOTIFICATIONS_ENABLED_INPUT_NAME,
+                actor.getTaskEmailNotificationsEnabled(), enabled, false);
+        sendMessagesAboutTasksLabel.addElement(taskEmailNotificationsEnabledCheckbox);
+        sendMessagesAboutTasksLabel.addElement(MessagesExecutor.ACTOR_SEND_NOTIFICATIONS_ABOUT_TASKS.message(pageContext));
+        Label sendMessagesAboutChatMessagesLabel = new Label();
+        divForCheckboxes.addElement(sendMessagesAboutChatMessagesLabel);
+        Input chatEmailNotificationsEnabledCheckbox = HTMLUtils.createCheckboxInput(
+                UpdateExecutorDetailsForm.CHAT_EMAIL_NOTIFICATIONS_ENABLED_INPUT_NAME, actor.getChatEmailNotificationsEnabled(), enabled, false);
+        sendMessagesAboutChatMessagesLabel.addElement(chatEmailNotificationsEnabledCheckbox);
+        sendMessagesAboutChatMessagesLabel.addElement(MessagesExecutor.ACTOR_SEND_NOTIFICATIONS_ABOUT_CHAT_MESSAGES.message(pageContext));
+        return result;
     }
 }

@@ -1,7 +1,6 @@
 package ru.runa.wfe.user;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Strings;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -24,13 +23,14 @@ public class Actor extends Executor {
     private String phone;
     private String title;
     private String department;
+    private boolean taskEmailNotificationsEnabled = true;
+    private boolean chatEmailNotificationsEnabled = true;
 
     protected Actor() {
     }
 
     public Actor(String name, String description, String fullName, Long code, String email, String phone, String title, String department) {
-        super(name, description);
-        setFullName(fullName != null ? fullName : "");
+        super(name, description, fullName);
         setCode(code);
         setEmail(email != null ? email : "");
         setPhone(phone != null ? phone : "");
@@ -47,7 +47,7 @@ public class Actor extends Executor {
     }
 
     public Actor(String name, String description) {
-        this(name, description, null);
+        this(name, description, name);
     }
 
     @Transient
@@ -122,12 +122,6 @@ public class Actor extends Executor {
     }
 
     @Transient
-    @Override
-    public String getLabel() {
-        return Strings.isNullOrEmpty(getFullName()) ? super.getLabel() : getFullName();
-    }
-
-    @Transient
     public String getLastName() {
         if (getFullName() != null) {
             String[] strings = getFullName().split(" ", -1);
@@ -158,5 +152,23 @@ public class Actor extends Executor {
             }
         }
         return "";
+    }
+
+    @Column(name = "TASK_EMAIL_NOTIFICATIONS")
+    public boolean getTaskEmailNotificationsEnabled() {
+        return taskEmailNotificationsEnabled;
+    }
+
+    public void setTaskEmailNotificationsEnabled(boolean taskEmailNotificationsEnabled) {
+        this.taskEmailNotificationsEnabled = taskEmailNotificationsEnabled;
+    }
+
+    @Column(name = "CHAT_EMAIL_NOTIFICATIONS")
+    public boolean getChatEmailNotificationsEnabled() {
+        return chatEmailNotificationsEnabled;
+    }
+
+    public void setChatEmailNotificationsEnabled(boolean chatEmailNotificationsEnabled) {
+        this.chatEmailNotificationsEnabled = chatEmailNotificationsEnabled;
     }
 }

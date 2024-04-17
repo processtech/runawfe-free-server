@@ -1,28 +1,48 @@
 package ru.runa.wf.web.html;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+import java.util.List;
 import java.util.Map;
-
 import javax.servlet.jsp.PageContext;
-
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.ecs.html.Area;
-
+import org.apache.ecs.html.TD;
+import org.apache.ecs.html.TR;
+import org.apache.ecs.html.Table;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
+import ru.runa.common.web.Resources;
+import ru.runa.common.web.StrutsMessage;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.graph.DrawProperties;
+import ru.runa.wfe.graph.view.ExclusiveGatewayGraphElement;
 import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElement;
+import ru.runa.wfe.graph.view.ScriptNodeGraphElement;
 import ru.runa.wfe.graph.view.SubprocessNodeGraphElement;
 import ru.runa.wfe.graph.view.TaskNodeGraphElement;
-
-import com.google.common.collect.Maps;
+import ru.runa.wfe.graph.view.TimerNodeGraphElement;
+import ru.runa.wfe.var.VariableMapping;
 
 /**
  * Helper class to create links to subprocesses in graph elements.
  */
 public class GraphElementPresentationHelper {
+    private static final String RECT = "RECT";
+
+    private static final String TITLE = "title";
+
+    private static final String BR_TAG = "<br>";
+
+    private static final String NEW_LINE = "\n";
+
+    private static final String NBSP = "&nbsp;";
+
     public static final String MAP_NAME = "processMap";
 
     private static final long DEFAULT_SELECTED_TASK_PROCESS_ID = -1;
@@ -105,7 +125,7 @@ public class GraphElementPresentationHelper {
             }
             builder.append(">&nbsp;").append(i + 1).append("&nbsp;</div>");
             if ((i + 1) % maxItemsPerLine == 0) {
-                builder.append("\n");
+                builder.append(NEW_LINE);
             }
         }
         return builder.append("</div>").toString();
@@ -118,20 +138,21 @@ public class GraphElementPresentationHelper {
      *            Subprocess graph element to create link.
      * @return
      */
-    public Area createSubprocessLink(SubprocessNodeGraphElement element, String action, String jsFunction) {
+    public Area createSubprocessLink(SubprocessNodeGraphElement element, String action, String jsFunction, boolean showElementDefinitionDetails,
+            boolean showLogs) {
         if (!element.isSubprocessAccessible()) {
             return null;
         }
         String url;
         if (element.isEmbedded()) {
-            url = jsFunction + "(" + element.getSubprocessId() + ", '" + element.getEmbeddedSubprocessId() + "', "
-                    + element.getEmbeddedSubprocessGraphWidth() + ", " + element.getEmbeddedSubprocessGraphHeight() + ");";
+            url = String.format("%s(%s, '%s', %d, %d, 'view', %b, %b)", jsFunction, element.getSubprocessId(), element.getEmbeddedSubprocessId(),
+                    element.getEmbeddedSubprocessGraphWidth(), element.getEmbeddedSubprocessGraphHeight(), showElementDefinitionDetails, showLogs);
         } else {
             url = getSubprocessUrl(action, element.getSubprocessId());
         }
-        Area area = new Area("RECT", element.getGraphConstraints());
+        Area area = new Area(RECT, element.getGraphConstraints());
         area.setHref(url);
-        area.setTitle(element.getSubprocessName());
+        area.setTitle("");
         map.addElement(area);
         return area;
     }
@@ -160,11 +181,25 @@ public class GraphElementPresentationHelper {
         } else {
             url = getSubprocessUrl(WebResources.ACTION_MAPPING_MANAGE_DEFINITION, element.getSubprocessId());
         }
-        Area area = new Area("RECT", element.getGraphConstraints());
+        Area area = new Area(RECT, element.getGraphConstraints());
         area.setHref(url);
         area.setTitle(element.getName());
         map.addElement(area);
         return area;
+    }
+
+    public Table createCommonTooltip(NodeGraphElement element) {
+        Table table = new Table();
+        table.setClass(Resources.CLASS_LIST_TABLE);
+        TR trId = new TR();
+        trId.addElement(((TD) new TD("ID:").setStyle("width: 50px")).setClass(Resources.CLASS_LIST_TABLE_TD));
+        trId.addElement(new TD(element.getNodeId()).setClass(Resources.CLASS_LIST_TABLE_TD));
+        TR trName = new TR();
+        trName.addElement(new TD(MessagesProcesses.LABEL_PROCESS_GRAPH_TOOLTIP_NAME.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+        trName.addElement(new TD(element.getName()).setClass(Resources.CLASS_LIST_TABLE_TD));
+        table.addElement(trId);
+        table.addElement(trName);
+        return table;
     }
 
     /**
@@ -178,10 +213,10 @@ public class GraphElementPresentationHelper {
         if (!element.isMinimized()) {
             return null;
         }
-        Area area = new Area("RECT", element.getGraphConstraints());
+        Area area = new Area(RECT, element.getGraphConstraints());
         String name = "";
         if (element.getSwimlaneName() != null) {
-            name += "(" + element.getSwimlaneName() + ")\n";
+            name += "(" + element.getSwimlaneName() + ")" + NEW_LINE;
         }
         name += element.getName();
         area.setTitle(name);
@@ -189,12 +224,113 @@ public class GraphElementPresentationHelper {
         return area;
     }
 
+    public void createTaskTooltip(TaskNodeGraphElement element, Table table) {
+        if (element.isMinimized()) {
+            TR tr = new TR();
+            tr.addElement(((TD) new TD(MessagesProcesses.LABEL_PROCESS_GRAPH_TOOLTIP_SWIMLANE.message(pageContext)).setStyle("width: 60px"))
+                    .setClass(Resources.CLASS_LIST_TABLE_TD));
+            tr.addElement(new TD(element.getSwimlaneName()).setClass(Resources.CLASS_LIST_TABLE_TD));
+            table.addElement(tr);
+        }
+        if (!Strings.isNullOrEmpty(element.getBotTaskHandlerClassName())) {
+            TR trBotTaskHandler = new TR();
+            trBotTaskHandler.addElement(new TD(MessagesProcesses.LABEL_PROCESS_GRAPH_TOOLTIP_HANDLER.message(pageContext))
+                    .setClass(Resources.CLASS_LIST_TABLE_TD));
+            trBotTaskHandler.addElement(new TD(element.getBotTaskHandlerClassName()).setClass(Resources.CLASS_LIST_TABLE_TD));
+            table.addElement(trBotTaskHandler);
+        }
+        if (!Strings.isNullOrEmpty(element.getBotTaskHandlerConfiguration())) {
+            TR trBotTaskConfiguration = new TR();
+            trBotTaskConfiguration.addElement(
+                    new TD(MessagesProcesses.LABEL_PROCESS_GRAPH_TOOLTIP_CONFIGURATION.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+            trBotTaskConfiguration.addElement(new TD(
+                    StringEscapeUtils.escapeHtml4(element.getBotTaskHandlerConfiguration()).replace(NEW_LINE, BR_TAG).replace(" ",
+                            NBSP)).setClass(Resources.CLASS_LIST_TABLE_TD));
+            table.addElement(trBotTaskConfiguration);
+        }
+    }
+
+    public void createSubprocessNameTooltip(SubprocessNodeGraphElement element, Table table) {
+        if (Objects.equal(element.getName(), element.getSubprocessName())) {
+            return;
+        }
+        StrutsMessage strutsMessage = element.isEmbedded() ? MessagesProcesses.LABEL_PROCESS_GRAPH_TOOLTIP_COMPOSITION
+                : MessagesProcesses.LABEL_PROCESS_GRAPH_TOOLTIP_SUBPROCESS;
+        TR tr = new TR();
+        tr.addElement(new TD(strutsMessage.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+        tr.addElement(new TD(element.getSubprocessName()).setClass(Resources.CLASS_LIST_TABLE_TD));
+        table.addElement(tr);
+    }
+
+    public void createVariableMappingTooltip(Table table, String title, List<VariableMapping> variableMappings, boolean withUsage) {
+        if (variableMappings.isEmpty()) {
+            return;
+        }
+        TR trHeader = new TR();
+        trHeader.addElement(((TD) new TD(title).addAttribute("colspan", 2)).setClass(Resources.CLASS_LIST_TABLE_TD));
+        table.addElement(trHeader);
+        for (VariableMapping mapping : variableMappings) {
+            TR tr = new TR();
+            tr.addElement(new TD(mapping.getName()).setClass(Resources.CLASS_LIST_TABLE_TD));
+            tr.addElement(new TD(mapping.getMappedName() + (withUsage ? " " + "(" + mapping.getUsage() + ")" : ""))
+                    .setClass(Resources.CLASS_LIST_TABLE_TD));
+            table.addElement(tr);
+        }
+    }
+
+    public void createTimerTooltip(TimerNodeGraphElement element, Table table) {
+        addDelegationTooltip(table, element.getHandlerName(), element.getHandlerConfiguration());
+    }
+
+    public void createScriptTooltip(ScriptNodeGraphElement element, Table table) {
+        addDelegationTooltip(table, element.getHandlerName(), element.getHandlerConfiguration());
+    }
+
+    public void createExclusiveGatewayTooltip(ExclusiveGatewayGraphElement element, Table table) {
+        addDelegationTooltip(table, element.getHandlerName(), element.getHandlerConfiguration());
+    }
+
+    private void addDelegationTooltip(Table table, String handlerName, String handlerConfiguration) {
+        if (handlerName.isEmpty()) {
+            return;
+        }
+        TR trHandlerName = new TR();
+        trHandlerName.addElement(((TD) new TD(MessagesProcesses.LABEL_PROCESS_GRAPH_TOOLTIP_HANDLER.message(pageContext)).setStyle("width: 60px"))
+                .setClass(Resources.CLASS_LIST_TABLE_TD));
+        trHandlerName.addElement(new TD(handlerName).setClass(Resources.CLASS_LIST_TABLE_TD));
+        table.addElement(trHandlerName);
+        TR trHandlerConfiguration = new TR();
+        trHandlerConfiguration.addElement(
+                new TD(MessagesProcesses.LABEL_PROCESS_GRAPH_TOOLTIP_CONFIGURATION.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+        String configuration = StringEscapeUtils.escapeHtml4(handlerConfiguration).replace(NEW_LINE, BR_TAG)
+                .replace("\t", NBSP + NBSP).replace(" ", NBSP);
+        trHandlerConfiguration.addElement(new TD(configuration).setClass(Resources.CLASS_LIST_TABLE_TD));
+        table.addElement(trHandlerConfiguration);
+    }
+
+    public Area createArea(NodeGraphElement element) {
+        Area area = new Area(RECT, element.getGraphConstraints());
+        area.setTitle("");
+        map.addElement(area);
+        return area;
+    }
+
     public Area addTooltip(NodeGraphElement element, Area area, String html) {
         if (area == null) {
-            area = new Area("RECT", element.getGraphConstraints());
+            area = new Area(RECT, element.getGraphConstraints());
+            area.setTitle("");
             map.addElement(area);
         }
-        area.setTitle(html);
+        area.setTitle(area.getAttribute(TITLE) + html);
+        return area;
+    }
+
+    public Area createSelectElementLink(NodeGraphElement element) {
+        Area area = new Area(RECT, element.getGraphConstraints());
+        String url = "javascript:selectProcessNode('" + element.getNodeId() + "', true);";
+        area.setHref(url);
+        area.setTitle(element.getName());
+        map.addElement(area);
         return area;
     }
 

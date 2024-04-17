@@ -21,7 +21,6 @@ public class CurrentSwimlaneAssignLog extends CurrentProcessLog implements Swiml
     }
 
     public CurrentSwimlaneAssignLog(CurrentSwimlane swimlane, Executor newExecutor) {
-        addAttribute(ATTR_MESSAGE, swimlane.getName());
         if (swimlane.getExecutor() != null) {
             addAttribute(ATTR_OLD_VALUE, swimlane.getExecutor().getName());
         }
@@ -29,8 +28,9 @@ public class CurrentSwimlaneAssignLog extends CurrentProcessLog implements Swiml
             addAttribute(ATTR_NEW_VALUE, newExecutor.getName());
         }
         setSeverity(Severity.INFO);
+        setSwimlaneName(swimlane.getName());
     }
-
+    
     @Override
     @Transient
     public Type getType() {
@@ -40,11 +40,17 @@ public class CurrentSwimlaneAssignLog extends CurrentProcessLog implements Swiml
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { getAttributeNotNull(ATTR_MESSAGE), new ExecutorNameValue(getAttribute(ATTR_NEW_VALUE)) };
+        return new Object[] { getSwimlaneNameNotNull(), new ExecutorNameValue(getAttribute(ATTR_NEW_VALUE)) };
     }
 
     @Override
     public void processBy(ProcessLogVisitor visitor) {
         visitor.onSwimlaneAssignLog(this);
     }
+
+    @Transient
+    private String getSwimlaneNameNotNull() {
+        return super.getSwimlaneName() != null ? super.getSwimlaneName() : getAttributeNotNull(ATTR_MESSAGE);
+    }
+
 }

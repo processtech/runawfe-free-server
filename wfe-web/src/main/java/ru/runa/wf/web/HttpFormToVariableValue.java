@@ -1,9 +1,11 @@
 package ru.runa.wf.web;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.user.ExecutorLoader;
@@ -30,10 +32,6 @@ import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Extract variable value for variable definition, passed as operation context.
@@ -107,7 +105,11 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
     @Override
     public Object onFile(FileFormat fileFormat, VariableDefinition variableDefinition) {
         Object value = userInput.get(variableDefinition.getName());
-        return fileFormat.processBy(componentToVariableValue, new HttpComponentToVariableValueContext(variableDefinition.getName(), value));
+        Object result = fileFormat.processBy(componentToVariableValue, new HttpComponentToVariableValueContext(variableDefinition.getName(), value));
+        if (value != null || result != null) {
+            return result;
+        }
+        return FormSubmissionUtils.IGNORED_VALUE;
     }
 
     @Override

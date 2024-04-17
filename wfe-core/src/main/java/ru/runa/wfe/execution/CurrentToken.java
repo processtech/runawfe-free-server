@@ -27,9 +27,9 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
-import ru.runa.wfe.lang.StartNode;
 
 /**
  * represents one path of execution and maintains a pointer to a node in the {@link ru.runa.wfe.definition.ProcessDefinition}.
@@ -73,13 +73,13 @@ public class CurrentToken extends Token implements Serializable {
     /**
      * creates a root token.
      */
-    public CurrentToken(ParsedProcessDefinition parsedProcessDefinition, CurrentProcess process, StartNode startNode) {
+    public CurrentToken(ParsedProcessDefinition parsedProcessDefinition, CurrentProcess process, Node node) {
         setStartDate(new Date());
         setProcess(process);
-        setNodeId(startNode.getNodeId());
-        setNodeType(startNode.getNodeType());
+        setNodeId(node.getNodeId());
+        setNodeType(node.getNodeType());
         setAbleToReactivateParent(true);
-        setName(startNode.getNodeId());
+        setName(node.getNodeId());
         setChildren(new HashSet<>());
         log.info("Created " + this);
     }
@@ -212,11 +212,14 @@ public class CurrentToken extends Token implements Serializable {
     }
 
     @Override
-    public List<CurrentToken> getActiveChildren() {
+    public List<CurrentToken> getActiveChildren(boolean recursive) {
         val result = new ArrayList<CurrentToken>();
         for (val child : getChildren()) {
             if (!child.hasEnded()) {
                 result.add(child);
+            }
+            if (recursive) {
+                result.addAll(child.getActiveChildren(recursive));
             }
         }
         return result;

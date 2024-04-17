@@ -11,17 +11,7 @@ public abstract class ArchivedTaskLog extends ArchivedProcessLog implements Task
     public Type getType() {
         return Type.TASK;
     }
-
-    @Override
-    @Transient
-    public Long getTaskId() {
-        String taskIdString = getAttribute(ATTR_TASK_ID);
-        if (taskIdString != null) {
-            return Long.parseLong(taskIdString);
-        }
-        return null;
-    }
-
+    
     @Override
     @Transient
     public String getTaskName() {
@@ -36,5 +26,11 @@ public abstract class ArchivedTaskLog extends ArchivedProcessLog implements Task
             return Integer.valueOf(taskIndexString);
         }
         return null;
+    }
+
+    @Override
+    @Transient
+    public String getSwimlaneName() {
+        return super.getSwimlaneName() != null ? super.getSwimlaneName() : getAttribute(ATTR_SWIMLANE_NAME);
     }
 }

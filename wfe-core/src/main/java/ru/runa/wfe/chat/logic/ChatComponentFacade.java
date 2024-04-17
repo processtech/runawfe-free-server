@@ -5,8 +5,8 @@ import java.util.Set;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.CurrentChatMessage;
+import ru.runa.wfe.chat.CurrentChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatFileDao;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.chat.dao.ChatMessageRecipientDao;
@@ -29,25 +29,33 @@ public class ChatComponentFacade {
     @Autowired
     private ChatMessageRecipientDao recipientDao;
 
-    public ChatMessage save(ChatMessage message, Set<Actor> recipients, List<ChatMessageFile> files, long processId) {
-        final ChatMessage savedMessage = save(message, recipients, processId);
-        for (ChatMessageFile file : files) {
+    public CurrentChatMessage save(CurrentChatMessage message, Set<Actor> recipients, List<CurrentChatMessageFile> files, long processId) {
+        final CurrentChatMessage savedMessage = save(message, recipients, processId);
+        for (CurrentChatMessageFile file : files) {
             file.setMessage(savedMessage);
         }
         fileDao.save(files);
         return savedMessage;
     }
 
-    public ChatMessage save(ChatMessage message, Set<Actor> recipients, long processId) {
+    public CurrentChatMessage save(CurrentChatMessage message, Set<Actor> recipients, long processId) {
         message.setProcess(currentProcessDao.getNotNull(processId));
         return messageDao.save(message, recipients);
     }
 
     public void deleteByProcessId(long processId) {
-        for (ChatMessage message : messageDao.getByProcessId(processId)) {
+        for (CurrentChatMessage message : messageDao.getByProcessId(processId)) {
             fileDao.deleteByMessage(message);
             recipientDao.deleteByMessageId(message.getId());
             messageDao.delete(message.getId());
         }
+    }
+
+    public void deleteArchivedByProcessId(long processId) {
+        messageDao.getArchivedByProcessId(processId).forEach(m -> {
+            fileDao.deleteArchivedByMessage(m);
+            recipientDao.deleteArchivedByMessageId(m.getId());
+            messageDao.deleteArchived(m.getId());
+        });
     }
 }

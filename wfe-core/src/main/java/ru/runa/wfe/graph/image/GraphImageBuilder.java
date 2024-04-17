@@ -7,6 +7,8 @@ import java.awt.Color;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import ru.runa.wfe.audit.AdminActionLog;
+import ru.runa.wfe.audit.CurrentAdminActionLog;
 import ru.runa.wfe.audit.CurrentNodeEnterLog;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.TaskCreateLog;
@@ -123,11 +125,25 @@ public class GraphImageBuilder {
         // subprocess node that triggered by event has no any transition, so it can be found only in EnterLog
         for (CurrentNodeEnterLog enterLog : logs.getLogs(CurrentNodeEnterLog.class)) {
             AbstractFigure figure = allNodeFigures.get(enterLog.getNodeId());
+            if (figure == null) {
+                // rm3451: it can be due to old records in bpm_log
+                continue;
+            }
             if (figure.getNode() instanceof SubprocessNode && ((SubprocessNode) figure.getNode()).isTriggeredByEvent()) {
                 fillSubprocess(figure, activeNodeIds);
             }
         }
 
+        for (CurrentAdminActionLog adminActionLog : logs.getLogs(CurrentAdminActionLog.class)) {
+            if (adminActionLog.getPatternName().equals("AdminActionLog." + AdminActionLog.ACTION_MOVE_TOKEN) ||
+                    adminActionLog.getPatternName().equals("AdminActionLog." + AdminActionLog.ACTION_CREATE_TOKEN)) {
+                String nodeId = adminActionLog.getNodeId();
+                AbstractFigure nodeFigure = allNodeFigures.get(nodeId);
+                if (nodeFigure != null && nodeFigure.getNode() instanceof SubprocessNode) {
+                    fillSubprocess(nodeFigure, activeNodeIds);
+                }
+            }
+        }
         fillTasks(logs);
         GraphImage graphImage = new GraphImage(parsedProcessDefinition, transitionFigures, nodeFigures);
         return graphImage.getImageBytes();

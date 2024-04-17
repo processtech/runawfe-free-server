@@ -11,9 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatListener;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatRoom;
 import ru.runa.wfe.chat.ChatRoomClassPresentation;
+import ru.runa.wfe.chat.CurrentChatMessage;
+import ru.runa.wfe.chat.CurrentChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatFileDao;
 import ru.runa.wfe.chat.dao.ChatFileIo;
 import ru.runa.wfe.chat.dao.ChatMessageRecipientDao;
@@ -42,7 +43,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.Variable;
 
 @Component
@@ -63,8 +63,6 @@ public class ChatLogic extends WfCommonLogic {
     @Autowired
     private RecipientCalculator recipientCalculator;
     @Autowired
-    private ExecutorLogic executorLogic;
-    @Autowired
     private ChatFileDao fileDao;
     @Autowired
     private ChatMessageRecipientDao recipientDao;
@@ -72,8 +70,8 @@ public class ChatLogic extends WfCommonLogic {
     private List<ChatListener> listeners = new ArrayList<>();
 
     public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(User user, AddMessageRequest request) {
-        final ChatMessage newMessage = messageRequestMapper.toEntity(request);
-        newMessage.setCreateActor(executorLogic.getActor(user, user.getActor().getName()));
+        final CurrentChatMessage newMessage = messageRequestMapper.toEntity(request);
+        newMessage.setCreateActor(executorDao.getActor(user.getActor().getName()));
         final long processId = request.getProcessId();
         final Set<Actor> recipients = recipientCalculator.calculateRecipients(user, request.getIsPrivate(), request.getText(), processId);
 
@@ -96,7 +94,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public WfChatMessageBroadcast<MessageEditedBroadcast> editMessage(User user, EditMessageRequest request) {
-        final ChatMessage message = chatMessageDao.getNotNull(request.getId());
+        final CurrentChatMessage message = chatMessageDao.getNotNull(request.getId());
         message.setText(request.getText());
         if (!message.getCreateActor().equals(user.getActor())) {
             throw new AuthorizationException("Allowed for author only");
@@ -113,10 +111,10 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public WfChatMessageBroadcast<MessageDeletedBroadcast> deleteMessage(User user, DeleteMessageRequest request) {
-        if (!executorLogic.isAdministrator(user)) {
+        if (!executorDao.isAdministrator(user.getActor())) {
             throw new AuthorizationException("Allowed for admin only");
         }
-        final ChatMessage message = chatMessageDao.getNotNull(request.getId());
+        final CurrentChatMessage message = chatMessageDao.getNotNull(request.getId());
         final Set<Actor> recipients = getRecipientsByMessageId(message.getId());
         fileDao.deleteByMessage(message);
         recipientDao.deleteByMessageId(message.getId());
@@ -134,13 +132,17 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public List<MessageAddedBroadcast> getMessages(User user, Long processId) {
-        List<ChatMessage> messages = chatMessageDao.getMessages(user.getActor(), processId);
+        List<CurrentChatMessage> messages = chatMessageDao.getMessages(user.getActor(), processId);
         if (!messages.isEmpty()) {
-            for (List<ChatMessage> messagesPart : Lists.partition(messages, SystemProperties.getDatabaseParametersCount())) {
+            for (List<CurrentChatMessage> messagesPart : Lists.partition(messages, SystemProperties.getDatabaseParametersCount())) {
                 chatMessageDao.readMessages(user.getActor(), messagesPart);
             }
         }
         return messageFileMapper.toDtos(messages);
+    }
+
+    public List<MessageAddedBroadcast> getArchivedMessages(User user, Long procesId) {
+        return messageFileMapper.toDtos(chatMessageDao.getArchivedMessages(user.getActor(), procesId));
     }
 
     public Long getNewMessagesCount(User user) {
@@ -148,7 +150,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public void deleteMessages(User user, Long processId) {
-        if (!executorLogic.isAdministrator(user)) {
+        if (!executorDao.isAdministrator(user.getActor())) {
             throw new AuthorizationException("Allowed for admin only");
         }
         chatComponentFacade.deleteByProcessId(processId);
@@ -169,14 +171,14 @@ public class ChatLogic extends WfCommonLogic {
         return toWfChatRooms(chatRooms, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 
-    private MessageAddedBroadcast saveMessageInternal(Long processId, ChatMessage message, Set<Actor> recipients) {
+    private MessageAddedBroadcast saveMessageInternal(Long processId, CurrentChatMessage message, Set<Actor> recipients) {
         final ChatMessage savedMessage = chatComponentFacade.save(message, recipients, processId);
         return messageAddedBroadcastMapper.toDto(savedMessage);
     }
 
-    private MessageAddedBroadcast saveMessageInternal(Long processId, ChatMessage message, Set<Actor> recipients, List<ChatMessageFileDto> files) {
-        final List<ChatMessageFile> savedFiles = fileIo.save(files);
-        final ChatMessage savedMessage = chatComponentFacade.save(message, recipients, savedFiles, processId);
+    private MessageAddedBroadcast saveMessageInternal(Long processId, CurrentChatMessage message, Set<Actor> recipients, List<ChatMessageFileDto> files) {
+        final List<CurrentChatMessageFile> savedFiles = fileIo.save(files);
+        final CurrentChatMessage savedMessage = chatComponentFacade.save(message, recipients, savedFiles, processId);
         final MessageAddedBroadcast broadcast = messageAddedBroadcastMapper.toDto(savedMessage);
         broadcast.setFiles(fileDetailMapper.toDtos(savedFiles));
         return broadcast;

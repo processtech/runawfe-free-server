@@ -59,12 +59,13 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
     private Boolean nodeAsyncExecution;
     private boolean graphActionsEnabled;
     private final List<ProcessDefinitionChange> changes = new ArrayList<>();
+    private Boolean taskButtonLabelBySingleTransitionName = null;
 
     public class SecuredObject extends ru.runa.wfe.security.SecuredObject {
         private static final long serialVersionUID = 1L;
 
         @Override
-        public Long getId() {
+        public Long getSecuredObjectId() {
             return ParsedProcessDefinition.this.packId;
         }
 
@@ -600,6 +601,14 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
 
     public List<ProcessDefinitionChange> getChanges() {
         return changes;
+    }
+
+    public Boolean isTaskButtonLabelBySingleTransitionName() {
+        return this.taskButtonLabelBySingleTransitionName;
+    }
+
+    public void setTaskButtonLabelBySingleTransitionName(Boolean value) {
+        this.taskButtonLabelBySingleTransitionName = value;
     }
 
     @Override

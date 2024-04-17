@@ -69,7 +69,7 @@ public class ArchivedToken extends Token {
     }
 
     @Override
-    public List<ArchivedToken> getActiveChildren() {
+    public List<ArchivedToken> getActiveChildren(boolean recursive) {
         return Collections.emptyList();
     }
 

@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatEmailNotificationBuilder;
-import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.CurrentChatMessage;
+import ru.runa.wfe.chat.CurrentChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatFileDao;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -83,11 +83,11 @@ public class ChatEmailNotificationJob {
 
     @Transactional(readOnly = true)
     public Map<Actor, ChatEmailNotificationBuilder> getEmailBuildersByActorsWithPagination(int pageIndex, int pageSize) {
-        List<Actor> actors = executorDao.getAllActorsHaveEmailWithPagination(pageIndex, pageSize);
+        List<Actor> actors = executorDao.getActorsForChatNotificationsWithPagination(pageIndex, pageSize);
         Map<Actor, ChatEmailNotificationBuilder> result = new HashMap<>(actors.size());
         for (Actor actor : actors) {
-            List<ChatMessage> messages = chatMessageDao.getNewMessagesByActor(actor);
-            Map<Process<CurrentToken>, List<ChatMessage>> messagesByProcesses = getMessagesByProcesses(messages);
+            List<CurrentChatMessage> messages = chatMessageDao.getNewMessagesByActor(actor);
+            Map<Process<CurrentToken>, List<CurrentChatMessage>> messagesByProcesses = getMessagesByProcesses(messages);
             ChatEmailNotificationBuilder emailBuilder = new ChatEmailNotificationBuilder()
                     .baseUrl(baseUrl)
                     .newMessagesCount(messages.size())
@@ -117,17 +117,17 @@ public class ChatEmailNotificationJob {
         }
     }
 
-    private Map<Process<CurrentToken>, List<ChatMessage>> getMessagesByProcesses(List<ChatMessage> messages) {
-        Map<Process<CurrentToken>, List<ChatMessage>> result = new HashMap<>();
-        for (ChatMessage message : messages) {
+    private Map<Process<CurrentToken>, List<CurrentChatMessage>> getMessagesByProcesses(List<CurrentChatMessage> messages) {
+        Map<Process<CurrentToken>, List<CurrentChatMessage>> result = new HashMap<>();
+        for (CurrentChatMessage message : messages) {
             result.computeIfAbsent(message.getProcess(), new ComputeIfAbsentFunction()).add(message);
         }
         return result;
     }
 
-    private Map<ChatMessage, List<ChatMessageFile>> getFilesByMessages(List<ChatMessage> messages) {
-        final Map<ChatMessage, List<ChatMessageFile>> result = new HashMap<>(messages.size());
-        for (ChatMessage message : messages) {
+    private Map<CurrentChatMessage, List<CurrentChatMessageFile>> getFilesByMessages(List<CurrentChatMessage> messages) {
+        final Map<CurrentChatMessage, List<CurrentChatMessageFile>> result = new HashMap<>(messages.size());
+        for (CurrentChatMessage message : messages) {
             result.put(message, chatFileDao.getByMessage(message));
         }
         return result;
@@ -150,9 +150,9 @@ public class ChatEmailNotificationJob {
         return result;
     }
 
-    private static class ComputeIfAbsentFunction implements Function<Process<CurrentToken>, List<ChatMessage>> {
+    private static class ComputeIfAbsentFunction implements Function<Process<CurrentToken>, List<CurrentChatMessage>> {
         @Override
-        public List<ChatMessage> apply(Process process) {
+        public List<CurrentChatMessage> apply(Process process) {
             return new ArrayList<>();
         }
     }

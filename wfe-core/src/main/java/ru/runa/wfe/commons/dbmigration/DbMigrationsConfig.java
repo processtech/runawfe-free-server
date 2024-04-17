@@ -17,6 +17,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddCreateDateColumns;
 import ru.runa.wfe.commons.dbmigration.impl.AddDeploymentAuditPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddDueDateExpressionToJobAndTask;
 import ru.runa.wfe.commons.dbmigration.impl.AddEmbeddedFileForBotTask;
+import ru.runa.wfe.commons.dbmigration.impl.AddExtraColumnsToBpmLog;
 import ru.runa.wfe.commons.dbmigration.impl.AddHierarchyProcess;
 import ru.runa.wfe.commons.dbmigration.impl.AddMultiTaskIndexToTaskPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddNodeIdToProcessLogPatch;
@@ -26,22 +27,26 @@ import ru.runa.wfe.commons.dbmigration.impl.AddProcessExternalData;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessLogCleanBeforeDateColumnPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbmigration.impl.AddSettingsTable;
+import ru.runa.wfe.commons.dbmigration.impl.AddStartEventSubprocessTimerJob;
 import ru.runa.wfe.commons.dbmigration.impl.AddStartProcessTimerJob;
 import ru.runa.wfe.commons.dbmigration.impl.AddStartProcessTimerJobRefactorRm2681;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubProcessIndexColumn;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubprocessBindingDatePatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubprocessRootIdColumn;
+import ru.runa.wfe.commons.dbmigration.impl.AddTaskAndChatEmailNotificationsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTitleAndDepartmentColumnsToActorPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenMessageSelectorPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenNodeNameAndNodeEnterDateColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTransactionalBotSupport;
+import ru.runa.wfe.commons.dbmigration.impl.AddTransitionNameForArchivedAgglogTask;
 import ru.runa.wfe.commons.dbmigration.impl.AddTransitionNameForTaskPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddUuidAndDropBytesChatMessageFilePatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CorrectChatRoomViewRenameColumn;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
+import ru.runa.wfe.commons.dbmigration.impl.CreateChatArchivePatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateDigitalSignatureTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateEventSubprocessTriggerTable;
@@ -55,6 +60,7 @@ import ru.runa.wfe.commons.dbmigration.impl.DeleteBatchPresentationsRm3056;
 import ru.runa.wfe.commons.dbmigration.impl.DropMessageNotNullConstraintPatch;
 import ru.runa.wfe.commons.dbmigration.impl.DropQuotedMessageIdsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.EnlargeMessageMaxSizePatch;
+import ru.runa.wfe.commons.dbmigration.impl.ExecutorIfFullNameIsNullOrEmptySetToName;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandChatColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandVarcharPatch;
@@ -181,9 +187,11 @@ public class DbMigrationsConfig {
         dbMigrations.add(EnlargeMessageMaxSizePatch.class);
         dbMigrations.add(DropMessageNotNullConstraintPatch.class);
         dbMigrations.add(RenameColumnInChatMessageRecipientPatch.class);
+        dbMigrations.add(AddAsyncForTaskAndSubprocess.class);
         dbMigrations.add(DeleteBatchPresentationsRm3017.class);
         dbMigrations.add(DeleteBatchPresentationsRm3056.class);
         dbMigrations.add(CreateSignalTable.class);
+        dbMigrations.add(ExecutorIfFullNameIsNullOrEmptySetToName.class);
         // start develop patches
         dbMigrations.add(SplitProcessDefinitionVersion.class);
         dbMigrations.add(AddSubprocessRootIdColumn.class);
@@ -194,18 +202,23 @@ public class DbMigrationsConfig {
         dbMigrations.add(RenameSequences.class);
         dbMigrations.add(AddArchivedProcessExternalData.class);
         dbMigrations.add(AddArchivedTokenNodeNameAndNodeEnterDateColumnsPatch.class);
-        dbMigrations.add(CorrectChatRoomViewRenameColumn.class);
-        dbMigrations.add(AddAsyncForTaskAndSubprocess.class);
+        dbMigrations.add(CreateChatArchivePatch.class);
+        dbMigrations.add(CorrectChatRoomViewRenameColumn.class); // moved here due to changes in ddl
         dbMigrations.add(AddAsyncForArchivedTaskAndSubprocess.class);
         dbMigrations.add(RecreateChatRoomView.class);
         dbMigrations.add(CreateDigitalSignatureTable.class);
-        // end develop patches
-        dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
-        dbMigrations.add(RefactorProcessDefinitionsRm2681.class);
-        dbMigrations.add(RecreateChatRoomView2.class);
+        dbMigrations.add(CreateEventSubprocessTriggerTable.class);
+        dbMigrations.add(RefactorProcessDefinitionsRm2681.class); //
         dbMigrations.add(AddStartProcessTimerJob.class);
         dbMigrations.add(AddStartProcessTimerJobRefactorRm2681.class);
-        dbMigrations.add(CreateEventSubprocessTriggerTable.class);
+        dbMigrations.add(AddTaskAndChatEmailNotificationsPatch.class);
+        dbMigrations.add(AddExtraColumnsToBpmLog.class);
+        dbMigrations.add(AddStartEventSubprocessTimerJob.class);
+        dbMigrations.add(AddTransitionNameForArchivedAgglogTask.class);
+        // end regular develop patches
+        dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
+        dbMigrations.add(RecreateChatRoomView2.class);
+        // end all develop patches
         return dbMigrations;
     }
 }

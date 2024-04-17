@@ -32,7 +32,7 @@ public class DefinitionServiceDelegateRedeployProcessDefinitionTest extends Serv
         definitionService = Delegates.getDefinitionService();
 
         h.deployValidProcessDefinition();
-        processDefinitionId = definitionService.getLatestProcessDefinition(h.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME).getVersionId();
+        processDefinitionId = definitionService.getLatestProcessDefinition(h.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME).getId();
         h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.UPDATE), WfServiceTestHelper.VALID_PROCESS_NAME);
     }
 

@@ -345,18 +345,17 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
     }
 
     /**
-     * Load all {@linkplain Actor}s who have eMail with pagination.
-     *
      * @param pageIndex
      *            page number (first page = 0)
      * @param pageSize
      *            number of items for a page
-     * @return {@linkplain Actor}s who have eMail, loaded according to page namber and item count.
      */
-    public List<Actor> getAllActorsHaveEmailWithPagination(int pageIndex, int pageSize) {
+    public List<Actor> getActorsForChatNotificationsWithPagination(int pageIndex, int pageSize) {
         QActor a = QActor.actor;
-        return queryFactory.selectFrom(a).where(a.active.isTrue().and(a.email.isNotNull().and(a.email.isNotEmpty())))
-                .orderBy(a.id.asc()).offset(pageIndex * pageSize).limit(pageSize).fetch();
+        return queryFactory.selectFrom(a)
+                .where(a.active.isTrue().and(a.email.isNotNull().and(a.email.isNotEmpty().and(a.chatEmailNotificationsEnabled.isTrue()))))
+                .orderBy(a.id.asc())
+                .offset(pageIndex * pageSize).limit(pageSize).fetch();
     }
 
     /**

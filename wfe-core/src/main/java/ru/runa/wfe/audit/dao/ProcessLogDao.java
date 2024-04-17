@@ -7,16 +7,15 @@ import java.util.Date;
 import java.util.List;
 import lombok.NonNull;
 import lombok.val;
-import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.ArchivedProcessLog;
 import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.CurrentProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.ProcessLogVisitor;
 import ru.runa.wfe.audit.ProcessLogsCleanLog;
 import ru.runa.wfe.commons.dao.ArchiveAwareGenericDao;
-import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
@@ -26,20 +25,19 @@ import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.user.User;
 
 @Component
-@CommonsLog
 public class ProcessLogDao extends ArchiveAwareGenericDao<BaseProcessLog, CurrentProcessLog, CurrentProcessLogDao, ArchivedProcessLog, ArchivedProcessLogDao> {
 
     private ProcessDao processDao;
-    private ProcessDefinitionLoader processDefinitionLoader;
     private SystemLogDao systemLogDao;
+    private List<ProcessLogVisitor> processLogVisitors;
 
     @Autowired
-    public ProcessLogDao(CurrentProcessLogDao currentDao, ArchivedProcessLogDao archivedDao, ProcessDao processDao, ProcessDefinitionLoader loader,
-            SystemLogDao systemLogDao) {
+    public ProcessLogDao(CurrentProcessLogDao currentDao, ArchivedProcessLogDao archivedDao, ProcessDao processDao,
+            SystemLogDao systemLogDao, List<ProcessLogVisitor> processLogVisitors) {
         super(currentDao, archivedDao);
         this.processDao = processDao;
-        this.processDefinitionLoader = loader;
         this.systemLogDao = systemLogDao;
+        this.processLogVisitors = processLogVisitors;
     }
 
     public List<? extends BaseProcessLog> getAll(@NonNull Process process) {
@@ -114,11 +112,8 @@ public class ProcessLogDao extends ArchiveAwareGenericDao<BaseProcessLog, Curren
 
         currentDao.create(processLog);
 
-        try {
-            UpdateAggregatedLogVisitor op = new UpdateAggregatedLogVisitor(sessionFactory, queryFactory, processDefinitionLoader, process);
-            processLog.processBy(op);
-        } catch (Throwable e) {
-            log.warn("Failed to update aggregated log", e);
+        for (ProcessLogVisitor processLogVisitor : processLogVisitors) {
+            processLog.processBy(processLogVisitor);
         }
     }
 

@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.ecs.html.TD;
 import ru.runa.common.web.html.TdBuilder;
 import ru.runa.wfe.commons.error.dto.WfTokenError;
+import ru.runa.wfe.execution.dto.WfToken;
 
 public class TokenErrorMessageTdBuilder implements TdBuilder {
 
@@ -17,13 +18,20 @@ public class TokenErrorMessageTdBuilder implements TdBuilder {
 
     @Override
     public String getValue(Object object, Env env) {
-        WfTokenError tokenError = (WfTokenError) object;
-        if (env.isExcelExport()) {
-            return tokenError.getErrorMessage();
+        String errorMessage = null;
+        if (object instanceof WfToken) {
+            errorMessage = ((WfToken) object).getErrorMessage();
+        } else {
+            errorMessage = ((WfTokenError) object).getErrorMessage();
         }
-        String message = StringEscapeUtils.escapeHtml(tokenError.getErrorMessage());
-        if (tokenError.getStackTrace() != null) {
-            return String.format("<a href=\"javascript:showTokenErrorStackTrace(%s)\">%s</a>", tokenError.getId(), message);
+        if (env.isExcelExport()) {
+            return errorMessage;
+        }
+        String message = StringEscapeUtils.escapeHtml(errorMessage);
+        if (object instanceof WfTokenError) {
+            WfTokenError tokenError = (WfTokenError) object;
+            return String.format("<a href=\"javascript:showTokenErrorStackTrace(%s, %s)\">%s</a>", tokenError.getId(), tokenError.getProcessId(),
+                    message);
         }
         return message;
     }

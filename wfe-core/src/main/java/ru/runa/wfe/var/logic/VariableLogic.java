@@ -28,6 +28,7 @@ import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.VariableCreateLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
+import ru.runa.wfe.audit.VariableHistoryStateFilter;
 import ru.runa.wfe.audit.VariableLog;
 import ru.runa.wfe.audit.logic.AuditLogic;
 import ru.runa.wfe.commons.CalendarUtil;
@@ -116,18 +117,19 @@ public class VariableLogic extends WfCommonLogic {
         }
     }
 
-    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException {
-        ProcessLogFilter filter = new ProcessLogFilter();
-        filter.setProcessId(processId);
+    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, String variableName) {
+        ProcessLogFilter filter = new ProcessLogFilter(processId);
         ProcessLogs processLogs = auditLogic.getProcessLogs(user, filter);
         if (taskId == null || Objects.equal(taskId, 0L)) { // Start process form.
             NodeLeaveLog leaveLog = processLogs.getFirstOrNull(NodeLeaveLog.class);
             if (leaveLog == null) {
                 throw new InternalApplicationException("Task " + processId + ", " + taskId + " does not seems completed");
             }
-            filter.setCreateDateTo(leaveLog.getCreateDate());
-            filter.setIdTo(leaveLog.getId());
-            return getHistoricalVariableOnDate(user, filter);
+            VariableHistoryStateFilter variableHistoryStateFilter = new VariableHistoryStateFilter(processId);
+            variableHistoryStateFilter.setVariableName(variableName);
+            variableHistoryStateFilter.setCreateDateTo(leaveLog.getCreateDate());
+            variableHistoryStateFilter.setIdTo(leaveLog.getId());
+            return getHistoricalVariableOnDate(user, variableHistoryStateFilter);
         }
         Date taskCreateDate = null;
         Date taskCompletePressedDate = null;
@@ -159,12 +161,14 @@ public class VariableLogic extends WfCommonLogic {
         if (taskEndDate == null) {
             throw new InternalApplicationException("Task " + processId + ", " + taskId + " does not seems completed");
         }
-        filter = new ProcessLogFilter(processId);
-        filter.setCreateDateTo(taskEndDate);
+        VariableHistoryStateFilter variableHistoryStateFilter = new VariableHistoryStateFilter(processId);
+        variableHistoryStateFilter.setVariableName(variableName);
+        variableHistoryStateFilter.setCreateDateTo(taskEndDate);
         Calendar dateFrom = CalendarUtil.dateToCalendar(taskCompletePressedDate != null ? taskCompletePressedDate : taskEndDate);
         dateFrom.add(Calendar.MILLISECOND, -100);
-        filter.setCreateDateFrom(dateFrom.getTime());
-        return getHistoricalVariableOnRange(user, filter);
+        variableHistoryStateFilter.setCreateDateFrom(dateFrom.getTime());
+        WfVariableHistoryState completeTaskState = getHistoricalVariableOnRange(user, variableHistoryStateFilter);
+        return completeTaskState;
     }
 
     // TODO check Permission.LIST on process (but this method is also called from other places).
@@ -212,7 +216,7 @@ public class VariableLogic extends WfCommonLogic {
         permissionDao.checkAllowed(user, Permission.READ, process);
         ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
         ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process);
-        processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPDATE_VARIABLES), process, null);
+        processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPDATE_VARIABLES, null), process, null);
         executionContext.setVariableValues(variables);
     }
 
@@ -239,8 +243,12 @@ public class VariableLogic extends WfCommonLogic {
         BaseProcessVariableLoader baseProcessVariableLoader = new BaseProcessVariableLoader(loader, parsedProcessDefinition, process);
         removeSyncVariablesInBaseProcessMode(processStateOnTime, baseProcessVariableLoader);
         ConvertToSimpleVariables operation = new ConvertToSimpleVariables();
+        String variableName = filter instanceof VariableHistoryStateFilter ? ((VariableHistoryStateFilter) filter).getVariableName() : null;
         for (VariableDefinition variableDefinition : parsedProcessDefinition.getVariables()) {
             String name = variableDefinition.getName();
+            if (!Utils.isNullOrEmpty(variableName) && !variableName.equals(name) && !name.startsWith(variableName + UserType.DELIM)) {
+                continue;
+            }
             WfVariable variable = baseProcessVariableLoader.get(name);
             if (variable != null) {
                 ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesUnrollContext(variableDefinition, variable.getValue());
@@ -364,7 +372,9 @@ public class VariableLogic extends WfCommonLogic {
      */
     private Map<String, Object> loadVariablesForProcessFromLogs(User user, Process process, ProcessLogFilter filter,
             Set<String> simpleVariablesChanged) {
-        val localFilter = new ProcessLogFilter(filter);
+        ProcessLogFilter localFilter = filter instanceof VariableHistoryStateFilter
+                ? new VariableHistoryStateFilter((VariableHistoryStateFilter) filter)
+                : new ProcessLogFilter(filter);
         localFilter.setType(ProcessLog.Type.VARIABLE);
         localFilter.setProcessId(process.getId());
         val result = new HashMap<String, Object>();

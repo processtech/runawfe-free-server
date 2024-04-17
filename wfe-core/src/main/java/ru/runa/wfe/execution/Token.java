@@ -66,7 +66,8 @@ public abstract class Token {
     public abstract Process getProcess();
     public abstract Token getParent();
     public abstract Set<? extends Token> getChildren();
-    public abstract List<? extends Token> getActiveChildren();
+
+    public abstract List<? extends Token> getActiveChildren(boolean recursive);
     public abstract ExecutionStatus getExecutionStatus();
     public abstract String getMessageSelector();
 

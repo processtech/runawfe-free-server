@@ -4,18 +4,16 @@ import java.util.Date;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.ParsedProcessDefinition;
-import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.IdBasedSecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class WfTokenError extends SecuredObject {
+public class WfTokenError extends IdBasedSecuredObject {
     private static final long serialVersionUID = 1L;
     private Long id;
     private Long processId;
@@ -29,15 +27,14 @@ public class WfTokenError extends SecuredObject {
     private Date nodeEnterDate;
     private Date errorDate;
     private String errorMessage;
-    private String stackTrace;
 
-    public WfTokenError(Token token, String stackTrace) {
+
+    public WfTokenError(Token token) {
         this.id = token.getId();
         this.processId = token.getProcess().getId();
-        ParsedProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(token.getProcess());
-        this.processType = processDefinition.getCategory();
-        this.processName = processDefinition.getName();
-        this.processVersion = processDefinition.getVersion();
+        this.processType = token.getProcess().getDefinition().getPack().getCategory();
+        this.processName = token.getProcess().getDefinition().getPack().getName();
+        this.processVersion = token.getProcess().getDefinition().getVersion();
         this.processExecutionStatus = token.getProcess().getExecutionStatus();
         this.nodeId = token.getNodeId();
         this.nodeName = token.getNodeName();
@@ -45,7 +42,6 @@ public class WfTokenError extends SecuredObject {
         this.nodeEnterDate = token.getNodeEnterDate();
         this.errorDate = token.getErrorDate();
         this.errorMessage = token.getErrorMessage();
-        this.stackTrace = stackTrace;
     }
 
     @Override

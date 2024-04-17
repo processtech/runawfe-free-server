@@ -286,7 +286,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 tr.addElement(new TD());
             }
         }
-        {// field sorting/groupping section
+        {// field sorting/grouping section
             if (field.sortable) {
                 Select sortingModeSelect = new Select(TableViewSetupForm.SORTING_MODE_NAMES, createSortModeOptions());
                 tr.addElement(new TD(sortingModeSelect));

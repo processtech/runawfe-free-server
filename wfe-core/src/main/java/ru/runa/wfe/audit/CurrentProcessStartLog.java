@@ -20,8 +20,8 @@ public class CurrentProcessStartLog extends CurrentProcessLog implements Process
     }
 
     public CurrentProcessStartLog(Actor actor) {
-        addAttribute(ATTR_ACTOR_NAME, actor != null ? actor.getName() : "system");
         setSeverity(Severity.INFO);
+        setExecutorName(actor != null ? actor.getName() : "system");
     }
 
     @Override
@@ -32,14 +32,8 @@ public class CurrentProcessStartLog extends CurrentProcessLog implements Process
 
     @Override
     @Transient
-    public String getActorName() {
-        return getAttributeNotNull(ATTR_ACTOR_NAME);
-    }
-
-    @Override
-    @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { new ExecutorNameValue(getActorName()) };
+        return new Object[] { new ExecutorNameValue(getExecutorNameNotNull()) };
     }
 
     @Override

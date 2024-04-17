@@ -66,13 +66,22 @@ public interface ChatService {
     public List<MessageAddedBroadcast> getMessages(User user, Long processId);
 
     /**
+     * Get chat messages related to archived process
+     *
+     * @param processId
+     *
+     * @return not <code>null</code> order by date desc
+     */
+    public List<MessageAddedBroadcast> getArchivedMessages(User user, Long processId);
+
+    /**
      * Get new messages count for a concrete user.
      *
      * @param user
      *              authorized user, the count of new messages for which will be returned
      *
      * @return new messages count
-     */
+    */
     public Long getNewMessagesCount(User user);
 
     /**
@@ -104,6 +113,15 @@ public interface ChatService {
      * @return ChatMessageFiles or <code>null</code>
      */
     public ChatMessageFileDto getChatMessageFile(User user, Long fileId);
+
+    /**
+     * Get <code>ChatMessageFilesDto</code> by id.
+     *
+     * @param fileId
+     *              file Id
+     * @return archived ChatMessageFiles or <code>null</code>
+     */
+    public ChatMessageFileDto getArchiveChatMessageFile(User user, Long fileId);
 
     /**
      * Delete ChatMessages in DB.

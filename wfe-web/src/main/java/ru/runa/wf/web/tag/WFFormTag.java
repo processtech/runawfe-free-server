@@ -99,10 +99,15 @@ public abstract class WFFormTag extends TitledFormTag {
 
     @Override
     protected String getSubmitButtonName() {
-        String processStartButtonName = WebResources.getButtonName("process.completeTaskButtonName");
+        if (interaction.isTaskButtonLabelBySingleTransitionName()) {
+            return interaction.getOutputTransitions().get(0).getName();
+        }
+        return this.getDefaultSubmitButtonName();
+    }
 
-        return processStartButtonName != null ? processStartButtonName :
-                MessagesProcesses.BUTTON_COMPLETE.message(pageContext);
+    protected String getDefaultSubmitButtonName() {
+        String buttonName = WebResources.getButtonName("process.completeTaskButtonName");
+        return buttonName != null ? buttonName : MessagesProcesses.BUTTON_COMPLETE.message(pageContext);
     }
 
     protected List<String> getTransitionNames() {

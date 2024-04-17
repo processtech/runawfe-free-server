@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -21,6 +22,7 @@ public enum WfeVariableType {
     FILE(FileVariable.class),
     USER_TYPE(UserTypeMap.class),
     LIST(List.class),
+    MAP(Map.class),
     EXECUTOR(Executor.class, Actor.class, Group.class);
 
     private final Set<Class<?>> javaClasses;

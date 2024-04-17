@@ -26,7 +26,7 @@
 </div>
 
 <%--Used for error message displaying --%>
-<span class="errors">
+<span class="errors" id="errors-and-messages-container">
 	<html:messages id="error">
 		<BR>
 		<B style="color: red;"><bean:write name="error" /></B>

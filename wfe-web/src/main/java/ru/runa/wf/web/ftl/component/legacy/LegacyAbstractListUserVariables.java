@@ -92,7 +92,7 @@ public abstract class LegacyAbstractListUserVariables extends FormComponent {
                 if (dectSelectVariable == null) {
                     if (format instanceof FileFormat) {
                         FileVariableProxy proxy = (FileVariableProxy) userTypeMap.get(varDef.getName());
-                        cvarObj.put(varDef.getName(), GenerateHtmlForVariable.getFileComponent(webHelper, proxy.getName(), proxy, false));
+                        cvarObj.put(varDef.getName(), GenerateHtmlForVariable.getFileComponent(webHelper, proxy.getName(), proxy, false, false));
                     } else {
                         cvarObj.put(varDef.getName(), format.format(userTypeMap.get(varDef.getName())));
                     }

@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.IdBasedSecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
 /**
@@ -23,7 +23,7 @@ import ru.runa.wfe.security.SecuredObjectType;
 @Entity
 @Table(name = "EXECUTOR_RELATION")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Relation extends SecuredObject {
+public class Relation extends IdBasedSecuredObject {
     private static final long serialVersionUID = 1L;
 
     private Long id;

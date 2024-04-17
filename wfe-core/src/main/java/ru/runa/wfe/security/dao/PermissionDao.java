@@ -164,7 +164,7 @@ public class PermissionDao extends CommonDao {
         val pm = QPermissionMapping.permissionMapping;
         return queryFactory.select(pm.permission).from(pm)
                 .where(pm.objectType.eq(object.getSecuredObjectType())
-.and(pm.objectId.eq(object.getId()))
+                        .and(pm.objectId.eq(object.getSecuredObjectId()))
                         .and(pm.executor.eq(executor)))
                 .fetch();
     }
@@ -202,7 +202,7 @@ public class PermissionDao extends CommonDao {
             val pm = QPermissionMapping.permissionMapping;
             queryFactory.delete(pm)
                     .where(pm.objectType.eq(object.getSecuredObjectType())
-.and(pm.objectId.eq(object.getId()))
+                            .and(pm.objectId.eq(object.getSecuredObjectId()))
                             .and(pm.executor.eq(executor))
                             .and(pm.permission.in(toDelete)))
                     .execute();
@@ -252,9 +252,9 @@ public class PermissionDao extends CommonDao {
      */
     public boolean isAllowed(User user, Permission permission, SecuredObject object) {
         if (!SecurityCheckProperties.isPermissionCheckRequired(object.getSecuredObjectType())) {
-            return checkRequiredRules(user.getActor(), permission, object.getSecuredObjectType(), object.getId());
+            return checkRequiredRules(user.getActor(), permission, object.getSecuredObjectType(), object.getSecuredObjectId());
         }
-        return isAllowed(user.getActor(), permission, object.getSecuredObjectType(), object.getId());
+        return isAllowed(user.getActor(), permission, object.getSecuredObjectType(), object.getSecuredObjectId());
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObjectType type, Long id) {
@@ -273,12 +273,11 @@ public class PermissionDao extends CommonDao {
     }
 
     public boolean isAllowed(Executor executor, Permission permission, SecuredObject object, boolean checkPrivileged) {
-        Long id = object.getId();
-        if (!SecurityCheckProperties.isPermissionCheckRequired(object.getSecuredObjectType())) {
-            return checkRequiredRules(executor, permission, object.getSecuredObjectType(), id);
-        }
+        Long id = object.getSecuredObjectId();
         SecuredObjectType type = object.getSecuredObjectType();
-        Assert.notNull(id);
+        if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
+            return checkRequiredRules(executor, permission, type, id);
+        }
         return !(filterAllowedIds(executor, permission, type, Collections.singletonList(id), checkPrivileged)).isEmpty();
     }
 
@@ -535,7 +534,7 @@ public class PermissionDao extends CommonDao {
      * Deletes all permissions for securedObject.
      */
     public void deleteAllPermissions(@NonNull SecuredObject obj) {
-        deleteAllPermissions(obj.getSecuredObjectType(), obj.getId());
+        deleteAllPermissions(obj.getSecuredObjectType(), obj.getSecuredObjectId());
     }
 
     public void deleteAllPermissions(@NonNull SecuredObjectType type, long id) {
@@ -549,7 +548,7 @@ public class PermissionDao extends CommonDao {
     public Set<Executor> getExecutorsWithPermission(SecuredObject obj) {
         val pm = QPermissionMapping.permissionMapping;
         List<Executor> list = queryFactory.selectDistinct(pm.executor).from(pm)
-                .where(pm.objectType.eq(obj.getSecuredObjectType()).and(pm.objectId.eq(obj.getId())))
+                .where(pm.objectType.eq(obj.getSecuredObjectType()).and(pm.objectId.eq(obj.getSecuredObjectId())))
                 .fetch();
         Set<Executor> result = new HashSet<>(list);
         result.addAll(getPrivilegedExecutors(obj.getSecuredObjectType()));
@@ -689,7 +688,7 @@ public class PermissionDao extends CommonDao {
         return queryFactory.select(pm.id).from(pm)
                 .where(pm.executor.eq(executor)
                         .and(pm.objectType.eq(object.getSecuredObjectType()))
-.and(pm.objectId.eq(object.getId()))
+                        .and(pm.objectId.eq(object.getSecuredObjectId()))
                         .and(pm.permission.eq(permission)))
                 .fetchFirst() != null;
     }

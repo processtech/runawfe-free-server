@@ -92,7 +92,11 @@ public class VariableLoader {
                 variableDefinition);
         switch (variableDefinition.getStoreType()) {
         case BLOB:
-            return new LoadVariableOfType().onOther(format, context);
+            Object object = new LoadVariableOfType().onOther(format, context);
+            if (object == null && variableDefinition.getUserType() != null) {
+                object = format.processBy(new LoadVariableOfType(), context);
+            }
+            return object;
         default:
             return format.processBy(new LoadVariableOfType(), context);
         }

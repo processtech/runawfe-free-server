@@ -23,7 +23,7 @@ public class TokenErrorClassPresentation extends ClassPresentation {
     public static final String ERROR_DATE = "errorDate";
     public static final String ERROR_MESSAGE = "errorMessage";
 
-    private static final ClassPresentation INSTANCE = new TokenErrorClassPresentation();
+    public static final ClassPresentation INSTANCE = new TokenErrorClassPresentation();
 
     private TokenErrorClassPresentation() {
         super(
@@ -54,7 +54,4 @@ public class TokenErrorClassPresentation extends ClassPresentation {
         });
     }
 
-    public static ClassPresentation getInstance() {
-        return INSTANCE;
-    }
 }

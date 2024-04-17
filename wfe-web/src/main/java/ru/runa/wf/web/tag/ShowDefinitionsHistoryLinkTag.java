@@ -19,6 +19,6 @@ public class ShowDefinitionsHistoryLinkTag extends LinkTag {
 
     @Override
     protected String getLinkText() {
-        return MessagesProcesses.TITLE_DEFINITIONS_HISTORY.message(pageContext);
+        return MessagesProcesses.LABEL_HISTORY.message(pageContext);
     }
 }

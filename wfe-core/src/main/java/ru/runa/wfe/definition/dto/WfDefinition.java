@@ -11,6 +11,7 @@ import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.definition.ProcessDefinitionPack;
+import ru.runa.wfe.definition.ProcessDefinitionWithContent;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -56,6 +57,21 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         this.secondsBeforeArchiving = p.getSecondsBeforeArchiving();
     }
 
+    public WfDefinition(ProcessDefinitionPack p, ProcessDefinitionWithContent d) {
+        this.id = d.getId();
+        this.packId = p.getId();
+        this.version = d.getVersion();
+        this.name = p.getName();
+        this.description = p.getDescription();
+        this.categories = p.getCategories();
+        this.createDate = d.getCreateDate();
+        this.createActor = d.getCreateActor();
+        this.updateDate = d.getUpdateDate();
+        this.updateActor = d.getUpdateActor();
+        this.subprocessBindingDate = d.getSubprocessBindingDate();
+        this.secondsBeforeArchiving = p.getSecondsBeforeArchiving();
+    }
+
     public WfDefinition(ProcessDefinition d) {
         this(d.getPack(), d);
     }
@@ -85,9 +101,13 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         return SecuredObjectType.DEFINITION;
     }
 
-    @Override
     public Long getId() {
         return id;
+    }
+
+    @Override
+    public Long getSecuredObjectId() {
+        return packId;
     }
 
     public Long getPackId() {

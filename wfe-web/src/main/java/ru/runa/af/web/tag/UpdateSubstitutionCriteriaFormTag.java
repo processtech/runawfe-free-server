@@ -41,7 +41,7 @@ public class UpdateSubstitutionCriteriaFormTag extends SecuredObjectFormTag {
     @Override
     public void fillFormData(TD tdFormElement) {
         StringBuffer paramsDiv = new StringBuffer("<div id='rh' style='display: none;'>");
-        List<FunctionDef> functions = SubstitutionCriteriaDefinitions.getAll();
+        List<FunctionDef> functions = SubstitutionCriteriaDefinitions.getInstance().getAll();
         int i = 0;
         for (FunctionDef functionDef : functions) {
             paramsDiv.append("<div id='").append(functionDef.getClassName()).append("'>");
@@ -109,7 +109,7 @@ public class UpdateSubstitutionCriteriaFormTag extends SecuredObjectFormTag {
             }
             table.addElement(HTMLUtils.createSelectRow(MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_TYPE.message(pageContext),
                     SubstitutionCriteriaForm.TYPE_INPUT_NAME, typeOptions, enabled, false));
-            FunctionDef functionDef = SubstitutionCriteriaDefinitions.getByClassName(criteriaType);
+            FunctionDef functionDef = SubstitutionCriteriaDefinitions.getInstance().getByClassName(criteriaType);
             if (functionDef != null) {
                 for (int i = 0; i < functionDef.getParams().size(); i++) {
                     ParamDef paramDef = functionDef.getParams().get(i);
@@ -125,7 +125,7 @@ public class UpdateSubstitutionCriteriaFormTag extends SecuredObjectFormTag {
         }
 
         private Option[] getTypeOptions(String selectedValue) {
-            List<FunctionDef> definitions = SubstitutionCriteriaDefinitions.getAll();
+            List<FunctionDef> definitions = SubstitutionCriteriaDefinitions.getInstance().getAll();
             Option[] options = new Option[definitions.size()];
             for (int i = 0; i < options.length; i++) {
                 String value = definitions.get(i).getClassName();

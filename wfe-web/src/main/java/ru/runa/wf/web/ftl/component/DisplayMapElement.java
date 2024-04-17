@@ -3,6 +3,7 @@ package ru.runa.wf.web.ftl.component;
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.var.dto.WfVariable;
 
+@Deprecated
 public class DisplayMapElement extends FormComponent {
     private static final long serialVersionUID = 1L;
 

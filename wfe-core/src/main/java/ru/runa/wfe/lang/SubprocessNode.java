@@ -154,6 +154,17 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     }
 
     @Override
+    public void enter(ExecutionContext executionContext) {
+        if (isEmbedded()) {
+            ParsedSubprocessDefinition subProcessDefinition = getParsedProcessDefinition().getEmbeddedSubprocessByNameNotNull(subProcessName);
+            Node startNode = subProcessDefinition.getManualStartStateNotNull();
+            startNode.enter(executionContext);
+        } else {
+            super.enter(executionContext);
+        }
+    }
+
+    @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
         if (isEmbedded()) {
             throw new InternalApplicationException("it's not intended for execution");

@@ -70,7 +70,7 @@ public class ExecutorFormat extends VariableFormat implements VariableDisplaySup
 
     @Override
     protected Object convertToExcelCellValue(Object value) {
-        return ((Executor) value).getLabel();
+        return ((Executor) value).getFullName();
     }
 
     @Override
@@ -95,10 +95,10 @@ public class ExecutorFormat extends VariableFormat implements VariableDisplaySup
                 String title = ExpressionEvaluator.process(user, tooltipTemplate, variableProvider, webHelper);
                 html += " title=\"" + title + "\"";
             }
-            html += ">" + executor.getLabel() + "</a>";
+            html += ">" + executor.getFullName() + "</a>";
             return html;
         } else {
-            return executor.getLabel();
+            return executor.getFullName();
         }
     }
 

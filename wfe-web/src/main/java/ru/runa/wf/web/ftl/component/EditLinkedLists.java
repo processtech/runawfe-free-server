@@ -1,18 +1,16 @@
 package ru.runa.wf.web.ftl.component;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 
 /**
  * shared code with {@link InputVariable}.
@@ -20,6 +18,7 @@ import com.google.common.collect.Lists;
  * @author dofs
  * @since 4.0.5
  */
+@Deprecated
 public class EditLinkedLists extends FormComponent {
     private static final long serialVersionUID = 1L;
 

@@ -1,5 +1,7 @@
 package ru.runa.wfe.service.interceptors;
 
+import ru.runa.wfe.definition.update.validator.ProcessDefinitionNotCompatibleException;
+
 import com.google.common.base.Throwables;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +31,8 @@ public class EjbExceptionSupport {
 
     public static final List<Class<? extends InternalApplicationException>> warnExceptionClasses = Arrays.asList(
             AuthenticationExpiredException.class, AuthenticationException.class, AuthorizationException.class,
-            ExecutorDoesNotExistException.class, ValidationException.class, TaskDoesNotExistException.class
+            ExecutorDoesNotExistException.class, ValidationException.class, TaskDoesNotExistException.class,
+            ProcessDefinitionNotCompatibleException.class
     );
 
     @AroundInvoke

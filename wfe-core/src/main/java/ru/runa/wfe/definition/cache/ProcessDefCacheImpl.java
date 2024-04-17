@@ -6,6 +6,7 @@ import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.definition.ProcessDefinition;
+import ru.runa.wfe.definition.dao.ProcessDefinitionWithContentDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionPackDao;
 import ru.runa.wfe.definition.par.ProcessArchive;
@@ -38,41 +39,44 @@ class ProcessDefCacheImpl extends BaseCacheImpl {
         packIdToDefinitionId = createCache(packIdToDefinitionIdCacheName);
     }
 
-    public ParsedProcessDefinition getDefinition(ProcessDefinitionDao processDefinitionDao, Long processDefinitionId
+    public ParsedProcessDefinition getDefinition(ProcessDefinitionDao processDefinitionDao, ProcessDefinitionWithContentDao processDefinitionWithContentDao,
+            Long processDefinitionId
     ) {
         ParsedProcessDefinition parsed = definitionIdToParsed.get(processDefinitionId);
         if (parsed != null) {
             return parsed;
         }
         ProcessDefinition processDefinition = processDefinitionDao.getNotNull(processDefinitionId);
-        val archive = new ProcessArchive(processDefinition);
+        val archive = new ProcessArchive(processDefinition, processDefinitionWithContentDao.get(processDefinition.getId()).getContent());
         parsed = archive.parseProcessDefinition();
         definitionIdToParsed.put(processDefinitionId, parsed);
         return parsed;
     }
 
     public ParsedProcessDefinition getLatestDefinition(
-            ProcessDefinitionPackDao processDefinitionPackDao, ProcessDefinitionDao processDefinitionDao, @NonNull String definitionName
+            ProcessDefinitionPackDao processDefinitionPackDao, ProcessDefinitionDao processDefinitionDao,
+            ProcessDefinitionWithContentDao processDefinitionWithContentDao, @NonNull String definitionName
     ) {
         Long definitionId = definitionNameToLatest.get(definitionName);
         if (definitionId != null) {
-            return getDefinition(processDefinitionDao, definitionId);
+            return getDefinition(processDefinitionDao, processDefinitionWithContentDao, definitionId);
         }
         definitionId = processDefinitionPackDao.getByName(definitionName).getLatest().getId();
         definitionNameToLatest.put(definitionName, definitionId);
-        return getDefinition(processDefinitionDao, definitionId);
+        return getDefinition(processDefinitionDao, processDefinitionWithContentDao, definitionId);
     }
 
     public ParsedProcessDefinition getLatestDefinitionByPackId(
-            ProcessDefinitionPackDao processDefinitionPackDao, ProcessDefinitionDao processDefinitionDao, Long packId
+            ProcessDefinitionPackDao processDefinitionPackDao, ProcessDefinitionDao processDefinitionDao, 
+            ProcessDefinitionWithContentDao processDefinitionWithContentDao, Long packId
     ) {
         Long processDefinitionId = packIdToDefinitionId.get(packId);
         if (processDefinitionId != null) {
-            return getDefinition(processDefinitionDao, processDefinitionId);
+            return getDefinition(processDefinitionDao, processDefinitionWithContentDao, processDefinitionId);
         }
         processDefinitionId = processDefinitionPackDao.getNotNull(packId).getLatest().getId();
         packIdToDefinitionId.put(packId, processDefinitionId);
-        return getDefinition(processDefinitionDao, processDefinitionId);
+        return getDefinition(processDefinitionDao, processDefinitionWithContentDao, processDefinitionId);
     }
 
     @Override

@@ -36,8 +36,9 @@
 	</cache>
 
 	<cache
-		name="ru.runa.wfe.definition.ProcessDefinition"
-		maxElementsInMemory="100"
+		name="ru.runa.wfe.definition.cache.definitionIdToParsed"
+		maxElementsInMemory="1000"
+		timeToIdleSeconds="17000"
 	/>
 
 </ehcache>

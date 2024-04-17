@@ -17,7 +17,7 @@ public class ArchivedVariableCreateLog extends ArchivedVariableLog implements Va
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { getVariableName(), getVariableNewValueForPattern() };
+        return new Object[] { getVariableNameNotNull(), getVariableNewValueForPattern() };
     }
 
     @Override

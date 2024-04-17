@@ -1,19 +1,17 @@
 package ru.runa.wf.web.ftl.component;
 
-import java.util.List;
-import java.util.Map;
-
-import ru.runa.wfe.commons.ftl.FormComponent;
-import ru.runa.wfe.commons.web.WebHelper;
-import ru.runa.wfe.var.file.FileVariable;
-
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
-
 import freemarker.template.TemplateModelException;
+import java.util.List;
+import java.util.Map;
+import ru.runa.wfe.commons.ftl.FormComponent;
+import ru.runa.wfe.commons.web.WebHelper;
+import ru.runa.wfe.var.file.FileVariable;
 
+@Deprecated
 public class ViewFile extends FormComponent {
     private static final long serialVersionUID = 1L;
     private static final List<String> textFileExtensions = Lists.newArrayList("txt", "log");

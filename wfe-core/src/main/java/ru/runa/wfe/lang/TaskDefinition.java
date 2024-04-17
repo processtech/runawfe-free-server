@@ -22,6 +22,7 @@ public class TaskDefinition extends GraphElement {
      */
     protected Boolean reassignSwimlaneToTaskPerformer = null;
     protected boolean ignoreSubsitutionRules;
+    protected Boolean taskButtonLabelBySingleTransitionName = null;
 
     @Override
     public void validate() {
@@ -89,4 +90,11 @@ public class TaskDefinition extends GraphElement {
         this.deadlineDuration = deadlineDuration;
     }
 
+    public Boolean isTaskButtonLabelBySingleTransitionName() {
+        return this.taskButtonLabelBySingleTransitionName;
+    }
+
+    public void setTaskButtonLabelBySingleTransitionName(Boolean value) {
+        this.taskButtonLabelBySingleTransitionName = value;
+    }
 }

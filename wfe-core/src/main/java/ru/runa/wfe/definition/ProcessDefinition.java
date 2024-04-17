@@ -4,25 +4,20 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import javax.persistence.Transient;
 import ru.runa.wfe.user.Actor;
 
 @Entity
 @Table(name = "BPM_PROCESS_DEFINITION")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ProcessDefinition implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -30,7 +25,6 @@ public class ProcessDefinition implements Serializable {
     private ProcessDefinitionPack pack;
     private Long version;
     private Long subVersion;
-    private byte[] content;
     private Date createDate;
     private Actor createActor;
     private Date updateDate;
@@ -55,8 +49,8 @@ public class ProcessDefinition implements Serializable {
         return pack;
     }
 
-    public void setPack(ProcessDefinitionPack definition) {
-        this.pack = definition;
+    public void setPack(ProcessDefinitionPack pack) {
+        this.pack = pack;
     }
 
     @Column(name = "VERSION", nullable = false)
@@ -75,17 +69,6 @@ public class ProcessDefinition implements Serializable {
 
     public void setSubVersion(Long subVersion) {
         this.subVersion = subVersion;
-    }
-
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(length = 16777216, name = "BYTES")
-    public byte[] getContent() {
-        return content;
-    }
-
-    public void setContent(byte[] content) {
-        this.content = content;
     }
 
     @Column(name = "CREATE_DATE", nullable = false)
@@ -157,4 +140,13 @@ public class ProcessDefinition implements Serializable {
         return MoreObjects.toStringHelper(this).add("id", id).add("version", version).toString();
     }
 
+    @Transient
+    public ProcessDefinition getCopy() {
+        ProcessDefinition processDefinition = new ProcessDefinition();
+        processDefinition.setCreateDate(getCreateDate());
+        processDefinition.setId(getId());
+        processDefinition.setSubprocessBindingDate(getSubprocessBindingDate());
+        processDefinition.setVersion(getVersion());
+        return processDefinition;
+    }
 }

@@ -9,6 +9,10 @@ import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
 
+/**
+ * @deprecated since 4.6.0 rm#3254
+ */
+@Deprecated
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class MapFormat extends VariableFormat implements VariableFormatContainer, VariableDisplaySupport {
     public static final String KEY_NULL_VALUE = "null";

@@ -125,7 +125,7 @@ public final class PresentationCompilerHelper {
             BatchPresentation batchPresentation, boolean hasPermission) {
         String inClause = hasPermission ? "IN" : "NOT IN";
         String idRestriction = inClause + " (SELECT pm.executor.id from " + PermissionMapping.class.getName() + " as pm where pm.objectId="
-                + securedObject.getId() + " and pm.objectType='" + securedObject.getSecuredObjectType() + "')";
+                + securedObject.getSecuredObjectId() + " and pm.objectType='" + securedObject.getSecuredObjectType() + "')";
         RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.READ, ALL_EXECUTORS_CLASSES);
         CompilerParameters parameters = CompilerParameters.createPaged().addPermissions(permissions).addIdRestrictions(idRestriction);
         return new PresentationConfiguredCompiler<>(batchPresentation, parameters);

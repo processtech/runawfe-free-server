@@ -21,6 +21,7 @@ public class WebResources {
 
     public static final String ACTION_MAPPING_UPDATE_EXECUTOR = "/manage_executor";
     public static final String ACTION_MAPPING_MANAGE_RELATION = "/manage_relation";
+    public static final String ACTION_MANAGE_JOB = "/manage_job";
 
     /* Validation rules */
     public static final int VALIDATOR_STRING_255 = 255;
@@ -217,4 +218,9 @@ public class WebResources {
     public static boolean isChatEnabled() {
         return RESOURCES.getBooleanProperty("chat.enabled", true);
     }
+
+    public static int getProcessDefinitionDiffContextLinesCount() {
+        return RESOURCES.getIntegerProperty("process.definition.diff.context.lines.count", 3);
+    }
+
 }

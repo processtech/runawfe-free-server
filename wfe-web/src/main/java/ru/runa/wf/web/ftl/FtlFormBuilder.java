@@ -20,12 +20,14 @@ public class FtlFormBuilder extends TaskFormBuilder {
     @Override
     protected String buildForm(VariableProvider variableProvider) {
         String template = new String(interaction.getFormData(), Charsets.UTF_8);
-        return processFreemarkerTemplate(template, variableProvider);
+        return processFreemarkerTemplate(template, variableProvider, true);
     }
 
-    protected String processFreemarkerTemplate(String template, VariableProvider variableProvider) {
+    protected String processFreemarkerTemplate(String template, VariableProvider variableProvider, boolean clearSession) {
         FormHashModel model = new FormHashModel(user, variableProvider, new StrutsWebHelper(pageContext));
-        model.clearSession();
+        if (clearSession) {
+            model.clearSession();
+        }
         // #173
         model.put("context", new BeanModel(new Context(this), BeansWrapper.getDefaultInstance()));
         return FreemarkerProcessor.process(template, model);

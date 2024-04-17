@@ -1,16 +1,15 @@
 package ru.runa.wfe.job.dto;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
-import ru.runa.wfe.job.Job;
+import ru.runa.wfe.job.DueDateInProcessTimerJob;
+import ru.runa.wfe.job.InProcessTimerJob;
+import ru.runa.wfe.job.StartEventSubprocessTimerJob;
 import ru.runa.wfe.lang.NodeType;
-
-import com.google.common.base.Objects;
-import com.google.common.base.MoreObjects;
 
 /**
  * Process job.
@@ -29,11 +28,21 @@ public class WfJob implements Serializable {
     private String nodeId;
     private Date createDate;
     private Date dueDate;
+    private String dueDateExpression;
 
     public WfJob() {
     }
 
-    public WfJob(Job job) {
+    public WfJob(InProcessTimerJob job) {
+        if (job instanceof DueDateInProcessTimerJob) {
+            init((DueDateInProcessTimerJob) job);
+        } else {
+            init((StartEventSubprocessTimerJob) job);
+        }
+    }
+
+
+    private void init(DueDateInProcessTimerJob job) {
         this.id = job.getId();
         this.name = job.getName();
         this.processId = job.getProcess().getId();
@@ -42,6 +51,18 @@ public class WfJob implements Serializable {
         this.nodeId = job.getToken().getNodeId();
         this.createDate = job.getCreateDate();
         this.dueDate = job.getDueDate();
+        this.dueDateExpression = job.getDueDateExpression();
+    }
+
+    private void init(StartEventSubprocessTimerJob job) {
+        this.id = job.getId();
+        this.name = job.getName();
+        this.processId = job.getProcess().getId();
+        this.nodeType = NodeType.START_EVENT;
+        this.nodeId = job.getNodeId();
+        this.createDate = job.getCreateDate();
+        this.dueDate = job.getTimerEventNextDate();
+        this.dueDateExpression = job.getTimerEventExpression();
     }
 
     public Long getId() {
@@ -74,6 +95,10 @@ public class WfJob implements Serializable {
 
     public Date getDueDate() {
         return dueDate;
+    }
+
+    public String getDueDateExpression() {
+        return dueDateExpression;
     }
 
     @Override

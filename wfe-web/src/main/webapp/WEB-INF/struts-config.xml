@@ -58,6 +58,9 @@
 		<form-bean name="deployDataSourceForm" type="ru.runa.af.web.form.DeployDataSourceForm" />
 		<form-bean name="changeDataSourcePasswordForm" type="ru.runa.af.web.form.ChangeDataSourcePasswordForm" />
 		<form-bean name="sendProcessSignalForm" type="ru.runa.wf.web.form.SendProcessSignalForm" />
+		<form-bean name="frozenProcessesForm" type="ru.runa.af.web.form.FrozenProcessesForm" />
+		<form-bean name="moveTokenForm" type="ru.runa.wf.web.form.MoveTokenForm" />
+		<form-bean name="saveJobForm" type="ru.runa.af.web.form.SaveJobForm" />
 	</form-beans>
 
 	<!-- ========== Global Exceptions Definitions =================================== -->
@@ -81,6 +84,7 @@
 			path="/manage_relations.do?tabForwardName=manage_relations" />
 		<forward name="manage_system" path="/manage_system.do?tabForwardName=manage_system" />
 		<forward name="manage_errors" path="/manage_errors.do?tabForwardName=manage_errors" />
+		<forward name="manage_frozen_processes" path="/manage_frozen_processes.do?tabForwardName=manage_frozen_processes" />
 		<forward name="manage_settings"
 			path="/manage_settings.do?tabForwardName=manage_settings" />
 		<forward name="version" path="/version.do" />
@@ -102,6 +106,7 @@
 		<forward name="send_process_signal" path="/send_process_signal.do?tabForwardName=send_process_signal" />
 		<forward name="view_internal_storage" path="/viewInternalStorage.do?tabForwardName=view_internal_storage" />
 		<forward name="chat_rooms" path="/chat_rooms.do?tabForwardName=chat_rooms" />
+		<forward name="process_definition_file_annotation" path="/process_definition_file_annotation.do" />
 	</global-forwards>
 
 	<!-- ========== Action Mapping Definitions =================================== -->
@@ -122,6 +127,12 @@
 		<action path="/save_bot" type="ru.runa.af.web.action.SaveBotAction"
 			name="idForm" scope="request" input="/WEB-INF/wf/bot.jsp" unknown="false"
 			validate="false">
+		</action>
+		<action path="/save_job" type="ru.runa.af.web.action.SaveJobAction"
+			name="saveJobForm" scope="request" input="/WEB-INF/wf/manage_job.jsp" unknown="false"
+			validate="true">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failue" path="/manage_process.do" redirect="false" />
 		</action>
 		<action path="/restore_default_settings" type="ru.runa.af.web.action.RestoreDefaultSettingsAction"
 			input="/WEB-INF/wf/manage_settings.jsp">
@@ -635,7 +646,7 @@
 			scope="request" unknown="false" validate="false">
 		</action>
 		<action path="/updateProcessVariable"
-			type="ru.runa.wf.web.action.UpdateProcessVariableAction" name="commonProcessForm"
+			type="ru.runa.wf.web.action.UpdateProcessVariableAction" name="variableForm"
 			scope="request" unknown="false" validate="false">
 			<forward name="chatPage" path="/chat_page.do" redirect="true" />
 			<forward name="manageProcess" path="/manage_process.do" redirect="true" />
@@ -745,8 +756,18 @@
 		<action path="/createSubstitutionCriteria" type="ru.runa.af.web.action.CreateSubstitutionCriteriaAction"
 			parameter="/WEB-INF/af/edit_substitution_criteria.jsp" />
 
+		<action path="/manage_job" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/manage_job.jsp">
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+
 		<action path="/manage_system" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="SYSTEM" />
 		<action path="/manage_errors" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="ERRORS" />
+		<action path="/manage_frozen_processes" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="FROZEN_PROCESSES" />
+		<action path="/searchFrozenProcesses" type="ru.runa.af.web.action.SearchFrozenProcessesAction" name="frozenProcessesForm" scope="request">
+			<forward name="success" path="/manage_frozen_processes.do" redirect="false" />
+			<forward name="failure" path="/manage_frozen_processes.do" redirect="true" />
+		</action>
 
         <action path="/messages_page" type="org.apache.struts.actions.ForwardAction" parameter="/WEB-INF/common/messages_page.jsp" />
 
@@ -768,7 +789,8 @@
 			parameter="/WEB-INF/wf/show_process_definitions_history.jsp" />
 		<action path="/definitions_history_diff" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/show_process_definitions_history_diff.jsp" />
-
+		<action path="/process_definition_file_annotation" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/process_definition_file_annotation.jsp" />
 		<action path="/deploy_process_definition" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/deploy_process_definition.jsp" />
 
@@ -784,7 +806,7 @@
 		<action path="/manage_archived_processes" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/wf/manage_archived_processes.jsp" />
 
-		<action path="/manage_process" type="ru.runa.wf.web.action.ShowProcessAction"
+		<action path="/manage_process" type="ru.runa.wf.web.action.ShowProcessAction" scope="request"
 			parameter="/WEB-INF/wf/manage_process.jsp" />
 
 		<action path="/submit_start_process" type="org.apache.struts.actions.ForwardAction"
@@ -924,6 +946,24 @@
 
 		<action path="/newweboldform-completed" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/newweboldform-completed.jsp" />
+
+		<action path="/manage_process_execution" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/manage_process_execution.jsp" />
+		<action path="/moveToken" type="ru.runa.wf.web.action.MoveTokenAction"
+			name="moveTokenForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failure" path="/manage_process_execution.do" redirect="true" />
+		</action>
+		<action path="/createToken" type="ru.runa.wf.web.action.CreateTokenAction"
+			name="idNameForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_process_execution.do" redirect="true" />
+			<forward name="failure" path="/manage_process_execution.do" redirect="true" />
+		</action>
+		<action path="/removeTokens" type="ru.runa.wf.web.action.RemoveTokensAction"
+			name="idsForm"  scope="request" unknown="false" validate="false" >
+			<forward name="success" path="/manage_process_execution.do" redirect="true" />
+			<forward name="failure" path="/manage_process_execution.do" redirect="true" />
+		</action>
 
 	</action-mappings>
 

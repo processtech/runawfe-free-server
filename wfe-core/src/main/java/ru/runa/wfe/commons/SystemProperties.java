@@ -251,10 +251,6 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("definition.compatibility.check.enabled", true);
     }
 
-    public static int getDefinitionCompatibilityCheckProcessesLimit() {
-        return RESOURCES.getIntegerProperty("definition.compatibility.check.processes.limit", -1);
-    }
-
     public static boolean isCheckProcessStartPermissions() {
         return RESOURCES.getBooleanProperty("check.process.start.permissions", true);
     }
@@ -410,7 +406,7 @@ public class SystemProperties {
     }
 
     public static boolean isSwimlaneAutoInitializationEnabled() {
-        return RESOURCES.getBooleanProperty("process.swimlane.auto.initialization.enabled", false);
+        return RESOURCES.getBooleanProperty("process.swimlane.auto.initialization.enabled", true);
     }
 
     public static boolean isProcessExecutionMessagePredefinedSelectorEnabled() {

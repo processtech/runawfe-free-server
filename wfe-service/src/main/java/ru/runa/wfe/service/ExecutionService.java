@@ -1,17 +1,22 @@
 package ru.runa.wfe.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.VariableHistoryStateFilter;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.RestoreProcessStatus;
+import ru.runa.wfe.execution.dto.WfFrozenToken;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
+import ru.runa.wfe.execution.process.check.FrozenProcessFilter;
+import ru.runa.wfe.execution.process.check.FrozenProcessSearchData;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -210,7 +215,14 @@ public interface ExecutionService {
     Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds);
 
     /**
-     * Gets all process variables state on specified date.
+     * @deprecated
+     *            Use {@link #getHistoricalVariables(User user, VariableHistoryStateFilter filter)} instead.
+     */
+    @Deprecated
+    WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException;
+
+    /**
+     * Gets one process variable state on specified date.
      *
      * @param user
      *            authorized user
@@ -218,7 +230,13 @@ public interface ExecutionService {
      *            Criteria for filtering logs.
      * @return not <code>null</code>
      */
-    WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException;
+    WfVariableHistoryState getHistoricalVariables(User user, VariableHistoryStateFilter filter) throws ProcessDoesNotExistException;
+
+    /**
+     * @deprecated Use {@link #getHistoricalVariables(User user, Long processId, Long taskId, String variableName)} instead.
+     */
+    @Deprecated
+    WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException;
 
     /**
      * Get process variable state for completed task.
@@ -229,9 +247,11 @@ public interface ExecutionService {
      *            Process id to load variables.
      * @param taskId
      *            Task id or null, for loading start form state.
+     * @param variableName
+     *            Variable name or null, for loading start form state.
      * @return not <code>null</code>
      */
-    WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException;
+    WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, String variableName) throws ProcessDoesNotExistException;
 
     /**
      * Gets variable by name from process.
@@ -408,4 +428,54 @@ public interface ExecutionService {
      * @return Actors if expandGroups, otherwise Actors and Groups
      */
     Set<Executor> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups);
+
+    List<WfFrozenToken> getFrozenTokens(User user, Map<String, FrozenProcessSearchData> searchData, Map<FrozenProcessFilter, String> filters);
+
+    /**
+     * Moves token to another node.
+     *
+     * @param user      authorized user
+     * @param processId process id
+     * @param tokenId   token id
+     * @param nodeId    destination node id
+     */
+    public void moveToken(User user, Long processId, Long tokenId, String nodeId);
+
+    /**
+     * Creates token in specified node.
+     *
+     * @param user      authorized user
+     * @param processId process id
+     * @param nodeId    node id
+     */
+    public void createToken(User user, Long processId, String nodeId);
+
+    /**
+     * Remove tokens by ids.
+     *
+     * @param user      authorized user
+     * @param processId process id
+     * @param tokenIds  token ids
+     */
+    public void removeTokens(User user, Long processId, List<Long> tokenIds);
+
+    /**
+     * Gets timer job by id.
+     *
+     * @param id
+     *            job id
+     * @return timer job or <code>null</code>
+     */
+    public WfJob getJob(Long id);
+
+    /**
+     * Updates job due date.
+     *
+     * @param jobId
+     *            job id
+     * @param dueDate
+     *            job due date
+     */
+    public void updateJobDueDate(User user, Long processId, Long jobId, Date dueDate);
+
 }

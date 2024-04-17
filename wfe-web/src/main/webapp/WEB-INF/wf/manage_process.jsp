@@ -30,22 +30,27 @@
 <script type="text/javascript" src="<html:rewrite page='<%="/js/bigVariablesHiding.js?"+Version.getHash() %>' />"></script>
 <% if (WebResources.getProcessGraphAutoRefreshIntervalSeconds() > 0) { %>
 <script type="text/javascript">
-$(window).load(function() {
-  window.setInterval("Reload()", <%= WebResources.getProcessGraphAutoRefreshIntervalSeconds() %>*1000);
-});
-function Reload() { 
-   var src = $("#graph").attr("src");
-   var pos = src.indexOf('timestamp');
-   if (pos >= 0) {
-      src = src.substr(0, pos);
-   } else {
-      src = src + '&';
-   }
-   src = src + "timestamp=" + new Date().getTime();
-   $("#graph").attr("src", src);
-}  
+	$(window).load(function() {
+		window.setInterval("Reload()", <%= WebResources.getProcessGraphAutoRefreshIntervalSeconds() %>*1000);
+	});
+	function Reload() { 
+		var src = $("#graph").attr("src");
+		var pos = src.indexOf('timestamp');
+		if (pos >= 0) {
+			src = src.substr(0, pos);
+		} else {
+			src = src + '&';
+		}
+		src = src + "timestamp=" + new Date().getTime();
+		$("#graph").attr("src", src);
+	}
 </script>
 <% } %>
+<script type="text/javascript">
+	function updateGraphView(actionUrl, checked) {
+		window.location.href = actionUrl.replace("CHECKED_FIELD", checked);
+	}
+</script>
 <style>
 	.ui-tooltip {
 		position: fixed;
@@ -86,7 +91,14 @@ function Reload() {
 		</td>
 	</tr>
 	<tr>
-		<td align="right"></td>
+		<% if (Delegates.getExecutorService().isAdministrator(Commons.getUser(session))) { %>
+		<td align="right">
+			<% String href = "/wfe/manage_process_execution.do?processId=" + id;%>
+			<a href="<%= href %>">
+				<bean:message key="link.manage_execution" />
+			</a>
+		</td>
+		<% }%>
 		<td align="right">
 			<wf:showHistoryLink identifiableId='<%=id %>' href='<%= "/show_history.do?id=" + id %>'  />
 		</td>
@@ -116,6 +128,7 @@ function Reload() {
 <wf:processActiveTaskMonitor identifiableId='<%= id %>' />
 <wf:processSwimlaneMonitor identifiableId='<%= id %>' />
 <wf:processVariableMonitor identifiableId='<%= id %>' />
+<wf:processJobMonitor identifiableId='<%= id %>' />
 <% if(!graphMode) { %>
 	<wf:processGraphForm identifiableId='<%= id %>' taskId='<%= taskId %>' childProcessId='<%= childProcessId %>'/>
 <% } %>

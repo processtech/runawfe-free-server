@@ -1,7 +1,5 @@
 package ru.runa.wfe.security.logic;
 
-import ru.runa.wfe.definition.QProcessDefinitionPack;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.mysema.commons.lang.CloseableIterator;
@@ -26,7 +24,7 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.QProcessDefinition;
+import ru.runa.wfe.definition.QProcessDefinitionPack;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
 import ru.runa.wfe.security.Permission;
@@ -39,6 +37,7 @@ import ru.runa.wfe.security.dao.QPermissionMapping;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.QExecutor;
 import ru.runa.wfe.user.User;
+
 import static ru.runa.wfe.security.SecuredObjectType.DEFINITION;
 import static ru.runa.wfe.security.SecuredObjectType.EXECUTOR;
 
@@ -87,7 +86,7 @@ public class AuthorizationLogic extends CommonLogic {
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObject object) {
-        return permissionDao.isAllowed(user, permission, object.getSecuredObjectType(), object.getId());
+        return permissionDao.isAllowed(user, permission, object.getSecuredObjectType(), object.getSecuredObjectId());
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObjectType type, Long identifiableId) {

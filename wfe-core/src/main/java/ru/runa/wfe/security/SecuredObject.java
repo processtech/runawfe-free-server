@@ -19,7 +19,7 @@ public abstract class SecuredObject implements Serializable {
      * 
      * @return Object identity
      */
-    public abstract Long getId();
+    public abstract Long getSecuredObjectId();
 
     /**
      * Returns object type identity. Object with same id and type has same
@@ -32,7 +32,7 @@ public abstract class SecuredObject implements Serializable {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("id", getId()).add("type", getSecuredObjectType()).toString();
+        return MoreObjects.toStringHelper(this).add("type", getSecuredObjectType()).add("id", getSecuredObjectId()).toString();
     }
 
 }

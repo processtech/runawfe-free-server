@@ -1,5 +1,6 @@
 package ru.runa.wfe.execution.dao;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.ArchiveAwareGenericDao;
@@ -16,6 +17,14 @@ public class SwimlaneDao extends ArchiveAwareGenericDao<Swimlane, CurrentSwimlan
     @Autowired
     SwimlaneDao(CurrentSwimlaneDao currentDao, ArchivedSwimlaneDao archivedDao) {
         super(currentDao, archivedDao);
+    }
+
+    public List<? extends Swimlane> findByProcess(Process process) {
+        if (process.isArchived()) {
+            return archivedDao.findByProcess((ArchivedProcess) process);
+        } else {
+            return currentDao.findByProcess((CurrentProcess) process);
+        }
     }
 
     public Swimlane findByProcessAndName(Process process, String name) {

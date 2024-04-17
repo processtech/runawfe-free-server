@@ -11,12 +11,12 @@ import ru.runa.wfe.commons.dao.ArchiveAwareGenericDao;
 import ru.runa.wfe.execution.ArchivedNodeProcess;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.ArchivedToken;
+import ru.runa.wfe.execution.CurrentNodeProcess;
 import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.CurrentNodeProcess;
-import ru.runa.wfe.execution.CurrentToken;
 
 @Component
 public class NodeProcessDao extends ArchiveAwareGenericDao<NodeProcess, CurrentNodeProcess, CurrentNodeProcessDao, ArchivedNodeProcess, ArchivedNodeProcessDao> {
@@ -95,4 +95,5 @@ public class NodeProcessDao extends ArchiveAwareGenericDao<NodeProcess, CurrentN
             return currentDao.getSubprocessesRecursive((CurrentProcess) process);
         }
     }
+
 }

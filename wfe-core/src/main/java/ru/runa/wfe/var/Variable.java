@@ -143,7 +143,7 @@ public abstract class Variable<P extends Process, V> {
         if (SystemProperties.isV3CompatibilityMode() && value != null && String[].class == value.getClass()) {
             string = Arrays.toString((String[]) value);
         } else if (value instanceof Executor) {
-            string = ((Executor) value).getLabel();
+            string = ((Executor) value).getFullName();
         } else {
             string = String.valueOf(value);
         }

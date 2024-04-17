@@ -81,6 +81,13 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
+    public List<MessageAddedBroadcast> getArchivedMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
+        return chatLogic.getArchivedMessages(user, processId);
+    }
+
+    @WebMethod(exclude = false)
+    @Override
+    @WebResult(name = "result")
     public Long getNewMessagesCount(@WebParam(name = "user") @NonNull User user) {
         return chatLogic.getNewMessagesCount(user);
     }
@@ -112,6 +119,13 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebResult(name = "result")
     public ChatMessageFileDto getChatMessageFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "fileId") Long fileId) {
         return chatFileLogic.getById(user, fileId);
+    }
+
+    @WebMethod(exclude = false)
+    @Override
+    @WebResult(name = "result")
+    public ChatMessageFileDto getArchiveChatMessageFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "fileId") Long fileId) {
+        return chatFileLogic.getFromArchive(user, fileId);
     }
 
     @WebMethod(exclude = false)
