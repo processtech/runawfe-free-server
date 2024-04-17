@@ -8,7 +8,12 @@
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
 
 <tiles:put name="head" type="string">
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/processgraphutils.js?"+Version.getHash() %>' />">c=0;</script>
+<script type="text/javascript" src="<html:rewrite page='<%="/js/processgraphutils.js?"+Version.getHash() %>' />">c=0;</script>
+<script type="text/javascript">
+	function updateGraphView(actionUrl, checked) {
+		window.location.href = actionUrl.replace("CHECKED_FIELD", checked);
+	}
+</script>
 </tiles:put>
 
 <tiles:put name="body" type="string" >

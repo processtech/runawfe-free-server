@@ -218,4 +218,9 @@ public class WebResources {
     public static boolean isChatEnabled() {
         return RESOURCES.getBooleanProperty("chat.enabled", true);
     }
+
+    public static int getProcessDefinitionDiffContextLinesCount() {
+        return RESOURCES.getIntegerProperty("process.definition.diff.context.lines.count", 3);
+    }
+
 }

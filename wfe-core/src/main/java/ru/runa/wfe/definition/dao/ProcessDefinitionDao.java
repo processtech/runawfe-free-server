@@ -1,5 +1,6 @@
 package ru.runa.wfe.definition.dao;
 
+import com.querydsl.jpa.hibernate.HibernateQuery;
 import java.util.Date;
 import java.util.List;
 import lombok.NonNull;
@@ -62,6 +63,14 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
         return queryFactory.select(d).from(d).where(d.pack.name.eq(name)).orderBy(d.version.desc()).fetch();
     }
 
+    public List<ProcessDefinition> findVersions(String name, Long definitionId, int limit) {
+        QProcessDefinition d = QProcessDefinition.processDefinition;
+        HibernateQuery<ProcessDefinition> query = queryFactory.selectFrom(d).where(d.pack.name.eq(name)).where(d.id.loe(definitionId)).orderBy(d.version.desc());
+        if (limit > 0) {
+            query.limit(limit);
+        }
+        return query.fetch();
+    }
     public Long findLatestIdLessThan(String name, Long version) {
         QProcessDefinition d = QProcessDefinition.processDefinition;
         return queryFactory.select(d.id)
@@ -70,7 +79,6 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
                 .orderBy(d.version.desc())
                 .fetchFirst();
     }
-
 
     public void deleteAll(ProcessDefinitionPack pack) {
         QProcessDefinition d = QProcessDefinition.processDefinition;

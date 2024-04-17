@@ -1,11 +1,9 @@
 package ru.runa.wf.web.tag;
 
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.Area;
 import org.apache.ecs.html.Map;
 import org.apache.ecs.html.TD;
-
 import ru.runa.common.WebResources;
 import ru.runa.wf.web.html.GraphElementPresentationHelper;
 import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
@@ -48,7 +46,7 @@ public class GraphHistoryElementPresentationVisitor extends NodeGraphElementVisi
     @Override
     protected void onSubprocessNode(SubprocessNodeGraphElement element) {
         Area area = presentationHelper.createSubprocessLink(element, WebResources.ACTION_SHOW_GRAPH_HISTORY,
-                "javascript:showEmbeddedSubprocessGraphHistory");
+                "javascript:showEmbeddedSubprocessGraphHistory", false, true);
         addTooltip(element, area);
     }
 

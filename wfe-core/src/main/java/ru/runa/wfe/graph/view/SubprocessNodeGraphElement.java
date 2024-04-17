@@ -6,7 +6,7 @@ import ru.runa.wfe.lang.SubprocessNode;
 /**
  * Represents Subprocess element on process graph.
  */
-public class SubprocessNodeGraphElement extends NodeGraphElement {
+public class SubprocessNodeGraphElement extends VariableContainerNodeGraphElement {
 
     private static final long serialVersionUID = 1L;
 

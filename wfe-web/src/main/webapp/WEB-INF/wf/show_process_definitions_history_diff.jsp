@@ -44,6 +44,27 @@
 </tiles:put>
 <tiles:put name="body" type="string">
 
+	<table class="box" style="width: 85vw;">
+		<tbody>
+			<tr>
+				<th class="box"><bean:message key="title.process_definition_history" /></th>
+			</tr>
+		</tbody>
+	</table>
+
+	<table class="list" style="width: 85vw;">
+		<tbody>
+			<tr>
+				<td class="list"><bean:message key="batch_presentation.process.definitionName" /></td>
+				<td class="list"><%= request.getParameter(ru.runa.wf.web.action.ShowDefinitionHistoryDiffAction.DEFINITION_NAME) %></td>
+			</tr>
+			<tr>
+				<td class="list"><bean:message key="batch_presentation.process.definitionVersion" /></td>
+				<td class="list"><%= request.getParameter(ru.runa.wf.web.action.ShowDefinitionHistoryDiffAction.VERSION_1) + " VS " + request.getParameter(ru.runa.wf.web.action.ShowDefinitionHistoryDiffAction.VERSION_2) %></td>
+			</tr>
+		</tbody>
+	</table>
+
 	<div class="diffView">
 		<%= request.getAttribute("diffContent") %>
 	</div>

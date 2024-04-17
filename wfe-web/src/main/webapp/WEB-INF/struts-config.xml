@@ -106,6 +106,7 @@
 		<forward name="send_process_signal" path="/send_process_signal.do?tabForwardName=send_process_signal" />
 		<forward name="view_internal_storage" path="/viewInternalStorage.do?tabForwardName=view_internal_storage" />
 		<forward name="chat_rooms" path="/chat_rooms.do?tabForwardName=chat_rooms" />
+		<forward name="process_definition_file_annotation" path="/process_definition_file_annotation.do" />
 	</global-forwards>
 
 	<!-- ========== Action Mapping Definitions =================================== -->
@@ -788,7 +789,8 @@
 			parameter="/WEB-INF/wf/show_process_definitions_history.jsp" />
 		<action path="/definitions_history_diff" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/show_process_definitions_history_diff.jsp" />
-
+		<action path="/process_definition_file_annotation" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/process_definition_file_annotation.jsp" />
 		<action path="/deploy_process_definition" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/deploy_process_definition.jsp" />
 
@@ -804,7 +806,7 @@
 		<action path="/manage_archived_processes" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/wf/manage_archived_processes.jsp" />
 
-		<action path="/manage_process" type="ru.runa.wf.web.action.ShowProcessAction"
+		<action path="/manage_process" type="ru.runa.wf.web.action.ShowProcessAction" scope="request"
 			parameter="/WEB-INF/wf/manage_process.jsp" />
 
 		<action path="/submit_start_process" type="org.apache.struts.actions.ForwardAction"

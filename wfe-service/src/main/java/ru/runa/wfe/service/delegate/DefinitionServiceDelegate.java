@@ -249,6 +249,15 @@ public class DefinitionServiceDelegate extends Ejb3Delegate implements Definitio
     }
 
     @Override
+    public List<WfDefinition> getProcessDefinitionHistory(User user, Long definitionId, int limit) {
+        try {
+            return getDefinitionService().getProcessDefinitionHistory(user, definitionId, limit);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
         try {
             return getDefinitionService().findChanges(definitionName, version1, version2);

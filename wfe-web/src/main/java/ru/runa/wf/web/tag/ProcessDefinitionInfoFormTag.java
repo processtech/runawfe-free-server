@@ -54,7 +54,13 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         parameters.put(ListDefinitionsHistoryFormTag.NAME_PARAMETER, definition.getName());
         parameters.put(PagingNavigationHelper.PAGE_PARAMETER, PagingNavigationHelper.FIRST_PAGE);
         String historyUrl = Commons.getActionUrl(ListDefinitionsHistoryFormTag.ACTION_PATH, parameters, pageContext, PortletUrlType.Render);
-        nameTD.addElement(new A(historyUrl, MessagesProcesses.TITLE_DEFINITIONS_HISTORY.message(pageContext)));
+        nameTD.addElement(new A(historyUrl, MessagesProcesses.LABEL_HISTORY.message(pageContext)));
+        nameTD.addElement(", ");
+        Map<String, Object> parametersForGitBlameFileUrl = new HashMap<>(1);
+        parametersForGitBlameFileUrl.put(ProcessDefinitionFileAnnotationFormTag.PROCESS_DEFINITION_ID_PARAMETER, definition.getId());
+        String annotationUrl = Commons.getActionUrl(ProcessDefinitionFileAnnotationFormTag.ACTION_PATH, parametersForGitBlameFileUrl, pageContext,
+                PortletUrlType.Render);
+        nameTD.addElement(new A(annotationUrl, MessagesProcesses.LABEL_ANNOTATION_CHANGES.message(pageContext)));
         nameTD.addElement(")");
         nameTR.addElement(nameTD);
 

@@ -294,6 +294,15 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         return list.stream().map(d -> new WfDefinition(d)).collect(Collectors.toList());
     }
 
+    public List<WfDefinition> getProcessDefinitionHistory(User user, Long definitionId, int limit) {
+        ParsedProcessDefinition processDefinition = processDefinitionLoader.getDefinition(definitionId);
+        List<ProcessDefinition> list = processDefinitionDao.findVersions(processDefinition.getName(), definitionId, limit);
+        if (list.isEmpty() || !permissionDao.isAllowed(user, Permission.READ, list.get(0).getPack())) {
+            return Collections.emptyList();
+        }
+        return list.stream().map(d -> new WfDefinition(d)).collect(Collectors.toList());
+    }
+
     public void undeployProcessDefinition(User user, @NonNull String definitionName, Long version) {
         boolean removePack = version == null;
         ProcessDefinitionPack p = processDefinitionPackDao.getByName(definitionName);

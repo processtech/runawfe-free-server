@@ -37,16 +37,16 @@ function showEmbeddedSubprocessDefinition(definitionId, subprocessId, width, hei
 	showImageDialog(src, width, height);
 }
 
-function showEmbeddedSubprocess(processId, subprocessId, width, height, graphMode) {
+function showEmbeddedSubprocess(processId, subprocessId, width, height, graphMode, showElementDefinitionDetails, showLogs) {
 	var jsId = getJsessionidValue();
-	var src;
+	var src = "/wfe/process_graph_component.do";
 	if (jsId) {
-		src = "/wfe/process_graph_component.do;jsessionid=" + jsId + "?id=" + processId + "&subprocessId=" + subprocessId;
-	} else {
-		src = "/wfe/process_graph_component.do?id=" + processId + "&subprocessId=" + subprocessId;
+		src += ";jsessionid=" + jsId;
 	}
+	src += "?id=" + processId + "&subprocessId=" + subprocessId;
+	src += "&showElementDefinitionDetails=" + showElementDefinitionDetails + "&showLogs=" + showLogs;
 	if (graphMode) {
-		src = src + "&graphMode=" + graphMode;
+		src += "&graphMode=" + graphMode;
 	}
 	showImageDialog(src, width, height);
 }

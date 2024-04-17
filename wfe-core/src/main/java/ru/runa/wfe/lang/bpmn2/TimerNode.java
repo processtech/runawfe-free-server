@@ -62,6 +62,10 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
         return dueDateExpression;
     }
 
+    public Delegation getActionDelegation() {
+        return actionDelegation;
+    }
+
     public void setDueDateExpression(String dueDateExpression) {
         this.dueDateExpression = dueDateExpression;
     }

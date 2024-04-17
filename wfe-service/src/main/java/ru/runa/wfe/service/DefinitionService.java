@@ -264,6 +264,19 @@ public interface DefinitionService {
     List<WfDefinition> getProcessDefinitionHistory(User user, String definitionName);
 
     /**
+     * Gets versions of process definition specified by id.
+     * 
+     * @param user
+     *            authorized user
+     * @param definitionId
+     *            process definition id to start
+     * @param limit
+     *            result limit
+     * @return not <code>null</code>
+     */
+    List<WfDefinition> getProcessDefinitionHistory(User user, Long definitionId, int limit);
+
+    /**
      * Gets process definitions according to batch presentation.
      * 
      * @param user

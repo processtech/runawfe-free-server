@@ -3405,6 +3405,55 @@
         </attribute>
     </tag>
     <tag>
+        <name>processDefinitionFileAnnotationChanges</name>
+        <tag-class>ru.runa.wf.web.tag.ProcessDefinitionFileAnnotationChangesTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+    <tag>
+        <name>processDefinitionFileAnnotationForm</name>
+        <tag-class>ru.runa.wf.web.tag.ProcessDefinitionFileAnnotationFormTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>action</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>align</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>buttonAlignment</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>height</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>method</name>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>title</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>valign</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>width</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
         <name>processDefinitionInfoForm</name>
         <tag-class>ru.runa.wf.web.tag.ProcessDefinitionInfoFormTag</tag-class>
         <body-content>JSP</body-content>

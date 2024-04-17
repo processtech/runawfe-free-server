@@ -289,11 +289,17 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
         return processDefinitionLogic.getProcessDefinitionHistory(user, name);
     }
 
-    public List<ProcessDefinitionChange> getChanges(@WebParam(name = "definitionId") @NonNull Long processDefinitionId) {
+    @Override
+    @WebMethod(exclude = true)
+    public List<WfDefinition> getProcessDefinitionHistory(@NonNull User user, @NonNull Long definitionId, int limit) {
+        return processDefinitionLogic.getProcessDefinitionHistory(user, definitionId, limit);
+    }
+
+    public List<ProcessDefinitionChange> getChanges(Long processDefinitionId) {
         throw new InternalApplicationException("method is defined here for compatibility only");
     }
 
-    public List<ProcessDefinitionChange> getLastChanges(@WebParam(name = "definitionId") @NonNull Long processDefinitionId, @NonNull Long n) {
+    public List<ProcessDefinitionChange> getLastChanges(Long processDefinitionId, @NonNull Long n) {
         throw new InternalApplicationException("method is defined here for compatibility only");
     }
 

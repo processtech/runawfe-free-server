@@ -228,7 +228,7 @@ public class WfCommonLogic extends CommonLogic {
      * @return List of graph presentation elements.
      */
     protected List<NodeGraphElement> getDefinitionGraphElements(ParsedProcessDefinition definition, NodeGraphElementVisitor visitor) {
-        List<NodeGraphElement> elements = NodeGraphElementBuilder.createElements(definition);
+        List<NodeGraphElement> elements = NodeGraphElementBuilder.createElements(botDao, botTaskDao, definition);
         if (visitor != null) {
             visitor.visit(elements);
         }
