@@ -21,6 +21,7 @@
  */
 package ru.runa.wfe.definition.dao;
 
+import com.querydsl.jpa.hibernate.HibernateQuery;
 import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Component;
@@ -103,6 +104,15 @@ public class DeploymentDao extends GenericDao<Deployment> {
     public List<Deployment> findAllDeploymentVersions(String name) {
         QDeployment d = QDeployment.deployment;
         return queryFactory.selectFrom(d).where(d.name.eq(name)).orderBy(d.version.desc()).fetch();
+    }
+
+    public List<Deployment> findDeploymentVersions(String name, Long definitionId, int limit) {
+        QDeployment d = QDeployment.deployment;
+        HibernateQuery<Deployment> query = queryFactory.selectFrom(d).where(d.name.eq(name)).where(d.id.loe(definitionId)).orderBy(d.version.desc());
+        if (limit > 0) {
+            query.limit(limit);
+        }
+        return query.fetch();
     }
 
     public long getAllDeploymentNameCount() {

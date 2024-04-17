@@ -56,7 +56,7 @@ public class ListDefinitionsHistoryFormTag extends BatchReturningTitledFormTag {
     @SneakyThrows
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        String definitionName = pageContext.getRequest().getParameter("name");
+        String definitionName = pageContext.getRequest().getParameter(NAME_PARAMETER);
         if (definitionName == null) {
             throw new InternalApplicationException("No name parameter has been provided");
         }
@@ -75,16 +75,17 @@ public class ListDefinitionsHistoryFormTag extends BatchReturningTitledFormTag {
                 + "=" + URLEncoder.encode(definitionName, Charsets.UTF_8.name()) + "&" + PagingNavigationHelper.PAGE_PARAMETER_GAP);
         navigation.addPagingNavigationTable(tdFormElement);
         TdBuilder[] builders = BatchPresentationUtils.getBuilders(
-                new TdBuilder[] { new RadioButtonTdBuilder("version1", "version"), new RadioButtonTdBuilder("version2", "version") }, 
-                batchPresentation,
-                new TdBuilder[] { new UndeployProcessDefinitionTdBuilder(), new PropertiesProcessTdBuilder() });
+                new TdBuilder[] { new RadioButtonTdBuilder(ShowDefinitionHistoryDiffAction.VERSION_1, "version"),
+                        new RadioButtonTdBuilder(ShowDefinitionHistoryDiffAction.VERSION_2, "version") },
+                batchPresentation, new TdBuilder[] { new UndeployProcessDefinitionTdBuilder(), new PropertiesProcessTdBuilder() });
         SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 2, 2, getReturnAction(), pageContext, false);
         RowBuilder rowBuilder = new ReflectionRowBuilder(definitions, batchPresentation, pageContext, WebResources.ACTION_MAPPING_MANAGE_DEFINITION,
                 getReturnAction(), new DefinitionUrlStrategy(pageContext), builders);
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
         navigation.addPagingNavigationTable(tdFormElement);
         tdFormElement.addElement(new Input(Input.HIDDEN, ShowDefinitionHistoryDiffAction.DEFINITION_NAME, definitionName));
-        tdFormElement.addElement(new Input(Input.HIDDEN, ShowDefinitionHistoryDiffAction.NUM_CONTEXT_LINES, "3"));
+        tdFormElement.addElement(new Input(Input.HIDDEN, ShowDefinitionHistoryDiffAction.CONTEXT_LINES_COUNT,
+                WebResources.getProcessDefinitionDiffContextLinesCount()));
         getForm().setTarget("_blank");
     }
 
@@ -100,7 +101,7 @@ public class ListDefinitionsHistoryFormTag extends BatchReturningTitledFormTag {
 
     @Override
     protected String getTitle() {
-        return MessagesProcesses.TITLE_PROCESS_DEFINITIONS.message(pageContext);
+        return MessagesProcesses.TITLE_PROCESS_DEFINITION_HISTORY.message(pageContext);
     }
 
     @Override

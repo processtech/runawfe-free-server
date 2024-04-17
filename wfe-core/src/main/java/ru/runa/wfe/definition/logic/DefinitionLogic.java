@@ -264,6 +264,19 @@ public class DefinitionLogic extends WfCommonLogic {
         return result;
     }
 
+    public List<WfDefinition> getProcessDefinitionHistory(User user, Long definitionId, int limit) {
+        ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(definitionId);
+        List<Deployment> deploymentVersions = deploymentDao.findDeploymentVersions(processDefinition.getName(), definitionId, limit);
+        final List<WfDefinition> result = Lists.newArrayListWithExpectedSize(deploymentVersions.size());
+        isPermissionAllowed(user, deploymentVersions, Permission.READ, new CheckMassPermissionCallback() {
+            @Override
+            public void onPermissionGranted(SecuredObject securedObject) {
+                result.add(new WfDefinition((Deployment) securedObject));
+            }
+        });
+        return result;
+    }
+
     public void undeployProcessDefinition(User user, String definitionName, Long version) {
         Preconditions.checkNotNull(definitionName, "definitionName must be specified.");
         ProcessFilter filter = new ProcessFilter();
