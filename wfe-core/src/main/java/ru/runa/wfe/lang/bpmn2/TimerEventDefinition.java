@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import lombok.var;
 import org.dom4j.Element;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -188,7 +187,7 @@ public abstract class TimerEventDefinition {
             // Add full periods.
             alreadyPassedPeriods += JodaTimeUtils.countFullPeriodsInInterval(new Interval(start, end), def.duration);
         }
-        var nextDate = new DateTime(baseDate).plus(def.duration.multipliedBy(alreadyPassedPeriods)).toDate();
+        Date nextDate = new DateTime(baseDate).plus(def.duration.multipliedBy(alreadyPassedPeriods)).toDate();
         if (now.getTime() > nextDate.getTime() + ALLOW_START_PROCESS_DELAY) {
             // Add incomplete period.
             alreadyPassedPeriods++;
