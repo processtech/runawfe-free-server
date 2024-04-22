@@ -5,8 +5,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import lombok.extern.apachecommons.CommonsLog;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -27,6 +29,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 @Test
+@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:ru/runa/wfe/task/logic/test.context.xml" })
 @CommonsLog
 public class TaskAcceptableBySubstitutionRulesBoundConditionsTests extends AbstractTestNGSpringContextTests {
