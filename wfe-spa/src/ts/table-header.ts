@@ -3,7 +3,7 @@ type Option = {
   value: string
 }
 
-export interface TableHeader {
+export type TableHeader = {
   title: string
   value: string
   width: string

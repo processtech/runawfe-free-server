@@ -2,14 +2,15 @@
 import { storeToRefs } from 'pinia'
 import { useUiStore } from '@/stores/ui-store'
 import { useThemeStore } from '@/stores/theme-store'
-import { mainMenuItems } from '@/static/main-menu-items'
-import { useSystemStore } from '@/stores/system-store'
+import { systemConfiguration } from '@/logic/system-configuration'
+import { useMainMenuStore } from '@/stores/main-menu-store'
 
 const uiStore = useUiStore()
 
 const { mini } = storeToRefs(uiStore)
 const { navBarContrast, logo } = storeToRefs(useThemeStore())
-const { publicPath } = storeToRefs(useSystemStore())
+const { menuItems } = storeToRefs(useMainMenuStore())
+const publicPath = systemConfiguration.publicPath()
 </script>
 
 <template>
@@ -36,7 +37,7 @@ const { publicPath } = storeToRefs(useSystemStore())
     </v-row>
     <v-list class="py-0">
       <v-list-item
-        v-for="item in mainMenuItems"
+        v-for="item in menuItems"
         :key="item.title"
         :to="item.to"
         link

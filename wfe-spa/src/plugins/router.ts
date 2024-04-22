@@ -11,6 +11,8 @@ import { useAuthStore } from '@/stores/auth-store'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Login from '@/layouts/Login.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
+import ChatRooms from '@/views/ChatRooms.vue'
+import ProcessChat from '@/views/ProcessChat.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -70,6 +72,16 @@ const router = createRouter({
           name: 'Карточка отчета',
           component: ReportCard,
           path: '/report/:id/card/',
+        },
+        {
+          name: 'Чаты',
+          component: ChatRooms,
+          path: '/chat/list/',
+        },
+        {
+          name: 'Чат процесса',
+          component: ProcessChat,
+          path: '/chat/:processId/card/',
         },
       ],
     },

@@ -22,9 +22,9 @@ import { defineComponent } from 'vue'
 import type { WfeProcessDefinition } from '../ts/WfeProcessDefinition'
 import { processDefinitionService } from '../services/process-definition-service'
 import { mapState } from 'pinia';
-import { useSystemStore } from '../stores/system-store'
 import { useAuthStore } from '../stores/auth-store';
 import ProcessDefinitionSummary from '../components/ProcessDefinitionSummary.vue'
+import { systemConfiguration } from '@/logic/system-configuration'
 
 export default defineComponent({
   components: { ProcessDefinitionSummary },
@@ -39,7 +39,6 @@ export default defineComponent({
 
   computed: {
     ...mapState(useAuthStore, ['token']),
-    ...mapState(useSystemStore, ['serverUrl']),
   },
 
   watch: {
@@ -51,9 +50,9 @@ export default defineComponent({
   methods: {
     loadDefinition() {
       const id = this.$route.params.id || this.$route.query.id
-      processDefinitionService.getDefinitionById(id).then(def => {
+      processDefinitionService.getDefinitionById(Number(id)).then(def => {
         this.definition = Object.assign(this.definition, def)
-        this.oldFormUrl = `${this.serverUrl}/wfe/newweboldform.do?id=${def.id}&jwt=${this.token}&startForm=true`
+        this.oldFormUrl = `${systemConfiguration.serverUrl()}/wfe/newweboldform.do?id=${def.id}&jwt=${this.token}&startForm=true`
       });
     }
   },

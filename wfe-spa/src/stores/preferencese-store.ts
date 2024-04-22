@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia'
+import { useMainMenuStore } from '@/stores/main-menu-store'
 
 export interface PreferencesState {
   processStartFormByRowClick: boolean,
   editVariables: boolean,
+  showChat: boolean,
 }
 
 export const usePreferencesStore = defineStore('preferences', {
@@ -10,9 +12,12 @@ export const usePreferencesStore = defineStore('preferences', {
     processStartFormByRowClick: localStorage.getItem('preferences.processStartFormByRowClick')
       ? localStorage.getItem('preferences.processStartFormByRowClick') === 'true'
       : true,
-    editVariables : localStorage.getItem('preferences.editVariables')
+    editVariables: localStorage.getItem('preferences.editVariables')
       ? localStorage.getItem('preferences.editVariables') === 'true'
-      : false
+      : false,
+    showChat: localStorage.getItem('preferences.showChat')
+      ? localStorage.getItem('preferences.showChat') === 'true'
+      : true,
   }),
 
   actions: {
@@ -27,6 +32,17 @@ export const usePreferencesStore = defineStore('preferences', {
     toggleEditVariables(): void {
       this.editVariables = !this.editVariables
       localStorage.setItem('preferences.editVariables', this.editVariables.toString())
+    },
+
+    toggleChat(): void {
+      const mainMenuStore = useMainMenuStore()
+      if (this.showChat) {
+        mainMenuStore.hideItem('chats')
+      } else {
+        mainMenuStore.showItem('chats')
+      }
+      this.showChat = !this.showChat
+      localStorage.setItem('preferences.showChat', this.showChat.toString())
     },
   },
 })

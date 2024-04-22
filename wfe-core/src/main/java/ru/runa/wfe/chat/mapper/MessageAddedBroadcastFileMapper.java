@@ -2,11 +2,13 @@ package ru.runa.wfe.chat.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.chat.ArchivedChatMessage;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.CurrentChatMessage;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.logic.ChatFileLogic;
 import net.bull.javamelody.MonitoredWithSpring;
@@ -43,5 +45,14 @@ public class MessageAddedBroadcastFileMapper {
             return fileLogic.getByMessageFromArchive(message);
         }
         return new ArrayList<>();
+    }
+
+    public List<ChatMessageFileDto> binaryToFilesDtos(Map<String, byte[]> files) {
+        List<ChatMessageFileDto> chatMessageFiles = new ArrayList<>(files.size());
+        for (Map.Entry<String, byte[]> entry : files.entrySet()) {
+            ChatMessageFileDto chatMessageFile = new ChatMessageFileDto(entry.getKey(), entry.getValue());
+            chatMessageFiles.add(chatMessageFile);
+        }
+        return chatMessageFiles;
     }
 }

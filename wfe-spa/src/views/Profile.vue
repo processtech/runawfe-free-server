@@ -71,6 +71,14 @@
                 color="accent"
               />
             </v-list-item>
+            <v-list-item v-if="isAdmin">
+              <v-checkbox
+                density="compact"
+                v-model="showChatPreference"
+                label="Показывать чаты"
+                color="accent"
+              />
+            </v-list-item>
           </v-list>
         </v-window-item>
       </v-window>
@@ -83,11 +91,11 @@ import { mapActions, mapState } from 'pinia';
 import { defineComponent } from 'vue';
 import { executorService } from '../services/executor-service';
 import { usePreferencesStore } from '../stores/preferencese-store';
-import { useSystemStore } from '../stores/system-store';
-import { MenuItem } from '../ts/menu-item';
+import type { MenuItem } from '../ts/menu-item';
 import ProfilePasswordForm from './ProfilePasswordForm.vue';
 import ProfileUserCard from './ProfileUserCard.vue';
 import { profileMenuItems } from '../static/profile-menu-items'
+import {systemConfiguration} from '@/logic/system-configuration';
 
 export default defineComponent({
   name: 'Profile',
@@ -112,8 +120,7 @@ export default defineComponent({
   },
 
   computed: {
-    ...mapState(usePreferencesStore, ['processStartFormByRowClick', 'editVariables']),
-    ...mapState(useSystemStore, ['serverUrl']),
+    ...mapState(usePreferencesStore, ['processStartFormByRowClick', 'editVariables', 'showChat']),
 
     tab: {
       get(): string {
@@ -141,10 +148,23 @@ export default defineComponent({
         this.toggleEditVariables()
       },
     },
+
+    showChatPreference: {
+      get(): boolean {
+        return this.showChat
+      },
+      set(): void {
+        this.toggleChat()
+      },
+    },
   },
 
   methods: {
-    ...mapActions(usePreferencesStore, ['toggleStartFormByRowClick', 'toggleEditVariables']),
+    ...mapActions(usePreferencesStore, [
+      'toggleStartFormByRowClick',
+      'toggleEditVariables',
+      'toggleChat',
+    ]),
 
     getUserData() {
       this.$apiClient().then((client: any) => {
@@ -163,7 +183,7 @@ export default defineComponent({
     },
 
     toAdminUi(): void {
-      window.location.href = this.serverUrl + '/wfe'
+      window.location.href = systemConfiguration.serverUrl() + '/wfe'
     },
   },
 

@@ -33,7 +33,7 @@ import { useThemeStore } from '../stores/theme-store'
 import ProcessDefinitionCompactList from '../views/ProcessDefinitionCompactList.vue'
 import ProcessDefinitionCard from '../views/ProcessDefinitionCard.vue'
 import ProcessDefinitionList from '../views/ProcessDefinitionList.vue'
-import { useSystemStore } from '../stores/system-store'
+import { systemConfiguration } from '@/logic/system-configuration'
 
 export default defineComponent({
   name: 'StartProcess',
@@ -47,7 +47,8 @@ export default defineComponent({
   computed: {
     ...mapState(usePreferencesStore, ['processStartFormByRowClick']),
     ...mapState(useThemeStore, ['themeContrast']),
-    ...mapState(useSystemStore, ['publicPath']),
+
+    publicPath: systemConfiguration.publicPath,
 
     showStartForm(): boolean {
       return this.$route.query.id

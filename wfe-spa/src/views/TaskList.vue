@@ -115,7 +115,7 @@ export default createWfeTableOptions<WfeTask>({
     } else if (task.escalated) {
       cssClass = 'task-escalation'
     } else if (new Date(task?.deadlineDate).getTime() < timestamp) {
-      cssClass = 'error'
+      cssClass = 'task-expiration'
     } else if (new Date(task?.deadlineWarningDate).getTime() < timestamp) {
       cssClass = 'warning'
     }

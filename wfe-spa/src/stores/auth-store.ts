@@ -1,14 +1,18 @@
-import SwaggerClient from 'swagger-client';
-import { defineStore } from 'pinia';
-import { useSystemStore } from './system-store';
+import SwaggerClient from 'swagger-client'
+import { defineStore } from 'pinia'
+import { useSystemStore } from '@/stores/system-store'
+import type { WfeUser } from '@/domain/wfe-user'
+import { systemConfiguration } from '@/logic/system-configuration'
 
 interface AuthState {
   token: string
+  currentUser: WfeUser
 }
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
-    token: JSON.parse(localStorage.getItem('runawfe@user') || '{}').token
+    token: JSON.parse(localStorage.getItem('runawfe@user') || '{}').token,
+    currentUser: JSON.parse(localStorage.getItem('auth.currentUser') || '{}')
   }),
 
   actions: {
@@ -34,9 +38,8 @@ export const useAuthStore = defineStore('auth', {
 
     makeSwaggerClient(params: any) {
         const { token, resolve, reject } = params;
-        const systemStore = useSystemStore()
         new SwaggerClient({
-          url: systemStore.serverUrl + '/restapi/v3/api-docs',
+          url: systemConfiguration.serverUrl() + '/restapi/v3/api-docs',
           authorizations: {
             token: {
               value: token,
@@ -67,7 +70,7 @@ export const useAuthStore = defineStore('auth', {
       return new Promise((resolve, reject) => {
         const { username: login, password } = params;
         const systemStore = useSystemStore()
-        new SwaggerClient({ url: systemStore.serverUrl  + '/restapi/v3/api-docs' })
+        new SwaggerClient({ url: systemConfiguration.serverUrl() + '/restapi/v3/api-docs' })
           .then((client: any) => {
             client.apis['auth-controller'].basicUsingPOST(null, {
               requestBody: {
@@ -86,10 +89,17 @@ export const useAuthStore = defineStore('auth', {
       });
     },
 
+    saveUser(user: WfeUser): void {
+      this.currentUser = user
+      localStorage.setItem('auth.currentUser', JSON.stringify(user))
+    },
+
     logout() {
       const systemStore = useSystemStore()
       systemStore.setSwaggerClient(null)
       this.update('')
+      localStorage.removeItem('auth.currentUser')
+      // TODO should clean currentUser?
     }
   }
 })

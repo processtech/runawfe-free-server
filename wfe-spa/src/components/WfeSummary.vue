@@ -17,7 +17,7 @@ const showInfo = ref(false)
 
 <template>
   <div>
-    <v-card class="d-flex justify-space-between align-center bg-primary-background" flat>
+    <v-card class="d-flex align-center bg-primary-background" flat>
       <v-card-title class="d-flex align-center text-primary-text">
         <v-btn icon flat variant="plain" @click="$router.go(-1)" class="mr-2">
           <v-icon>mdi-chevron-double-left</v-icon>
@@ -29,6 +29,9 @@ const showInfo = ref(false)
           <v-icon>mdi-information-outline</v-icon>
         </v-btn>
       </v-card-title>
+      <v-card-actions class="ml-auto px-3">
+        <slot />
+      </v-card-actions>
     </v-card>
     <v-expand-transition>
       <v-card v-show="showInfo" flat class="ma-4 bg-primary-background-darken-1 text-primary-text">

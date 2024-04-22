@@ -1,19 +1,27 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, type Ref } from 'vue'
-import { processService } from '@/services/process-service'
+import { computed, type PropType, type Ref } from 'vue'
 import WfeSummary from '@/components/WfeSummary.vue'
-import { useRoute } from 'vue-router'
-import type { WfeProcess } from '@/ts/WfeProcess';
+import type { WfeProcess } from '@/ts/WfeProcess'
+import { usePreferencesStore } from '@/stores/preferencese-store'
 
-const route = useRoute()
+const preferencesStore = usePreferencesStore()
 
-const process: Ref<WfeProcess | undefined> = ref(undefined)
+const props = defineProps({
+  process: {
+    type: Object as PropType<WfeProcess>,
+    required: false,
+  },
+  showChatButton: {
+    type: Boolean,
+    default: false,
+  },
+})
 
 const fields: Ref<{ [key: string]: string | undefined }> = computed(() => {
-  if (!process.value) {
+  if (!props.process) {
     return {}
   }
-  const { id, definitionName, startDate, endDate, executionStatus } = process.value
+  const { id, definitionName, startDate, endDate, executionStatus } = props.process
   return {
     'Номер': String(id),
     'Имя процесса': definitionName,
@@ -22,10 +30,6 @@ const fields: Ref<{ [key: string]: string | undefined }> = computed(() => {
     'Статус': executionStatus
   }
 })
-
-onMounted(async () => {
-  process.value = await processService.getProcess(Number(route.params.id))
-})
 </script>
 
 <template>
@@ -33,5 +37,14 @@ onMounted(async () => {
     :title="process?.definitionName"
     subtitle="Информация об экземпляре "
     :fields="fields"
-  />
+  >
+    <v-btn
+      v-if="props.showChatButton && preferencesStore.showChat"
+      color="primary"
+      variant="tonal"
+      @click="$router.push(`/chat/${props.process?.id}/card`)"
+    >
+      Чат процесса
+    </v-btn>
+  </wfe-summary>
 </template>

@@ -40,6 +40,8 @@ import { defineComponent } from 'vue';
 import { useThemeStore } from '../stores/theme-store';
 import { useAuthStore } from '../stores/auth-store';
 import { useSystemStore } from '../stores/system-store';
+import {executorService} from '@/services/executor-service';
+import {systemConfiguration} from '@/logic/system-configuration';
 
 export default defineComponent({
     name: 'Login',
@@ -52,16 +54,16 @@ export default defineComponent({
             error: '',
             hasError: false,
             forwardUrl: '',
+            publicPath: systemConfiguration.publicPath()
         }
     },
 
     computed: {
       ...mapState(useThemeStore, ['themeContrast']),
-      ...mapState(useSystemStore, ['publicPath']),
     },
 
     methods: {
-        ...mapActions(useAuthStore, { doLogin: 'login' }),
+        ...mapActions(useAuthStore, { doLogin: 'login', saveUser: 'saveUser' }),
 
         login() {
             this.doLogin({
@@ -74,6 +76,8 @@ export default defineComponent({
                         this.forwardUrl = decodeURIComponent(query.replace('forwardUrl=', ''));
                     }
                 }
+                executorService.getUserByName(this.username)
+                  .then(user => this.saveUser(user))
                 this.navigateAfterLogin();
             }, error => {
                 this.error = error;
