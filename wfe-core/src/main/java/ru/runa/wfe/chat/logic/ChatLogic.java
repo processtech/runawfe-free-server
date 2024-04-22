@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatListener;
 import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatRoom;
 import ru.runa.wfe.chat.ChatRoomClassPresentation;
 import ru.runa.wfe.chat.CurrentChatMessage;
@@ -77,11 +78,7 @@ public class ChatLogic extends WfCommonLogic {
 
         MessageAddedBroadcast messageAddedBroadcast;
         if (request.getFiles() != null) {
-            List<ChatMessageFileDto> chatMessageFiles = new ArrayList<>(request.getFiles().size());
-            for (Map.Entry<String, byte[]> entry : request.getFiles().entrySet()) {
-                ChatMessageFileDto chatMessageFile = new ChatMessageFileDto(entry.getKey(), entry.getValue());
-                chatMessageFiles.add(chatMessageFile);
-            }
+            List<ChatMessageFileDto> chatMessageFiles = messageFileMapper.binaryToFilesDtos(request.getFiles());
             messageAddedBroadcast = saveMessageInternal(processId, newMessage, recipients, chatMessageFiles);
         } else {
             messageAddedBroadcast = saveMessageInternal(processId, newMessage, recipients);
@@ -96,13 +93,20 @@ public class ChatLogic extends WfCommonLogic {
     public WfChatMessageBroadcast<MessageEditedBroadcast> editMessage(User user, EditMessageRequest request) {
         final CurrentChatMessage message = chatMessageDao.getNotNull(request.getId());
         message.setText(request.getText());
+        List<CurrentChatMessageFile> files = new ArrayList<>();
+        if (request.getFiles() != null && !request.getFiles().isEmpty()) {
+            files = fileIo.save(messageFileMapper.binaryToFilesDtos(request.getFiles()));
+            fileDao.deleteByMessage(message);
+            files.forEach(f -> f.setMessage(message));
+            fileDao.save(files);
+        }
         if (!message.getCreateActor().equals(user.getActor())) {
             throw new AuthorizationException("Allowed for author only");
         }
         chatMessageDao.update(message);
 
         WfChatMessageBroadcast<MessageEditedBroadcast> wfChatMessageBroadcast = new WfChatMessageBroadcast<>(
-                new MessageEditedBroadcast(request.getProcessId(), message.getId(), message.getText(), user.getName()),
+                new MessageEditedBroadcast(request.getProcessId(), message.getId(), message.getText(), user.getName(), fileDetailMapper.toDtos(files)),
                 getRecipientsByMessageId(message.getId())
         );
         listeners.forEach(l -> l.onEdit(wfChatMessageBroadcast));

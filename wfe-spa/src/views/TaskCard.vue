@@ -20,10 +20,10 @@
 import { defineComponent } from 'vue'
 import type { WfeTask } from '../ts/WfeTask'
 import { mapState } from 'pinia'
-import { useSystemStore } from '../stores/system-store'
 import { useAuthStore } from '../stores/auth-store'
 import TaskSummary from '../components/TaskSummary.vue'
 import { taskService } from '../services/task-service'
+import {systemConfiguration} from '@/logic/system-configuration'
 
 export default defineComponent({
   components: { TaskSummary },
@@ -36,14 +36,13 @@ export default defineComponent({
   }),
 
   computed: {
-    ...mapState(useSystemStore, ['serverUrl']),
     ...mapState(useAuthStore, ['token']),
   },
 
   created: function() {
     taskService.getTask(Number(this.$route.params.id))
       .then(t => this.task = t)
-      .then(() => this.oldFormUrl = `${this.serverUrl}/wfe/newweboldform.do?id=${this.task.id}&title=${encodeURIComponent(this.task.name)}&jwt=${this.token}&startForm=false`)
+      .then(() => this.oldFormUrl = `${systemConfiguration.serverUrl()}/wfe/newweboldform.do?id=${this.task.id}&title=${encodeURIComponent(this.task.name)}&jwt=${this.token}&startForm=false`)
   }
 });
 </script>

@@ -2,6 +2,9 @@
 import { computed, type ComputedRef, type PropType } from 'vue'
 import type { WfeTask } from '@/ts/WfeTask'
 import WfeSummary from '@/components/WfeSummary.vue'
+import { usePreferencesStore } from '@/stores/preferencese-store'
+
+const preferencesStore = usePreferencesStore()
 
 const props = defineProps({
   task: {
@@ -35,5 +38,13 @@ const fields: ComputedRef<{ [key: string]: string }> = computed(() => {
 </script>
 
 <template>
-  <wfe-summary :title="task.name" subtitle="Информация о задаче" :fields="fields" />
+  <wfe-summary :title="task.name" subtitle="Информация о задаче" :fields="fields">
+    <v-btn v-if="preferencesStore.showChat"
+      color="primary"
+      variant="tonal"
+      @click="$router.push(`/chat/${task.processId}/card`)"
+    >
+      Чат процесса
+    </v-btn>
+  </wfe-summary>
 </template>

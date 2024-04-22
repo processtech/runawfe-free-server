@@ -1,23 +1,26 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, type Ref } from 'vue'
 import { processService } from '../services/process-service'
 import { useRoute } from 'vue-router'
 import ProcessSummary from '../components/ProcessSummary.vue'
 import ProcessVariablesMonitor from '../components/ProcessVariablesMonitor.vue'
+import type { WfeProcess } from '@/ts/WfeProcess'
 
 const route = useRoute()
+
 const graphImage = ref('')
 const showGraph = ref(false)
+const process: Ref<WfeProcess | undefined> = ref(undefined)
 
-onMounted(() => {
-  processService.getProcessGraph(Number(route.params.id))
-    .then(gi => graphImage.value = gi)
+onMounted(async () => {
+  graphImage.value = await processService.getProcessGraph(Number(route.params.id))
+  process.value = await processService.getProcess(Number(route.params.id))
 })
 </script>
 
 <template>
   <v-card flat class="bg-primary-background pb-6">
-    <process-summary :processId="Number($route.params.id)" :showChatButton="false" />
+    <process-summary :process="process" :showChatButton="true" />
     <process-variables-monitor :processId="Number($route.params.id)" class="px-4 pb-4" />
     <v-row justify="center">
       <v-dialog

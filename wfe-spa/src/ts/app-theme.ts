@@ -9,7 +9,9 @@ interface Colors {
   'primary-background': string
   'primary-background-darken-1': string
   'primary-text': string
+  'secondary-text': string
   'nav-bar': string
+  'task-expiration': string
   'task-escalation': string
   'task-delegation': string // not used for now
   'task-substitution': string

@@ -1,14 +1,15 @@
 import { ExecutorType } from '@/ts/ExecutorType'
 import { WfeExecutor } from '@/ts/WfeExecutor'
 import { apiClient } from '@/logic/api-client'
+import type { WfeUser } from '@/domain/wfe-user'
 
 export class ExecutorService {
 
-//  async getUserByName(name: string): Promise<WfeUser> {
-//    const client = await apiClient();
-//    const data = await client['executor-controller'].getUserUsingGET({ name });
-//    return data.body;
-//  }
+  async getUserByName(name: string): Promise<WfeUser> {
+    const client = await apiClient()
+    const data = await client['executor-controller'].getUserUsingGET({ name })
+    return data.body;
+  }
 
   async getExecutorsByType(type: ExecutorType): Promise<WfeExecutor[]> {
     const client = await apiClient()

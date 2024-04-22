@@ -1,5 +1,6 @@
 package ru.runa.wfe.chat.dto.request;
 
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,4 +11,5 @@ public class EditMessageRequest extends MessageRequest {
 
     private Long id;
     private String text;
+    private Map<String, byte[]> files;
 }
