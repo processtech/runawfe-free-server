@@ -19,7 +19,7 @@
       @click:row="(event, row) => $router.push(`/task/${row.item.id}/card/`)"
     >
       <template v-slot:top>
-        <table-toolbar>
+        <table-toolbar @reload="update">
           <template v-slot:filterControl>
             <filter-control-btn @toggleFilter="showFilters = !showFilters" />
           </template>
