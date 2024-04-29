@@ -3,7 +3,7 @@ package ru.runa.wf.web.html;
 import org.apache.ecs.html.TD;
 
 import ru.runa.common.web.html.TdBuilder;
-import ru.runa.wfe.commons.EntityWithType;
+import ru.runa.wfe.commons.Categorized;
 
 /**
  * Created on 10.08.2007
@@ -26,7 +26,7 @@ public class CategoryTdBuilder implements TdBuilder {
 
     @Override
     public String getValue(Object object, Env env) {
-        EntityWithType pd = (EntityWithType) object;
+        Categorized pd = (Categorized) object;
         String result = pd.getCategories()[pd.getCategories().length - 1];
         if (result == null) {
             result = "";
@@ -36,13 +36,13 @@ public class CategoryTdBuilder implements TdBuilder {
 
     @Override
     public String[] getSeparatedValues(Object object, Env env) {
-        EntityWithType pd = (EntityWithType) object;
+        Categorized pd = (Categorized) object;
         return pd.getCategories();
     }
 
     @Override
     public int getSeparatedValuesCount(Object object, Env env) {
-        EntityWithType pd = (EntityWithType) object;
+        Categorized pd = (Categorized) object;
         return pd.getCategories().length;
     }
 }

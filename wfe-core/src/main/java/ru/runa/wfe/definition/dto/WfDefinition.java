@@ -5,8 +5,8 @@ import com.google.common.base.Objects;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import ru.runa.wfe.commons.EntityWithType;
-import ru.runa.wfe.commons.Utils;
+import lombok.Getter;
+import ru.runa.wfe.commons.Categorized;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
@@ -18,14 +18,15 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class WfDefinition extends SecuredObject implements Comparable<WfDefinition>, EntityWithType {
+@Getter
+public class WfDefinition extends SecuredObject implements Comparable<WfDefinition>, Categorized {
     private static final long serialVersionUID = -6032491529439317948L;
 
     private Long id;
     private Long packId;
     private String name;
     private String description;
-    private String[] categories;
+    private String category;
     private Long version;
     private boolean hasHtmlDescription;
     private boolean hasStartImage;
@@ -48,7 +49,7 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         this.version = d.getVersion();
         this.name = p.getName();
         this.description = p.getDescription();
-        this.categories = p.getCategories();
+        this.category = p.getCategory();
         this.createDate = d.getCreateDate();
         this.createActor = d.getCreateActor();
         this.updateDate = d.getUpdateDate();
@@ -63,7 +64,7 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         this.version = d.getVersion();
         this.name = p.getName();
         this.description = p.getDescription();
-        this.categories = p.getCategories();
+        this.category = p.getCategory();
         this.createDate = d.getCreateDate();
         this.createActor = d.getCreateActor();
         this.updateDate = d.getUpdateDate();
@@ -82,7 +83,7 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         this.version = pd.getVersion();
         this.name = pd.getName();
         this.description = pd.getDescription();
-        this.categories = pd.getCategory() != null ? pd.getCategory().split(Utils.CATEGORY_DELIMITER) : new String[] {};
+        this.category = pd.getCategory();
         this.createDate = pd.getCreateDate();
         this.createActor = pd.getCreateActor();
         this.updateDate = pd.getUpdateDate();
@@ -101,34 +102,9 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         return SecuredObjectType.DEFINITION;
     }
 
-    public Long getId() {
-        return id;
-    }
-
     @Override
     public Long getSecuredObjectId() {
         return packId;
-    }
-
-    public Long getPackId() {
-        return packId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    @Override
-    public String[] getCategories() {
-        return categories;
     }
 
     public boolean hasHtmlDescription() {
@@ -141,42 +117,6 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
 
     public boolean hasDisabledImage() {
         return hasDisabledImage;
-    }
-
-    public boolean isSubprocessOnly() {
-        return subprocessOnly;
-    }
-
-    public boolean isCanBeStarted() {
-        return canBeStarted;
-    }
-
-    public void setCanBeStarted(boolean canBeStarted) {
-        this.canBeStarted = canBeStarted;
-    }
-
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public Actor getCreateActor() {
-        return createActor;
-    }
-
-    public Date getUpdateDate() {
-        return updateDate;
-    }
-
-    public Actor getUpdateActor() {
-        return updateActor;
-    }
-
-    public Date getSubprocessBindingDate() {
-        return subprocessBindingDate;
-    }
-
-    public Integer getSecondsBeforeArchiving() {
-        return secondsBeforeArchiving;
     }
 
     @Override

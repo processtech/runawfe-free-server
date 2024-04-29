@@ -27,6 +27,7 @@ import StringFilterFormat from './components/formats/StringFilterFormat.vue'
 import LongFilterFormat from './components/formats/LongFilterFormat.vue'
 import DateTimeFilterFormat from './components/formats/DateTimeFilterFormat.vue'
 import OptionsFilterFormat from './components/formats/OptionsFilterFormat.vue'
+import ProcessDefinitionCategoryFilterFormat from './components/formats/ProcessDefinitionCategoryFilterFormat.vue'
 
 createApp(App).use(createPinia())
   .use({
@@ -57,6 +58,7 @@ createApp(App).use(createPinia())
         LongFilterFormat,
         DateTimeFilterFormat,
         OptionsFilterFormat,
+        ProcessDefinitionCategoryFilterFormat,
       }
       Object.entries(formatComponents)
         .forEach(([name, component]) => app.component(name, component))

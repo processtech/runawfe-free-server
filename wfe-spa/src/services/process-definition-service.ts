@@ -15,6 +15,14 @@ export class ProcessDefinitionService {
     return data.body
   }
 
+  async getCategories(): Promise<string[]> {
+    const client = await apiClient()
+    const data = await client['definition-controller'].getProcessDefinitionCategoriesUsingGET(
+      null,
+    )
+    return data.body
+  }
+
   async getDefinitionById(id: number): Promise<WfeProcessDefinition> {
     const client = await apiClient()
     const data = await client['definition-controller'].getProcessDefinitionByIdUsingGET({ id })

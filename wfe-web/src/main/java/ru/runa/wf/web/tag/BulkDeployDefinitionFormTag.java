@@ -52,7 +52,7 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
                 strutsWebHelper));
         DefinitionCategoriesIterator iterator = new DefinitionCategoriesIterator(user);
         TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, def == null ? null : def.getCategories(), pageContext);
-        table.addElement(HTMLUtils.createRow(Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.TYPE, pageContext),
+        table.addElement(HTMLUtils.createRow(Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.CATEGORY, pageContext),
                 hierarchyType));
         tdFormElement.addElement(table);
 

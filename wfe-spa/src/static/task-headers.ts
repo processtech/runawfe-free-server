@@ -5,7 +5,6 @@ export const taskHeaders: Readonly<TableHeader []> = Object.freeze([
       title: 'Задача',
       align: 'start',
       value: 'name',
-      visible: true,
       width: '20em',
       format: 'string',
       filterable: true,
@@ -14,7 +13,6 @@ export const taskHeaders: Readonly<TableHeader []> = Object.freeze([
   {
       title: 'Описание',
       value: 'description',
-      visible: false,
       width: '20em',
       format: 'string',
       filterable: true,
@@ -22,7 +20,6 @@ export const taskHeaders: Readonly<TableHeader []> = Object.freeze([
   {
       title: 'Номер экземпляра',
       value: 'processId',
-      visible: true,
       width: '8em',
       format: 'long',
       filterable: true,
@@ -31,7 +28,6 @@ export const taskHeaders: Readonly<TableHeader []> = Object.freeze([
   {
       title: 'Процесс',
       value: 'definitionName',
-      visible: true,
       width: '20em',
       format: 'string',
       filterable: true,
@@ -40,7 +36,6 @@ export const taskHeaders: Readonly<TableHeader []> = Object.freeze([
   {
       title: 'Создана',
       value: 'createDate',
-      visible: true,
       width: '12em',
       format: 'date-time',
       filterable: true,
@@ -49,7 +44,6 @@ export const taskHeaders: Readonly<TableHeader []> = Object.freeze([
   {
       title: 'Время окончания',
       value: 'deadlineDate',
-      visible: true,
       width: '12em',
       format: 'date-time',
       filterable: true,

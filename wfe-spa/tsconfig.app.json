@@ -9,6 +9,7 @@
     "types": ["node"],
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "noErrorTruncation": true
   }
 }

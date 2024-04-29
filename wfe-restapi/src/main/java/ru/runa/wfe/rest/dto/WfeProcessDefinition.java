@@ -8,7 +8,7 @@ public class WfeProcessDefinition {
     private Long id;
     private String name;
     private String description;
-    private String[] categories;
+    private String category;
     private Long version;
     private boolean hasHtmlDescription;
     private boolean hasStartImage;

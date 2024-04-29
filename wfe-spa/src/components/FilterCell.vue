@@ -1,5 +1,5 @@
 <template>
-  <td v-if="header.filterable" class="py-1">
+  <td v-if="renderTd && header.filterable" class="py-1">
     <component :is="header.format + '-filter-format'"
       @updateInput="updateFilters"
       :initValue="filter[header.value]"
@@ -7,18 +7,28 @@
       ref="cell"
     />
   </td>
-  <td v-else></td>
+  <td v-if="renderTd && !header.filterable"></td>
+  <component :is="header.format + '-filter-format'" v-if="!renderTd && header.filterable"
+    @updateInput="updateFilters"
+    :initValue="filter[header.value]"
+    :options="header.options"
+    ref="cell"
+   />
 </template>
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
-import type { TableHeader } from '../ts/table-header'
-import { wfeRouter } from '../logic/wfe-router'
+import type { TableHeader } from '@/ts/table-header'
+import { wfeRouter } from '@/logic/wfe-router'
 
 export default defineComponent({
   name: 'FilterCell',
 
   props: {
+    renderTd: {
+      type: Boolean,
+      default: true,
+    },
     header: {
       type: Object as PropType<TableHeader>,
       required: true,

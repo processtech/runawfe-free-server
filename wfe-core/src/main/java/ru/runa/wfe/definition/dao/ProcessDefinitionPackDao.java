@@ -34,6 +34,11 @@ public class ProcessDefinitionPackDao extends GenericDao<ProcessDefinitionPack> 
         return queryFactory.selectDistinct(p.id).from(p).orderBy(p.id.asc()).fetch();
     }
 
+    public List<String> findAllCategories() {
+        QProcessDefinitionPack p = QProcessDefinitionPack.processDefinitionPack;
+        return queryFactory.selectDistinct(p.category).from(p).orderBy(p.category.asc()).fetch();
+    }
+
     /**
      * @throws DefinitionDoesNotExistException If not found.
      */
