@@ -20,7 +20,7 @@ public class DefinitionClassPresentation extends ClassPresentation {
     public static final String NAME = "name";
     public static final String DESCRIPTION = "description";
     public static final String VERSION = "version";
-    public static final String TYPE = "type";
+    public static final String CATEGORY = "category";
     public static final String CREATE_DATE = "createDate";
     public static final String CREATE_ACTOR = "createActor";
     public static final String UPDATE_DATE = "updateDate";
@@ -38,7 +38,8 @@ public class DefinitionClassPresentation extends ClassPresentation {
                         Permission.START_PROCESS, "name" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTdBuilder", new Object[] {}),
-                new FieldDescriptor(TYPE, StringWithEmptyValueFilterCriteria.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "category"),
+                new FieldDescriptor(CATEGORY, StringWithEmptyValueFilterCriteria.class.getName(),
+                        new DefaultDbSource(ProcessDefinitionPack.class, "category"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTdBuilder", new Object[] {}),
                 new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "latest.createDate"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionCreateDateTdBuilder", new Object[] {}),

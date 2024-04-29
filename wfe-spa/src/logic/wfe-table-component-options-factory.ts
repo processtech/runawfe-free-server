@@ -16,6 +16,7 @@ import ColorsDescriptionControl from '../components/ColorsDescriptionControl.vue
 import VariableCell from '@/components/VariableCell.vue'
 import VariableColumnsControl from '@/components/VariableColumnsControl.vue'
 import { wfeRouter } from '@/logic/wfe-router'
+import type { ComponentOptionsMixin, DefineComponent, ExtractPropTypes, PublicProps } from 'vue'
 
 declare type WfeTableParams<I> = {
   name: string
@@ -23,12 +24,45 @@ declare type WfeTableParams<I> = {
   visibleColumns: string[]
   colors?: ColorDescription[]
   itemClassFunc?: (item: I) => string
+  extraOptions?: ComponentOptionsMixin
 }
+
+declare type WfeTableOptions<I> = DefineComponent<
+  {},
+  {},
+  any, // TODO try do not to use any
+  {
+    filter: () => { [key: string]: string }
+    variables: () => string[]
+    visibleColumns: () => string[]
+    headers(): TableHeader[]
+    filteredHeaders(): TableHeader[]
+    getOptionsByKey: () => (key: string) => PageOptions
+  },
+  {
+    updateOptions(options: PageOptions): void
+    initVisibleColumnsIfNotPresent(): void
+    rowProps(row: { item: I; }): { class?: string | undefined }
+    update(): void
+    toggleMini: () => void
+    saveOptions: (key: string, options: PageOptions) => void
+    formatDate: (date: Date) => string
+    formatDateTime: (date: Date) => string
+  },
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<ExtractPropTypes<{}>>,
+  {},
+  {}
+ >
 
 export function createWfeTableOptions<I>(
   params: WfeTableParams<I>,
   serviceFunc: (body: PagedListFilter) => Promise<PageList<I>>
-): any { // TODO return type
+): WfeTableOptions<I> {
   return defineComponent({
     name: params.name,
 
@@ -43,14 +77,22 @@ export function createWfeTableOptions<I>(
       VariableColumnsControl,
     },
 
-    data: () => ({
-      showFilters : false,
-      options: {} as PageOptions,
-      total: 0,
-      items: [] as I[],
-      loading: true,
-      colors: [] as ColorDescription[] | undefined,
-    }),
+    data: () => {
+      const extraData = (params.extraOptions && params.extraOptions.data)
+        ? params.extraOptions.data({})
+        : {}
+      return {
+        ...extraData,
+        showFilters : false,
+        options: {} as PageOptions,
+        total: 0,
+        items: [] as I[],
+        loading: true,
+        // TODO rm3526
+        loadingError: false,
+        colors: [] as ColorDescription[] | undefined,
+      }
+    },
 
     computed: {
       ...mapState(useUiStore, ['getOptionsByKey']),
@@ -61,7 +103,7 @@ export function createWfeTableOptions<I>(
 
       headers(): TableHeader[] {
         const variableHeaders: TableHeader[] = this.variables
-          .map(v => ({
+          .map((v: string) => ({
             title: v,
             value: v,
             width: '12rem',
@@ -73,7 +115,7 @@ export function createWfeTableOptions<I>(
 
       filteredHeaders(): TableHeader[] {
         return this.headers
-          .filter(h => this.visibleColumns.includes(h.value))
+          .filter((h: TableHeader) => this.visibleColumns.includes(h.value))
       },
     },
 
@@ -101,9 +143,14 @@ export function createWfeTableOptions<I>(
       this.colors = params.colors
       this.options = this.getOptionsByKey(params.name)
       this.initVisibleColumnsIfNotPresent()
+      if (params.extraOptions && params.extraOptions.created) {
+        params.extraOptions.created.call(this)
+      }
     },
 
     methods: {
+      ...params.extraOptions?.methods,
+
       formatDate,
       formatDateTime,
 
@@ -131,12 +178,15 @@ export function createWfeTableOptions<I>(
 
       update(): void {
         this.loading = true;
+        this.loadingError = false
         const { page, itemsPerPage, sortBy } = this.options;
         const query = {
           filters: this.filter,
           pageNumber: page,
           pageSize: itemsPerPage,
-          sortings: sortBy?.map(({key, order}) => ({ name: key, order })),
+          sortings: sortBy?.map(({key, order}: { key: string, order: string }) => {
+            return { name: key, order }
+          }),
           variables: this.variables,
         }
         serviceFunc(query).then(paged => {
@@ -147,6 +197,7 @@ export function createWfeTableOptions<I>(
           console.log(error)
           this.items = []
           this.total = 0
+          this.loadingError = true
         }).finally(() => {
           this.loading = false
         })

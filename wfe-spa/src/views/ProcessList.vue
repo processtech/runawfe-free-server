@@ -15,7 +15,7 @@
       :loading="loading"
       @update:options="updateOptions"
       hover
-      @click:row="(event, row) => $router.push(`/process/${row.item.id}/card/`)"
+      @click:row="(event: MouseEvent, row: any) => $router.push(`/process/${row.item.id}/card/`)"
       show-current-page
     >
       <template v-slot:top>
@@ -77,7 +77,7 @@
 import { createWfeTableOptions } from '../logic/wfe-table-component-options-factory'
 import { processHeaders } from '../static/process-headers'
 import { processService } from '../services/process-service'
-import { WfeProcess } from '../ts/WfeProcess'
+import { type WfeProcess } from '../ts/WfeProcess'
 
 export default createWfeTableOptions<WfeProcess>({
   name: 'ProcessList',

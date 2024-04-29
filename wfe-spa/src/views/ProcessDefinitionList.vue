@@ -13,11 +13,11 @@
       :items-per-page-text="'Строк на странице'"
       :items-length="total"
       :loading="loading"
-      @click:row="(e, row) => $emit('rowClick', row.item.id)"
+      @click:row="(_e: MouseEvent, row: any) => $emit('rowClick', row.item.id)"
       @update:options="updateOptions"
       hover
     >
-      <template v-slot:top>
+      <template #top>
         <table-toolbar @reload="update">
           <template v-slot:filterControl>
             <filter-control-btn @toggleFilter="showFilters = !showFilters" />
@@ -27,7 +27,7 @@
           </template>
         </table-toolbar>
       </template>
-      <template v-slot:[`item.start`]="{ item }">
+      <template #item.start="{ item }">
         <v-icon
           color="accent"
           size="large"
@@ -38,11 +38,22 @@
           mdi-play-circle
         </v-icon>
       </template>
-      <template v-slot:[`item.createDate`]="{ item }">
-        {{ formatDate(new Date(item.createDate)) }}
+      <template #item.createDate="{ item }">
+        {{ formatDateTime(new Date(item.createDate)) }}
       </template>
-      <template v-slot:no-data>Данные отсутствуют</template>
-      <template v-slot:[`body.prepend`]>
+      <template #item.createUser="{ item }">
+        {{ item.createUser ? item.createUser.fullName : '' }}
+      </template>
+      <template #item.updateDate="{ item }">
+        {{ item.updateDate ? formatDateTime(new Date(item.updateDate)) : '' }}
+      </template>
+      <template #item.updateUser="{ item }">
+        {{ item.updateUser ? item.updateUser.fullName : '' }}
+      </template>
+      <template #no-data>
+        {{ loadingError ? 'Ошибка загрузки данных' : 'Данные отсутствуют' }}
+      </template>
+      <template #body.prepend>
         <tr v-show="showFilters">
           <filter-cell v-for="header in filteredHeaders" :header="header" :key="header.value" />
         </tr>
@@ -52,14 +63,14 @@
 </template>
 
 <script lang="ts">
-import { processDefinitionHeaders } from '../static/process-definition-headers'
-import { WfeProcessDefinition } from '../ts/WfeProcessDefinition'
-import { processDefinitionService } from '../services/process-definition-service'
-import { createWfeTableOptions } from '../logic/wfe-table-component-options-factory'
+import { processDefinitionHeaders } from '@/static/process-definition-headers'
+import type { WfeProcessDefinition } from '@/ts/WfeProcessDefinition'
+import { processDefinitionService } from '@/services/process-definition-service'
+import { createWfeTableOptions } from '@/logic/wfe-table-component-options-factory'
 
 export default createWfeTableOptions<WfeProcessDefinition>({
   name: 'ProcessDefinitionList',
   headers: [...processDefinitionHeaders],
-  visibleColumns: ['start', 'name', 'createDate', 'createActor'],
+  visibleColumns: ['start', 'name', 'category', 'createDate'],
 }, processDefinitionService.getDefinitions)
 </script>

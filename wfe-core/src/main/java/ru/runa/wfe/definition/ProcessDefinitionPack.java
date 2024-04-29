@@ -126,14 +126,6 @@ public class ProcessDefinitionPack extends IdBasedSecuredObject {
         return SecuredObjectType.DEFINITION;
     }
 
-    @Transient
-    public String[] getCategories() {
-        if (category != null) {
-            return category.split(Utils.CATEGORY_DELIMITER);
-        }
-        return new String[] {};
-    }
-
     public void setCategories(List<String> categories) {
         category = Joiner.on(Utils.CATEGORY_DELIMITER).join(categories);
     }

@@ -50,7 +50,7 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
         DefinitionCategoriesIterator iterator = new DefinitionCategoriesIterator(user);
         TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, def == null ? null : def.getCategories(), pageContext);
-        table.addElement(HTMLUtils.createRow(Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.TYPE, pageContext),
+        table.addElement(HTMLUtils.createRow(Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.CATEGORY, pageContext),
                 hierarchyType));
 
         Integer secondsBeforeArchiving = def == null ? null : def.getSecondsBeforeArchiving();

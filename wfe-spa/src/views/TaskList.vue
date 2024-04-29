@@ -16,7 +16,7 @@
       @update:options="updateOptions"
       hover
       show-current-page
-      @click:row="(event, row) => $router.push(`/task/${row.item.id}/card/`)"
+      @click:row="(event: MouseEvent, row: any) => $router.push(`/task/${row.item.id}/card/`)"
     >
       <template v-slot:top>
         <table-toolbar @reload="update">
@@ -80,7 +80,7 @@
 
 <script lang="ts">
 import { taskService } from '../services/task-service'
-import { WfeTask } from '../ts/WfeTask'
+import type { WfeTask } from '../ts/WfeTask'
 import { taskHeaders } from '../static/task-headers'
 import { createWfeTableOptions } from '../logic/wfe-table-component-options-factory'
 import VariableColumnsControl from '../components/VariableColumnsControl.vue'
@@ -108,7 +108,7 @@ export default createWfeTableOptions<WfeTask>({
     }
   ],
   itemClassFunc: (task: WfeTask): string => {
-    let cssClass: string
+    let cssClass = ''
     const timestamp = new Date().getTime();
     if (task.acquiredBySubstitution) {
       cssClass = 'task-substitution'

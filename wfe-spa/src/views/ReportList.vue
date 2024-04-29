@@ -13,7 +13,9 @@
       :items-per-page-text="'Строк на странице'"
       :items-length="total"
       :loading="loading"
-      @click:row="(event, row) => $router.push({ path: `/report/${row.item.id}/card` })"
+      @click:row="(_event: MouseEvent, row: any) => {
+        $router.push({ path: `/report/${row.item.id}/card` })
+      }"
       @update:options="updateOptions"
       hover
       show-current-page
@@ -59,9 +61,7 @@ export default createWfeTableOptions<WfeReport>({
   headers: [
     {
       title: 'Название',
-      align: 'start',
       value: 'name',
-      visible: true,
       width: '20em',
       format: 'string',
       filterable: true,
@@ -69,7 +69,6 @@ export default createWfeTableOptions<WfeReport>({
     {
       title: 'Описание',
       value:'description',
-      visible: false,
       width: '20em',
       format: 'string',
       filterable: true,
@@ -77,7 +76,6 @@ export default createWfeTableOptions<WfeReport>({
     {
       title: 'Тип',
       value: 'category',
-      visible: true,
       width: '12em',
       format: 'string',
       filterable: true,
