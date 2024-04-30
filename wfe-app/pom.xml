@@ -350,9 +350,15 @@
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
 				<excludes>
-					<!-- exclude>**/runawfe_key</exclude -->
 					<exclude>**/*.jasper</exclude>
 				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/resources-not-filtered</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>**/runawfe_key</include>
+				</includes>
 			</resource>
 		</resources>
 
