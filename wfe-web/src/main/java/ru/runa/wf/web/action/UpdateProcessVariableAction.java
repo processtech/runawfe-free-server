@@ -33,6 +33,7 @@ import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.format.BooleanFormat;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
@@ -187,7 +188,7 @@ public class UpdateProcessVariableAction extends ActionBase {
         if (Objects.equal(newValue, oldValue)) {
             return true;
         }
-        if (newValue instanceof Boolean) {
+        if (newValue instanceof Boolean && BooleanFormat.class.getName().equals(variableDefinition.getFormat())) {
             if (Boolean.FALSE.equals(newValue)) {
                 Object value = variableProvider.getValue(variableDefinition.getName());
                 if (!Boolean.TRUE.equals(value)) {
