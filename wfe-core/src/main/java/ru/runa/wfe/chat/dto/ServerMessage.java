@@ -2,6 +2,7 @@ package ru.runa.wfe.chat.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import java.io.Serializable;
 import ru.runa.wfe.chat.dto.broadcast.AuthenticationRequired;
 import ru.runa.wfe.chat.dto.broadcast.ErrorMessageBroadcast;
@@ -11,6 +12,7 @@ import ru.runa.wfe.chat.dto.broadcast.MessageEditedBroadcast;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
+        include = As.PROPERTY,
         property = "messageType"
 )
 @JsonSubTypes({

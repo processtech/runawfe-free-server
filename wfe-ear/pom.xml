@@ -62,11 +62,6 @@
 			<type>ejb</type>
 		</dependency>
 		<dependency>
-			<groupId>dom4j</groupId>
-			<artifactId>dom4j</artifactId>
-			<version>1.6.1</version>
-		</dependency>
-		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
@@ -122,10 +117,6 @@
 					<defaultLibBundleDir>lib</defaultLibBundleDir>
 					<initializeInOrder>true</initializeInOrder>
 					<modules>
-						<jarModule>
-							<groupId>dom4j</groupId>
-							<artifactId>dom4j</artifactId>
-						</jarModule>
 						<jarModule>
 							<groupId>${project.groupId}</groupId>
 							<artifactId>wfe-core</artifactId>
