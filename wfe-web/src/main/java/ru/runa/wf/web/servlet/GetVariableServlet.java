@@ -69,10 +69,11 @@ public class GetVariableServlet extends HttpServlet {
         try {
             String componentInput = ViewUtil.getComponentInput(user, webHelper, variable);
             variableObject.put("input", componentInput);
+            response.setContentType("application/json");
         } catch (Exception e) {
             variableObject.put("input", e.getLocalizedMessage());
-        } finally {
             response.setContentType("text/html");
+        } finally {
             response.setCharacterEncoding(Charsets.UTF_8.name());
             response.getOutputStream().write(variableObject.toString().getBytes(Charsets.UTF_8));
             response.getOutputStream().flush();

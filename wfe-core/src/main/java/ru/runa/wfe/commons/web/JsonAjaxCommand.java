@@ -16,16 +16,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */package ru.runa.wfe.commons.web;
 
+import com.google.common.base.Charsets;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONAware;
-
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Charsets;
 
 public abstract class JsonAjaxCommand implements AjaxCommand {
     protected final Log log = LogFactory.getLog(getClass());
@@ -33,6 +30,8 @@ public abstract class JsonAjaxCommand implements AjaxCommand {
     @Override
     public void execute(User user, HttpServletRequest request, HttpServletResponse response) throws Exception {
         JSONAware json = execute(user, request);
+        response.setContentType("application/json");
+        response.setCharacterEncoding(Charsets.UTF_8.name());
         response.getOutputStream().write(json.toString().getBytes(Charsets.UTF_8));
     }
 
