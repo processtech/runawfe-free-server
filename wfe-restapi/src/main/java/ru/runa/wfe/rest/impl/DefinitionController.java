@@ -31,8 +31,8 @@ import ru.runa.wfe.rest.converter.WfeNodeMapper;
 import ru.runa.wfe.rest.converter.WfeProcessDefinitionMapper;
 import ru.runa.wfe.rest.converter.WfeSwimlaneDefinitionMapper;
 import ru.runa.wfe.rest.converter.WfeTaskNodeInteractionMapper;
-import ru.runa.wfe.rest.converter.WfeVariableUserTypeMapper;
 import ru.runa.wfe.rest.converter.WfeVariableDefinitionMapper;
+import ru.runa.wfe.rest.converter.WfeVariableUserTypeMapper;
 import ru.runa.wfe.rest.dto.WfeNode;
 import ru.runa.wfe.rest.dto.WfeNodeGraphElement;
 import ru.runa.wfe.rest.dto.WfePagedList;
@@ -86,6 +86,11 @@ public class DefinitionController {
         WfeProcessDefinitionMapper mapper = Mappers.getMapper(WfeProcessDefinitionMapper.class);
         int total = processDefinitionLogic.getProcessDefinitionsCount(authUser.getUser(), batchPresentation);
         return new WfePagedList<>(total, mapper.map(definitions));
+    }
+
+    @GetMapping("categories")
+    public List<String> getProcessDefinitionCategories(@AuthenticationPrincipal AuthUser authUser) {
+        return processDefinitionLogic.getProcessDefinitionCategories();
     }
 
     @GetMapping("history")

@@ -137,7 +137,10 @@ public class ReceiveMessageBean implements MessageListener {
                         suitable = true;
                     }
                     if (suitable) {
-                        ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, trigger.getProcess());
+                        // creating new token because process root token already can be ENDED
+                        CurrentToken triggerToken = new CurrentToken(parsedProcessDefinition, trigger.getProcess(), startNode);
+                        currentTokenDao.create(triggerToken);
+                        ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, triggerToken);
                         handlers.add(new ReceiveMessageData(executionContext, startNode));
                     }
                 } catch (Exception e) {

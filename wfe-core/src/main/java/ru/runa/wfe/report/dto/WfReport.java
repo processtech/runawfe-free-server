@@ -4,15 +4,17 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
-import ru.runa.wfe.commons.EntityWithType;
-import ru.runa.wfe.commons.Utils;
+import lombok.Getter;
+import lombok.Setter;
+import ru.runa.wfe.commons.Categorized;
 import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportParameter;
 import ru.runa.wfe.security.IdBasedSecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
-public class WfReport extends IdBasedSecuredObject implements Comparable<WfReport>, EntityWithType {
-
+@Getter
+@Setter
+public class WfReport extends IdBasedSecuredObject implements Comparable<WfReport>, Categorized {
     private static final long serialVersionUID = 1L;
 
     private Long id;
@@ -48,55 +50,6 @@ public class WfReport extends IdBasedSecuredObject implements Comparable<WfRepor
                         return new WfReportParameter(input.getName(), "", input.getInnerName(), ++position, input.getType(), input.isRequired());
                     }
                 }));
-    }
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    @Override
-    public String[] getCategories() {
-        if (category != null) {
-            return category.split(Utils.CATEGORY_DELIMITER);
-        }
-        return new String[] {};
-    }
-
-    public List<WfReportParameter> getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(List<WfReportParameter> parameters) {
-        this.parameters = parameters;
     }
 
     @Override

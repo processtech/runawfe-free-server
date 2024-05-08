@@ -1,8 +1,7 @@
 package ru.runa.wfe.definition;
 
-import ru.runa.wfe.presentation.BatchPresentationConsts;
-
 import java.util.Date;
+import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDbSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -18,7 +17,7 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
     public static final String NAME = "name";
     public static final String DESCRIPTION = "description";
     public static final String VERSION = "version";
-    public static final String TYPE = "type";
+    public static final String CATEGORY = "category";
     public static final String CREATE_DATE = "createDate";
     public static final String CREATE_ACTOR = "createActor";
     public static final String UPDATE_DATE = "updateDate";
@@ -40,7 +39,7 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(ProcessDefinition.class,
                         "definition.description"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTdBuilder",
                         new Object[] {}),
-                new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDbSource(ProcessDefinition.class,
+                new FieldDescriptor(CATEGORY, AnywhereStringFilterCriteria.class.getName(), new DefaultDbSource(ProcessDefinition.class,
                         "definition.category"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTdBuilder", new Object[] {}),
                 new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDbSource(ProcessDefinition.class, "createDate"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionCreateDateTdBuilder", new Object[] {}),

@@ -42,7 +42,12 @@ public class ShowDefinitionHistoryDiffAction extends ActionBase {
         String definitionName = request.getParameter(DEFINITION_NAME);
         String version1String = request.getParameter(VERSION_1);
         String version2String = request.getParameter(VERSION_2);
-        int numContextLines = Integer.parseInt(request.getParameter(CONTEXT_LINES_COUNT));
+        String numContextLinesString = request.getParameter(CONTEXT_LINES_COUNT);
+        if (numContextLinesString == null) {
+            // back compatibility
+            numContextLinesString = request.getParameter("numContextLines");
+        }
+        int numContextLines = Integer.parseInt(numContextLinesString);
         if (version2String == null || version1String != null && version1String.equals(version2String)) {
             addMessage(request, new ActionMessage(MessagesProcesses.FAILED_VIEW_DIFFERENCES.getKey()));
             request.setAttribute(DIFF_CONTENT, "");

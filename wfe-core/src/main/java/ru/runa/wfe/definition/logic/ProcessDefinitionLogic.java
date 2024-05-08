@@ -286,6 +286,10 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         return getDefinitionGraphElements(definition, visitor);
     }
 
+    public List<String> getProcessDefinitionCategories() {
+        return processDefinitionPackDao.findAllCategories();
+    }
+
     public List<WfDefinition> getProcessDefinitionHistory(User user, String name) {
         List<ProcessDefinition> list = processDefinitionDao.findAllByNameOrderByVersionDesc(name);
         if (list.isEmpty() || !permissionDao.isAllowed(user, Permission.READ, list.get(0).getPack())) {

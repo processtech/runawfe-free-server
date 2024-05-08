@@ -14,6 +14,8 @@ public abstract class JsonAjaxCommand implements AjaxCommand {
     @Override
     public void execute(User user, HttpServletRequest request, HttpServletResponse response) throws Exception {
         JSONAware json = execute(user, request);
+        response.setContentType("application/json");
+        response.setCharacterEncoding(Charsets.UTF_8.name());
         response.getOutputStream().write(json.toString().getBytes(Charsets.UTF_8));
     }
 
