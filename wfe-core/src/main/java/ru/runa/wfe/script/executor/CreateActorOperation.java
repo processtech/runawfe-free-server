@@ -1,10 +1,8 @@
 package ru.runa.wfe.script.executor;
 
+import com.google.common.base.Strings;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
-
-import com.google.common.base.Strings;
-
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.AdminScriptException;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
@@ -59,6 +57,9 @@ public class CreateActorOperation extends ScriptOperation {
     @Override
     public void execute(ScriptExecutionContext context) {
         Long actorCode = Strings.isNullOrEmpty(code) ? null : Long.valueOf(code);
+        if (fullName == null) {
+            fullName = name;
+        }
         Actor actor = new Actor(name, description, fullName, actorCode, email, phone, title, department);
         actor = context.getExecutorLogic().create(context.getUser(), actor);
         String actorPassword = Strings.isNullOrEmpty(context.getDefaultPassword()) ? password : context.getDefaultPassword();
