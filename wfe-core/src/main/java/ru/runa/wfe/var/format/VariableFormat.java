@@ -131,7 +131,7 @@ public abstract class VariableFormat {
     }
 
     /**
-     * @see ru.runa.wfe.var.dao.LoadVariableOfType.
+     * @see ru.runa.wfe.var.dao.LoadVariableOfType
      */
     public boolean canBePersistedAsComplexVariable() {
         return false;

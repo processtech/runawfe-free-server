@@ -425,7 +425,6 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         }
         html.append("/>");
         return html.toString();
-
     }
 
     public static String getFileComponent(WebHelper webHelper, String variableName, FileVariable value, boolean enabled, boolean allowMultiple) {

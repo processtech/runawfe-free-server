@@ -29,14 +29,17 @@ import ru.runa.wfe.service.jaxb.VariableConverter;
 import ru.runa.wfe.service.utils.FileVariablesUtil;
 import ru.runa.wfe.springframework4.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.task.Task;
+import ru.runa.wfe.task.TaskFormDraft;
+import ru.runa.wfe.task.dao.TaskFormDraftDao;
 import ru.runa.wfe.task.dto.WfTask;
+import ru.runa.wfe.task.dto.WfTaskFormDraft;
 import ru.runa.wfe.task.logic.TaskLogic;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
 @Stateless(name = "TaskServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
-@Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
+@Interceptors({EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class})
 @WebService(name = "TaskAPI", serviceName = "TaskWebService")
 @SOAPBinding
 public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, TaskWebServiceRemote {
@@ -44,6 +47,8 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     private TaskLogic taskLogic;
     @Autowired
     private ExecutionLogic executionLogic;
+    @Autowired
+    private TaskFormDraftDao taskFormDraftDao;
 
     @Override
     @WebResult(name = "result")
@@ -151,9 +156,37 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     public List<WfTask> getUnassignedTasks(@WebParam(name = "user") @NonNull User user) {
         return taskLogic.getUnassignedTasks(user);
     }
-    
+
     @Override
     public boolean isTaskDelegationEnabled() {
         return taskLogic.isTaskDelegationEnabled();
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public WfTaskFormDraft getTaskFormDraft(User user, Long taskId) {
+        TaskFormDraft taskFormDraft = taskFormDraftDao.find(user, taskId);
+        if (null == taskFormDraft)
+            return null;
+
+        return new WfTaskFormDraft(taskFormDraft);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public void setTaskFormDraft(User user, Long taskId, String varB64) {
+        taskFormDraftDao.save(user, taskId, varB64);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public void deleteTaskFormDraft(User user, Long taskId) {
+        taskFormDraftDao.delete(user, taskId);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public void deleteAllTaskFormDrafts(Long taskId) {
+        taskFormDraftDao.delete(taskId);
     }
 }

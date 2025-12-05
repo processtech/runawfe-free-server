@@ -18,3 +18,5 @@ wfe-webservice-client/src/main/
 wfe-ear/${jboss.home.dir}
 
 wfe-spa/dist/
+
+wfe-ear/${jboss.home.dir}/standalone/deployments/runawfe.ear

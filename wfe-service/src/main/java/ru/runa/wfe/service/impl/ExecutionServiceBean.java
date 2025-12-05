@@ -14,6 +14,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.VariableHistoryStateFilter;
@@ -46,6 +47,7 @@ import ru.runa.wfe.service.jaxb.Variable;
 import ru.runa.wfe.service.jaxb.VariableConverter;
 import ru.runa.wfe.service.utils.FileVariablesUtil;
 import ru.runa.wfe.springframework4.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import ru.runa.wfe.task.logic.TaskLogic;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -56,7 +58,7 @@ import ru.runa.wfe.var.logic.VariableLogic;
 
 @Stateless(name = "ExecutionServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
-@Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
+@Interceptors({EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class})
 @WebService(name = "ExecutionAPI", serviceName = "ExecutionWebService")
 @SOAPBinding
 public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionServiceRemote, ExecutionWebServiceRemote {
@@ -66,6 +68,8 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     private ExecutionLogic executionLogic;
     @Autowired
     private VariableLogic variableLogic;
+    @Autowired
+    private TaskLogic taskLogic;
 
     @WebMethod(exclude = true)
     @Override
@@ -221,6 +225,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         return null;
     }
 
+    @SneakyThrows
     @WebMethod(exclude = true)
     @Override
     public WfVariable getTaskVariable(@NonNull User user, @NonNull Long processId, @NonNull Long taskId, @NonNull String variableName) {
@@ -272,14 +277,14 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public List<WfSwimlane> getProcessSwimlanes(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
         return executionLogic.getProcessSwimlanes(user, processId);
     }
-    
+
     @Override
     @WebResult(name = "result")
     public List<WfSwimlane> getActiveProcessesSwimlanes(@WebParam(name = "user") @NonNull User user,
             @WebParam(name = "namePattern") @NonNull String namePattern) {
         return executionLogic.getActiveProcessesSwimlanes(user, namePattern);
     }
-    
+
     @Override
     @WebResult(name = "result")
     public boolean reassignSwimlane(@WebParam(name = "user") User user, @WebParam(name = "id") @NonNull Long id) {
@@ -383,9 +388,9 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public void sendSignalWS(@WebParam(name = "user") @NonNull User user, @WebParam(name = "routingData") @NonNull List<StringKeyValue> routingData,
             @WebParam(name = "payloadData") List<StringKeyValue> payloadData, @WebParam(name = "ttlInSeconds") long ttlInSeconds) {
         sendSignal(user,
-                StringKeyValueConverter.unmarshal(routingData), 
-                StringKeyValueConverter.unmarshal(payloadData), 
- ttlInSeconds);
+                StringKeyValueConverter.unmarshal(routingData),
+                StringKeyValueConverter.unmarshal(payloadData),
+                ttlInSeconds);
     }
 
     @Override

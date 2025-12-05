@@ -8,6 +8,7 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.task.TaskAlreadyAcceptedException;
 import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.task.dto.WfTask;
+import ru.runa.wfe.task.dto.WfTaskFormDraft;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
@@ -171,4 +172,38 @@ public interface TaskService {
 
     boolean isTaskDelegationEnabled();
 
+    /**
+     * Get draft of task for user
+     *
+     * @param user
+     * @param taskId
+     * @return
+     */
+    WfTaskFormDraft getTaskFormDraft(User user, Long taskId);
+
+    /**
+     * save draft of task for user
+     *
+     * @param user
+     * @param taskId
+     * @param varB64
+     */
+    void setTaskFormDraft(User user, Long taskId, String varB64);
+
+    /**
+     * Delete draft of task for user
+     *
+     * @param user
+     * @param taskId
+     * @return
+     */
+    void deleteTaskFormDraft(User user, Long taskId);
+
+    /**
+     * Delete all drafts of task for user
+     *
+     * @param taskId
+     * @return
+     */
+    void deleteAllTaskFormDrafts(Long taskId);
 }
