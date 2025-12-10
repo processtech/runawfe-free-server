@@ -63,4 +63,14 @@ public class CurrentVariableDao extends GenericDao<CurrentVariable> {
         return queryFactory.selectFrom(variable).where(variable.process.eq(process).and(variable.name.startsWith(namePrefix))).fetch();
     }
 
+    public boolean hasVariablesContainingValue(Long processId, String searchQuery) {
+        final QCurrentVariable variable = QCurrentVariable.currentVariable;
+        CurrentVariable<?> result = queryFactory.selectFrom(variable)
+                .where(
+                        variable.process.id.eq(processId)
+                                .and(variable.stringValue.contains(searchQuery))
+                ).fetchFirst();
+        return result != null;
+    }
+
 }

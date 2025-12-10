@@ -112,6 +112,12 @@ public class SortingHeaderBuilder implements HeaderBuilder {
             params.put(SetSortingForm.BATCH_PRESENTATION_ID, batchPresentation.getCategory());
             params.put(IdForm.ID_INPUT_NAME, fields[i].fieldIdx);
             params.put(ReturnActionForm.RETURN_ACTION, returnActionName);
+
+            String search = pageContext.getRequest().getParameter("search");
+            if (search != null && !search.trim().isEmpty()) {
+                params.put("search", search);
+            }
+
             if (fields[i].sortable) {
                 String url = Commons.getActionUrl(SetSortingAction.ACTION_PATH, params, pageContext, PortletUrlType.Action);
                 A link = new A(url, Messages.getMessage(batchPresentation, fields[i], pageContext));

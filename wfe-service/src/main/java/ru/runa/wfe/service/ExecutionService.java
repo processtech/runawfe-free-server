@@ -117,6 +117,17 @@ public interface ExecutionService {
     List<WfProcess> getSubprocesses(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException;
 
     /**
+     * Filter processes by variable values using a query.
+     *
+     * @param processes
+     *            list of processes for filtering
+     * @param searchQuery
+     *            string to search in process variable values
+     * @return not <code>null</code>
+     */
+    List<WfProcess> filterProcessesByVariableValues(List<WfProcess> processes, String searchQuery);
+
+    /**
      * @deprecated use method with reason
      */
     @Deprecated

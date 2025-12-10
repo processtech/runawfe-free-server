@@ -496,6 +496,20 @@ public class ExecutionLogic extends WfCommonLogic {
         return toWfProcesses(subprocesses, null);
     }
 
+    public List<WfProcess> filterProcessesByVariableValues(List<WfProcess> processes, String searchQuery) {
+        if (searchQuery == null || searchQuery.trim().isEmpty()) {
+            return processes;
+        }
+        List<WfProcess> filteredProcesses = new ArrayList<>();
+        for (WfProcess process: processes) {
+            boolean isContain = variableDao.hasVariablesContainingValue(process.getId(), searchQuery);
+            if (isContain) {
+                filteredProcesses.add(process);
+            }
+        }
+        return filteredProcesses;
+    }
+
     public List<WfJob> getJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
         Process p = processDao.getNotNull(processId);
         permissionDao.checkAllowed(user, Permission.READ, p);

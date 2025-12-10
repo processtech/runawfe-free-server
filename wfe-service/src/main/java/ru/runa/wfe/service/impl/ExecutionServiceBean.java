@@ -131,6 +131,12 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         return executionLogic.getSubprocesses(user, processId, recursive);
     }
 
+    @Override
+    @WebMethod(exclude = true)
+    public List<WfProcess> filterProcessesByVariableValues(List<WfProcess> processes, String searchQuery) {
+        return executionLogic.filterProcessesByVariableValues(processes, searchQuery);
+    }
+
     @WebMethod(exclude = true)
     @Override
     public List<WfVariable> getVariables(@NonNull User user, @NonNull Long processId) {
