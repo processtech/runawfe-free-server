@@ -1,5 +1,6 @@
 package ru.runa.wfe.extension.handler.var;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,8 +9,6 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.extension.handler.CommonHandler;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableProvider;
-
-import com.google.common.collect.Lists;
 
 public class UserTypeListAggregateFunctionActionHandler extends CommonHandler {
     private UserTypeListAggregateFunctionConfig config;
@@ -23,11 +22,11 @@ public class UserTypeListAggregateFunctionActionHandler extends CommonHandler {
     protected Map<String, Object> executeAction(VariableProvider variableProvider) throws Exception {
         List<?> list = variableProvider.getValue(List.class, config.getListName());
         if (list == null) {
-            list = Lists.newArrayList();
+            list = new ArrayList<>();
         }
         Map<String, Object> result = new HashMap<>();
         for (UserTypeListAggregateFunctionConfig.Operation operation : config.getOperations()) {
-            List<Object> values = Lists.newArrayList();
+            List<Object> values = new ArrayList<>();
             for (Object item : list) {
                 if (item instanceof UserTypeMap) {
                     UserTypeMap userTypeMap = (UserTypeMap) item;
@@ -43,7 +42,7 @@ public class UserTypeListAggregateFunctionActionHandler extends CommonHandler {
         return result;
     }
 
-    private Object applyFunction(List<Object> values, String function) throws Exception {
+    private Object applyFunction(List<Object> values, String function) throws IllegalArgumentException {
         if ("SUM".equals(function)) {
             return getSum(values);
         } else if ("AVERAGE".equals(function)) {
@@ -60,7 +59,7 @@ public class UserTypeListAggregateFunctionActionHandler extends CommonHandler {
         } else if ("MAX".equals(function)) {
             return getMax(values);
         } else {
-            throw new Exception("Unknown function '" + function + "'");
+            throw new IllegalArgumentException("Unknown function '" + function + "'");
         }
     }
 
@@ -76,7 +75,7 @@ public class UserTypeListAggregateFunctionActionHandler extends CommonHandler {
         if (doubleValue) {
             return sum;
         } else {
-            return Long.valueOf((long) sum);
+            return (long) sum;
         }
     }
 
@@ -102,7 +101,7 @@ public class UserTypeListAggregateFunctionActionHandler extends CommonHandler {
         if (doubleValue) {
             return min;
         } else {
-            return Long.valueOf((long) min);
+            return (long) min;
         }
     }
 
@@ -124,7 +123,7 @@ public class UserTypeListAggregateFunctionActionHandler extends CommonHandler {
         if (doubleValue) {
             return max;
         } else {
-            return Long.valueOf((long) max);
+            return (long) max;
         }
     }
 

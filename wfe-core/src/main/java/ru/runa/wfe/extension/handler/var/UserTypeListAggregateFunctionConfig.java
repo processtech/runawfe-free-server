@@ -1,5 +1,6 @@
 package ru.runa.wfe.extension.handler.var;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
@@ -8,7 +9,6 @@ import org.dom4j.Element;
 
 import ru.runa.wfe.commons.xml.XmlUtils;
 
-import com.google.common.collect.Lists;
 
 /**
  * <config>
@@ -23,7 +23,7 @@ public class UserTypeListAggregateFunctionConfig extends Observable {
 
     public UserTypeListAggregateFunctionConfig(String listName, List<Operation> operations) {
         this.listName = listName;
-        this.operations = operations != null ? operations : Lists.newArrayList();
+        this.operations = operations != null ? operations : new ArrayList<>();
     }
 
     public static UserTypeListAggregateFunctionConfig fromXml(String xml) {
@@ -32,7 +32,7 @@ public class UserTypeListAggregateFunctionConfig extends Observable {
         Element listElement = rootElement.element("list");
         String listName = listElement.attributeValue("name");
         List<Element> operationElements = rootElement.elements("operation");
-        List<Operation> operations = Lists.newArrayList();
+        List<Operation> operations = new ArrayList<>();
         for (Element operationElement : operationElements) {
             String attribute = operationElement.attributeValue("attribute");
             String function = operationElement.attributeValue("function");
