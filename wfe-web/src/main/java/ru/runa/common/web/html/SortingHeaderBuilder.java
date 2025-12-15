@@ -15,6 +15,7 @@ import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.SetSortingAction;
+import ru.runa.common.web.action.SetSortingWithSearchAction;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.form.ReturnActionForm;
 import ru.runa.common.web.form.SetSortingForm;
@@ -119,7 +120,7 @@ public class SortingHeaderBuilder implements HeaderBuilder {
             }
 
             if (fields[i].sortable) {
-                String url = Commons.getActionUrl(SetSortingAction.ACTION_PATH, params, pageContext, PortletUrlType.Action);
+                String url = Commons.getActionUrl(SetSortingWithSearchAction.ACTION_PATH, params, pageContext, PortletUrlType.Action);
                 A link = new A(url, Messages.getMessage(batchPresentation, fields[i], pageContext));
                 header.addElement(link);
                 if (sortingImage != null) {

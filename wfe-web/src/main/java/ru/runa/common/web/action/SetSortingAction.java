@@ -35,14 +35,6 @@ public class SetSortingAction extends ActionBase {
             addError(request, e);
         }
 
-        Map<String, String> params = new HashMap<>();
-
-        String search = request.getParameter("search");
-        if (search != null && !search.trim().isEmpty()) {
-            params.put("search", search);
-        }
-
-        ActionForward actionForward = new ActionForward(sortingForm.getReturnAction(), true);
-        return Commons.forward(actionForward, params);
+        return new ActionForward(sortingForm.getReturnAction(), true);
     }
 }
