@@ -29,7 +29,7 @@ public class TaskFormDraftDao extends CommonDao {
             sessionFactory.getCurrentSession().delete(taskFormDraft);
     }
 
-    public void save(User user, Long taskId, String varB64) {
+    public void save(User user, Long taskId, byte[] data) {
         TaskFormDraft taskFormDraft = find(user, taskId);
         if (null == taskFormDraft) {
             taskFormDraft = new TaskFormDraft();
@@ -37,7 +37,7 @@ public class TaskFormDraftDao extends CommonDao {
             taskFormDraft.setTaskId(taskId);
         }
 
-        taskFormDraft.setDataB64(varB64);
+        taskFormDraft.setData(data);
 
         sessionFactory.getCurrentSession().save(taskFormDraft);
     }

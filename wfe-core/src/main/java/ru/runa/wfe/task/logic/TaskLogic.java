@@ -62,7 +62,7 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
 
 /**
  * Task logic.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -78,7 +78,7 @@ public class TaskLogic extends WfCommonLogic {
     private TaskAssigner taskAssigner;
     @Autowired
     private ExecutorLogic executorLogic;
-
+    
     public boolean isTaskDelegationEnabled() {
         return SystemProperties.isTaskDelegationEnabled();
     }

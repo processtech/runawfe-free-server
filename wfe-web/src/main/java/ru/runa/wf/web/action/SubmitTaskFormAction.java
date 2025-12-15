@@ -48,7 +48,6 @@ public class SubmitTaskFormAction extends BaseProcessFormAction {
         variables.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
         Delegates.getTaskService().completeTask(user, taskId, variables);
         FormSubmissionUtils.clearUserInputFiles(request);
-        Delegates.getTaskService().deleteAllTaskFormDrafts(taskId);
         return processId;
     }
 

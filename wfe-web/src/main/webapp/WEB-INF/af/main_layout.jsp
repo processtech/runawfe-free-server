@@ -34,7 +34,7 @@
 		var currentBrowserLanguage = "<%= Commons.getLocale(pageContext).getLanguage() %>";
 	</script>
 	<script type="text/javascript">
-		  let GLOBAL_APP_CONTEXT = <html:rewrite page="/" />;
+		var GLOBAL_APP_CONTEXT = <html:rewrite page="/" />;
 	</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery-1.8.3.min.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.cookie.js" />">c=0;</script>

@@ -4,7 +4,6 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.dom4j.Document;
@@ -12,12 +11,7 @@ import org.dom4j.Element;
 import ru.runa.wf.web.ftl.FtlFormBuilder;
 import ru.runa.wfe.commons.ftl.FreemarkerConfiguration;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.service.TaskService;
-import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.task.dto.WfTaskFormDraft;
-import ru.runa.wfe.user.User;
-import ru.runa.wfe.util.SerialisationUtils;
-import ru.runa.wfe.var.DraftVariableProviderDecorator;
+import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.QuickFormProperty;
@@ -39,26 +33,11 @@ public class QuickFormBuilder extends FtlFormBuilder {
     @Override
     protected String buildForm(VariableProvider variableProvider) {
         String ftlFormData = toFtlFormData(variableProvider);
-        Map<String, Object> indexedData = loadDraftData(user, task.getId());
 
-        VariableProvider decorator = new DraftVariableProviderDecorator(variableProvider, indexedData);
+        Map<String, Object> variables = loadDraftData(user, task.getId());
+        VariableProvider decorator = new MapDelegableVariableProvider(variables, variableProvider);
+
         return processFreemarkerTemplate(ftlFormData, decorator, true);
-    }
-
-    /**
-     * Извлекаем данные, что сохранили тут {@link ru.runa.wf.web.servlet.PostTaskFormDraftCommand#execute(ru.runa.wfe.user.User, javax.servlet.http.HttpServletRequest)}
-     *
-     * @param user
-     * @param taskId
-     * @return
-     */
-    private Map<String, Object> loadDraftData(User user, Long taskId) {
-        TaskService taskService = Delegates.getTaskService();
-        WfTaskFormDraft draft = taskService.getTaskFormDraft(user, taskId);
-        if (null == draft)
-            return Collections.emptyMap();
-
-        return (Map<String, Object>) SerialisationUtils.readObjectFromBase64(draft.getDataB64());
     }
 
     public String toFtlFormData(VariableProvider variableProvider) {

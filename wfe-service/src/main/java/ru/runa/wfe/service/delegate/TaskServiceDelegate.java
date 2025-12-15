@@ -153,27 +153,9 @@ public class TaskServiceDelegate extends Ejb3Delegate implements TaskService {
     }
 
     @Override
-    public void setTaskFormDraft(User user, Long taskId, String varB64) {
+    public void setTaskFormDraft(User user, Long taskId, byte[] data) {
         try {
-            getTaskService().setTaskFormDraft(user, taskId, varB64);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
-    public void deleteTaskFormDraft(User user, Long taskId) {
-        try {
-            getTaskService().deleteTaskFormDraft(user, taskId);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
-    public void deleteAllTaskFormDrafts(Long taskId) {
-        try {
-            getTaskService().deleteAllTaskFormDrafts(taskId);
+            getTaskService().setTaskFormDraft(user, taskId, data);
         } catch (Exception e) {
             throw handleException(e);
         }

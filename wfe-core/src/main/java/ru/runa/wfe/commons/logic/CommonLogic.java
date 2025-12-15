@@ -24,7 +24,6 @@ import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.SecurityCheckProperties;
 import ru.runa.wfe.security.dao.PermissionDao;
-import ru.runa.wfe.task.dao.TaskFormDraftDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
@@ -120,7 +119,7 @@ public class CommonLogic {
 
     /**
      * Load objects list according to {@linkplain BatchPresentation} with permission check for subject.
-     *
+     * 
      * @param user
      *            Current actor {@linkplain User}.
      * @param batchPresentation

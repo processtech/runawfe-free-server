@@ -27,8 +27,8 @@ public class PostTaskFormDraftCommand extends JsonAjaxCommand {
         long taskId = Long.parseLong(request.getParameter("taskId"));
         HashMap<String, Object> variables = readVariables(user, taskId, request.getParameterMap());
 
-        String varB64 = SerialisationUtils.writeObjectAsBase64(variables);
-        taskService.setTaskFormDraft(user, taskId, varB64);
+        byte[] data = SerialisationUtils.serialize(variables);
+        taskService.setTaskFormDraft(user, taskId, data);
 
         return new JSONObject();
     }

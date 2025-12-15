@@ -13,14 +13,21 @@ import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
+import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.VariableProvider;
+
+import java.util.Map;
 
 public class FtlFormBuilder extends TaskFormBuilder {
 
     @Override
     protected String buildForm(VariableProvider variableProvider) {
         String template = new String(interaction.getFormData(), Charsets.UTF_8);
-        return processFreemarkerTemplate(template, variableProvider, true);
+
+        Map<String, Object> variables = loadDraftData(user, task.getId());
+        VariableProvider decorator = new MapDelegableVariableProvider(variables, variableProvider);
+
+        return processFreemarkerTemplate(template, decorator, true);
     }
 
     protected String processFreemarkerTemplate(String template, VariableProvider variableProvider, boolean clearSession) {

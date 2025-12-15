@@ -1,14 +1,8 @@
 package ru.runa.wfe.task;
 
 import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import javax.persistence.*;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
@@ -35,6 +29,8 @@ public class TaskFormDraft implements Serializable {
     private Long taskId;
     @Column(name = "ACTOR_ID")
     private Long actorId;
-    @Column(name = "DATA_B64")
-    private String dataB64;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "DATA")
+    private byte[] data;
 }

@@ -186,24 +186,7 @@ public interface TaskService {
      *
      * @param user
      * @param taskId
-     * @param varB64
+     * @param data
      */
-    void setTaskFormDraft(User user, Long taskId, String varB64);
-
-    /**
-     * Delete draft of task for user
-     *
-     * @param user
-     * @param taskId
-     * @return
-     */
-    void deleteTaskFormDraft(User user, Long taskId);
-
-    /**
-     * Delete all drafts of task for user
-     *
-     * @param taskId
-     * @return
-     */
-    void deleteAllTaskFormDrafts(Long taskId);
+    void setTaskFormDraft(User user, Long taskId, byte[] data);
 }

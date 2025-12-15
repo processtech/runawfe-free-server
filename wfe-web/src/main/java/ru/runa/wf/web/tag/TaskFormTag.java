@@ -1,7 +1,6 @@
 package ru.runa.wf.web.tag;
 
 import org.apache.ecs.html.Input;
-import org.apache.ecs.html.Script;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
@@ -55,12 +54,6 @@ public class TaskFormTag extends WFFormTag {
         super.fillFormElement(tdFormElement);
         tdFormElement.addElement(new Input(Input.HIDDEN, IdForm.ID_INPUT_NAME, String.valueOf(taskId)));
         tdFormElement.addElement(new Input(Input.HIDDEN, WebResources.ACTION_MAPPING_SUBMIT_TASK_DISPATCHER, "redirectEnabled"));
-
-        tdFormElement.addElement(
-                new Script()
-                        .setType("text/javascript")
-                        .addElement(String.format("initTaskFormDraftLogic('%s');", FORM_NAME))
-        );
     }
 
     @Override

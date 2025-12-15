@@ -11,16 +11,6 @@ import lombok.SneakyThrows;
 
 public class SerialisationUtils {
 
-    @SneakyThrows
-    public static String writeObjectAsBase64(Serializable serializable) {
-        return Base64.getEncoder().encodeToString(serialize(serializable));
-    }
-
-    @SneakyThrows
-    public static Object readObjectFromBase64(String base64) {
-        return deserialize(Base64.getDecoder().decode(base64));
-    }
-
     public static byte[] serialize(Serializable data) throws IOException {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutputStream out = new ObjectOutputStream(bos)) {

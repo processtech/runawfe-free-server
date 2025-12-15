@@ -1,20 +1,29 @@
 package ru.runa.wf.web;
 
+import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
+
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.common.web.MessagesException;
 import ru.runa.wfe.form.Interaction;
+import ru.runa.wfe.service.TaskService;
 import ru.runa.wfe.service.client.DelegateDefinitionVariableProvider;
 import ru.runa.wfe.service.client.DelegateTaskVariableProvider;
+import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
+import ru.runa.wfe.task.dto.WfTaskFormDraft;
 import ru.runa.wfe.user.User;
+import ru.runa.wfe.util.SerialisationUtils;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Created on 17.11.2004
  */
+@CommonsLog
 public abstract class TaskFormBuilder {
     protected User user;
     protected PageContext pageContext;
@@ -80,4 +89,24 @@ public abstract class TaskFormBuilder {
         return message;
     }
 
+    /**
+     * Извлекаем данные, что сохранили тут {@link ru.runa.wf.web.servlet.PostTaskFormDraftCommand#execute(ru.runa.wfe.user.User, javax.servlet.http.HttpServletRequest)}
+     *
+     * @param user
+     * @param taskId
+     * @return
+     */
+    protected Map<String, Object> loadDraftData(User user, Long taskId) {
+        TaskService taskService = Delegates.getTaskService();
+        WfTaskFormDraft draft = taskService.getTaskFormDraft(user, taskId);
+        if (null == draft)
+            return Collections.emptyMap();
+
+        try {
+            return (Map<String, Object>) SerialisationUtils.deserialize(draft.getData());
+        } catch (Exception e) {
+            log.warn(e);
+            return Collections.emptyMap();
+        } 
+    }
 }

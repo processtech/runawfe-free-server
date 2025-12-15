@@ -10,11 +10,11 @@ public class CreateTaskFormDraftPatch extends DbMigration {
                 getDDLCreateSequence("SEQ_BPM_TASK_FORM_DRAFT"),
 
                 getDDLCreateTable("BPM_TASK_FORM_DRAFT", list(
-                        new BigintColumnDef("ID").primaryKeyNoAutoInc(),
+                        new BigintColumnDef("ID").primaryKey(),
                         new BigintColumnDef("TASK_ID").notNull(),
                         new BigintColumnDef("ACTOR_ID").notNull(),
                         new BigintColumnDef("VERSION").notNull(),
-                        new ClobColumnDef("DATA_B64"))
+                        new BlobColumnDef("DATA"))
                 )
         );
     }

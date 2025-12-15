@@ -39,7 +39,7 @@ import ru.runa.wfe.user.User;
 
 @Stateless(name = "TaskServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
-@Interceptors({EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class})
+@Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
 @WebService(name = "TaskAPI", serviceName = "TaskWebService")
 @SOAPBinding
 public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, TaskWebServiceRemote {
@@ -156,7 +156,7 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     public List<WfTask> getUnassignedTasks(@WebParam(name = "user") @NonNull User user) {
         return taskLogic.getUnassignedTasks(user);
     }
-
+    
     @Override
     public boolean isTaskDelegationEnabled() {
         return taskLogic.isTaskDelegationEnabled();
@@ -174,19 +174,7 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
 
     @WebMethod(exclude = true)
     @Override
-    public void setTaskFormDraft(User user, Long taskId, String varB64) {
-        taskFormDraftDao.save(user, taskId, varB64);
-    }
-
-    @WebMethod(exclude = true)
-    @Override
-    public void deleteTaskFormDraft(User user, Long taskId) {
-        taskFormDraftDao.delete(user, taskId);
-    }
-
-    @WebMethod(exclude = true)
-    @Override
-    public void deleteAllTaskFormDrafts(Long taskId) {
-        taskFormDraftDao.delete(taskId);
+    public void setTaskFormDraft(User user, Long taskId, byte[] data) {
+        taskFormDraftDao.save(user, taskId, data);
     }
 }
