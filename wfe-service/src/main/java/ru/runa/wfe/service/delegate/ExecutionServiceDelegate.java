@@ -125,6 +125,15 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
+    public List<WfProcess> filterProcessesByVariableValues(List<WfProcess> processes, String searchQuery) {
+        try {
+            return getExecutionService().filterProcessesByVariableValues(processes, searchQuery);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public List<WfVariable> getVariables(User user, Long processId) {
         try {
             return getExecutionService().getVariables(user, processId);

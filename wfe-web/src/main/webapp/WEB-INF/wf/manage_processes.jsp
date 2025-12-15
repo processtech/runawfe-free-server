@@ -39,6 +39,7 @@
             </wf:viewControlsHideableBlock>
         </div>
     </div>
+    <wf:processSearchForm />
 </wf:listProcessesForm>
 </tiles:put>
 

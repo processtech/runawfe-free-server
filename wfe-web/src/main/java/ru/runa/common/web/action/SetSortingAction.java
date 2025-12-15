@@ -11,6 +11,10 @@ import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.common.web.form.SetSortingForm;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.Profile;
+import ru.runa.common.web.Commons;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @struts:action path="/setSorting" name="setSortingForm" validate="false"
@@ -30,6 +34,7 @@ public class SetSortingAction extends ActionBase {
         } catch (Exception e) {
             addError(request, e);
         }
+
         return new ActionForward(sortingForm.getReturnAction(), true);
     }
 }

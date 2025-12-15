@@ -2640,6 +2640,16 @@
         </attribute>
     </tag>
     <tag>
+        <name>processSearchForm</name>
+        <tag-class>ru.runa.common.web.tag.ProcessSearchFormTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>size</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
         <name>listRelationPairsForm</name>
         <tag-class>ru.runa.af.web.tag.ListRelationPairsFormTag</tag-class>
         <body-content>JSP</body-content>

@@ -150,6 +150,9 @@
 		<action path="/setSorting" type="ru.runa.common.web.action.SetSortingAction"
 			name="setSortingForm" scope="request" unknown="false" validate="false">
 		</action>
+        <action path="/setSortingWithSearch" type="ru.runa.common.web.action.SetSortingWithSearchAction"
+                name="setSortingForm" scope="request" unknown="false" validate="false">
+        </action>
 		<action path="/deploy_bot_station" type="ru.runa.af.web.action.DeployBotStationAction"
 			name="deployBotForm" scope="request" unknown="false" validate="false">
 		</action>

@@ -40,10 +40,14 @@ public class ListProcessesFormTag extends BatchReturningTitledFormTag {
         BatchPresentation batchPresentation = getBatchPresentation();
         ExecutionService executionService = Delegates.getExecutionService();
 
-        int instanceCount = executionService.getProcessesCount(getUser(), batchPresentation);
         // we must call getProcesses before obtaining current page number
         // since it can be changed after getProcesses call
         List<WfProcess> processes = executionService.getProcesses(getUser(), batchPresentation);
+        String searchQuery = pageContext.getRequest().getParameter("search");
+        processes = executionService.filterProcessesByVariableValues(processes, searchQuery);
+
+        int instanceCount = processes.size();
+
         // batchPresentation must be recalculated since the current page
         // number might changed
         batchPresentation = getBatchPresentation();
