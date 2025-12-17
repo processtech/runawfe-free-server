@@ -223,4 +223,7 @@ public class WebResources {
         return RESOURCES.getIntegerProperty("process.definition.diff.context.lines.count", 3);
     }
 
+    public static boolean isProcessTaskFormDraftEnabled() {
+        return RESOURCES.getBooleanProperty("process.task.form.draft.enabled", true);
+    }
 }
