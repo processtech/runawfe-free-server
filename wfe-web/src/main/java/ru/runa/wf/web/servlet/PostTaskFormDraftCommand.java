@@ -9,6 +9,7 @@ import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.TaskService;
 import ru.runa.wfe.service.client.DelegateTaskVariableProvider;
 import ru.runa.wfe.service.delegate.Delegates;
+import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.util.SerialisationUtils;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public class PostTaskFormDraftCommand extends JsonAjaxCommand {
     private static boolean ENABLED = WebResources.isProcessTaskFormDraftEnabled();
@@ -36,8 +38,12 @@ public class PostTaskFormDraftCommand extends JsonAjaxCommand {
 
         TaskService taskService = Delegates.getTaskService();
         long taskId = Long.parseLong(request.getParameter("taskId"));
-        WfTask task = Delegates.getTaskService().getTask(user, taskId);
 
+        Optional<WfTask> wfTaskOpt = getWfTask(user, taskId);
+        if (!wfTaskOpt.isPresent())
+            return EMPTY_JSON;
+
+        WfTask task = wfTaskOpt.get();
         HashMap<String, Object> variables = readVariables(user, task, request.getParameterMap());
         VariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
         HashMap<String, Object> filtered = new HashMap<>();
@@ -61,6 +67,14 @@ public class PostTaskFormDraftCommand extends JsonAjaxCommand {
         return EMPTY_JSON;
     }
 
+    private Optional<WfTask> getWfTask(User user, long taskId) {
+        try {
+            return Optional.of(Delegates.getTaskService().getTask(user, taskId));
+        } catch (TaskDoesNotExistException e) {
+            log.warn(e);
+            return Optional.empty();
+        }
+    }
 
     private HashMap<String, Object> readVariables(User user, WfTask task, Map<String, String[]> userInput) {
         HashMap<String, Object> variables = new HashMap<>();
