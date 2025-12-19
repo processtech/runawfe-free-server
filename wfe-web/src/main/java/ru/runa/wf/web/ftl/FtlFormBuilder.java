@@ -37,7 +37,10 @@ public class FtlFormBuilder extends TaskFormBuilder {
         }
         // #173
         model.put("context", new BeanModel(new Context(this), BeansWrapper.getDefaultInstance()));
-        return FreemarkerProcessor.process(template, model);
+
+        // поскольку select у нас отличается от input проставлять сохраненные значения приходится таким костылем
+        String templateModified = modifyFtlSelectOptions(template, variableProvider);
+        return FreemarkerProcessor.process(templateModified, model);
     }
 
     public static class Context {

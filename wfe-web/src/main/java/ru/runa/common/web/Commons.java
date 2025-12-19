@@ -229,6 +229,14 @@ public class Commons {
         return user;
     }
 
+    public static Long extractTaskId(HttpServletRequest request) {
+        try {
+            return Long.valueOf(request.getParameter("taskId"));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public static boolean isAdministrator(HttpSession session) {
         Boolean value = (Boolean) getSessionAttribute(session, LOGGED_USER_IS_ADMIN_ATTRIBUTE_NAME);
         if (value != null) {

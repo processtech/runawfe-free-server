@@ -18,14 +18,15 @@ import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class PostTaskFormDraftCommand extends JsonAjaxCommand {
     private static boolean ENABLED = WebResources.isProcessTaskFormDraftEnabled();
     public static final JSONObject EMPTY_JSON = new JSONObject();
+    private static final Pattern FILE_KEY_PATTERN = Pattern.compile("(\\d+)" + FormSubmissionUtils.FILES_MAP_QUALIFIER + "([^\\[]+)\\[(\\d+)\\]");
 
     @Override
     protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
@@ -44,7 +45,12 @@ public class PostTaskFormDraftCommand extends JsonAjaxCommand {
             return EMPTY_JSON;
 
         WfTask task = wfTaskOpt.get();
-        HashMap<String, Object> variables = readVariables(user, task, request.getParameterMap());
+        
+        Map<String, Object> userInput = new HashMap<>();
+        userInput.putAll(request.getParameterMap());
+        userInput.putAll(availableFiles(taskId, request));
+
+        HashMap<String, Object> variables = readVariables(user, task, userInput);
         VariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
         HashMap<String, Object> filtered = new HashMap<>();
 
@@ -67,6 +73,42 @@ public class PostTaskFormDraftCommand extends JsonAjaxCommand {
         return EMPTY_JSON;
     }
 
+    private Map<String, Object> availableFiles(long taskId, HttpServletRequest request) {
+        Map<String, Object> result = new HashMap<>();
+
+        Map<String, UploadedFile> uploadedFiles = FormSubmissionUtils.getUserInputFiles(request);
+        Map<String, List<Integer>> fileIdx = new HashMap<>();
+        for (String key : uploadedFiles.keySet()) {
+            Matcher m = FILE_KEY_PATTERN.matcher(key);
+            if (m.matches()) {
+                long id = Long.parseLong(m.group(1));
+                String name = m.group(2);
+                int index = Integer.parseInt(m.group(3));
+
+                List<Integer> nameIdx = fileIdx.getOrDefault(name, new ArrayList<>());
+                nameIdx.add(index);
+                fileIdx.put(name, nameIdx);
+
+
+                if (id != taskId)
+                    continue;
+
+                // сами файлы
+                result.put(key, uploadedFiles.get(key));
+            }
+        }
+
+        // индексы
+        for (Map.Entry<String, List<Integer>> entry : fileIdx.entrySet()) {
+            String idxKey = taskId + FormSubmissionUtils.FILES_MAP_QUALIFIER + entry.getKey() + FormSubmissionUtils.INDEXES_SUFFIX;
+            String idxs = entry.getValue().stream().map(integer -> integer.toString()).collect(Collectors.joining(","));
+
+            result.put(idxKey, new String[]{idxs});
+        }
+
+        return result;
+    }
+
     private Optional<WfTask> getWfTask(User user, long taskId) {
         try {
             return Optional.of(Delegates.getTaskService().getTask(user, taskId));
@@ -76,13 +118,13 @@ public class PostTaskFormDraftCommand extends JsonAjaxCommand {
         }
     }
 
-    private HashMap<String, Object> readVariables(User user, WfTask task, Map<String, String[]> userInput) {
+    private HashMap<String, Object> readVariables(User user, WfTask task, Map<String, ?> userInput) {
         HashMap<String, Object> variables = new HashMap<>();
 
         Interaction interaction = Delegates.getDefinitionService().getTaskNodeInteraction(user, task.getDefinitionId(), task.getNodeId());
         Map<String, String> errors = new HashMap<>();
         for (VariableDefinition variableDefinition : interaction.getVariables().values()) {
-            Object variable = FormSubmissionUtils.extractVariable(user, userInput, variableDefinition, errors);
+            Object variable = FormSubmissionUtils.extractVariable(user, task.getId(), userInput, variableDefinition, errors);
             variables.put(variableDefinition.getName(), variable);
         }
 
