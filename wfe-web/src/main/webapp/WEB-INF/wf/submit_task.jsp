@@ -67,7 +67,10 @@
 	<wf:taskFormDelegationButton taskId="<%= taskId %>" />
 <% } %>
 
+	<% if (WebResources.isProcessTaskFormDraftEnabled()) { %>
 	<script type="text/javascript" src="<html:rewrite page="/js/TaskFormDraftLogic.js" />"></script>
+	<% } %>
+	
 	<wf:taskForm title="<%= title %>" taskId="<%= taskId %>" action="/submitTaskForm" />
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />

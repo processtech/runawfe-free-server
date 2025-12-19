@@ -34,7 +34,7 @@ public class QuickFormBuilder extends FtlFormBuilder {
     protected String buildForm(VariableProvider variableProvider) {
         String ftlFormData = toFtlFormData(variableProvider);
 
-        Map<String, Object> variables = loadDraftData(user, task.getId());
+        Map<String, Object> variables = loadDraftData(user, task);
         VariableProvider decorator = new MapDelegableVariableProvider(variables, variableProvider);
 
         return processFreemarkerTemplate(ftlFormData, decorator, true);

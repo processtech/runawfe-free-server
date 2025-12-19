@@ -3,7 +3,8 @@ $(document).ready(function () {
         var target = GLOBAL_APP_CONTEXT + "ajaxcmd?command=postTaskFormDraft&taskId=" + $(formIdSelector + " input[name='id']").val();
 
 
-        if (0 == $(formIdSelector + ' input:not([type="hidden"]):not([type="SUBMIT"])').length) {
+        if (0 == $(formIdSelector + ' input:not([type="hidden"]):not([type="SUBMIT"]), ' + formIdSelector + ' select').length) {
+            // $('#processForm input:not([type="hidden"]):not([type="SUBMIT"]), #processForm select')
             // страница без полей ввода
             return;
         }

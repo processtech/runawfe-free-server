@@ -1,6 +1,5 @@
 package ru.runa.wf.web;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -94,15 +93,18 @@ public abstract class TaskFormBuilder {
      * Извлекаем данные, что сохранили тут {@link ru.runa.wf.web.servlet.PostTaskFormDraftCommand#execute(ru.runa.wfe.user.User, javax.servlet.http.HttpServletRequest)}
      *
      * @param user
-     * @param taskId
+     * @param task
      * @return
      */
-    protected Map<String, Object> loadDraftData(User user, Long taskId) {
+    protected Map<String, Object> loadDraftData(User user, WfTask task) {
         if (!WebResources.isProcessTaskFormDraftEnabled())
             return Collections.emptyMap();
         
+        if (null == task)
+            return Collections.emptyMap();
+
         TaskService taskService = Delegates.getTaskService();
-        WfTaskFormDraft draft = taskService.getTaskFormDraft(user, taskId);
+        WfTaskFormDraft draft = taskService.getTaskFormDraft(user, task.getId());
         if (null == draft)
             return Collections.emptyMap();
 
@@ -111,6 +113,6 @@ public abstract class TaskFormBuilder {
         } catch (Exception e) {
             log.warn(e);
             return Collections.emptyMap();
-        } 
+        }
     }
 }

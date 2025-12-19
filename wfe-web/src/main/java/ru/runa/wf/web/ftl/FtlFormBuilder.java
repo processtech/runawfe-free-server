@@ -24,7 +24,7 @@ public class FtlFormBuilder extends TaskFormBuilder {
     protected String buildForm(VariableProvider variableProvider) {
         String template = new String(interaction.getFormData(), Charsets.UTF_8);
 
-        Map<String, Object> variables = loadDraftData(user, task.getId());
+        Map<String, Object> variables = loadDraftData(user, task);
         VariableProvider decorator = new MapDelegableVariableProvider(variables, variableProvider);
 
         return processFreemarkerTemplate(template, decorator, true);
