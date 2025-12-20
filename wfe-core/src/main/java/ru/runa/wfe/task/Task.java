@@ -318,6 +318,8 @@ public class Task implements Assignable {
         for (TaskExecutionListener listener : SystemProperties.getTaskExecutionListeners()) {
             listener.beforeTaskDelete(executionContext, this, completionInfo);
         }
+
+        executionContext.deleteAllTaskFormDrafts(id);
         delete();
     }
 

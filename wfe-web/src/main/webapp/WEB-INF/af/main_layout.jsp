@@ -33,6 +33,9 @@
 		var buttonCancelMessage = "<bean:message key="button.cancel" />";
 		var currentBrowserLanguage = "<%= Commons.getLocale(pageContext).getLanguage() %>";
 	</script>
+	<script type="text/javascript">
+		var GLOBAL_APP_CONTEXT = <html:rewrite page="/" />;
+	</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery-1.8.3.min.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.cookie.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery-ui-1.9.2.custom.min.js" />">c=0;</script>

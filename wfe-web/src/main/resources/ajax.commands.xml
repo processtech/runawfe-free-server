@@ -11,4 +11,5 @@
 	<command name="ajaxGetProcessVariablesList" class="ru.runa.wf.web.servlet.AjaxGetProcessVariablesList" />
 	<command name="ajaxGetProcessVariablesInChatList" class="ru.runa.wf.web.servlet.AjaxGetProcessVariablesInChatList" />
 	<command class="ru.runa.wf.web.servlet.LocaleTextChat" name="LocaleTextChat" />
+	<command name="postTaskFormDraft" class="ru.runa.wf.web.servlet.PostTaskFormDraftCommand" />
 </configuration>
