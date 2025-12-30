@@ -11,6 +11,7 @@
   <artifact enabled="true" name="ru.runa.bp.demo.RejectMyDoc" label="alfdemo: reject document"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.MapAggregateFunctionActionHandler" label="Агрегатная функция над картой"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.ListAggregateFunctionActionHandler" label="Агрегатная функция над списком"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.UserTypeListAggregateFunctionActionHandler" label="Агрегатная функция над списком атрибутов пользовательских переменных"/>
   <artifact enabled="true" name="ru.runa.wfe.service.handler.BotInvokerActionHandler" label="Вызвать бот станцию"/>
   <artifact enabled="true" name="ru.runa.wf.logic.bot.WebServiceTaskHandler" label="Вызвать внешнюю веб службу"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.SQLActionHandler" label="Выполнить запросы SQL"/>
