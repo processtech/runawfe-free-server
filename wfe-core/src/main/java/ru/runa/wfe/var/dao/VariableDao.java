@@ -134,4 +134,8 @@ public class VariableDao extends ArchiveAwareGenericDao<Variable, CurrentVariabl
             return currentDao.getVariablesByNameStartsWith((CurrentProcess) process, namePrefix);
         }
     }
+
+    public boolean hasVariablesContainingValue(Long processId, String searchQuery) {
+        return currentDao.hasVariablesContainingValue(processId, searchQuery);
+    }
 }

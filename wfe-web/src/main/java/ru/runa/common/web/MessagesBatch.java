@@ -22,6 +22,11 @@ public final class MessagesBatch {
 
     public static final StrutsMessage SHOW_CONTROLS = new StrutsMessage("label.show_controls");
     public static final StrutsMessage HIDE_CONTROLS = new StrutsMessage("label.hide_controls");
+    
+    // Labels for search process by variable values
+
+    public static final StrutsMessage SEARCH_BUTTON = new StrutsMessage("label.search_button");
+    public static final StrutsMessage SEARCH_PLACEHOLDER = new StrutsMessage("label.search_placeholder");
 
     // Labels, required to show pages and navigate on it.
 
