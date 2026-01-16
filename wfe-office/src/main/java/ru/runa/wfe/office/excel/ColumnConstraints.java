@@ -25,7 +25,7 @@ public class ColumnConstraints extends OnSheetConstraints {
     }
 
     @Override
-    public void configure(Element element) {
+    public void configure(Element element) throws NumberFormatException{
         super.configure(element);
 
         this.columnIndex = getIndex(element, "column");
@@ -43,12 +43,9 @@ public class ColumnConstraints extends OnSheetConstraints {
                 String colStr = mappingElement.attributeValue("column");
 
                 if(attr != null && colStr != null){
-                    try {
-                        int col = Integer.parseInt(colStr);
+                    int col = Integer.parseInt(colStr);
 
-                        columns.add(new ColumnMapping(attr, col - 1));
-                    }catch (NumberFormatException e){
-                    }
+                    columns.add(new ColumnMapping(attr, col - 1));
                 }
             }
         }
