@@ -36,20 +36,29 @@ public class ListRowExcelStorable extends ExcelStorable<RowConstraints, List<?>>
     @Override
     public void storeIn(Workbook workbook) {
         List<?> list = data;
-        if (list == null) return;
+        if (list == null) {
+            return;
+        }
 
-        Row row = getRow(workbook);
+        Sheet sheet = ExcelHelper.getSheet(workbook, constraints.getSheetName(), constraints.getSheetIndex());
         List<RowConstraints.ColumnMapping> mappings = constraints.getColumns();
 
         if (mappings != null && !mappings.isEmpty()) {
+            int currentColumnOffset = 0;
+
             for (Object item : list) {
+                int currentColumnIndex = constraints.getColumnStartIndex() + currentColumnOffset;
                 for (RowConstraints.ColumnMapping mapping : mappings) {
                     Object value = getNestedValue(item, mapping.attributeName);
-                    Cell cell = ExcelHelper.getCell(row, mapping.column, true);
+                    Row targetRow = ExcelHelper.getRow(sheet, mapping.column, true);
+                    Cell cell = ExcelHelper.getCell(targetRow, currentColumnIndex, true);
+
                     ExcelHelper.setCellValue(cell, value);
                 }
+                currentColumnOffset++;
             }
         } else {
+            Row row = getRow(workbook);
             int columnIndex = constraints.getColumnStartIndex();
             VariableFormat elementFormat = FormatCommons.createComponent((VariableFormatContainer) format, 0);
             for (Object object : list) {
@@ -61,7 +70,9 @@ public class ListRowExcelStorable extends ExcelStorable<RowConstraints, List<?>>
     }
 
     private Object getNestedValue(Object obj, String path) {
-        if (obj == null || path == null) return null;
+        if (obj == null || path == null){
+            return null;
+        }
         Map<String, Object> map = (obj instanceof Map) ? (Map<String, Object>) obj : TypeConversionUtil.convertTo(Map.class, obj);
         int dotIndex = path.indexOf('.');
         if (dotIndex != -1) {
