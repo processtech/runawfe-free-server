@@ -17,6 +17,6 @@ public class AddExecutorAuditColumnsPatch extends DbMigration {
 
     @Override
     protected void executeDDLAfter() {
-        // ничего не требуется
+ 
     }
 }
