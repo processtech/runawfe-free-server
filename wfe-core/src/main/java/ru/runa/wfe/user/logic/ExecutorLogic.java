@@ -14,7 +14,11 @@ import javax.persistence.DiscriminatorValue;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
-import ru.runa.wfe.audit.ExecutorActionLog;
+import ru.runa.wfe.audit.ExecutorCreateLog;
+import ru.runa.wfe.audit.ExecutorUpdateLog;
+import ru.runa.wfe.audit.ExecutorDeleteLog;
+import ru.runa.wfe.audit.ExecutorGroupAddLog;
+import ru.runa.wfe.audit.ExecutorGroupRemoveLog;
 import ru.runa.wfe.audit.dao.SystemLogDao;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
@@ -80,9 +84,10 @@ public class ExecutorLogic extends CommonLogic {
         
         log.info("Updating " + executor);
         
-        ExecutorActionLog logEntry = new ExecutorActionLog(
+        ExecutorUpdateLog logEntry = new ExecutorUpdateLog(
             user.getActor().getId(),
-            "UPDATE:" + executor.getName()
+            executor.getId(),
+            executor.getName()
         );
         systemLogDao.create(logEntry);
         
@@ -160,18 +165,17 @@ public class ExecutorLogic extends CommonLogic {
         for (Executor executor : executors) {
             remove(executor);
             
-            log.info("Deleting " + executor);
-            
-            ExecutorActionLog logEntry = new ExecutorActionLog(
+            ExecutorDeleteLog logEntry = new ExecutorDeleteLog(
                 user.getActor().getId(),
-                "DELETE:" + executor.getName()
+                executor.getId(),
+                executor.getName()
             );
             systemLogDao.create(logEntry);
         }
     }
 
     public void remove(Executor executor) {
-
+        log.info("Removing " + executor);
         if (permissionDao.isPrivilegedExecutor(executor) || SystemExecutors.PROCESS_STARTER_NAME.equals(executor.getName())) {
             throw new AuthorizationException(executor.getName() + " can not be removed");
         }
@@ -199,9 +203,11 @@ public class ExecutorLogic extends CommonLogic {
         log.info("Creating " + executor);
         
         String executorType = executor instanceof Actor ? "Actor" : "Group";
-        ExecutorActionLog logEntry = new ExecutorActionLog(
+        ExecutorCreateLog logEntry = new ExecutorCreateLog(
             user.getActor().getId(),
-            "CREATE:" + executor.getName() + ":" + executorType
+            executor.getId(),
+            executor.getName(),
+            executorType
         );
         systemLogDao.create(logEntry);
         
@@ -227,9 +233,12 @@ public class ExecutorLogic extends CommonLogic {
         executorDao.addExecutorsToGroup(executors, group);
         
         for (Executor executor : executors) {
-            ExecutorActionLog logEntry = new ExecutorActionLog(
+            ExecutorGroupAddLog logEntry = new ExecutorGroupAddLog(
                 user.getActor().getId(),
-                "ADD_TO_GROUP:" + executor.getName() + "->" + group.getName()
+                executor.getId(),
+                executor.getName(),
+                group.getId(),
+                group.getName()
             );
             systemLogDao.create(logEntry);
         }
@@ -254,9 +263,12 @@ public class ExecutorLogic extends CommonLogic {
         executorDao.addExecutorToGroups(executor, groups);
         
         for (Group group : groups) {
-            ExecutorActionLog logEntry = new ExecutorActionLog(
+            ExecutorGroupAddLog logEntry = new ExecutorGroupAddLog(
                 user.getActor().getId(),
-                "ADD_TO_GROUP:" + executor.getName() + "->" + group.getName()
+                executor.getId(),
+                executor.getName(),
+                group.getId(),
+                group.getName()
             );
             systemLogDao.create(logEntry);
         }
@@ -306,9 +318,12 @@ public class ExecutorLogic extends CommonLogic {
         executorDao.removeExecutorsFromGroup(executors, group);
         
         for (Executor executor : executors) {
-            ExecutorActionLog logEntry = new ExecutorActionLog(
+            ExecutorGroupRemoveLog logEntry = new ExecutorGroupRemoveLog(
                 user.getActor().getId(),
-                "REMOVE_FROM_GROUP:" + executor.getName() + "->" + group.getName()
+                executor.getId(),
+                executor.getName(),
+                group.getId(),
+                group.getName()
             );
             systemLogDao.create(logEntry);
         }
@@ -323,9 +338,12 @@ public class ExecutorLogic extends CommonLogic {
         executorDao.removeExecutorFromGroups(executor, groups);
         
         for (Group group : groups) {
-            ExecutorActionLog logEntry = new ExecutorActionLog(
+            ExecutorGroupRemoveLog logEntry = new ExecutorGroupRemoveLog(
                 user.getActor().getId(),
-                "REMOVE_FROM_GROUP:" + executor.getName() + "->" + group.getName()
+                executor.getId(),
+                executor.getName(),
+                group.getId(),
+                group.getName()
             );
             systemLogDao.create(logEntry);
         }
@@ -342,9 +360,12 @@ public class ExecutorLogic extends CommonLogic {
         executorDao.removeExecutorFromGroups(executor, groups);
         
         for (Group group : groups) {
-            ExecutorActionLog logEntry = new ExecutorActionLog(
+            ExecutorGroupRemoveLog logEntry = new ExecutorGroupRemoveLog(
                 user.getActor().getId(),
-                "REMOVE_FROM_GROUP:" + executor.getName() + "->" + group.getName()
+                executor.getId(),
+                executor.getName(),
+                group.getId(),
+                group.getName()
             );
             systemLogDao.create(logEntry);
         }
