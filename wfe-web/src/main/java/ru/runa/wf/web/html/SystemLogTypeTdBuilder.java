@@ -28,7 +28,6 @@ public class SystemLogTypeTdBuilder implements TdBuilder {
 
     @Override
     public String getValue(Object object, Env env) {
-        // Короткие названия для наших новых классов
         if (object instanceof ExecutorCreateLog) {
             return Messages.getMessage("history.system.type.executor_create_short", env.getPageContext());
         } else if (object instanceof ExecutorUpdateLog) {
@@ -41,7 +40,6 @@ public class SystemLogTypeTdBuilder implements TdBuilder {
             return Messages.getMessage("history.system.type.executor_group_remove_short", env.getPageContext());
         }
 
-        // Для остальных типов логов используем стандартный механизм
         String displayProperty = SystemLogTypeHelper.getClasses().get(object.getClass());
         if (displayProperty != null) {
             return Messages.getMessage(displayProperty, env.getPageContext());

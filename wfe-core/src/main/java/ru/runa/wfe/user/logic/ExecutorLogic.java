@@ -82,7 +82,7 @@ public class ExecutorLogic extends CommonLogic {
     public Executor update(User user, Executor executor) {
         checkPermissionsOnExecutor(user, executor, Permission.UPDATE);
         
-        log.info("Updating " + executor);
+        log.debug("Updating " + executor);
         
         ExecutorUpdateLog logEntry = new ExecutorUpdateLog(
             user.getActor().getId(),
@@ -200,7 +200,7 @@ public class ExecutorLogic extends CommonLogic {
         permissionDao.setPermissions(user.getActor(), ApplicablePermissions.listVisible(executor), executor);
         permissionDao.setPermissions(executor, Collections.singletonList(Permission.READ), executor);
         
-        log.info("Creating " + executor);
+        log.debug("Creating " + executor);
         
         String executorType = executor instanceof Actor ? "Actor" : "Group";
         ExecutorCreateLog logEntry = new ExecutorCreateLog(
@@ -228,7 +228,7 @@ public class ExecutorLogic extends CommonLogic {
         checkPermissionsOnExecutors(user, executors, Permission.UPDATE);
         checkPermissionsOnExecutor(user, group, Permission.UPDATE);
         
-        log.info("Adding executors to group " + group.getName() + ": " + executors);
+        log.debug("Adding executors to group " + group.getName() + ": " + executors);
         
         executorDao.addExecutorsToGroup(executors, group);
         
@@ -258,7 +258,7 @@ public class ExecutorLogic extends CommonLogic {
         checkPermissionsOnExecutor(user, executor, Permission.UPDATE);
         checkPermissionsOnExecutors(user, groups, Permission.UPDATE);
         
-        log.info("Adding executor " + executor.getName() + " to groups: " + groups);
+        log.debug("Adding executor " + executor.getName() + " to groups: " + groups);
         
         executorDao.addExecutorToGroups(executor, groups);
         
@@ -313,7 +313,7 @@ public class ExecutorLogic extends CommonLogic {
         checkPermissionsOnExecutor(user, group, Permission.UPDATE);
         checkPermissionsOnExecutors(user, executors, Permission.READ);
         
-        log.info("Removing executors from group " + group.getName() + ": " + executors);
+        log.debug("Removing executors from group " + group.getName() + ": " + executors);
         
         executorDao.removeExecutorsFromGroup(executors, group);
         

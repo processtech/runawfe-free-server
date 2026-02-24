@@ -27,9 +27,27 @@ import java.text.MessageFormat;
  */
 public class SystemLogTdBuilder implements TdBuilder {
 
+    /**
+     * Process place holder name. All occurrences of this place holder will be
+     * replaced with process instance identity.
+     */
     private static String placeHolderProcess = null;
+
+    /**
+     * Process definition name place holder name. All occurrences of this place
+     * holder will be replaced with process definition name.
+     */
     private static String placeHolderProcessDefinition = null;
+
+    /**
+     * Process definition version place holder name. All occurrences of this
+     * place holder will be replaced with process definition version.
+     */
     private static String placeHolderVersion = null;
+
+    /**
+     * Place holder name for date before which to delete the process log.
+     */
     private static String placeHolderBeforeDate = null;
     
     private static synchronized void initPlaceholders(PageContext pageContext) {
