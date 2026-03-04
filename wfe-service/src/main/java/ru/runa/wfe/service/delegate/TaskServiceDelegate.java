@@ -1,13 +1,15 @@
 package ru.runa.wfe.service.delegate;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.TaskService;
 import ru.runa.wfe.task.dto.WfTask;
+import ru.runa.wfe.task.dto.WfTaskFormDraft;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class TaskServiceDelegate extends Ejb3Delegate implements TaskService {
 
@@ -117,7 +119,7 @@ public class TaskServiceDelegate extends Ejb3Delegate implements TaskService {
     @Override
     public void delegateTasks(User user, Set<Long> taskIds, boolean keepCurrentOwners, List<? extends Executor> newOwners) {
         try {
-            getTaskService().delegateTasks(user, taskIds, keepCurrentOwners,  newOwners);
+            getTaskService().delegateTasks(user, taskIds, keepCurrentOwners, newOwners);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -136,6 +138,24 @@ public class TaskServiceDelegate extends Ejb3Delegate implements TaskService {
     public boolean isTaskDelegationEnabled() {
         try {
             return getTaskService().isTaskDelegationEnabled();
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public WfTaskFormDraft getTaskFormDraft(User user, Long taskId) {
+        try {
+            return getTaskService().getTaskFormDraft(user, taskId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void setTaskFormDraft(User user, Long taskId, byte[] data) {
+        try {
+            getTaskService().setTaskFormDraft(user, taskId, data);
         } catch (Exception e) {
             throw handleException(e);
         }

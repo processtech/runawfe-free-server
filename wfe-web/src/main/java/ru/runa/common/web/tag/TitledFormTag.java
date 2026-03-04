@@ -2,6 +2,7 @@ package ru.runa.common.web.tag;
 
 import javax.servlet.jsp.tagext.Tag;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.TD;
@@ -69,7 +70,7 @@ public abstract class TitledFormTag extends FormTag {
         } catch (Throwable th) {
             // DEBUG category set due to logging in EJB layer; stack trace
             // is logged only for Web layer errors.
-            log.debug("", th);
+            log.info(ExceptionUtils.getStackTrace(th));
             sb.append("<span class=\"error\">" + ActionExceptionHelper.getErrorMessage(th, pageContext) + "</span>");
         }
         sb.append(new TD().createEndTag());

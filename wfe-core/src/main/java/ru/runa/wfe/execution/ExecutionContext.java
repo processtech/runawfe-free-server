@@ -35,6 +35,7 @@ import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dao.TaskDao;
+import ru.runa.wfe.task.dao.TaskFormDraftDao;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
@@ -82,6 +83,8 @@ public class ExecutionContext {
     private CurrentSwimlaneDao currentSwimlaneDao;
     @Autowired
     private SwimlaneDao swimlaneDao;
+    @Autowired
+    private TaskFormDraftDao taskFormDraftDao;
 
     protected ExecutionContext(
             ApplicationContext applicationContext, ParsedProcessDefinition parsedProcessDefinition, Token token,
@@ -268,6 +271,10 @@ public class ExecutionContext {
                 p.setExecutionStatus(ExecutionStatus.ACTIVE);
             }
         }
+    }
+
+    public void deleteAllTaskFormDrafts(Long taskId) {
+        taskFormDraftDao.delete(taskId);
     }
 
     @Override
