@@ -60,6 +60,10 @@
 		</property>
 	</bean>
 
+	<!-- byReference -->
+	<bean id="internalStorageReferenceService"
+		class="ru.runa.wfe.office.storage.InternalStorageReferenceServiceImpl" />
+
 	<!-- converters -->
 	<bean id="stringToByteArrayConverter" class="ru.runa.wfe.var.converter.StringToByteArrayConverter" />
 	<bean id="booleanToStringConverter" class="ru.runa.wfe.var.converter.BooleanToStringConverter" />

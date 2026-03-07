@@ -2,6 +2,7 @@ package ru.runa.wfe.office.storage.handler;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.definition.FileDataProvider;
@@ -50,6 +51,23 @@ public class ExternalStorageHandler extends OfficeFilesSupplierHandler<DataBindi
     protected ExecutionResult execute(VariableProvider variableProvider, DataBinding binding, StoreHelper storeHelper) throws Exception {
         binding.getConstraints().applyPlaceholders(variableProvider);
         final WfVariable variable = variableProvider.getVariableNotNull(binding.getVariableName());
+
+        boolean byRef = isByReferenceVariable(variable);
+
+        log.info("ExternalStorageHandler.execute: variable='" + binding.getVariableName()
+                + "', queryType=" + config.getQueryType()
+                + "', isByReference=" + byRef
+                + ", userType=" + (variable.getDefinition().getUserType() != null ? variable.getDefinition().getUserType().getName() : "null")
+                + ", format=" + variable.getDefinition().getFormatClassName());
+
+        if (byRef) {
+            if (config.getQueryType() == ru.runa.wfe.office.storage.binding.QueryType.INSERT
+                    || config.getQueryType() == ru.runa.wfe.office.storage.binding.QueryType.UPDATE) {
+                log.warn("byReference: skipping " + config.getQueryType() + " for variable '"
+                        + variable.getDefinition().getName() + "' — insert/update is automatic for byReference types");
+                return ExecutionResult.EMPTY;
+            }
+        }
         switch (config.getQueryType()) {
             case INSERT: {
                 storeHelper.setVariableFormat(variable.getDefinition().getFormatNotNull());
@@ -70,5 +88,20 @@ public class ExternalStorageHandler extends OfficeFilesSupplierHandler<DataBindi
             default:
                 throw new IllegalStateException("Unexpected value: " + config.getQueryType());
         }
+    }
+
+    private boolean isByReferenceVariable(WfVariable variable) {
+        if (variable.getDefinition().isUserType() && variable.getDefinition().getUserType().isByReference()) {
+            return true;
+        }
+        UserType[] componentUserTypes = variable.getDefinition().getFormatComponentUserTypes();
+        if (componentUserTypes != null) {
+            for (UserType ut : componentUserTypes) {
+                if (ut != null && ut.isByReference()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

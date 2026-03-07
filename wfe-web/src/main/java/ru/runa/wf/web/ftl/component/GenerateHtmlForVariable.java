@@ -2,6 +2,7 @@ package ru.runa.wf.web.ftl.component;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
 import org.apache.ecs.html.Div;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
@@ -340,10 +342,28 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             TD valueTd = new TD();
             valueTd.setClass("list");
             Object attributeValue = userTypeMap.get(attributeDefinition.getName());
-            WfVariable componentVariable = ViewUtil.createUserTypeComponentVariable(context.variable, attributeDefinition, attributeValue);
-            GenerateHtmlForVariableResult attributeGeneratedHtml = componentVariable.getDefinition().getFormatNotNull()
-                    .processBy(this, new GenerateHtmlForVariableContext(componentVariable, context.processId, context.readonly, context.isChatView));
-            valueTd.addElement(attributeGeneratedHtml.content);
+
+            if (userType.isByReference() && "id".equals(attributeDefinition.getName())) {
+                WfVariable componentVariable = ViewUtil.createUserTypeComponentVariable(context.variable, attributeDefinition, attributeValue);
+                String inputName = componentVariable.getDefinition().getName();
+                String displayValue = (attributeValue != null) ? attributeValue.toString() : "(авто)";
+                String hiddenValue = (attributeValue != null) ? attributeValue.toString() : "";
+
+                Input hiddenInput = new Input().setType("hidden").setName(inputName);
+                hiddenInput.setValue(hiddenValue);
+
+                Input readonlyInput = new Input().setType("text").setReadOnly(true);
+                readonlyInput.setClass("inputNumber");
+                readonlyInput.setStyle("background-color: #e9ecef; color: #6c757d; cursor: not-allowed;");
+                readonlyInput.setValue(displayValue);
+                valueTd.addElement(hiddenInput.toString());
+                valueTd.addElement(readonlyInput.toString());
+            } else {
+                WfVariable componentVariable = ViewUtil.createUserTypeComponentVariable(context.variable, attributeDefinition, attributeValue);
+                GenerateHtmlForVariableResult attributeGeneratedHtml = componentVariable.getDefinition().getFormatNotNull()
+                        .processBy(this, new GenerateHtmlForVariableContext(componentVariable, context.processId, context.readonly, context.isChatView));
+                valueTd.addElement(attributeGeneratedHtml.content);
+            }
             TR.addElement(valueTd);
         }
         return new GenerateHtmlForVariableResult(context, result.toString());
@@ -383,7 +403,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         } else {
             throw new InternalApplicationException("Unexpected format " + variableFormat);
         }
-        batchPresentation.setFieldsToSort(new int[] { 1 }, new boolean[] { true });
+        batchPresentation.setFieldsToSort(new int[]{1}, new boolean[]{true});
         List<Executor> executors = (List<Executor>) Delegates.getExecutorService().getExecutors(user, batchPresentation);
         return createExecutorSelect(variableName, executors, value, false, enabled);
     }
@@ -481,9 +501,8 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
     /**
      * Generates result for input number.
-     * 
-     * @param context
-     *            HTML generation context.
+     *
+     * @param context HTML generation context.
      * @return Returns data for generating form.
      */
     private GenerateHtmlForVariableResult generateNumberHtml(GenerateHtmlForVariableContext context) {
@@ -497,15 +516,11 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
     /**
      * Create HTML Input element ({@link Input}) for variable.
-     * 
-     * @param context
-     *            HTML generation context.
-     * @param type
-     *            Input element type.
-     * @param elementClass
-     *            HTML element class.
-     * @param style
-     *            HTML element style.
+     *
+     * @param context      HTML generation context.
+     * @param type         Input element type.
+     * @param elementClass HTML element class.
+     * @param style        HTML element style.
      * @return Returns HTML Input element.
      */
     Input createInput(GenerateHtmlForVariableContext context, String type, String elementClass, String style) {
@@ -522,9 +537,8 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
     /**
      * Generates HTML div element for template container.
-     * 
-     * @param context
-     *            HTML generation context.
+     *
+     * @param context HTML generation context.
      * @return Returns HTML div element for template container.
      */
     private Div createTemplateElement(GenerateHtmlForVariableContext context) {
@@ -537,9 +551,8 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
     /**
      * Generates remove button for list and so on containers.
-     * 
-     * @param context
-     *            HTML generation context.
+     *
+     * @param context HTML generation context.
      * @return Returns remove button.
      */
     private Input createRemoveElement(GenerateHtmlForVariableContext context) {
@@ -580,13 +593,10 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
     /**
      * Create HTML div element for collection row.
-     * 
-     * @param context
-     *            HTML generation context.
-     * @param row
-     *            Row index
-     * @param componentGeneratedHtml
-     *            Generated HTML for displaying collection element.
+     *
+     * @param context                HTML generation context.
+     * @param row                    Row index
+     * @param componentGeneratedHtml Generated HTML for displaying collection element.
      * @return
      */
     private Div createCollectionRowElement(GenerateHtmlForVariableContext context, int row, GenerateHtmlForVariableResult componentGeneratedHtml) {

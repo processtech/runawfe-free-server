@@ -58,11 +58,25 @@ public class InternalStorageHandler extends OfficeFilesSupplierHandler<DataBindi
         switch (config.getQueryType()) {
             case INSERT: {
                 final WfVariable variable = variableProvider.getVariableNotNull(binding.getVariableName());
+
+                if (isByReferenceVariable(variable)) {
+                    log.warn("byReference: skipping INSERT for variable '" + variable.getDefinition().getName()
+                            + "' — insert is automatic for byReference types");
+                    return ExecutionResult.EMPTY;
+                }
+
                 storeHelper.setVariableFormat(variable.getDefinition().getFormatNotNull());
                 return storeHelper.save(binding, variable);
             }
             case UPDATE: {
                 final WfVariable variable = variableProvider.getVariableNotNull(binding.getVariableName());
+
+                if (isByReferenceVariable(variable)) {
+                    log.warn("byReference: skipping UPDATE for variable '" + variable.getDefinition().getName()
+                            + "' — update is automatic for byReference types");
+                    return ExecutionResult.EMPTY;
+                }
+
                 storeHelper.setVariableFormat(variable.getDefinition().getFormatNotNull());
                 return storeHelper.update(binding, variable, config.getCondition());
             }
@@ -78,9 +92,31 @@ public class InternalStorageHandler extends OfficeFilesSupplierHandler<DataBindi
             case DELETE:
                 final UserType userType = variableProvider.getUserType(((OnSheetConstraints) binding.getConstraints()).getSheetName());
                 storeHelper.setVariableFormat(new UserTypeFormat(userType));
+
+                if (userType.isByReference() && binding.getVariableName() != null) {
+                    ExecutionResult deleteResult = new ExecutionResult(null);
+                    deleteResult.setNeedReturn(true);
+                    return deleteResult;
+                }
+
                 return storeHelper.delete(binding, userType, config.getCondition());
             default:
                 throw new IllegalStateException("Unexpected value: " + config.getQueryType());
         }
+    }
+
+    private boolean isByReferenceVariable(WfVariable variable) {
+        if (variable.getDefinition().isUserType() && variable.getDefinition().getUserType().isByReference()) {
+            return true;
+        }
+        UserType[] componentUserTypes = variable.getDefinition().getFormatComponentUserTypes();
+        if (componentUserTypes != null) {
+            for (UserType ut : componentUserTypes) {
+                if (ut != null && ut.isByReference()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
