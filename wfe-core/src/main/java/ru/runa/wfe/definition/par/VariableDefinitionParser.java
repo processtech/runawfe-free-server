@@ -67,9 +67,13 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         }
         for (Element typeElement : typeElements) {
             UserType type = parsedProcessDefinition.getUserTypeNotNull(typeElement.attributeValue(NAME));
+            boolean storeInExternalStorage = Boolean.parseBoolean(typeElement.attributeValue("storeInExternalStorage", "false"));
             List<Element> attributeElements = typeElement.elements(VARIABLE);
             for (Element element : attributeElements) {
                 VariableDefinition variableDefinition = parse(parsedProcessDefinition, element);
+                if (storeInExternalStorage) {
+                    variableDefinition.setStoreType(VariableStoreType.DEFAULT);
+                }
                 type.addAttribute(variableDefinition);
             }
         }
