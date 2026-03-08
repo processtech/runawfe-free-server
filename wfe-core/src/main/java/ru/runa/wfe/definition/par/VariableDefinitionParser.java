@@ -67,13 +67,9 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         }
         for (Element typeElement : typeElements) {
             UserType type = parsedProcessDefinition.getUserTypeNotNull(typeElement.attributeValue(NAME));
-            boolean storeInExternalStorage = Boolean.parseBoolean(typeElement.attributeValue("storeInExternalStorage", "false"));
             List<Element> attributeElements = typeElement.elements(VARIABLE);
             for (Element element : attributeElements) {
                 VariableDefinition variableDefinition = parse(parsedProcessDefinition, element);
-                if (storeInExternalStorage) {
-                    variableDefinition.setStoreType(VariableStoreType.DEFAULT);
-                }
                 type.addAttribute(variableDefinition);
             }
         }
@@ -151,7 +147,27 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         variableDefinition.setEditableInChat(Boolean.parseBoolean(element.attributeValue(EDITABLE_IN_CHAT, "false")));
         variableDefinition.setDefaultValue(element.attributeValue(DEFAULT_VALUE));
         String storeTypeString = element.attributeValue(STORE_TYPE);
-        if (!Strings.isNullOrEmpty(storeTypeString)) {
+        boolean forceDefaultStoreType = false;
+        if (variableDefinition.getUserType() != null) {
+            UserType ut = variableDefinition.getUserType();
+            Element userTypeElement = null;
+            List<Element> typeElements = element.getDocument().getRootElement().elements(USER_TYPE);
+            for (Element typeElement : typeElements) {
+                if (ut.getName().equals(typeElement.attributeValue(NAME))) {
+                    userTypeElement = typeElement;
+                    break;
+                }
+            }
+            if (userTypeElement != null) {
+                boolean storeInExternalStorage = Boolean.parseBoolean(userTypeElement.attributeValue("storeInExternalStorage", "false"));
+                if (storeInExternalStorage) {
+                    forceDefaultStoreType = true;
+                }
+            }
+        }
+        if (forceDefaultStoreType) {
+            variableDefinition.setStoreType(VariableStoreType.DEFAULT);
+        } else if (!Strings.isNullOrEmpty(storeTypeString)) {
             variableDefinition.setStoreType(VariableStoreType.valueOf(storeTypeString.toUpperCase()));
         }
         return variableDefinition;
