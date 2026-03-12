@@ -20,6 +20,7 @@ public class UserType implements Serializable {
     private static final long serialVersionUID = -1054823598655227725L;
     public static final String DELIM = ".";
     private String name;
+    private boolean byReference;
     private final List<VariableDefinition> attributes = Lists.newArrayList();
     private final Map<String, VariableDefinition> attributesMap = Maps.newHashMap();
 
@@ -30,8 +31,17 @@ public class UserType implements Serializable {
         this.name = name.intern();
     }
 
+    public UserType(String name, boolean byReference) {
+        this.name = name.intern();
+        this.byReference = byReference;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public boolean isByReference() {
+        return byReference;
     }
 
     public void addAttribute(VariableDefinition variableDefinition) {
@@ -112,7 +122,7 @@ public class UserType implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name, attributes);
+        return Objects.hashCode(name, byReference, attributes);
     }
 
     @Override
@@ -121,7 +131,7 @@ public class UserType implements Serializable {
             return false;
         }
         UserType type = (UserType) obj;
-        return Objects.equal(name, type.name) && Objects.equal(attributes, type.attributes);
+        return Objects.equal(name, type.name) && byReference == type.byReference && Objects.equal(attributes, type.attributes);
     }
 
     @Override

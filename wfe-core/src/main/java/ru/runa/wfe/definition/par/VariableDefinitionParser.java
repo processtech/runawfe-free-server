@@ -59,7 +59,10 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         Element root = document.getRootElement();
         List<Element> typeElements = document.getRootElement().elements(USER_TYPE);
         for (Element typeElement : typeElements) {
-            UserType type = new UserType(typeElement.attributeValue(NAME));
+            UserType type = new UserType(
+                    typeElement.attributeValue(NAME),
+                    Boolean.parseBoolean(typeElement.attributeValue("byReference", "false"))
+            );
             parsedProcessDefinition.addUserType(type);
         }
         for (Element typeElement : typeElements) {
@@ -73,6 +76,21 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         for (UserType userType : parsedProcessDefinition.getUserTypes()) {
             for (VariableDefinition variableDefinition : userType.getAttributes()) {
                 parseDefaultValue(parsedProcessDefinition, variableDefinition);
+            }
+            if (userType.isByReference()) {
+                List<VariableDefinition> attrs = userType.getAttributes();
+                if (attrs.isEmpty() || !"id".equals(attrs.get(0).getName())) {
+                    boolean hasId = attrs.stream().anyMatch(a -> "id".equals(a.getName()));
+                    if (!hasId) {
+                        log.warn("byReference type '" + userType.getName()
+                                + "' does not have required 'id' attribute. "
+                                + "Excel operations will fail at runtime.");
+                    } else {
+                        log.warn("byReference type '" + userType.getName()
+                                + "' has 'id' attribute but it is not the first attribute. "
+                                + "Expected 'id' as the first attribute by convention.");
+                    }
+                }
             }
         }
         List<Element> variableElements = root.elements(VARIABLE);
@@ -129,7 +147,27 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         variableDefinition.setEditableInChat(Boolean.parseBoolean(element.attributeValue(EDITABLE_IN_CHAT, "false")));
         variableDefinition.setDefaultValue(element.attributeValue(DEFAULT_VALUE));
         String storeTypeString = element.attributeValue(STORE_TYPE);
-        if (!Strings.isNullOrEmpty(storeTypeString)) {
+        boolean forceDefaultStoreType = false;
+        if (variableDefinition.getUserType() != null) {
+            UserType ut = variableDefinition.getUserType();
+            Element userTypeElement = null;
+            List<Element> typeElements = element.getDocument().getRootElement().elements(USER_TYPE);
+            for (Element typeElement : typeElements) {
+                if (ut.getName().equals(typeElement.attributeValue(NAME))) {
+                    userTypeElement = typeElement;
+                    break;
+                }
+            }
+            if (userTypeElement != null) {
+                boolean storeInExternalStorage = Boolean.parseBoolean(userTypeElement.attributeValue("storeInExternalStorage", "false"));
+                if (storeInExternalStorage) {
+                    forceDefaultStoreType = true;
+                }
+            }
+        }
+        if (forceDefaultStoreType) {
+            variableDefinition.setStoreType(VariableStoreType.DEFAULT);
+        } else if (!Strings.isNullOrEmpty(storeTypeString)) {
             variableDefinition.setStoreType(VariableStoreType.valueOf(storeTypeString.toUpperCase()));
         }
         return variableDefinition;
