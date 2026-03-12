@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -30,14 +32,14 @@ public class InternalStorageReferenceServiceImpl implements InternalStorageRefer
 
     private static final String XLSX_SUFFIX = ".xlsx";
     private static final String BY_REFERENCE_MARKER = "&";
-    private static final Object FILE_LOCK = new Object();
+    private static final Map<String, Object> LOCKS = new ConcurrentHashMap<>();
 
     @Override
     public UserTypeMap loadById(UserType userType, Long id) {
         if (id == null) {
             return null;
         }
-        synchronized (FILE_LOCK) {
+        synchronized (getLock(userType)) {
             String filePath = getFilePath(userType);
             if (!new File(filePath).exists()) {
                 log.warn("byReference: file not found: " + filePath);
@@ -68,7 +70,7 @@ public class InternalStorageReferenceServiceImpl implements InternalStorageRefer
 
     @Override
     public long insert(UserType userType, UserTypeMap value) {
-        synchronized (FILE_LOCK) {
+        synchronized (getLock(userType)) {
             log.info("byReference INSERT: type=" + userType.getName() + ", value keys=" + value.keySet() + ", values=" + value);
             String filePath = getFilePath(userType);
             List<VariableDefinition> attributes = userType.getAttributes();
@@ -139,7 +141,7 @@ public class InternalStorageReferenceServiceImpl implements InternalStorageRefer
         if (id == null) {
             throw new InternalApplicationException("byReference: cannot update with null id for type " + userType.getName());
         }
-        synchronized (FILE_LOCK) {
+        synchronized (getLock(userType)) {
             log.info("byReference UPDATE: type=" + userType.getName() + ", id=" + id + ", value keys=" + value.keySet() + ", values=" + value);
             String filePath = getFilePath(userType);
             if (!new File(filePath).exists()) {
@@ -229,7 +231,7 @@ public class InternalStorageReferenceServiceImpl implements InternalStorageRefer
         if (id == null) {
             return;
         }
-        synchronized (FILE_LOCK) {
+        synchronized (getLock(userType)) {
             String filePath = getFilePath(userType);
             if (!new File(filePath).exists()) {
                 return;
@@ -277,6 +279,10 @@ public class InternalStorageReferenceServiceImpl implements InternalStorageRefer
                 throw new InternalApplicationException("byReference: error deleting from " + filePath, e);
             }
         }
+    }
+
+    private Object getLock(UserType userType) {
+        return LOCKS.computeIfAbsent(userType.getName(), k -> new Object());
     }
 
     private String getFilePath(UserType userType) {
