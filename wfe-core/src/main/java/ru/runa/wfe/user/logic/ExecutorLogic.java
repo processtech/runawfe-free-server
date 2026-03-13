@@ -175,7 +175,7 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public void remove(Executor executor) {
-        log.info("Removing " + executor);
+        log.debug("Removing " + executor);
         if (permissionDao.isPrivilegedExecutor(executor) || SystemExecutors.PROCESS_STARTER_NAME.equals(executor.getName())) {
             throw new AuthorizationException(executor.getName() + " can not be removed");
         }
@@ -333,7 +333,7 @@ public class ExecutorLogic extends CommonLogic {
         checkPermissionsOnExecutor(user, executor, Permission.UPDATE);
         checkPermissionsOnExecutors(user, groups, Permission.UPDATE);
         
-        log.info("Removing executor " + executor.getName() + " from groups: " + groups);
+        log.debug("Removing executor " + executor.getName() + " from groups: " + groups);
         
         executorDao.removeExecutorFromGroups(executor, groups);
         
@@ -355,7 +355,7 @@ public class ExecutorLogic extends CommonLogic {
         checkPermissionsOnExecutor(user, executor, Permission.UPDATE);
         checkPermissionsOnExecutors(user, groups, Permission.UPDATE);
         
-        log.info("Removing executor " + executor.getName() + " from groups: " + groups);
+        log.debug("Removing executor " + executor.getName() + " from groups: " + groups);
         
         executorDao.removeExecutorFromGroups(executor, groups);
         
