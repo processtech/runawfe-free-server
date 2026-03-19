@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
 import com.google.common.base.MoreObjects;
@@ -42,6 +43,21 @@ public class UserType implements Serializable {
 
     public boolean isByReference() {
         return byReference;
+    }
+
+    public static boolean isByReferenceVariable(WfVariable variable) {
+        if (variable.getDefinition().isUserType() && variable.getDefinition().getUserType().isByReference()) {
+            return true;
+        }
+        UserType[] componentUserTypes = variable.getDefinition().getFormatComponentUserTypes();
+        if (componentUserTypes != null) {
+            for (UserType ut : componentUserTypes) {
+                if (ut != null && ut.isByReference()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public void addAttribute(VariableDefinition variableDefinition) {
@@ -136,6 +152,6 @@ public class UserType implements Serializable {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(getClass()).add("name", name).add("attributes", attributes).toString();
+        return MoreObjects.toStringHelper(getClass()).add("name", name).add("byReference", byReference).add("attributes", attributes).toString();
     }
 }

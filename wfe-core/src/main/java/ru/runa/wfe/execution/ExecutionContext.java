@@ -40,8 +40,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.var.CurrentVariable;
-import ru.runa.wfe.var.UserType;
-import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
@@ -53,7 +51,8 @@ import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-import ru.runa.wfe.var.logic.InternalStorageReferenceService;
+import ru.runa.wfe.var.logic.ByReferenceVariableHandler;
+import ru.runa.wfe.var.logic.ByReferenceWriteResult;
 
 @CommonsLog
 public class ExecutionContext {
@@ -66,6 +65,7 @@ public class ExecutionContext {
      * This component is used for loading variables with subprocess variables state support.
      */
     private final BaseProcessVariableLoader baseProcessVariableLoader;
+    private final ByReferenceVariableHandler byReferenceHandler;
 
     @Autowired
     private VariableCreator variableCreator;
@@ -104,6 +104,9 @@ public class ExecutionContext {
             this.variableLoader = new VariableLoader(variableDao, loadedVariables);
         }
         this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getParsedProcessDefinition(), getProcess());
+        this.byReferenceHandler = new ByReferenceVariableHandler(
+                variableLoader, getProcess(), processLogDao, getCurrentProcess(), getCurrentToken()
+        );
     }
 
     public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Token token) {
@@ -111,7 +114,7 @@ public class ExecutionContext {
     }
 
     public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Process process, Map<Process, Map<String, Variable>> loadedVariables,
-            boolean disableVariableDaoLoading) {
+                            boolean disableVariableDaoLoading) {
         this(ApplicationContextFactory.getContext(), parsedProcessDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
     }
 
@@ -212,10 +215,10 @@ public class ExecutionContext {
         WfVariable wfVariable = baseProcessVariableLoader.get(name);
         if (wfVariable != null && wfVariable.getDefinition().isUserType()
                 && wfVariable.getDefinition().getUserType().isByReference()) {
-            wfVariable = resolveByReferenceVariable(wfVariable);
+            wfVariable = byReferenceHandler.resolve(wfVariable);
         }
-        if (wfVariable != null && isContainerOfByReference(wfVariable.getDefinition())) {
-            wfVariable = resolveByReferenceContainer(wfVariable);
+        if (wfVariable != null && ByReferenceVariableHandler.isContainerOfByReference(wfVariable.getDefinition())) {
+            wfVariable = byReferenceHandler.resolveContainer(wfVariable);
         }
         return wfVariable;
     }
@@ -291,11 +294,17 @@ public class ExecutionContext {
     private void setVariableValue(VariableDefinition variableDefinition, Object value) {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
         if (variableDefinition.isUserType() && variableDefinition.getUserType().isByReference()) {
-            handleByReferenceWrite(variableDefinition, value);
+            ByReferenceWriteResult result = byReferenceHandler.write(variableDefinition, value);
+            if (result.shouldSave) {
+                saveVariableDefaultToDb(variableDefinition, result.value);
+            }
             return;
         }
-        if (isContainerOfByReference(variableDefinition)) {
-            handleByReferenceContainerWrite(variableDefinition, value);
+        if (ByReferenceVariableHandler.isContainerOfByReference(variableDefinition)) {
+            ByReferenceWriteResult result = byReferenceHandler.writeContainer(variableDefinition, value);
+            if (result.shouldSave) {
+                saveVariableDefaultToDb(variableDefinition, result.value);
+            }
             return;
         }
         switch (variableDefinition.getStoreType()) {
@@ -424,325 +433,9 @@ public class ExecutionContext {
         return resultingVariableLog;
     }
 
-    private WfVariable resolveByReferenceVariable(WfVariable wfVariable) {
-        Object value = wfVariable.getValue();
-        if (value == null) {
-            return wfVariable;
-        }
-        Long id = null;
-        if (value instanceof UserTypeMap) {
-            Object rawId = ((UserTypeMap) value).get(InternalStorageReferenceService.ID_ATTRIBUTE_NAME);
-            if (rawId != null) {
-                id = TypeConversionUtil.convertTo(Long.class, rawId);
-            }
-        }
-        if (id == null) {
-            return wfVariable;
-        }
-        InternalStorageReferenceService refService = ApplicationContextFactory.getInternalStorageReferenceService();
-        UserTypeMap fullMap = refService.loadById(wfVariable.getDefinition().getUserType(), id);
-        if (fullMap == null) {
-            log.warn("byReference: row with id=" + id + " not found in InternalStorage for type "
-                    + wfVariable.getDefinition().getUserType().getName());
-            return wfVariable;
-        }
-        return new WfVariable(wfVariable.getDefinition(), fullMap);
-    }
-
-    private WfVariable resolveByReferenceContainer(WfVariable wfVariable) {
-        Object value = wfVariable.getValue();
-        if (value == null) {
-            return wfVariable;
-        }
-        UserType[] componentUserTypes = wfVariable.getDefinition().getFormatComponentUserTypes();
-        InternalStorageReferenceService refService = ApplicationContextFactory.getInternalStorageReferenceService();
-
-        if (value instanceof List) {
-            UserType componentUserType = componentUserTypes.length > 0 ? componentUserTypes[0] : null;
-            if (componentUserType == null || !componentUserType.isByReference()) {
-                return wfVariable;
-            }
-            List<Object> list = (List<Object>) value;
-            List<Object> resolvedList = Lists.newArrayListWithCapacity(list.size());
-            for (Object element : list) {
-                if (element instanceof UserTypeMap) {
-                    Object rawId = ((UserTypeMap) element).get(InternalStorageReferenceService.ID_ATTRIBUTE_NAME);
-                    if (rawId != null) {
-                        Long id = TypeConversionUtil.convertTo(Long.class, rawId);
-                        UserTypeMap fullMap = refService.loadById(componentUserType, id);
-                        if (fullMap != null) {
-                            resolvedList.add(fullMap);
-                        } else {
-                            log.warn("byReference: row with id=" + id + " not found for list component type " + componentUserType.getName());
-                            resolvedList.add(element);
-                        }
-                    } else {
-                        resolvedList.add(element);
-                    }
-                } else {
-                    resolvedList.add(element);
-                }
-            }
-
-            return new WfVariable(wfVariable.getDefinition(), resolvedList);
-        } else if (value instanceof Map) {
-            UserType keyUserType = componentUserTypes.length > 0 ? componentUserTypes[0] : null;
-            UserType valueUserType = componentUserTypes.length > 1 ? componentUserTypes[1] : null;
-            Map<Object, Object> map = (Map<Object, Object>) value;
-            Map<Object, Object> resolvedMap = Maps.newLinkedHashMap();
-            for (Map.Entry<Object, Object> entry : map.entrySet()) {
-                Object resolvedKey = resolveByReferenceComponent(entry.getKey(), keyUserType, refService);
-                Object resolvedValue = resolveByReferenceComponent(entry.getValue(), valueUserType, refService);
-                resolvedMap.put(resolvedKey, resolvedValue);
-            }
-            return new WfVariable(wfVariable.getDefinition(), resolvedMap);
-        }
-        return wfVariable;
-    }
-
-    private Object resolveByReferenceComponent(Object component, UserType userType, InternalStorageReferenceService refService) {
-        if (userType == null || !userType.isByReference() || !(component instanceof UserTypeMap)) {
-            return component;
-        }
-        Object rawId = ((UserTypeMap) component).get(InternalStorageReferenceService.ID_ATTRIBUTE_NAME);
-        if (rawId == null) {
-            return component;
-        }
-        Long id = TypeConversionUtil.convertTo(Long.class, rawId);
-        UserTypeMap fullMap = refService.loadById(userType, id);
-        if (fullMap != null) {
-            return fullMap;
-        }
-        log.warn("byReference: row with id=" + id + " not found for map component type " + userType.getName());
-        return component;
-    }
-
-    private void handleByReferenceWrite(VariableDefinition variableDefinition, Object value) {
-        UserType userType = variableDefinition.getUserType();
-        InternalStorageReferenceService refService = ApplicationContextFactory.getInternalStorageReferenceService();
-
-        if (value == null) {
-            Long oldId = getExistingByReferenceId(variableDefinition);
-            if (oldId != null) {
-                refService.delete(userType, oldId);
-                log.info("byReference: implicit delete from Excel for variable '" + variableDefinition.getName()
-                        + "', type=" + userType.getName() + ", old id=" + oldId);
-                UserTypeMap deletedMap = new UserTypeMap(userType);
-                deletedMap.put(InternalStorageReferenceService.ID_ATTRIBUTE_NAME, oldId);
-                logByReferenceFullValues("DELETE", variableDefinition, oldId, deletedMap);
-            }
-            saveByReferenceIdToDb(variableDefinition, null);
-            return;
-        }
-        if (!(value instanceof UserTypeMap)) {
-            throw new InternalApplicationException(
-                    "byReference variable '" + variableDefinition.getName() + "' expects UserTypeMap, got " + value.getClass());
-        }
-
-        UserTypeMap fullMap = (UserTypeMap) value;
-        Long id = getExistingByReferenceId(variableDefinition);
-
-        if (id == null) {
-            if (!hasNonIdAttributes(fullMap)) {
-                log.debug("byReference: skipping INSERT for variable '" + variableDefinition.getName()
-                        + "' — all attributes are null (uninitialized variable)");
-                return;
-            }
-            fullMap.remove(InternalStorageReferenceService.ID_ATTRIBUTE_NAME);
-            long newId = refService.insert(userType, fullMap);
-            saveByReferenceIdToDb(variableDefinition, newId);
-            logByReferenceFullValues("INSERT", variableDefinition, newId, fullMap);
-        } else {
-            if (hasNonIdAttributes(fullMap)) {
-                refService.update(userType, id, fullMap);
-                logByReferenceFullValues("UPDATE", variableDefinition, id, fullMap);
-            }
-            saveByReferenceIdToDb(variableDefinition, id);
-        }
-    }
-
-    private Long getExistingByReferenceId(VariableDefinition variableDefinition) {
-        String idVariableName = variableDefinition.getName() + UserType.DELIM
-                + InternalStorageReferenceService.ID_ATTRIBUTE_NAME;
-        Variable<?, ?> idVar = variableLoader.get(getProcess(), idVariableName);
-        if (idVar != null && idVar.getValue() != null) {
-            return TypeConversionUtil.convertTo(Long.class, idVar.getValue());
-        }
-        return null;
-    }
-
-    private void logByReferenceFullValues(String operation, VariableDefinition variableDefinition, Long id, UserTypeMap fullMap) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("byReference ").append(operation).append(": variable='").append(variableDefinition.getName())
-                .append("', type='").append(variableDefinition.getUserType().getName())
-                .append("', id=").append(id).append(", values={");
-        boolean first = true;
-        for (VariableDefinition attr : variableDefinition.getUserType().getAttributes()) {
-            if (!first) {
-                sb.append(", ");
-            }
-            sb.append(attr.getName()).append("=").append(fullMap.get(attr.getName()));
-            first = false;
-        }
-        sb.append("}");
-        String fullValuesString = sb.toString();
-        log.info(fullValuesString);
-
-        try {
-            CurrentActionLog processLog = new CurrentActionLog();
-            processLog.setVariableName(variableDefinition.getName());
-            String attrValue = fullValuesString;
-            if (attrValue.length() > 4000) {
-                attrValue = attrValue.substring(0, 3997) + "...";
-            }
-            processLog.getAttributes().put(CurrentActionLog.ATTR_ACTION, attrValue);
-            processLogDao.addLog(processLog, getCurrentProcess(), getCurrentToken());
-        } catch (Exception e) {
-            log.warn("byReference: failed to write process log for " + operation + " of variable '"
-                    + variableDefinition.getName() + "'", e);
-        }
-    }
-
-    private void saveByReferenceIdToDb(VariableDefinition variableDefinition, Long id) {
-        UserTypeMap idOnlyMap = null;
-        if (id != null) {
-            idOnlyMap = new UserTypeMap(variableDefinition.getUserType());
-            idOnlyMap.put(InternalStorageReferenceService.ID_ATTRIBUTE_NAME, id);
-        }
+    private void saveVariableDefaultToDb(VariableDefinition variableDefinition, Object value) {
         ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesOnSaveContext(
-                variableDefinition, idOnlyMap, getCurrentProcess(), baseProcessVariableLoader, currentVariableDao
-        );
-        VariableFormat variableFormat = variableDefinition.getFormatNotNull();
-        for (ConvertToSimpleVariablesResult simpleVariables : variableFormat.processBy(new ConvertToSimpleVariables(), context)) {
-            Object convertedValue = convertValueForVariableType(simpleVariables.variableDefinition, simpleVariables.value);
-            setSimpleVariableValue(getCurrentToken(), simpleVariables.variableDefinition, convertedValue);
-        }
-    }
-
-    private boolean isContainerOfByReference(VariableDefinition variableDefinition) {
-        UserType[] componentUserTypes = variableDefinition.getFormatComponentUserTypes();
-        if (componentUserTypes == null || componentUserTypes.length == 0) {
-            return false;
-        }
-        for (UserType componentUserType : componentUserTypes) {
-            if (componentUserType != null && componentUserType.isByReference()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean hasNonIdAttributes(UserTypeMap map) {
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            if (InternalStorageReferenceService.ID_ATTRIBUTE_NAME.equals(entry.getKey())) {
-                continue;
-            }
-            Object val = entry.getValue();
-            if (val == null) {
-                continue;
-            }
-            if (val instanceof String && ((String) val).isEmpty()) {
-                continue;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private void handleByReferenceContainerWrite(VariableDefinition variableDefinition, Object value) {
-        UserType[] componentUserTypes = variableDefinition.getFormatComponentUserTypes();
-
-        if (value instanceof List) {
-            List<Object> list = (List<Object>) value;
-            UserType componentUserType = componentUserTypes.length > 0 ? componentUserTypes[0] : null;
-            List<Object> idOnlyList = Lists.newArrayListWithCapacity(list.size());
-            if (componentUserType != null && componentUserType.isByReference()) {
-                InternalStorageReferenceService refService = ApplicationContextFactory.getInternalStorageReferenceService();
-
-                for (int i = 0; i < list.size(); i++) {
-                    Object element = list.get(i);
-                    if (element instanceof UserTypeMap) {
-                        UserTypeMap fullMap = (UserTypeMap) element;
-
-                        Long id = null;
-                        Object rawId = fullMap.get(InternalStorageReferenceService.ID_ATTRIBUTE_NAME);
-                        if (rawId != null) {
-                            try {
-                                id = TypeConversionUtil.convertTo(Long.class, rawId);
-                            } catch (Exception e) {
-                                log.debug("byReference container: cannot parse id '" + rawId + "' for [" + i
-                                        + "], treating as new element");
-                            }
-                        }
-
-                        if (id != null && id > 0) {
-                            if (hasNonIdAttributes(fullMap)) {
-                                log.info("byReference container write [" + i + "]: UPDATE id=" + id);
-                                refService.update(componentUserType, id, fullMap);
-                            }
-                        } else {
-                            if (!hasNonIdAttributes(fullMap)) {
-                                log.debug("byReference container: skipping empty element [" + i + "]");
-                                continue;
-                            }
-                            fullMap.remove(InternalStorageReferenceService.ID_ATTRIBUTE_NAME);
-                            long newId = refService.insert(componentUserType, fullMap);
-                            log.info("byReference container write [" + i + "]: INSERT → id=" + newId);
-                            id = newId;
-                        }
-
-                        UserTypeMap idOnly = new UserTypeMap(componentUserType);
-                        idOnly.put(InternalStorageReferenceService.ID_ATTRIBUTE_NAME, id);
-                        idOnlyList.add(idOnly);
-                    } else {
-                        idOnlyList.add(element);
-                    }
-                }
-            } else {
-                idOnlyList.addAll(list);
-            }
-            saveContainerToDb(variableDefinition, idOnlyList);
-        } else if (value instanceof Map) {
-            Map<Object, Object> map = (Map<Object, Object>) value;
-            UserType keyUserType = componentUserTypes.length > 0 ? componentUserTypes[0] : null;
-            UserType valueUserType = componentUserTypes.length > 1 ? componentUserTypes[1] : null;
-            Map<Object, Object> idOnlyMap = Maps.newLinkedHashMap();
-            InternalStorageReferenceService refService = ApplicationContextFactory.getInternalStorageReferenceService();
-            for (Map.Entry<Object, Object> entry : map.entrySet()) {
-                Object mapKey = processMapComponent(entry.getKey(), keyUserType, refService);
-                Object mapValue = processMapComponent(entry.getValue(), valueUserType, refService);
-                idOnlyMap.put(mapKey, mapValue);
-            }
-            saveContainerToDb(variableDefinition, idOnlyMap);
-        } else if (value == null) {
-            saveContainerToDb(variableDefinition, null);
-        } else {
-            throw new InternalApplicationException(
-                    "byReference container variable '" + variableDefinition.getName() + "' expects List or Map, got " + value.getClass());
-        }
-    }
-
-    private Object processMapComponent(Object component, UserType userType, InternalStorageReferenceService refService) {
-        if (userType == null || !userType.isByReference() || !(component instanceof UserTypeMap)) {
-            return component;
-        }
-        UserTypeMap fullMap = (UserTypeMap) component;
-        Object rawId = fullMap.get(InternalStorageReferenceService.ID_ATTRIBUTE_NAME);
-        Long id = (rawId != null) ? TypeConversionUtil.convertTo(Long.class, rawId) : null;
-        if (id == null) {
-            fullMap.remove(InternalStorageReferenceService.ID_ATTRIBUTE_NAME);
-            id = refService.insert(userType, fullMap);
-        } else if (hasNonIdAttributes(fullMap)) {
-            refService.update(userType, id, fullMap);
-        }
-        UserTypeMap idOnly = new UserTypeMap(userType);
-        idOnly.put(InternalStorageReferenceService.ID_ATTRIBUTE_NAME, id);
-        return idOnly;
-    }
-
-    private void saveContainerToDb(VariableDefinition variableDefinition, Object idOnlyValue) {
-        ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesOnSaveContext(
-                variableDefinition, idOnlyValue, getCurrentProcess(), baseProcessVariableLoader, currentVariableDao
+                variableDefinition, value, getCurrentProcess(), baseProcessVariableLoader, currentVariableDao
         );
         VariableFormat variableFormat = variableDefinition.getFormatNotNull();
         for (ConvertToSimpleVariablesResult simpleVariables : variableFormat.processBy(new ConvertToSimpleVariables(), context)) {

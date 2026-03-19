@@ -179,20 +179,9 @@ public class StoreServiceImpl implements StoreService {
             String resolvedTableName = tableName();
             fullPath = eds.getFilePath() + "/" + resolvedTableName + XLSX_SUFFIX;
             log.info("StoreServiceImpl.initParams: tableName='" + resolvedTableName
-                    + "', fullPath='" + fullPath + "', format=" + (format != null ? format.getClass().getSimpleName() : "null")
-                    + ", byRef=" + isByReferenceFormat());
+                    + "', fullPath='" + fullPath + "', format=" + (format != null ? format.getClass().getSimpleName() : "null"));
         }
         createFileIfNotExist(fullPath, tableName());
-    }
-
-    private boolean isByReferenceFormat() {
-        if (format instanceof UserTypeFormat) {
-            return ((UserTypeFormat) format).getUserType().isByReference();
-        } else if (format instanceof ListFormat) {
-            UserType componentUserType = ((ListFormat) format).getComponentUserType(0);
-            return componentUserType != null && componentUserType.isByReference();
-        }
-        return false;
     }
 
     @SuppressWarnings("unchecked")
@@ -380,9 +369,6 @@ public class StoreServiceImpl implements StoreService {
         int columnIndex = 0;// attributeConstraints.getColumnIndex();
         Sheet sheet = ExcelHelper.getSheet(workbook, attributeConstraints.getSheetName(), attributeConstraints.getSheetIndex());
         int rowIndex = getLastRowIndex(sheet, columnIndex, variableFormat);
-        if (isByReferenceFormat() && rowIndex > START_ROW_INDEX) {
-            rowIndex--;
-        }
         int currentRow = START_ROW_INDEX;
         while (currentRow < rowIndex) {
             Row row = ExcelHelper.getRow(sheet, currentRow, true);
@@ -508,26 +494,17 @@ public class StoreServiceImpl implements StoreService {
     private String tableName() {
         final OnSheetConstraints osc = (OnSheetConstraints) constraints;
         String tableName = osc.getSheetName();
-        boolean byReference = false;
         if (Strings.isNullOrEmpty(tableName)) {
             String userTypeName = null;
 
             if (format instanceof UserTypeFormat) {
                 userTypeName = format.toString();
-                byReference = ((UserTypeFormat) format).getUserType().isByReference();
             } else if (format instanceof ListFormat) {
                 userTypeName = ((ListFormat) format).getComponentClassName(0);
-                UserType componentUserType = ((ListFormat) format).getComponentUserType(0);
-                byReference = componentUserType != null && componentUserType.isByReference();
             }
 
             tableName = Strings.isNullOrEmpty(userTypeName) ?
                     DEFAULT_TABLE_NAME_PREFIX + osc.getSheetIndex() : userTypeName;
-        } else {
-            byReference = isByReferenceFormat();
-        }
-        if (byReference && !tableName.endsWith("&")) {
-            tableName = tableName + "&";
         }
         return tableName;
     }

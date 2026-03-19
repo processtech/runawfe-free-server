@@ -28,6 +28,8 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
 @CommonsLog
 public class ViewUtil {
 
+    public static final String BY_REF_ID_READONLY_STYLE = "background-color: #e9ecef; color: #6c757d; cursor: not-allowed;";
+
     public static String createExecutorSelect(User user, WfVariable variable) {
         return GenerateHtmlForVariable.createExecutorSelect(user, variable);
     }

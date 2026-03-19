@@ -12,6 +12,7 @@ import ru.runa.wfe.office.storage.StoreService;
 import ru.runa.wfe.office.storage.binding.DataBinding;
 import ru.runa.wfe.office.storage.binding.DataBindings;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
+import ru.runa.wfe.office.storage.binding.QueryType;
 import ru.runa.wfe.office.storage.services.StoreHelper;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableProvider;
@@ -52,7 +53,7 @@ public class ExternalStorageHandler extends OfficeFilesSupplierHandler<DataBindi
         binding.getConstraints().applyPlaceholders(variableProvider);
         final WfVariable variable = variableProvider.getVariableNotNull(binding.getVariableName());
 
-        boolean byRef = isByReferenceVariable(variable);
+        boolean byRef = UserType.isByReferenceVariable(variable);
 
         log.info("ExternalStorageHandler.execute: variable='" + binding.getVariableName()
                 + "', queryType=" + config.getQueryType()
@@ -60,13 +61,10 @@ public class ExternalStorageHandler extends OfficeFilesSupplierHandler<DataBindi
                 + ", userType=" + (variable.getDefinition().getUserType() != null ? variable.getDefinition().getUserType().getName() : "null")
                 + ", format=" + variable.getDefinition().getFormatClassName());
 
-        if (byRef) {
-            if (config.getQueryType() == ru.runa.wfe.office.storage.binding.QueryType.INSERT
-                    || config.getQueryType() == ru.runa.wfe.office.storage.binding.QueryType.UPDATE) {
-                log.warn("byReference: skipping " + config.getQueryType() + " for variable '"
-                        + variable.getDefinition().getName() + "' — insert/update is automatic for byReference types");
-                return ExecutionResult.EMPTY;
-            }
+        if (byRef && (config.getQueryType() == QueryType.INSERT || config.getQueryType() == QueryType.UPDATE)) {
+            log.warn("byReference: skipping " + config.getQueryType() + " for variable '"
+                    + variable.getDefinition().getName() + "' — insert/update is automatic for byReference types");
+            return ExecutionResult.EMPTY;
         }
         switch (config.getQueryType()) {
             case INSERT: {
@@ -90,18 +88,4 @@ public class ExternalStorageHandler extends OfficeFilesSupplierHandler<DataBindi
         }
     }
 
-    private boolean isByReferenceVariable(WfVariable variable) {
-        if (variable.getDefinition().isUserType() && variable.getDefinition().getUserType().isByReference()) {
-            return true;
-        }
-        UserType[] componentUserTypes = variable.getDefinition().getFormatComponentUserTypes();
-        if (componentUserTypes != null) {
-            for (UserType ut : componentUserTypes) {
-                if (ut != null && ut.isByReference()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 }

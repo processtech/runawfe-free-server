@@ -5,7 +5,9 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -18,6 +20,7 @@ import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.logic.InternalStorageReferenceService;
 import ru.runa.wfe.var.VariableStoreType;
 import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.format.FileFormat;
@@ -39,6 +42,10 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     private static final String DESCRIPTION = "description";
     private static final String STORE_TYPE = "storeType";
     private static final String GLOBAL = "global";
+    private static final String BY_REFERENCE = "byReference";
+    private static final String STORE_IN_EXTERNAL_STORAGE = "storeInExternalStorage";
+    private static final String BY_REFERENCE_TYPE_PREFIX = "byReference type '";
+    private static final String MIXED_TYPES_NOT_SUPPORTED = "'. Mixed byReference/non-byReference types are not supported.";
 
     @Autowired
     private LocalizationDao localizationDao;
@@ -58,18 +65,21 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         Document document = XmlUtils.parseWithoutValidation(xml);
         Element root = document.getRootElement();
         List<Element> typeElements = document.getRootElement().elements(USER_TYPE);
+        Map<String, Element> typeElementByName = new HashMap<>();
         for (Element typeElement : typeElements) {
+            String typeName = typeElement.attributeValue(NAME);
             UserType type = new UserType(
-                    typeElement.attributeValue(NAME),
-                    Boolean.parseBoolean(typeElement.attributeValue("byReference", "false"))
+                    typeName,
+                    Boolean.parseBoolean(typeElement.attributeValue(BY_REFERENCE, "false"))
             );
             parsedProcessDefinition.addUserType(type);
+            typeElementByName.put(typeName, typeElement);
         }
         for (Element typeElement : typeElements) {
             UserType type = parsedProcessDefinition.getUserTypeNotNull(typeElement.attributeValue(NAME));
             List<Element> attributeElements = typeElement.elements(VARIABLE);
             for (Element element : attributeElements) {
-                VariableDefinition variableDefinition = parse(parsedProcessDefinition, element);
+                VariableDefinition variableDefinition = parse(parsedProcessDefinition, element, typeElementByName);
                 type.addAttribute(variableDefinition);
             }
         }
@@ -77,21 +87,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
             for (VariableDefinition variableDefinition : userType.getAttributes()) {
                 parseDefaultValue(parsedProcessDefinition, variableDefinition);
             }
-            if (userType.isByReference()) {
-                List<VariableDefinition> attrs = userType.getAttributes();
-                if (attrs.isEmpty() || !"id".equals(attrs.get(0).getName())) {
-                    boolean hasId = attrs.stream().anyMatch(a -> "id".equals(a.getName()));
-                    if (!hasId) {
-                        log.warn("byReference type '" + userType.getName()
-                                + "' does not have required 'id' attribute. "
-                                + "Excel operations will fail at runtime.");
-                    } else {
-                        log.warn("byReference type '" + userType.getName()
-                                + "' has 'id' attribute but it is not the first attribute. "
-                                + "Expected 'id' as the first attribute by convention.");
-                    }
-                }
-            }
+            validateByReferenceConsistency(userType);
         }
         List<Element> variableElements = root.elements(VARIABLE);
         for (Element element : variableElements) {
@@ -101,14 +97,14 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 String scriptingName = element.attributeValue(SCRIPTING_NAME, name);
                 parsedProcessDefinition.setSwimlaneScriptingName(name, scriptingName);
             } else {
-                VariableDefinition variableDefinition = parse(parsedProcessDefinition, element);
+                VariableDefinition variableDefinition = parse(parsedProcessDefinition, element, typeElementByName);
                 parseDefaultValue(parsedProcessDefinition, variableDefinition);
                 parsedProcessDefinition.addVariable(variableDefinition);
             }
         }
     }
 
-    private VariableDefinition parse(ParsedProcessDefinition parsedProcessDefinition, Element element) {
+    private VariableDefinition parse(ParsedProcessDefinition parsedProcessDefinition, Element element, Map<String, Element> typeElementByName) {
         String name = element.attributeValue(NAME);
         String scriptingName = element.attributeValue(SCRIPTING_NAME, name);
         String global = element.attributeValue(GLOBAL);
@@ -149,20 +145,9 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         String storeTypeString = element.attributeValue(STORE_TYPE);
         boolean forceDefaultStoreType = false;
         if (variableDefinition.getUserType() != null) {
-            UserType ut = variableDefinition.getUserType();
-            Element userTypeElement = null;
-            List<Element> typeElements = element.getDocument().getRootElement().elements(USER_TYPE);
-            for (Element typeElement : typeElements) {
-                if (ut.getName().equals(typeElement.attributeValue(NAME))) {
-                    userTypeElement = typeElement;
-                    break;
-                }
-            }
+            Element userTypeElement = typeElementByName.get(variableDefinition.getUserType().getName());
             if (userTypeElement != null) {
-                boolean storeInExternalStorage = Boolean.parseBoolean(userTypeElement.attributeValue("storeInExternalStorage", "false"));
-                if (storeInExternalStorage) {
-                    forceDefaultStoreType = true;
-                }
+                forceDefaultStoreType = Boolean.parseBoolean(userTypeElement.attributeValue(STORE_IN_EXTERNAL_STORAGE, "false"));
             }
         }
         if (forceDefaultStoreType) {
@@ -171,6 +156,53 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
             variableDefinition.setStoreType(VariableStoreType.valueOf(storeTypeString.toUpperCase()));
         }
         return variableDefinition;
+    }
+
+    private void validateByReferenceConsistency(UserType userType) {
+        if (userType.isByReference()) {
+            validateByReferenceIdAttribute(userType);
+            validateNoNonByReferenceAttributes(userType);
+        } else {
+            validateNoByReferenceAttributes(userType);
+        }
+    }
+
+    private void validateByReferenceIdAttribute(UserType userType) {
+        List<VariableDefinition> attrs = userType.getAttributes();
+        int idIndex = -1;
+        for (int i = 0; i < attrs.size(); i++) {
+            if (InternalStorageReferenceService.ID_ATTRIBUTE_NAME.equals(attrs.get(i).getName())) {
+                idIndex = i;
+                break;
+            }
+        }
+        if (idIndex == -1) {
+            log.warn(BY_REFERENCE_TYPE_PREFIX + userType.getName()
+                    + "' does not have required 'id' attribute. Excel operations will fail at runtime.");
+        } else if (idIndex != 0) {
+            log.warn(BY_REFERENCE_TYPE_PREFIX + userType.getName()
+                    + "' has 'id' attribute but it is not the first attribute. Expected 'id' as the first attribute by convention.");
+        }
+    }
+
+    private void validateNoNonByReferenceAttributes(UserType userType) {
+        for (VariableDefinition attr : userType.getAttributes()) {
+            if (attr.getUserType() != null && !attr.getUserType().isByReference()) {
+                log.warn(BY_REFERENCE_TYPE_PREFIX + userType.getName()
+                        + "' contains attribute '" + attr.getName()
+                        + "' of non-byReference user type '" + attr.getUserType().getName() + MIXED_TYPES_NOT_SUPPORTED);
+            }
+        }
+    }
+
+    private void validateNoByReferenceAttributes(UserType userType) {
+        for (VariableDefinition attr : userType.getAttributes()) {
+            if (attr.getUserType() != null && attr.getUserType().isByReference()) {
+                log.warn("Non-byReference type '" + userType.getName()
+                        + "' contains attribute '" + attr.getName()
+                        + "' of byReference user type '" + attr.getUserType().getName() + MIXED_TYPES_NOT_SUPPORTED);
+            }
+        }
     }
 
     private void parseDefaultValue(ParsedProcessDefinition parsedProcessDefinition, VariableDefinition variableDefinition) {

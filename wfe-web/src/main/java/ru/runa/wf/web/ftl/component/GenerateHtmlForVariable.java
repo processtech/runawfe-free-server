@@ -346,7 +346,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             if (userType.isByReference() && "id".equals(attributeDefinition.getName())) {
                 WfVariable componentVariable = ViewUtil.createUserTypeComponentVariable(context.variable, attributeDefinition, attributeValue);
                 String inputName = componentVariable.getDefinition().getName();
-                String displayValue = (attributeValue != null) ? attributeValue.toString() : "(авто)";
+                String displayValue = (attributeValue != null) ? attributeValue.toString() : webHelper.getMessage("label.byReference.autoId");
                 String hiddenValue = (attributeValue != null) ? attributeValue.toString() : "";
 
                 Input hiddenInput = new Input().setType("hidden").setName(inputName);
@@ -354,7 +354,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
                 Input readonlyInput = new Input().setType("text").setReadOnly(true);
                 readonlyInput.setClass("inputNumber");
-                readonlyInput.setStyle("background-color: #e9ecef; color: #6c757d; cursor: not-allowed;");
+                readonlyInput.setStyle(ViewUtil.BY_REF_ID_READONLY_STYLE);
                 readonlyInput.setValue(displayValue);
                 valueTd.addElement(hiddenInput.toString());
                 valueTd.addElement(readonlyInput.toString());

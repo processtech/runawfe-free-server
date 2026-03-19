@@ -96,14 +96,14 @@ public class EditUserTypeList extends AbstractUserTypeList implements FormCompon
             if (userType.isByReference() && "id".equals(attributeDefinition.getName())) {
                 WfVariable attrVariable = getAttributeVariable(userTypeMap, attributeDefinition, index);
                 Object idValue = userTypeMap.get("id");
-                String displayValue = (idValue != null) ? idValue.toString() : "(авто)";
+                String displayValue = (idValue != null) ? idValue.toString() : webHelper.getMessage("label.byReference.autoId");
                 String hiddenValue = (idValue != null) ? idValue.toString() : "";
                 String inputName = attrVariable.getDefinition().getName();
 
                 return "<input type=\"hidden\" name=\"" + inputName + "\" value=\"" + hiddenValue + "\" />"
                         + "<input type=\"text\" value=\"" + displayValue
                         + "\" readonly=\"readonly\" class=\"inputNumber\""
-                        + " style=\"background-color: #e9ecef; color: #6c757d; cursor: not-allowed;\" />";
+                        + " style=\"" + ViewUtil.BY_REF_ID_READONLY_STYLE + "\" />";
             }
 
             if (allowToChangeElements) {
@@ -120,9 +120,10 @@ public class EditUserTypeList extends AbstractUserTypeList implements FormCompon
                         + definition.getName();
                 WfVariable templateComponentVariable = ViewUtil.createComponentVariable(variable, suffix, definition.getFormatNotNull(), null);
                 String inputName = templateComponentVariable.getDefinition().getName();
+                String autoLabel = webHelper.getMessage("label.byReference.autoId");
                 return ("<input type='hidden' name='" + inputName + "' value='' />"
-                        + "<input type='text' value='(авто)' readonly='readonly' class='inputNumber'"
-                        + " style='background-color: #e9ecef; color: #6c757d; cursor: not-allowed;' />")
+                        + "<input type='text' value='" + autoLabel + "' readonly='readonly' class='inputNumber'"
+                        + " style='" + ViewUtil.BY_REF_ID_READONLY_STYLE + "' />")
                         .replace("[]", "{}");
             }
             String suffix = VariableFormatContainer.COMPONENT_QUALIFIER_START + VariableFormatContainer.COMPONENT_QUALIFIER_END + "."
