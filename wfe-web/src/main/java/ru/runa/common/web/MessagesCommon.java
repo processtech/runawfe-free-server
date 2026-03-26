@@ -86,4 +86,6 @@ public final class MessagesCommon {
 
     public static final StrutsMessage HEADER_PARAMETER_NAME = new StrutsMessage("header.parameter.name");
     public static final StrutsMessage HEADER_PARAMETER_VALUE = new StrutsMessage("header.parameter.value");
+
+    public static final StrutsMessage LOGIN_PAGE_LOGIN_AS = new StrutsMessage("login.page.login.as");
 }

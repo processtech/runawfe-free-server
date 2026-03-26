@@ -5489,4 +5489,9 @@
             <type>java.lang.String</type>
         </attribute>
     </tag>
+    <tag>
+        <name>quickLoginLinks</name>
+        <tag-class>ru.runa.wf.web.tag.QuickLoginLinksTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
 </taglib>

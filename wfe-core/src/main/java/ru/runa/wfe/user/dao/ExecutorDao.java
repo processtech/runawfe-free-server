@@ -37,6 +37,7 @@ import ru.runa.wfe.user.QActor;
 import ru.runa.wfe.user.QExecutor;
 import ru.runa.wfe.user.QExecutorGroupMembership;
 import ru.runa.wfe.user.QTemporaryGroup;
+import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.cache.ExecutorCacheCtrl;
 
@@ -753,6 +754,15 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
             logger.debug(e);
             return false;
         }
+    }
+
+    public List<Actor> getAllNonSystemActorsWithLimit(int limit) {
+        val a = QActor.actor;
+        return queryFactory.selectFrom(a)
+                .where(a.name.startsWith(SystemExecutors.SYSTEM_EXECUTORS_PREFIX).not())
+                .orderBy(a.name.asc())
+                .limit(limit)
+                .fetch();
     }
 
 }
