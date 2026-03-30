@@ -19,7 +19,7 @@ public class UniqueStorageUserTypeAttributeValidator extends FieldValidator {
         String fieldName = getFieldName();
 
         if (!fieldName.contains(UserType.DELIM)) {
-            throw new InternalApplicationException("Validator should be attached to a UserType variable " + fieldName);
+            throw new InternalApplicationException("Validator should be attached to variable pointed at user type attribute " + fieldName);
         }
 
         int dotIndex = fieldName.indexOf(UserType.DELIM);
