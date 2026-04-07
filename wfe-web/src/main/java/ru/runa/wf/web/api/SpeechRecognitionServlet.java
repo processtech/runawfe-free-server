@@ -1,11 +1,13 @@
 package ru.runa.wf.web.api;
 
-
-import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Charsets;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -16,6 +18,12 @@ import javax.servlet.http.Part;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.regex.Pattern;
+
+
+import ru.runa.wfe.commons.SystemProperties;
+import org.json.simple.JSONObject;
+
+import ru.runa.wfe.SpeechRecognitionService;
 
 /**
  * Сервлет для распознавания речи
@@ -33,17 +41,18 @@ public class SpeechRecognitionServlet extends HttpServlet {
     private static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Zа-яА-ЯёЁ0-9_\\[\\].\\-]+$");
 
 
+    private SpeechRecognitionService recognitionService;
+
     @Override
     public void init() throws ServletException {
         super.init();
-        log.info(" SpeechRecognitionServlet initializing...");
-
         try {
-
-            log.info(" VoskRecognitionService injected successfully.");
-        } catch (Exception e) {
-            log.error(" Failed to initialize VoskRecognitionService. Speech recognition will be unavailable.", e);
-
+            recognitionService = (SpeechRecognitionService) new InitialContext()
+                    .lookup("java:global/runawfe/wfe-vosk-4-SNAPSHOT/VoskRecognitionService!ru.runa.wfe.SpeechRecognitionService");
+            log.warn("Vosk EJB found, speech recognition available");
+        } catch (NamingException e) {
+            log.warn("Vosk EJB not deployed, speech recognition disabled", e);
+            recognitionService = null;
         }
     }
 
@@ -53,7 +62,14 @@ public class SpeechRecognitionServlet extends HttpServlet {
         response.setCharacterEncoding(Charsets.UTF_8.name());
         response.setContentType("application/json;charset=UTF-8");
 
-
+        if (recognitionService == null) {
+            sendError(response, HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Recognition service not initialized");
+            return;
+        }
+        if (!SystemProperties.isSpeechRecognitionEnabled()) {
+            sendError(response, HttpServletResponse.SC_FORBIDDEN, "Speech recognition disabled");
+            return;
+        }
         String variableName = request.getParameter("variableName");
         Part audioPart = null;
 
@@ -84,12 +100,16 @@ public class SpeechRecognitionServlet extends HttpServlet {
             try (InputStream inputStream = audioPart.getInputStream()) {
                 byte[] fileBytes = ByteStreams.toByteArray(inputStream);
 
-
+                pcmData = recognitionService.convertToFormat(
+                        fileBytes,
+                        audioPart.getContentType()
+                );
             }
 
             // 4. Распознавание
-            String text = "test";
-            log.info("Transcribed '{}': '{}'", variableName, text);
+            String text = recognitionService.recognize(pcmData);
+
+            log.warn("Transcribed '{}': '{}'", variableName, text);
 
             // 5. Формирование ответа
             JSONObject jsonResponse = new JSONObject();
@@ -134,9 +154,17 @@ public class SpeechRecognitionServlet extends HttpServlet {
         response.setStatus(status);
         JSONObject errorJson = new JSONObject();
         if (status >= 500) {
-            errorJson.put("error", "Internal Server Error"); // Как то так
+            try {
+                errorJson.put("error", "Internal Server Error"); // Как то так
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         } else {
-            errorJson.put("error", message);
+            try {
+                errorJson.put("error", message);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
         response.getOutputStream().write(errorJson.toString().getBytes(Charsets.UTF_8));
         response.getOutputStream().flush();
