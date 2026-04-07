@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.ejb.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.json.Json;
@@ -24,10 +25,11 @@ import ru.runa.wfe.SpeechRecognitionService;
 import ru.runa.wfe.commons.SystemProperties;
 
 @Stateless
+@Local(SpeechRecognitionService.class)
 public class VoskRecognitionService implements SpeechRecognitionService {
 
     private static final Logger log = LoggerFactory.getLogger(VoskRecognitionService.class);
-    //todo перенести AudioConverter
+
     private Model model;
     private BlockingQueue<Recognizer> recognizerPool;
     private volatile boolean available = false;
@@ -36,6 +38,8 @@ public class VoskRecognitionService implements SpeechRecognitionService {
 
     @PostConstruct
     private void init() {
+        log.info("Initializating speech Recognition Service");
+        try {
         initialized = true;
         if (!SystemProperties.isSpeechRecognitionEnabled()) {
             log.info("Speech recognition DISABLED via system property 'speech.recognition.enabled=false'. Model will NOT be loaded.");
@@ -46,7 +50,7 @@ public class VoskRecognitionService implements SpeechRecognitionService {
 
         // 1. Приоритет №1
         String modelPath = SystemProperties.getVoskModelPath();
-
+        log.info("Loading vosk on path '{}'...", modelPath);
         // 2. Приоритет №2: Ненужен ?
 
         // 🔴 КРИТИЧЕСКАЯ ПРОВЕРКА: Если путь не задан И функция включена — ошибка конфигурации
@@ -93,6 +97,13 @@ public class VoskRecognitionService implements SpeechRecognitionService {
             errorMessage = "Ошибка загрузки модели распознавания: " + e.getMessage();
             available = false;
         }
+        } catch (Throwable t) {
+            log.error("Failed to initialize Vosk recognition service", t);
+            available = false;
+            errorMessage = t.getMessage();
+            // не выбрасываем исключение дальше ?
+        }
+
     }
 
     @PreDestroy
@@ -178,7 +189,7 @@ public class VoskRecognitionService implements SpeechRecognitionService {
      * Принимает аудио в формате WAV (16kHz, 16-bit, mono, PCM) от клиента.
      * Проверяет заголовок и возвращает данные как есть.
      *
-     * @param audioData сырые байты аудио
+     * @param audioData   сырые байты аудио
      * @param contentType MIME-тип (должен быть audio/wav)
      * @return те же байты, если файл валиден
      * @throws IllegalArgumentException если формат не подходит

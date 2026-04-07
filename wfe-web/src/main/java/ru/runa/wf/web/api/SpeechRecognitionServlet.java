@@ -1,6 +1,8 @@
 package ru.runa.wf.web.api;
 
 import com.google.common.io.ByteStreams;
+import javax.ejb.EJB;
+import javax.servlet.annotation.WebServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.regex.Pattern;
 
 
 import ru.runa.wfe.commons.SystemProperties;
@@ -33,26 +34,21 @@ import ru.runa.wfe.SpeechRecognitionService;
         maxFileSize = 1024 * 1024 * 10,      // 10MB
         maxRequestSize = 1024 * 1024 * 15    // 15MB
 )
+//@WebServlet("/api/speech/transcribe")
 public class SpeechRecognitionServlet extends HttpServlet {
 
     private static final Logger log = LoggerFactory.getLogger(SpeechRecognitionServlet.class);
 
-    // Валидация имени переменной (защита от инъекций)
-    private static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Zа-яА-ЯёЁ0-9_\\[\\].\\-]+$");
-
-
+    @EJB
     private SpeechRecognitionService recognitionService;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        try {
-            recognitionService = (SpeechRecognitionService) new InitialContext()
-                    .lookup("java:global/runawfe/wfe-vosk-4-SNAPSHOT/VoskRecognitionService!ru.runa.wfe.SpeechRecognitionService");
-            log.warn("Vosk EJB found, speech recognition available");
-        } catch (NamingException e) {
-            log.warn("Vosk EJB not deployed, speech recognition disabled", e);
-            recognitionService = null;
+        if (recognitionService != null) {
+            log.warn("Vosk EJB injected, speech recognition available");
+        } else {
+            log.warn("Vosk EJB injection FAILED");
         }
     }
 
@@ -75,7 +71,7 @@ public class SpeechRecognitionServlet extends HttpServlet {
 
         try {
             // 1. Валидация имени переменной
-            if (variableName == null || !VARIABLE_NAME_PATTERN.matcher(variableName).matches()) {
+            if (variableName == null || variableName.isEmpty()) {
                 log.warn("Invalid variable name received: {}", variableName);
                 sendError(response, HttpServletResponse.SC_BAD_REQUEST, "Invalid variable name");
                 return;

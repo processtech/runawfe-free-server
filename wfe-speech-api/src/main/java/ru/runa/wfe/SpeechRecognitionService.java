@@ -1,7 +1,7 @@
 package ru.runa.wfe;
 
 
-//todo или лучше в core ?
+
 public interface SpeechRecognitionService {
     /**
      * Распознаёт речь из аудиоданных.

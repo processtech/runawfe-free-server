@@ -6,8 +6,8 @@
 
 	<groupId>ru.runa.wfe.vosk</groupId>
 	<artifactId>wfe-vosk</artifactId>
-	<version>1.0-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<version>4-SNAPSHOT</version>
+	<packaging>ejb</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -27,7 +27,7 @@
 			<groupId>ru.runa.wfe</groupId>
 			<artifactId>wfe-speech-api</artifactId>
 			<version>4-SNAPSHOT</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>ru.runa.wfe</groupId>
@@ -39,8 +39,22 @@
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
 			<version>7.0</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-ejb-plugin</artifactId>
+				<version>3.0.0</version>
+				<configuration>
+					<ejbVersion>3.2</ejbVersion>
+					<generateClient>true</generateClient>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

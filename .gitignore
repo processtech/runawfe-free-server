@@ -1,6 +1,11 @@
 bin
 target
 
+#LLM
+*wfe-web/model
+wfe-speech-api/model
+wfe-vosk/model
+
 # Eclipse
 .classpath
 .project
