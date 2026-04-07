@@ -15,6 +15,13 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>wfe-speech-api</artifactId>
+			<version>${project.version}</version>
+<!--			<type>ejb</type>-->
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>wfe-service</artifactId>
 			<version>${project.version}</version>
 			<type>ejb</type>

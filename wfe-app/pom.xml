@@ -16,6 +16,7 @@
 		<module>../wfe-ear</module>
 		<module>../wfe-restapi</module>
 		<module>../wfe-chat-socket</module>
+		<module>../wfe-speech-api</module>
 	</modules>
 
 	<properties>

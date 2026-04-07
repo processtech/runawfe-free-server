@@ -9,6 +9,7 @@ target
 # IDEA
 .idea
 *.iml
+.gigaide
 
 #wfe-web/src/main/webapp/WEB-INF/wf.tld
 wfe-web/src/main/webapp/WEB-INF/classes/struts_en.properties
