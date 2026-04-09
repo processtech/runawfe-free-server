@@ -34,7 +34,6 @@ import ru.runa.wfe.SpeechRecognitionService;
         maxFileSize = 1024 * 1024 * 10,      // 10MB
         maxRequestSize = 1024 * 1024 * 15    // 15MB
 )
-//@WebServlet("/api/speech/transcribe")
 public class SpeechRecognitionServlet extends HttpServlet {
 
     private static final Logger log = LoggerFactory.getLogger(SpeechRecognitionServlet.class);

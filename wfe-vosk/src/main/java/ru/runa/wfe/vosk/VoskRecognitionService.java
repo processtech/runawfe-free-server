@@ -6,6 +6,8 @@ import java.util.Arrays;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.Local;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.json.Json;
@@ -23,8 +25,8 @@ import org.vosk.Recognizer;
 import javax.ejb.Stateless;
 import ru.runa.wfe.SpeechRecognitionService;
 import ru.runa.wfe.commons.SystemProperties;
-
-@Stateless
+@Startup
+@Singleton
 @Local(SpeechRecognitionService.class)
 public class VoskRecognitionService implements SpeechRecognitionService {
 
