@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
 import com.google.common.base.MoreObjects;
@@ -20,6 +21,7 @@ public class UserType implements Serializable {
     private static final long serialVersionUID = -1054823598655227725L;
     public static final String DELIM = ".";
     private String name;
+    private boolean byReference;
     private final List<VariableDefinition> attributes = Lists.newArrayList();
     private final Map<String, VariableDefinition> attributesMap = Maps.newHashMap();
 
@@ -30,8 +32,32 @@ public class UserType implements Serializable {
         this.name = name.intern();
     }
 
+    public UserType(String name, boolean byReference) {
+        this.name = name.intern();
+        this.byReference = byReference;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public boolean isByReference() {
+        return byReference;
+    }
+
+    public static boolean isByReferenceVariable(WfVariable variable) {
+        if (variable.getDefinition().isUserType() && variable.getDefinition().getUserType().isByReference()) {
+            return true;
+        }
+        UserType[] componentUserTypes = variable.getDefinition().getFormatComponentUserTypes();
+        if (componentUserTypes != null) {
+            for (UserType ut : componentUserTypes) {
+                if (ut != null && ut.isByReference()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public void addAttribute(VariableDefinition variableDefinition) {
@@ -112,7 +138,7 @@ public class UserType implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name, attributes);
+        return Objects.hashCode(name, byReference, attributes);
     }
 
     @Override
@@ -121,11 +147,11 @@ public class UserType implements Serializable {
             return false;
         }
         UserType type = (UserType) obj;
-        return Objects.equal(name, type.name) && Objects.equal(attributes, type.attributes);
+        return Objects.equal(name, type.name) && byReference == type.byReference && Objects.equal(attributes, type.attributes);
     }
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(getClass()).add("name", name).add("attributes", attributes).toString();
+        return MoreObjects.toStringHelper(getClass()).add("name", name).add("byReference", byReference).add("attributes", attributes).toString();
     }
 }

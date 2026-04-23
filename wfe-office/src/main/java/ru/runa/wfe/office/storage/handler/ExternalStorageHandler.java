@@ -2,6 +2,7 @@ package ru.runa.wfe.office.storage.handler;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.definition.FileDataProvider;
@@ -11,6 +12,7 @@ import ru.runa.wfe.office.storage.StoreService;
 import ru.runa.wfe.office.storage.binding.DataBinding;
 import ru.runa.wfe.office.storage.binding.DataBindings;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
+import ru.runa.wfe.office.storage.binding.QueryType;
 import ru.runa.wfe.office.storage.services.StoreHelper;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableProvider;
@@ -50,6 +52,20 @@ public class ExternalStorageHandler extends OfficeFilesSupplierHandler<DataBindi
     protected ExecutionResult execute(VariableProvider variableProvider, DataBinding binding, StoreHelper storeHelper) throws Exception {
         binding.getConstraints().applyPlaceholders(variableProvider);
         final WfVariable variable = variableProvider.getVariableNotNull(binding.getVariableName());
+
+        boolean byRef = UserType.isByReferenceVariable(variable);
+
+        log.info("ExternalStorageHandler.execute: variable='" + binding.getVariableName()
+                + "', queryType=" + config.getQueryType()
+                + "', isByReference=" + byRef
+                + ", userType=" + (variable.getDefinition().getUserType() != null ? variable.getDefinition().getUserType().getName() : "null")
+                + ", format=" + variable.getDefinition().getFormatClassName());
+
+        if (byRef && (config.getQueryType() == QueryType.INSERT || config.getQueryType() == QueryType.UPDATE)) {
+            log.warn("byReference: skipping " + config.getQueryType() + " for variable '"
+                    + variable.getDefinition().getName() + "' — insert/update is automatic for byReference types");
+            return ExecutionResult.EMPTY;
+        }
         switch (config.getQueryType()) {
             case INSERT: {
                 storeHelper.setVariableFormat(variable.getDefinition().getFormatNotNull());
@@ -71,4 +87,5 @@ public class ExternalStorageHandler extends OfficeFilesSupplierHandler<DataBindi
                 throw new IllegalStateException("Unexpected value: " + config.getQueryType());
         }
     }
+
 }

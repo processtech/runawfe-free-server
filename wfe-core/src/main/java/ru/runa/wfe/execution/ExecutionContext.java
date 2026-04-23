@@ -14,6 +14,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.audit.CurrentActionLog;
 import ru.runa.wfe.audit.CurrentProcessLog;
 import ru.runa.wfe.audit.CurrentVariableDeleteLog;
 import ru.runa.wfe.audit.CurrentVariableLog;
@@ -49,6 +50,9 @@ import ru.runa.wfe.var.dao.VariableDao;
 import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormat;
+import ru.runa.wfe.var.format.VariableFormatContainer;
+import ru.runa.wfe.var.logic.ByReferenceVariableHandler;
+import ru.runa.wfe.var.logic.ByReferenceWriteResult;
 
 @CommonsLog
 public class ExecutionContext {
@@ -61,6 +65,7 @@ public class ExecutionContext {
      * This component is used for loading variables with subprocess variables state support.
      */
     private final BaseProcessVariableLoader baseProcessVariableLoader;
+    private final ByReferenceVariableHandler byReferenceHandler;
 
     @Autowired
     private VariableCreator variableCreator;
@@ -99,6 +104,9 @@ public class ExecutionContext {
             this.variableLoader = new VariableLoader(variableDao, loadedVariables);
         }
         this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getParsedProcessDefinition(), getProcess());
+        this.byReferenceHandler = new ByReferenceVariableHandler(
+                variableLoader, getProcess(), processLogDao, getCurrentProcess(), getCurrentToken()
+        );
     }
 
     public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Token token) {
@@ -106,7 +114,7 @@ public class ExecutionContext {
     }
 
     public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Process process, Map<Process, Map<String, Variable>> loadedVariables,
-            boolean disableVariableDaoLoading) {
+                            boolean disableVariableDaoLoading) {
         this(ApplicationContextFactory.getContext(), parsedProcessDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
     }
 
@@ -204,7 +212,15 @@ public class ExecutionContext {
                 return new WfVariable(swimlaneDefinition.toVariableDefinition(), swimlane != null ? swimlane.getExecutor() : null);
             }
         }
-        return baseProcessVariableLoader.get(name);
+        WfVariable wfVariable = baseProcessVariableLoader.get(name);
+        if (wfVariable != null && wfVariable.getDefinition().isUserType()
+                && wfVariable.getDefinition().getUserType().isByReference()) {
+            wfVariable = byReferenceHandler.resolve(wfVariable);
+        }
+        if (wfVariable != null && ByReferenceVariableHandler.isContainerOfByReference(wfVariable.getDefinition())) {
+            wfVariable = byReferenceHandler.resolveContainer(wfVariable);
+        }
+        return wfVariable;
     }
 
     /**
@@ -277,6 +293,20 @@ public class ExecutionContext {
 
     private void setVariableValue(VariableDefinition variableDefinition, Object value) {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
+        if (variableDefinition.isUserType() && variableDefinition.getUserType().isByReference()) {
+            ByReferenceWriteResult result = byReferenceHandler.write(variableDefinition, value);
+            if (result.shouldSave) {
+                saveVariableDefaultToDb(variableDefinition, result.value);
+            }
+            return;
+        }
+        if (ByReferenceVariableHandler.isContainerOfByReference(variableDefinition)) {
+            ByReferenceWriteResult result = byReferenceHandler.writeContainer(variableDefinition, value);
+            if (result.shouldSave) {
+                saveVariableDefaultToDb(variableDefinition, result.value);
+            }
+            return;
+        }
         switch (variableDefinition.getStoreType()) {
             case BLOB: {
                 setSimpleVariableValue(getCurrentToken(), variableDefinition, value);
@@ -401,6 +431,17 @@ public class ExecutionContext {
             processLogDao.addLog(resultingVariableLog, token.getProcess(), token);
         }
         return resultingVariableLog;
+    }
+
+    private void saveVariableDefaultToDb(VariableDefinition variableDefinition, Object value) {
+        ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesOnSaveContext(
+                variableDefinition, value, getCurrentProcess(), baseProcessVariableLoader, currentVariableDao
+        );
+        VariableFormat variableFormat = variableDefinition.getFormatNotNull();
+        for (ConvertToSimpleVariablesResult simpleVariables : variableFormat.processBy(new ConvertToSimpleVariables(), context)) {
+            Object convertedValue = convertValueForVariableType(simpleVariables.variableDefinition, simpleVariables.value);
+            setSimpleVariableValue(getCurrentToken(), simpleVariables.variableDefinition, convertedValue);
+        }
     }
 
     private void updateRelatedObjectsDueToDateVariableChange(String variableName) {

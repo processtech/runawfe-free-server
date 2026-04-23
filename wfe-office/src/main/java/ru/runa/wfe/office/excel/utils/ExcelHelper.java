@@ -5,6 +5,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import static org.apache.poi.ss.usermodel.CellType.BLANK;
+import static org.apache.poi.ss.usermodel.CellType.STRING;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
@@ -87,7 +88,13 @@ public class ExcelHelper {
         if (cell == null) {
             return true;
         }
-        return cell.getCellType() == BLANK;
+        if (cell.getCellType() == BLANK) {
+            return true;
+        }
+        if (cell.getCellType() == STRING) {
+            return cell.getStringCellValue() == null || cell.getStringCellValue().isEmpty();
+        }
+        return false;
     }
 
 }

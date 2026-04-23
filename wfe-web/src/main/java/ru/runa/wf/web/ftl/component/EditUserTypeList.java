@@ -90,9 +90,23 @@ public class EditUserTypeList extends AbstractUserTypeList implements FormCompon
 
         @Override
         public String getValue(TemplateModel arg0, TemplateModel arg1, Number index) throws TemplateModelException {
+            UserTypeMap userTypeMap = (UserTypeMap) BEANS_WRAPPER.unwrap(arg0);
+            VariableDefinition attributeDefinition = (VariableDefinition) BEANS_WRAPPER.unwrap(arg1);
+
+            if (userType.isByReference() && "id".equals(attributeDefinition.getName())) {
+                WfVariable attrVariable = getAttributeVariable(userTypeMap, attributeDefinition, index);
+                Object idValue = userTypeMap.get("id");
+                String displayValue = (idValue != null) ? idValue.toString() : webHelper.getMessage("label.byReference.autoId");
+                String hiddenValue = (idValue != null) ? idValue.toString() : "";
+                String inputName = attrVariable.getDefinition().getName();
+
+                return "<input type=\"hidden\" name=\"" + inputName + "\" value=\"" + hiddenValue + "\" />"
+                        + "<input type=\"text\" value=\"" + displayValue
+                        + "\" readonly=\"readonly\" class=\"inputNumber\""
+                        + " style=\"" + ViewUtil.BY_REF_ID_READONLY_STYLE + "\" />";
+            }
+
             if (allowToChangeElements) {
-                UserTypeMap userTypeMap = (UserTypeMap) BEANS_WRAPPER.unwrap(arg0);
-                VariableDefinition attributeDefinition = (VariableDefinition) BEANS_WRAPPER.unwrap(arg1);
                 WfVariable variable = getAttributeVariable(userTypeMap, attributeDefinition, index);
                 return ViewUtil.getComponentInput(user, webHelper, variable);
             }
@@ -101,6 +115,17 @@ public class EditUserTypeList extends AbstractUserTypeList implements FormCompon
 
         public String getTemplateValue(TemplateModel arg0) throws TemplateModelException {
             VariableDefinition definition = (VariableDefinition) BEANS_WRAPPER.unwrap(arg0);
+            if (userType.isByReference() && "id".equals(definition.getName())) {
+                String suffix = VariableFormatContainer.COMPONENT_QUALIFIER_START + VariableFormatContainer.COMPONENT_QUALIFIER_END + "."
+                        + definition.getName();
+                WfVariable templateComponentVariable = ViewUtil.createComponentVariable(variable, suffix, definition.getFormatNotNull(), null);
+                String inputName = templateComponentVariable.getDefinition().getName();
+                String autoLabel = webHelper.getMessage("label.byReference.autoId");
+                return ("<input type='hidden' name='" + inputName + "' value='' />"
+                        + "<input type='text' value='" + autoLabel + "' readonly='readonly' class='inputNumber'"
+                        + " style='" + ViewUtil.BY_REF_ID_READONLY_STYLE + "' />")
+                        .replace("[]", "{}");
+            }
             String suffix = VariableFormatContainer.COMPONENT_QUALIFIER_START + VariableFormatContainer.COMPONENT_QUALIFIER_END + "."
                     + definition.getName();
             WfVariable templateComponentVariable = ViewUtil.createComponentVariable(variable, suffix, definition.getFormatNotNull(), null);
