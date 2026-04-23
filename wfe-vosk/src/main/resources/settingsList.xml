@@ -1,0 +1,11 @@
+<settings>
+	<properties_file title="web.properties">
+		<property title="vosk.recognizer.pool.size" pattern="\d*" />
+		<property title="speech.recognition.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<!--  Путь к модели   -->
+		<property title="vosk.model.path" />
+	</properties_file>
+</settings>
