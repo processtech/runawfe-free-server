@@ -23,6 +23,7 @@ import ru.runa.wfe.job.dao.TimerJobDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
+import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 import ru.runa.wfe.lang.bpmn2.TimerEventDefinition;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.lang.jpdl.WaitNode;
@@ -84,6 +85,9 @@ public class TimerJobExecutor {
                     // error handling does not work correctly (rm2427 is not ported from master)
                     if (executionContext.getNode() instanceof TimerNode) {
                         ((TimerNode) executionContext.getNode()).onTimerJob(executionContext, j);
+                    } else if (executionContext.getNode() instanceof CatchEventNode
+                            && ((CatchEventNode) executionContext.getNode()).isConditional()) {
+                        ((CatchEventNode) executionContext.getNode()).onTimerJob(executionContext, j);
                     } else {
                         log.info("Triggered " + j.getName() + " in " + executionContext);
                         WaitNode.onTimerJob(executionContext, j);

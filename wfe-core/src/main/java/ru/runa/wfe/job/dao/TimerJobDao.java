@@ -99,6 +99,13 @@ public class TimerJobDao extends GenericDao<TimerJob> {
         return queryFactory.selectFrom(j).where(j.process.eq(process).and(j.dueDateExpression.like("%" + expression + "%"))).fetch();
     }
 
+    public boolean existsByTokenAndNodeId(CurrentToken token, String nodeId) {
+        val job = QDueDateInProcessTimerJob.dueDateInProcessTimerJob;
+        return queryFactory.selectOne().from(job)
+                .where(job.token.eq(token).and(job.name.eq(nodeId)))
+                .fetchFirst() != null;
+    }
+
     public void deleteByToken(CurrentToken token) {
         val j = QDueDateInProcessTimerJob.dueDateInProcessTimerJob;
         queryFactory.delete(j).where(j.token.eq(token)).execute();
