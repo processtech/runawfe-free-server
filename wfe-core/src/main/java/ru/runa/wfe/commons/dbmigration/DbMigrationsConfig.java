@@ -63,6 +63,7 @@ import ru.runa.wfe.commons.dbmigration.impl.EnlargeMessageMaxSizePatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExecutorIfFullNameIsNullOrEmptySetToName;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandChatColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandDescriptionsPatch;
+import ru.runa.wfe.commons.dbmigration.impl.ExpandSignalListenerEventTypePatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandVarcharPatch;
 import ru.runa.wfe.commons.dbmigration.impl.JbpmRefactoringPatch;
 import ru.runa.wfe.commons.dbmigration.impl.NodeTypeChangePatch;
@@ -218,6 +219,7 @@ public class DbMigrationsConfig {
         // end regular develop patches
         dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
         dbMigrations.add(RecreateChatRoomView2.class);
+        dbMigrations.add(ExpandSignalListenerEventTypePatch.class);
         // end all develop patches
         return dbMigrations;
     }
