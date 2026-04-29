@@ -29,10 +29,13 @@ import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 
+import java.util.Collections;
+
 @SuppressWarnings("unchecked")
 @CommonsLog
 public class FormSubmissionUtils {
     public static final Object IGNORED_VALUE = new Object();
+    public static final Object IGNORED_LIST = Collections.EMPTY_LIST;
     public static final String INDEXES_SUFFIX = ".indexes";
     private static final String USER_DEFINED_VARIABLES = "UserInputVariables";
     private static final String USER_INPUT_ERRORS = "UserInputErrors";
@@ -158,10 +161,27 @@ public class FormSubmissionUtils {
 
     public static Object extractVariable(HttpServletRequest request, Map<String, ?> userInput, VariableDefinition variableDefinition,
             Map<String, String> errors) {
+        User user = Commons.getUser(request.getSession());
+        Long taskId = Commons.extractTaskId(request);
+
+        return extractVariable(user, taskId, userInput, variableDefinition, errors);
+    }
+
+    public static Object extractVariable(User user, Long taskId, Map<String, ?> userInput, VariableDefinition variableDefinition,
+                                         Map<String, String> errors) {
         VariableFormat format = FormatCommons.create(variableDefinition);
-        HttpFormToVariableValue httpFormToVariableValue = new HttpFormToVariableValue(userInput, new DelegateExecutorLoader(Commons.getUser(request
-                .getSession())));
-        Object result = format.processBy(httpFormToVariableValue, variableDefinition);
+        HttpFormToVariableValue httpFormToVariableValue = new HttpFormToVariableValue(userInput, new DelegateExecutorLoader(user));
+
+        Object result;
+        if (null != taskId && variableDefinition.getFormat().contains("ru.runa.wfe.var.format.FileFormat")) {
+            // ищем файлы для таски (там префикс taskId есть в имени)
+            String taskFileName = taskId + FormSubmissionUtils.FILES_MAP_QUALIFIER + variableDefinition.getName();
+            VariableDefinition taskFileVD = new VariableDefinition(taskFileName, taskFileName, variableDefinition);
+            result = format.processBy(httpFormToVariableValue, taskFileVD);
+        } else {
+            result = format.processBy(httpFormToVariableValue, variableDefinition);
+        }
+
         errors.putAll(httpFormToVariableValue.getErrors());
         return result;
     }

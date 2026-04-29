@@ -130,7 +130,7 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
                 String[] stringsSize = (String[]) userInput.get(sizeInputName);
                 if (stringsSize == null || stringsSize.length != 1) {
                     errors.put(variableDefinition.getName(), "Incorrect '" + sizeInputName + "' value submitted: " + Arrays.toString(stringsSize));
-                    return FormSubmissionUtils.IGNORED_VALUE;
+                    return FormSubmissionUtils.IGNORED_LIST;
                 }
                 int listSize = TypeConversionUtil.convertTo(int.class, stringsSize[0]);
                 list = Lists.newArrayListWithExpectedSize(listSize);
@@ -155,7 +155,7 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
                             + VariableFormatContainer.COMPONENT_QUALIFIER_END;
                     VariableDefinition componentDefinition = new VariableDefinition(name, scriptingName, componentFormat);
                     Object componentValue = componentDefinition.processBy(this, componentDefinition);
-                    if (!Objects.equal(FormSubmissionUtils.IGNORED_VALUE, componentValue)) {
+                    if (!Objects.equal(FormSubmissionUtils.IGNORED_LIST, componentValue)) {
                         list.add(componentValue);
                     }
                 }
@@ -164,7 +164,7 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
                 // http old-style way
                 String[] strings = (String[]) userInput.get(variableDefinition.getName());
                 if (strings == null || strings.length == 0) {
-                    return FormSubmissionUtils.IGNORED_VALUE;
+                    return FormSubmissionUtils.IGNORED_LIST;
                 }
                 list = Lists.newArrayListWithExpectedSize(strings.length);
                 for (String componentValue : strings) {
@@ -177,7 +177,7 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
         } else {
             if (stringsIndexes.length != 1) {
                 errors.put(variableDefinition.getName(), "Incorrect '" + indexesInputName + "' value submitted: " + Arrays.toString(stringsIndexes));
-                return FormSubmissionUtils.IGNORED_VALUE;
+                return FormSubmissionUtils.IGNORED_LIST;
             }
             String[] stringIndexes = Utils.isNullOrEmpty(stringsIndexes[0]) ? new String[0] : stringsIndexes[0].split(",");
             list = Lists.newArrayListWithExpectedSize(stringIndexes.length);
@@ -189,7 +189,7 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
                             + VariableFormatContainer.COMPONENT_QUALIFIER_END;
                     VariableDefinition componentDefinition = new VariableDefinition(name, scriptingName, componentFormat);
                     Object componentValue = componentDefinition.processBy(this, componentDefinition);
-                    if (!Objects.equal(FormSubmissionUtils.IGNORED_VALUE, componentValue)) {
+                    if (!Objects.equal(FormSubmissionUtils.IGNORED_LIST, componentValue)) {
                         list.add(componentValue);
                     }
                 }

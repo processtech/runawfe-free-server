@@ -11,6 +11,7 @@ import org.dom4j.Element;
 import ru.runa.wf.web.ftl.FtlFormBuilder;
 import ru.runa.wfe.commons.ftl.FreemarkerConfiguration;
 import ru.runa.wfe.commons.xml.XmlUtils;
+import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.QuickFormProperty;
@@ -32,7 +33,11 @@ public class QuickFormBuilder extends FtlFormBuilder {
     @Override
     protected String buildForm(VariableProvider variableProvider) {
         String ftlFormData = toFtlFormData(variableProvider);
-        return processFreemarkerTemplate(ftlFormData, variableProvider, true);
+
+        Map<String, Object> variables = loadDraftData(user, task);
+        VariableProvider decorator = new MapDelegableVariableProvider(variables, variableProvider);
+
+        return processFreemarkerTemplate(ftlFormData, decorator, true);
     }
 
     public String toFtlFormData(VariableProvider variableProvider) {
