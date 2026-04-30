@@ -1,6 +1,5 @@
 package ru.runa.wfe.validation.impl;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -40,12 +39,15 @@ public class UniqueStorageUserTypeAttributeValidator extends FieldValidator {
         String fieldName = getFieldName();
 
         if (!fieldName.contains(UserType.DELIM)) {
-            throw new InternalApplicationException("Validator should be attached to variable pointed at user type attribute " + fieldName);
+            throw new InternalApplicationException(
+                    "Validator should be attached to variable pointed at user type attribute " + fieldName);
         }
 
         int dotIndex = fieldName.indexOf(UserType.DELIM);
         String parentName = fieldName.substring(0, dotIndex);
-        VariableDefinition parentVd = getVariableProvider().getParsedProcessDefinition().getVariable(parentName, false);
+        VariableDefinition parentVd = getVariableProvider()
+                .getParsedProcessDefinition()
+                .getVariable(parentName, false);
 
         if (parentVd == null || parentVd.getUserType() == null) {
             throw new InternalApplicationException("Parent variable should be a UserType for field: " + fieldName);
@@ -72,18 +74,20 @@ public class UniqueStorageUserTypeAttributeValidator extends FieldValidator {
                 return i;
             }
         }
-        throw new InternalApplicationException("Attribute '" + columnName + "' is not found in user type '" + parentVd.getUserType().getName());
+        throw new InternalApplicationException(
+                "Attribute '" + columnName + "' is not found in user type '" + parentVd.getUserType().getName());
     }
 
-    private boolean existsInExcelStorage(ExcelDataSource excelDataSource, String tableName, int columnIndex, Object value) throws Exception {
+    private boolean existsInExcelStorage(ExcelDataSource excelDataSource, String tableName, int columnIndex, Object value)
+            throws Exception {
         Path xlsxPath = Paths.get(excelDataSource.getFilePath(), tableName + ".xlsx");
         Path xlsPath = Paths.get(excelDataSource.getFilePath(), tableName + ".xls");
         Path storagePath = Files.exists(xlsxPath) ? xlsxPath : xlsPath;
         if (!Files.exists(storagePath)) {
             return false;
         }
-        try (InputStream is = new FileInputStream(storagePath.toFile());
-             Workbook workbook = WorkbookFactory.create(is)) {
+        try (InputStream inputStream = new FileInputStream(storagePath.toFile());
+             Workbook workbook = WorkbookFactory.create(inputStream)) {
             if (workbook.getNumberOfSheets() == 0) {
                 return false;
             }
@@ -108,9 +112,9 @@ public class UniqueStorageUserTypeAttributeValidator extends FieldValidator {
             try (Connection connection = ((JdbcDataSource) dataSource).getConnection();
                  PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setObject(1, value);
-                try (ResultSet rs = statement.executeQuery()) {
-                    if (rs.next()) {
-                        return rs.getLong(1) > 0;
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return resultSet.getLong(1) > 0;
                     }
                 }
             }
