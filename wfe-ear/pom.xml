@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -57,9 +57,32 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>wfe-speech-api</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>ru.runa.wfe.vosk</groupId>
+			<artifactId>wfe-vosk</artifactId>
+			<version>${project.version}</version>
+			<type>ejb</type>
+		</dependency>
+		<dependency>
+			<groupId>com.alphacephei</groupId>
+			<artifactId>vosk</artifactId>
+			<version>0.3.45</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.json</artifactId>
+			<version>1.1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>wfe-bots</artifactId>
 			<version>${project.version}</version>
 			<type>ejb</type>
+
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -138,11 +161,19 @@
 							<artifactId>wfe-chat-socket</artifactId>
 							<contextRoot>/wfe/chatSocket</contextRoot>
 						</webModule>
+
+						<ejbModule>
+							<groupId>ru.runa.wfe.vosk</groupId>
+							<artifactId>wfe-vosk</artifactId>
+						</ejbModule>
+<!--						порядок важен !!!!!-->
 						<webModule>
 							<groupId>${project.groupId}</groupId>
 							<artifactId>wfe-web</artifactId>
 							<contextRoot>/wfe</contextRoot>
 						</webModule>
+
+
 						<webModule>
 							<groupId>${project.groupId}</groupId>
 							<artifactId>wfe-restapi</artifactId>

@@ -53,6 +53,26 @@
 		<listener-class>ru.runa.common.web.InitializeListener</listener-class>
 	</listener>
 
+	<filter>
+		<filter-name>apiAuthFilter</filter-name>
+		<filter-class>ru.runa.common.web.filter.APIAuthenticationFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>apiAuthFilter</filter-name>
+		<url-pattern>/api/*</url-pattern> <!-- Применяется ко всем /api/ запросам -->
+	</filter-mapping>
+	<servlet>
+		<servlet-name>speechRecognition</servlet-name>
+		<servlet-class>ru.runa.wf.web.api.SpeechRecognitionServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>speechRecognition</servlet-name>
+		<url-pattern>/api/speech/transcribe</url-pattern>
+	</servlet-mapping>
+
 	<servlet>
 		<servlet-name>action</servlet-name>
 		<servlet-class>org.apache.struts.action.ActionServlet</servlet-class>

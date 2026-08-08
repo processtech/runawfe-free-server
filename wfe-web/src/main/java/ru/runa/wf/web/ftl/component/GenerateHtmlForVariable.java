@@ -2,6 +2,7 @@ package ru.runa.wf.web.ftl.component;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -22,6 +23,7 @@ import ru.runa.wf.web.servlet.AjaxExecutorsList;
 import ru.runa.wf.web.servlet.UploadedFile;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -293,17 +295,83 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         return new GenerateHtmlForVariableResult(context, result.toString());
     }
 
+    /**
+     * Отвечает за генерацию HTML-кода для переменной, имеющей формат TextFormat (многострочный текст).
+     *
+     * @param textFormat
+     * @param context
+     * @return GenerateHtmlForVariableResult
+     */
     @Override
     public GenerateHtmlForVariableResult onTextString(TextFormat textFormat, GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
         Object value = context.variable.getValue();
-        TextArea result = new TextArea().setName(variableName).setDisabled(context.readonly);
-        result.setClass("inputText");
+        String safeVariableId = context.variable.getDefinition().getScriptingName();
+        TextArea textArea = new TextArea()
+                .setName(variableName)
+                .setDisabled(context.readonly);
+        textArea.setID("txt_" + safeVariableId);
+        textArea.setClass("inputText");
         if (value != null) {
-            result.setTagText(textFormat.format(value));
+            textArea.setTagText(textFormat.format(value));
         }
-        return new GenerateHtmlForVariableResult(context, result.toString());
+
+        StringBuilder html = new StringBuilder();
+        // Контейнер для textarea + кнопка микрофона
+        html.append("<div class=\"text-input-with-mic\" " +
+                "style=\"display: flex; " +
+                "width: 100%;\">");
+
+        // Сам textarea
+        html.append(textArea.toString());
+
+        String ctxPath = webHelper.getRequest().getContextPath();
+        boolean isSpeechMode = SystemProperties.isSpeechRecognitionEnabled();
+        // Кнопка микрофона (только если поле редактируемое) и в настройках true wfe-web/src/main/resources/settingsList.xml
+        if (isSpeechMode && !context.readonly) {
+            html.append("<button type=\"button\" class=\"btn-mic\" ")
+                    .append("data-variable=\"").append(variableName).append("\" ")
+                    .append("data-ctx=\"").append(ctxPath).append("\" ")
+                    .append("title=\"Голосовой ввод\" ")
+                    .append("style=\"padding: 4px 8px; ")
+                    .append("background: #f5f5f5; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;\">")
+                    .append("<span id=\"mic_").append(safeVariableId)
+                    .append("\" style=\"font-size: 18px; vertical-align: middle; cursor: inherit;\">")
+                    .append("<svg id=\"mic_").append(safeVariableId).append("\" ")
+                    .append("xmlns=\"http://www.w3.org/2000/svg\" ")
+                    .append("width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" ")
+                    .append("fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" ")
+                    .append("stroke-linecap=\"round\" stroke-linejoin=\"round\">")
+                    .append("<path d=\"M12 1v11\"/>")
+                    .append("<path d=\"M19 10v2a7 7 0 0 1-14 0v-2\"/>")
+                    .append("<line x1=\"12\" y1=\"19\" x2=\"12\" y2=\"23\"/>")
+                    .append("<line x1=\"8\" y1=\"23\" x2=\"16\" y2=\"23\"/>")
+                    .append("</svg>")
+                    .append("</span>")
+                    .append("</button>");
+
+            // Индикатор статуса
+            html.append("<span class=\"mic-status\" id=\"status_")
+                    .append(safeVariableId)
+                    .append("\" style=\"margin-left: 8px; font-size: 11px; color: #666;\"></span>");
+        }
+
+        html.append("</div>");
+
+        // 4. ИНЪЕКЦИЯ СКРИПТА (должна выполняется только ОДИН раз за весь запрос! Проверить)
+        if (!context.readonly) {
+            String version = LocalDate.now().toString();
+
+            html.append("<script src=\"")
+                    .append(ctxPath)
+                    .append("/js/voice-input.js?v=")
+                    .append(version)
+                    .append("\" defer></script>");
+
+        }
+        return new GenerateHtmlForVariableResult(context, html.toString());
     }
+
 
     @Override
     public GenerateHtmlForVariableResult onFormattedTextString(FormattedTextFormat textFormat, GenerateHtmlForVariableContext context) {

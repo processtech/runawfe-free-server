@@ -50,11 +50,11 @@ public class SystemProperties {
 
     /**
      * Sets system properties
-     * @param props
-     *             system properties names.
+     *
+     * @param props system properties names.
      */
-    public static void setSystemProperties(String ... props) {
-        for (String prop: props) {
+    public static void setSystemProperties(String... props) {
+        for (String prop : props) {
             System.setProperty(prop, RESOURCES.getStringProperty(prop));
         }
     }
@@ -467,7 +467,7 @@ public class SystemProperties {
 
     /**
      * Returns datasource password import/export policy (true - import/export allowed, false - otherwise)
-     * 
+     *
      * @return boolean; default true
      */
     public static boolean isDatasourcePasswordExportAllowed() {
@@ -521,9 +521,27 @@ public class SystemProperties {
         return NO_DATABASE_RESOURCES.getBooleanProperty("filesystem.access.allowed", false);
     }
 
-    public static String getJwtSecret() {  return NO_DATABASE_RESOURCES.getStringProperty("jwt.secret");  }
+    public static String getJwtSecret() {
+        return NO_DATABASE_RESOURCES.getStringProperty("jwt.secret");
+    }
 
-    public static String getTSAurl() {  return NO_DATABASE_RESOURCES.getStringProperty("signature.server.tsaurl");  }
-    public static String getSignatureServerContainerPassword() {  return NO_DATABASE_RESOURCES.getStringProperty("signature.server.container.password");  }
+    public static String getTSAurl() {
+        return NO_DATABASE_RESOURCES.getStringProperty("signature.server.tsaurl");
+    }
 
+    public static String getSignatureServerContainerPassword() {
+        return NO_DATABASE_RESOURCES.getStringProperty("signature.server.container.password");
+    }
+
+    public static boolean isSpeechRecognitionEnabled() {
+        return RESOURCES.getBooleanProperty("speech.recognition.enabled", false);
+    }
+
+    public static String getVoskModelPath() {
+        return RESOURCES.getStringProperty("vosk.model.path");
+    }
+
+    public static int getVoskRecognizersSize() {
+        return RESOURCES.getIntegerProperty("vosk.recognizer.pool.size", 5);
+    }
 }
