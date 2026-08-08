@@ -12,7 +12,14 @@ import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
 import ru.runa.wfe.audit.ProcessDeleteLog;
 import ru.runa.wfe.audit.ProcessLogsCleanLog;
 import ru.runa.wfe.audit.SystemLog;
+import ru.runa.wfe.audit.ExecutorCreateLog;
+import ru.runa.wfe.audit.ExecutorUpdateLog;
+import ru.runa.wfe.audit.ExecutorDeleteLog;
+import ru.runa.wfe.audit.ExecutorGroupAddLog;
+import ru.runa.wfe.audit.ExecutorGroupRemoveLog;
 import ru.runa.wfe.commons.CalendarUtil;
+
+import java.text.MessageFormat;
 
 /**
  * {@link TdBuilder} implementation to show system log as human readable
@@ -78,6 +85,26 @@ public class SystemLogTdBuilder implements TdBuilder {
             ProcessLogsCleanLog log = (ProcessLogsCleanLog) systemLog;
             return MessagesOther.PROCESS_LOG_CLEAN_DESCRIPTION.message(env.getPageContext())
                     .replaceAll("\\{" + placeHolderBeforeDate + "\\}", CalendarUtil.formatDate(log.getBeforeDate()));
+        } else if (systemLog instanceof ExecutorCreateLog) {
+            ExecutorCreateLog log = (ExecutorCreateLog) systemLog;
+            String pattern = Messages.getMessage("history.system.type.executor_create", env.getPageContext());
+            return MessageFormat.format(pattern, log.getExecutorName(), log.getExecutorType());
+        } else if (systemLog instanceof ExecutorUpdateLog) {
+            ExecutorUpdateLog log = (ExecutorUpdateLog) systemLog;
+            String pattern = Messages.getMessage("history.system.type.executor_update", env.getPageContext());
+            return MessageFormat.format(pattern, log.getExecutorName());
+        } else if (systemLog instanceof ExecutorDeleteLog) {
+            ExecutorDeleteLog log = (ExecutorDeleteLog) systemLog;
+            String pattern = Messages.getMessage("history.system.type.executor_delete", env.getPageContext());
+            return MessageFormat.format(pattern, log.getExecutorName());
+        } else if (systemLog instanceof ExecutorGroupAddLog) {
+            ExecutorGroupAddLog log = (ExecutorGroupAddLog) systemLog;
+            String pattern = Messages.getMessage("history.system.type.executor_group_add", env.getPageContext());
+            return MessageFormat.format(pattern, log.getExecutorName(), log.getGroupName());
+        } else if (systemLog instanceof ExecutorGroupRemoveLog) {
+            ExecutorGroupRemoveLog log = (ExecutorGroupRemoveLog) systemLog;
+            String pattern = Messages.getMessage("history.system.type.executor_group_remove", env.getPageContext());
+            return MessageFormat.format(pattern, log.getExecutorName(), log.getGroupName());
         }
         return "Unsupported log instance";
     }
