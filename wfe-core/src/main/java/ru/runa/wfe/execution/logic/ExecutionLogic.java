@@ -8,13 +8,16 @@ import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -50,6 +53,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.email.EmailErrorNotifier;
 import ru.runa.wfe.commons.error.dto.WfTokenError;
+import ru.runa.wfe.commons.logic.CheckMassPermissionCallback;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.ProcessDefinition;
@@ -117,6 +121,7 @@ import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
@@ -494,6 +499,30 @@ public class ExecutionLogic extends WfCommonLogic {
                 : nodeProcessDao.getSubprocesses(process);
         subprocesses = filterSecuredObject(user, subprocesses, Permission.READ); // TODO Should also check permission on parent process?
         return toWfProcesses(subprocesses, null);
+    }
+
+    public Map<WfProcess, Map<String, String>> getProcessesByVariableNameAndValueContaining(User user, String variableName, String variableValue, int processLimit) {
+        List<? extends Variable> variables = variableDao.getVariablesByNameAndValueContaining(user.getActor(), variableName, variableValue, processLimit);
+
+        Map<WfProcess, Map<String, String>> processVariablesMap = new HashMap<>();
+        for (Variable variable: variables) {
+            Process process = variable.getProcess();
+            WfProcess wfProcess = new WfProcess(process, getProcessErrors(process));
+
+            if (!processVariablesMap.containsKey(wfProcess)) {
+                Map<String, String> variablesMap = new HashMap<>();
+                variablesMap.put(variable.getName(), variable.getStringValue());
+                processVariablesMap.put(wfProcess, variablesMap);
+            } else {
+                processVariablesMap.get(wfProcess).put(variable.getName(), variable.getStringValue());
+            }
+        }
+
+        return processVariablesMap;
+    }
+
+    public Long getProcessCountByVariableNameAndValueContaining(User user, String variableName, String variableValue) {
+        return variableDao.getProcessCountByVariableNameAndValueContaining(user.getActor(), variableName, variableValue);
     }
 
     public List<WfJob> getJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {

@@ -223,4 +223,8 @@ public class WebResources {
         return RESOURCES.getIntegerProperty("process.definition.diff.context.lines.count", 3);
     }
 
+    public static int getProcessSearchRecordShowCountDefault() {
+        return RESOURCES.getIntegerProperty("process.search.record.show.count.default", 50);
+    }
+
 }

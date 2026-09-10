@@ -59,6 +59,7 @@
 		<form-bean name="changeDataSourcePasswordForm" type="ru.runa.af.web.form.ChangeDataSourcePasswordForm" />
 		<form-bean name="sendProcessSignalForm" type="ru.runa.wf.web.form.SendProcessSignalForm" />
 		<form-bean name="frozenProcessesForm" type="ru.runa.af.web.form.FrozenProcessesForm" />
+        <form-bean name="processSearchForm" type="ru.runa.af.web.form.ProcessSearchForm" />
 		<form-bean name="moveTokenForm" type="ru.runa.wf.web.form.MoveTokenForm" />
 		<form-bean name="saveJobForm" type="ru.runa.af.web.form.SaveJobForm" />
 	</form-beans>
@@ -95,6 +96,7 @@
 		<forward name="definitions_history" path="/definitions_history.do" />
 		<forward name="validate_definition" path="/validate_process_definition.do" />
 		<forward name="manage_processes" path="/manage_processes.do?tabForwardName=manage_processes" />
+        <forward name="manage_search_processes" path="/manage_search_processes.do?tabForwardName=manage_search_processes" />
 		<forward name="manage_archived_processes" path="/manage_archived_processes.do?tabForwardName=manage_archived_processes" />
 		<forward name="manage_tasks" path="/manage_tasks.do?tabForwardName=manage_tasks" />
 		<forward name="manage_observable_tasks" path="/manage_observable_tasks.do?tabForwardName=manage_observable_tasks" />
@@ -799,6 +801,14 @@
 
 		<action path="/manage_processes" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/wf/manage_processes.jsp" />
+
+        <action path="/manage_search_processes" type="ru.runa.common.web.action.TabHeaderForwardAction"
+                parameter="/WEB-INF/wf/manage_search_processes.jsp" />
+
+        <action path="/searchProcesses" type="ru.runa.af.web.action.ProcessSearchAction" name="processSearchForm" scope="request">
+            <forward name="success" path="/manage_search_processes.do" redirect="false" />
+            <forward name="failure" path="/manage_search_processes.do" redirect="true" />
+        </action>
 
 		<action path="/manage_archived_processes" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/wf/manage_archived_processes.jsp" />

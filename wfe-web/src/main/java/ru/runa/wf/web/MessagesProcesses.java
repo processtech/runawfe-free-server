@@ -18,6 +18,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_HISTORY = new StrutsMessage("label.history");
     public static final StrutsMessage TITLE_PROCESS_DEFINITION_FILE_ANNOTATION = new StrutsMessage("title.process_definition_file_annotation");
     public static final StrutsMessage TITLE_PROCESSES = new StrutsMessage("title.processes");
+    public static final StrutsMessage TITLE_SEARCH_PROCESSES = new StrutsMessage("title.search_processes");
     public static final StrutsMessage TITLE_INSANCE_SWINLANE_LIST = new StrutsMessage("title.process_swimlane_list");
     public static final StrutsMessage TITLE_INSANCE_JOB_LIST = new StrutsMessage("title.process_job_list");
     public static final StrutsMessage TITLE_INSANCE_TASKS_LIST = new StrutsMessage("title.process_tasks_list");
@@ -189,5 +190,12 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_LOADED = new StrutsMessage("label.loaded");
     public static final StrutsMessage LABEL_FILE = new StrutsMessage("label.file");
     public static final StrutsMessage LABEL_VERSIONS_LIMIT = new StrutsMessage("label.versions_limit");
+    public static final StrutsMessage LABEL_NO_PROCESSES = new StrutsMessage("label.no_processes");
 
+    public static final StrutsMessage SEARCH_PROCESS_ID = new StrutsMessage("search_processes.process_id");
+    public static final StrutsMessage SEARCH_PROCESS_NAME = new StrutsMessage("search_processes.process_name");
+    public static final StrutsMessage SEARCH_PROCESS_VERSION = new StrutsMessage("search_processes.process_version");
+    public static final StrutsMessage SEARCH_PROCESS_RESULTS = new StrutsMessage("search_processes.results");
+    public static final StrutsMessage SEARCH_PROCESS_RESULTS_VARIABLE_NAME = new StrutsMessage("search_processes.results_variable_name");
+    public static final StrutsMessage SEARCH_PROCESS_RESULTS_VARIABLE_VALUE = new StrutsMessage("search_processes.results_variable_value");
 }

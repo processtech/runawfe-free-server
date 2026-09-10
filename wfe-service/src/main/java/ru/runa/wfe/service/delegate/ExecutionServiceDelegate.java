@@ -125,6 +125,33 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
+    public Map<WfProcess, Map<String, String>> getProcessesByVariableNameAndValueContaining(
+            User user,
+            String variableName,
+            String variableValue,
+            int processLimit
+    ) {
+        try {
+            return getExecutionService().getProcessesByVariableNameAndValueContaining(user, variableName, variableValue, processLimit);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public Long getProcessCountByVariableNameAndValueContaining(
+            User user,
+            String variableName,
+            String variableValue
+    ) {
+        try {
+            return getExecutionService().getProcessCountByVariableNameAndValueContaining(user, variableName, variableValue);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public List<WfVariable> getVariables(User user, Long processId) {
         try {
             return getExecutionService().getVariables(user, processId);
