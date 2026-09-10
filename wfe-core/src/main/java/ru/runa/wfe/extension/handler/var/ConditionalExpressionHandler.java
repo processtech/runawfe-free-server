@@ -14,7 +14,7 @@ public class ConditionalExpressionHandler implements ConditionalHandler {
         String expression = ConditionalEventModel.fromXml(configuration).getExpression();
 
         if (expression == null || expression.trim().isEmpty()) {
-            throw new IllegalArgumentException("Expression is not set for Conditional handler");
+            throw new IllegalArgumentException("Expression is required for ConditionalExpressionHandler");
         }
 
         this.configuration = expression;

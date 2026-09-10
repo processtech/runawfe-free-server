@@ -43,8 +43,7 @@ public class CatchEventNode extends BaseReceiveMessageNode implements BoundaryEv
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
         if (isConditional()) {
-            if (timerJobDao.existsByTokenAndNodeId(executionContext.getCurrentToken(), getNodeId())
-                    || tryComplete(executionContext)) {
+            if (tryComplete(executionContext)) {
                 return;
             }
             createDueDateInProcessTimerJob(executionContext);

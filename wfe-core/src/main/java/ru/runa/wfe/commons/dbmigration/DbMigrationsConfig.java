@@ -216,10 +216,10 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddExtraColumnsToBpmLog.class);
         dbMigrations.add(AddStartEventSubprocessTimerJob.class);
         dbMigrations.add(AddTransitionNameForArchivedAgglogTask.class);
+        dbMigrations.add(ExpandSignalListenerEventTypePatch.class);
         // end regular develop patches
         dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
         dbMigrations.add(RecreateChatRoomView2.class);
-        dbMigrations.add(ExpandSignalListenerEventTypePatch.class);
         // end all develop patches
         return dbMigrations;
     }
