@@ -61,7 +61,7 @@ public class NodeGraphElementBuilder {
             result.add(element);
             if (element instanceof TaskNodeGraphElement) {
                 TaskDefinition taskDefinition = ((InteractionNode) node).getFirstTaskNotNull();
-                if (!taskDefinition.getSwimlane().isBotExecutor()) {
+                if (taskDefinition.getSwimlane() == null || !taskDefinition.getSwimlane().isBotExecutor()) {
                     continue;
                 }
                 BotSwimlaneInitializer botSwimlaneInitializer = new BotSwimlaneInitializer();
