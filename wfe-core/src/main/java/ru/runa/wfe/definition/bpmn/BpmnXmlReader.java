@@ -396,6 +396,12 @@ public class BpmnXmlReader {
             BaseMessageNode baseMessageNode = (BaseMessageNode) node;
             baseMessageNode.setEventType(MessageEventType.valueOf(element.attributeValue(QName.get(TYPE, RUNA_NAMESPACE),
                     MessageEventType.message.name())));
+            if (node instanceof CatchEventNode) {
+                CatchEventNode catchNode = (CatchEventNode) node;
+                if (catchNode.isConditional()) {
+                    catchNode.setDelegation(readDelegation(element, properties, true));
+                }
+            }
         }
         if (node instanceof SendMessageNode) {
             SendMessageNode sendMessageNode = (SendMessageNode) node;
