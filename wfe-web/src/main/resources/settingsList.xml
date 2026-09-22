@@ -230,7 +230,8 @@
 			<value>false</value>
 		</property>
 		<property title="process.definition.diff.context.lines.count" pattern="\d*"/>
-	</properties_file>
+        <property title="process.search.record.show.count.default" pattern="\d*"/>
+    </properties_file>
 
 	<properties_file title="office.properties">
 		<property title="docx.placeholder.start" />

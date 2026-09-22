@@ -4,8 +4,8 @@
 <%@ page import="static ru.runa.common.web.Commons.isPasswordCheckRequired" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
-
-<% 
+<%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
+<%
 	String userName = request.getParameter("login") == null ? "" : URLDecoder.decode(request.getParameter("login"), "utf-8");
 	String userPwd = request.getParameter("password") == null ? "" : URLDecoder.decode(request.getParameter("password"), "utf-8");
 	String forwardUrl = request.getAttribute("forwardUrl") == null ? "" : URLDecoder.decode(request.getAttribute("forwardUrl").toString(), "utf-8");
@@ -58,16 +58,19 @@
 										<bean:message key="login.page.login.button"/>
 									</html:submit>
 								</td>
-							</tr>					
+							</tr>
 						</table>
 						</html:form>
+<% if (! isPasswordCheckRequired()) { %>
+                        <wf:quickLoginLinks />
+<% } %>
 						<% if (ru.runa.wfe.security.auth.KerberosLoginModuleResources.isHttpAuthEnabled()) { %>
 						<table>
 							<tr>
 								<td>
 									<html:link action="/krblogin">
 										<bean:message key="login.page.login.kerberos"/>
-									</html:link> 	
+									</html:link>
 								</td>
 							</tr>
 						</table>

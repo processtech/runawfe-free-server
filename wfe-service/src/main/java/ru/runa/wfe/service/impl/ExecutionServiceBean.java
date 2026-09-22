@@ -131,6 +131,27 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         return executionLogic.getSubprocesses(user, processId, recursive);
     }
 
+    @Override
+    @WebMethod(exclude = true)
+    public Map<WfProcess, Map<String, String>> getProcessesByVariableNameAndValueContaining(
+            User user,
+            String variableName,
+            String variableValue,
+            int processLimit
+    ) {
+        return executionLogic.getProcessesByVariableNameAndValueContaining(user, variableName, variableValue, processLimit);
+    }
+
+    @Override
+    @WebMethod(exclude = true)
+    public Long getProcessCountByVariableNameAndValueContaining(
+            User user,
+            String variableName,
+            String variableValue
+    ) {
+        return executionLogic.getProcessCountByVariableNameAndValueContaining(user, variableName, variableValue);
+    }
+
     @WebMethod(exclude = true)
     @Override
     public List<WfVariable> getVariables(@NonNull User user, @NonNull Long processId) {

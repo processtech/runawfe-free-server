@@ -11,6 +11,8 @@ public final class MessagesCommon {
     public static final StrutsMessage MAIN_MENU_ITEM_DEFINITIONS = new StrutsMessage("manage_definitions");
     // Forward menu (left main menu items) -> Started processes.
     public static final StrutsMessage MAIN_MENU_ITEM_PROCESSES = new StrutsMessage("manage_processes");
+    // Forward menu (left main menu items) -> Process search.
+    public static final StrutsMessage MAIN_MENU_ITEM_SEARCH_PROCESSES = new StrutsMessage("manage_search_processes");
     // Forward menu (left main menu items) -> Archived processes.
     public static final StrutsMessage MAIN_MENU_ITEM_ARCHIVED_PROCESSES = new StrutsMessage("manage_archived_processes");
     // Forward menu (left main menu items) -> Executors.
@@ -86,4 +88,6 @@ public final class MessagesCommon {
 
     public static final StrutsMessage HEADER_PARAMETER_NAME = new StrutsMessage("header.parameter.name");
     public static final StrutsMessage HEADER_PARAMETER_VALUE = new StrutsMessage("header.parameter.value");
+
+    public static final StrutsMessage LOGIN_PAGE_LOGIN_AS = new StrutsMessage("login.page.login.as");
 }

@@ -117,6 +117,34 @@ public interface ExecutionService {
     List<WfProcess> getSubprocesses(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException;
 
     /**
+     * Get processes by variable name and value with process limit count.
+     *
+     * @param user
+     *            authorized user
+     * @param variableName
+     *            name of variable
+     * @param variableValue
+     *            value of variable
+     * @param processLimit
+     *            limit count of processes
+     * @return not <code>null</code>
+     */
+    Map<WfProcess, Map<String, String>> getProcessesByVariableNameAndValueContaining(User user, String variableName, String variableValue, int processLimit);
+
+    /**
+     * Get process count by variable name and value filter.
+     *
+     * @param user
+     *            authorized user
+     * @param variableName
+     *            name of variable
+     * @param variableValue
+     *            value of variable
+     * @return not <code>null</code>
+     */
+    Long getProcessCountByVariableNameAndValueContaining(User user, String variableName, String variableValue);
+
+    /**
      * @deprecated use method with reason
      */
     @Deprecated

@@ -2640,6 +2640,11 @@
         </attribute>
     </tag>
     <tag>
+        <name>processSearchForm</name>
+        <tag-class>ru.runa.common.web.tag.ProcessSearchFormTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+    <tag>
         <name>listRelationPairsForm</name>
         <tag-class>ru.runa.af.web.tag.ListRelationPairsFormTag</tag-class>
         <body-content>JSP</body-content>
@@ -5488,5 +5493,10 @@
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
+    </tag>
+    <tag>
+        <name>quickLoginLinks</name>
+        <tag-class>ru.runa.wf.web.tag.QuickLoginLinksTag</tag-class>
+        <body-content>JSP</body-content>
     </tag>
 </taglib>

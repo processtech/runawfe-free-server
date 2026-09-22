@@ -26,7 +26,7 @@ import ru.runa.wfe.user.User;
  * @struts.action-forward name="failure" path="/start.do" redirect = "true"
  */
 public class LoginAction extends ActionBase {
-
+    public static final String ACTION_NAME = "/login";
     private final static String DEFAULT_TAB_FORWARD_NAME = "manage_tasks";
 
     @Override

@@ -144,7 +144,10 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             final VariableProvider finalVariableProvider = variableProvider;
             final TaskHandler finalTaskHandler = taskHandler;
             ApplicationContextFactory.getTransactionalExecutor().execute(() -> {
-                variables.putAll(finalTaskHandler.handle(user, finalVariableProvider, task));
+                Map<String, Object> map = finalTaskHandler.handle(user, finalVariableProvider, task);
+                if (map != null) {
+                    variables.putAll(map);
+                }
             });
             Object skipTaskCompletion = variables.remove(TaskHandler.SKIP_TASK_COMPLETION_VARIABLE_NAME);
             if (Objects.equal(Boolean.TRUE, skipTaskCompletion)) {

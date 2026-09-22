@@ -17,6 +17,7 @@ import ru.runa.wfe.commons.dao.ArchiveAwareGenericDao;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.ArchivedVariable;
 import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.Variable;
@@ -133,5 +134,13 @@ public class VariableDao extends ArchiveAwareGenericDao<Variable, CurrentVariabl
         } else {
             return currentDao.getVariablesByNameStartsWith((CurrentProcess) process, namePrefix);
         }
+    }
+
+    public List<? extends Variable> getVariablesByNameAndValueContaining(Executor executor, String variableName, String variableValue, int processLimit) {
+        return currentDao.getVariablesByNameAndValueContaining(executor, variableName, variableValue, processLimit);
+    }
+
+    public Long getProcessCountByVariableNameAndValueContaining(Executor executor, String variableName, String variableValue) {
+        return currentDao.getProcessCountByVariableNameAndValueContaining(executor, variableName, variableValue);
     }
 }
