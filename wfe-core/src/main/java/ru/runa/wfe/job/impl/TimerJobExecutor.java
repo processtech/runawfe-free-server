@@ -1,9 +1,10 @@
 package ru.runa.wfe.job.impl;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.function.Supplier;
-import lombok.val;
 import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import ru.runa.wfe.job.dao.TimerJobDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
+import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 import ru.runa.wfe.lang.bpmn2.TimerEventDefinition;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.lang.jpdl.WaitNode;
@@ -84,6 +86,9 @@ public class TimerJobExecutor {
                     // error handling does not work correctly (rm2427 is not ported from master)
                     if (executionContext.getNode() instanceof TimerNode) {
                         ((TimerNode) executionContext.getNode()).onTimerJob(executionContext, j);
+                    } else if (executionContext.getNode() instanceof CatchEventNode
+                            && ((CatchEventNode) executionContext.getNode()).isConditional()) {
+                        ((CatchEventNode) executionContext.getNode()).onTimerJob(executionContext, j);
                     } else {
                         log.info("Triggered " + j.getName() + " in " + executionContext);
                         WaitNode.onTimerJob(executionContext, j);
@@ -124,7 +129,17 @@ public class TimerJobExecutor {
                 if (def == null) {
                     continue;
                 }
-                executionLogic.startProcess(systemUser.get(), processDefinition, startNode, null, null);
+                if (startNode.isStartByCondition()) {
+                    try {
+                        for (Map<String, Object> variables : startNode.getOnTimerVariablesList()) {
+                            executionLogic.startProcess(systemUser.get(), processDefinition, startNode, null, variables);
+                        }
+                    } catch (Exception e) {
+                        log.error("Exception while start process on timer", e);
+                    }
+                } else {
+                    executionLogic.startProcess(systemUser.get(), processDefinition, startNode, null, null);
+                }
                 // now supported only one timer start node, because bpm_job does not contain node_id column
                 break;
             }

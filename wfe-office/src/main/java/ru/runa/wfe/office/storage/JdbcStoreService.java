@@ -19,6 +19,7 @@ import ru.runa.wfe.datasource.JdbcDataSource;
 import ru.runa.wfe.extension.handler.ParamsDef;
 import ru.runa.wfe.office.excel.ExcelConstraints;
 import ru.runa.wfe.office.excel.OnSheetConstraints;
+import ru.runa.wfe.office.storage.binding.CompositeQueryProperties;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
 import ru.runa.wfe.office.storage.convert.BaseSqlValueConverter;
 import ru.runa.wfe.office.storage.convert.ConverterContext;
@@ -184,6 +185,12 @@ public abstract class JdbcStoreService implements StoreService {
     @Override
     public ExecutionResult findByFilter(Properties properties, UserType userType, String condition) throws Exception {
         return findByFilter(properties, userType, condition, Collections.emptyList());
+    }
+
+    @Override
+    public ExecutionResult findByComposite(CompositeQueryProperties queryProperties) throws Exception {
+        //TODO нужно реализовать для JDBC внутреннего хранилища (по умолчанию Excel)
+        return null;
     }
 
     @Override

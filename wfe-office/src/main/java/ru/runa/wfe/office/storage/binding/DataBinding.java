@@ -1,24 +1,16 @@
 package ru.runa.wfe.office.storage.binding;
 
+import lombok.Getter;
+import lombok.Setter;
 import ru.runa.wfe.office.excel.ExcelConstraints;
 
+@Getter
+@Setter
 public class DataBinding {
     private ExcelConstraints constraints;
     private String variableName;
-
-    public ExcelConstraints getConstraints() {
-        return constraints;
-    }
-
-    public void setConstraints(ExcelConstraints constraints) {
-        this.constraints = constraints;
-    }
-
-    public String getVariableName() {
-        return variableName;
-    }
-
-    public void setVariableName(String variableName) {
-        this.variableName = variableName;
-    }
+    private String condition;
+    private QueryType queryType;
+    private QueryRole queryRole;
+    private LogicalOperator logicalOperator;
 }

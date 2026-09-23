@@ -35,7 +35,7 @@ public class ConditionProcessor {
 
     private static final String AND_LITERAL = "AND";
 
-    private static Set<String> operators = Sets.newHashSet(">", ">=", "<", "<=", "!=");
+    private static final Set<String> operators = Sets.newHashSet(">", ">=", "<", "<=", "!=");
 
     private static Object previousAttributeValue;
     private static String previousOperator = "";
@@ -48,13 +48,23 @@ public class ConditionProcessor {
     }
 
     public static synchronized boolean filter(String condition, Map<String, Object> attributes, VariableProvider variableProvider) {
+        return filter(condition, attributes, variableProvider, null);
+    }
+
+    public static synchronized boolean filter(
+            String condition,
+            Map<String, Object> attributes,
+            VariableProvider variableProvider,
+            Map<String, Map<String, Object>> parentAttributes) {
+
         try {
             clear();
-            String query = parse(condition, attributes, variableProvider);
+            String query = parse(condition, attributes, variableProvider, parentAttributes);
             return (Boolean) engine.eval(query);
         } catch (Exception e) {
             log.error("error parse condition \"" + condition + "\"", e);
-            throw Throwables.propagate(e);
+            Throwables.throwIfUnchecked(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -63,7 +73,12 @@ public class ConditionProcessor {
         previousOperator = "";
     }
 
-    private static String parse(String condition, Map<String, Object> attributes, VariableProvider variableProvider) throws Exception {
+    private static String parse(
+            String condition,
+            Map<String, Object> attributes,
+            VariableProvider variableProvider,
+            Map<String, Map<String, Object>> parentAttributes
+    ) throws Exception {
         condition = hideSpacesInAttributeNames(condition);
         StringBuilder sb = new StringBuilder();
         StringTokenizer st = new StringTokenizer(condition);
@@ -79,7 +94,7 @@ public class ConditionProcessor {
                 sb.append(OR_EXPR);
             } else if (token.startsWith("[") && token.endsWith("]")) {
                 sb.append(SPACE);
-                sb = appendAttribute(sb, attributes, token.replace(UNICODE_CHARACTER_OVERLINE, ' '));
+                appendAttribute(sb, attributes, token.replace(UNICODE_CHARACTER_OVERLINE, ' '), parentAttributes);
             } else if (token.equalsIgnoreCase(LIKE_LITERAL)) {
                 previousOperator = LIKE_LITERAL;
                 sb.append(LIKE_EXPR_START).append("/");
@@ -94,7 +109,7 @@ public class ConditionProcessor {
                 sb.append(SPACE).append(extractVariableValue(token, variableProvider, true));
             } else {
                 sb.append(SPACE);
-                if (previousAttributeValue != null && previousAttributeValue instanceof Date && operators.contains(previousOperator)) {
+                if (previousAttributeValue instanceof Date && operators.contains(previousOperator)) {
                     // handle date string value. For example: [startDate] > '16.05.2015'
                     sb.append(getTime(token));
                 } else {
@@ -125,16 +140,35 @@ public class ConditionProcessor {
         }
     }
 
-    private static StringBuilder appendAttribute(StringBuilder sb, Map<String, Object> variables, String token) throws Exception {
+    private static StringBuilder appendAttribute(
+            StringBuilder sb,
+            Map<String, Object> variables,
+            String token,
+            Map<String, Map<String, Object>> parentAttributes
+    ) throws Exception {
+        String[] parts = token.split("\\.", 2);
+        if (parts.length == 2) {
+            String tableName = parts[0].substring(1, parts[0].length() - 1);
+            String attributeName = parts[1].substring(1, parts[1].length() - 1);
+            Map<String, Object> parentRow = parentAttributes == null ? null : parentAttributes.get(tableName);
+            if (parentRow == null) {
+                throw new Exception("Parent row for UserType '" + tableName + "' does not exist.");
+            }
+            if (!parentRow.containsKey(attributeName)) {
+                throw new Exception("Attribute '" + attributeName + "' does not exist in parent UserType '" + tableName + "'.");
+            }
+            return appendAttributeValue(sb, parentRow.get(attributeName));
+        }
         String var = token.substring(1, token.length() - 1);
-        if (variables.keySet().contains(var)) {
-            Object obj = variables.get(var);
-            previousAttributeValue = obj;
-            sb.append(formatParameterValue(obj));
+        if (variables.containsKey(var)) {
+            return appendAttributeValue(sb, variables.get(var));
         }
-        else {
-            throw new Exception("Atttribute " + token + " does not exist.");
-        }
+        throw new Exception("Attribute " + token + " does not exist.");
+    }
+
+    private static StringBuilder appendAttributeValue(StringBuilder sb, Object value) {
+        previousAttributeValue = value;
+        sb.append(formatParameterValue(value));
         return sb;
     }
 
