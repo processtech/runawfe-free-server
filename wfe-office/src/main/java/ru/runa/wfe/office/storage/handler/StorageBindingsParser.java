@@ -8,6 +8,8 @@ import ru.runa.wfe.office.excel.ExcelConstraints;
 import ru.runa.wfe.office.shared.FilesSupplierConfigParser;
 import ru.runa.wfe.office.storage.binding.DataBinding;
 import ru.runa.wfe.office.storage.binding.DataBindings;
+import ru.runa.wfe.office.storage.binding.LogicalOperator;
+import ru.runa.wfe.office.storage.binding.QueryRole;
 import ru.runa.wfe.office.storage.binding.QueryType;
 
 public class StorageBindingsParser extends FilesSupplierConfigParser<DataBindings> {
@@ -17,7 +19,6 @@ public class StorageBindingsParser extends FilesSupplierConfigParser<DataBinding
         return new DataBindings();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void parseCustom(Element root, DataBindings bindings) {
         List<Element> bindingElements = root.elements("binding");
@@ -34,13 +35,16 @@ public class StorageBindingsParser extends FilesSupplierConfigParser<DataBinding
             constraints.configure(configElement);
 
             Element conditionElement = bindingElement.element("condition");
+            String condition = conditionElement != null ? conditionElement.attributeValue("query") : null;
             if (bindings.getCondition() == null) {
-                bindings.setCondition(conditionElement.attributeValue("query"));
+                bindings.setCondition(condition);
             }
 
             Element conditionsElement = bindingElement.element("conditions");
+            Preconditions.checkNotNull(conditionsElement, "Missed 'conditions' element in binding element");
+            QueryType queryType = QueryType.valueOf(conditionsElement.attributeValue("type"));
             if (bindings.getQueryType() == null) {
-                bindings.setQueryType(QueryType.valueOf(conditionsElement.attributeValue("type")));
+                bindings.setQueryType(queryType);
             }
 
             String variableName = bindingElement.attributeValue("variable");
@@ -51,6 +55,17 @@ public class StorageBindingsParser extends FilesSupplierConfigParser<DataBinding
             DataBinding binding = new DataBinding();
             binding.setConstraints(constraints);
             binding.setVariableName(variableName);
+
+            binding.setCondition(condition);
+            binding.setQueryType(queryType);
+
+            String queryRole = conditionsElement.attributeValue("role");
+            if (queryRole != null) {
+                binding.setQueryRole(QueryRole.valueOf(queryRole));
+            }
+
+            binding.setLogicalOperator(LogicalOperator
+                    .fromString(conditionsElement.attributeValue("logicalOperator")));
 
             bindings.getBindings().add(binding);
         }

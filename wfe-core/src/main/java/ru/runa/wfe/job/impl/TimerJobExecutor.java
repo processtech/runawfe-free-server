@@ -1,9 +1,10 @@
 package ru.runa.wfe.job.impl;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.function.Supplier;
-import lombok.val;
 import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
@@ -128,7 +129,17 @@ public class TimerJobExecutor {
                 if (def == null) {
                     continue;
                 }
-                executionLogic.startProcess(systemUser.get(), processDefinition, startNode, null, null);
+                if (startNode.isStartByCondition()) {
+                    try {
+                        for (Map<String, Object> variables : startNode.getOnTimerVariablesList()) {
+                            executionLogic.startProcess(systemUser.get(), processDefinition, startNode, null, variables);
+                        }
+                    } catch (Exception e) {
+                        log.error("Exception while start process on timer", e);
+                    }
+                } else {
+                    executionLogic.startProcess(systemUser.get(), processDefinition, startNode, null, null);
+                }
                 // now supported only one timer start node, because bpm_job does not contain node_id column
                 break;
             }

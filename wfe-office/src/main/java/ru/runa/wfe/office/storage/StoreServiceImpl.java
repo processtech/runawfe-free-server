@@ -9,8 +9,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,7 +34,10 @@ import ru.runa.wfe.office.excel.AttributeConstraints;
 import ru.runa.wfe.office.excel.ExcelConstraints;
 import ru.runa.wfe.office.excel.OnSheetConstraints;
 import ru.runa.wfe.office.excel.utils.ExcelHelper;
+import ru.runa.wfe.office.storage.binding.CompositeQueryProperties;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
+import ru.runa.wfe.office.storage.binding.QueryProperties;
+import ru.runa.wfe.office.storage.binding.QueryRole;
 import ru.runa.wfe.office.storage.projection.ProjectionModel;
 import ru.runa.wfe.office.storage.projection.Sort;
 import ru.runa.wfe.office.storage.projection.UserTypeMapFieldBasedComparator;
@@ -123,6 +128,71 @@ public class StoreServiceImpl implements StoreService {
 
             if (comparator != null) {
                 ((List<UserTypeMap>) result).sort(comparator);
+            }
+        }
+
+        return new ExecutionResult(result);
+    }
+
+    @Override
+    public ExecutionResult findByComposite(CompositeQueryProperties queryProperties) throws Exception {
+        QueryProperties trigger = queryProperties.getTrigger();
+        List<QueryProperties> subqueries = queryProperties.getSubqueries();
+
+        if (subqueries.size() > 1) {
+            throw new UnsupportedOperationException("Excel operations currently support only 1 subquery");
+        }
+
+        ExecutionResult triggerResult = findByFilter(
+                trigger.getProperties(),
+                trigger.getUserType(),
+                trigger.getCondition()
+        );
+
+        @SuppressWarnings("unchecked")
+        List<UserTypeMap> triggerRows = (List<UserTypeMap>) triggerResult.getValue();
+
+        if (subqueries.isEmpty()) {
+            return new ExecutionResult(triggerRows);
+        }
+
+        QueryProperties subquery = subqueries.get(0);
+
+        ExecutionResult subqueryResult = findByFilter(
+                subquery.getProperties(),
+                subquery.getUserType(),
+                ""
+        );
+
+        @SuppressWarnings("unchecked")
+        List<UserTypeMap> subqueryRows = (List<UserTypeMap>) subqueryResult.getValue();
+
+        List<UserTypeMap> result = new ArrayList<>();
+
+        for (UserTypeMap triggerRow : triggerRows) {
+
+            Map<String, Map<String, Object>> parentAttributes = new HashMap<>();
+            parentAttributes.put(trigger.getUserType().getName(), triggerRow);
+
+            boolean exists = false;
+
+            for (UserTypeMap subqueryRow : subqueryRows) {
+
+                if (ConditionProcessor.filter(
+                        subquery.getCondition(),
+                        subqueryRow,
+                        variableProvider,
+                        parentAttributes
+                )) {
+                    exists = true;
+                    break;
+                }
+            }
+
+            boolean matches = (subquery.getQueryRole() == QueryRole.NOT_EXISTS) != exists;
+
+            if (matches) {
+                result.add(triggerRow);
             }
         }
 

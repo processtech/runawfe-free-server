@@ -79,10 +79,11 @@ public class ProcessFactory {
      */
     public CurrentProcess startProcess(ParsedProcessDefinition parsedProcessDefinition, StartNode startNode, Map<String, Object> variables,
             Actor actor, String transitionName, Map<String, Object> transientVariables) {
-        Preconditions.checkNotNull(actor, "can't start a process when actor is null");
         ExecutionContext executionContext = createProcessInternal(parsedProcessDefinition, startNode, variables, actor, null, transientVariables,
                 transitionName);
-        grantProcessPermissions(parsedProcessDefinition, executionContext.getCurrentProcess(), actor);
+        if (actor != null) {
+            grantProcessPermissions(parsedProcessDefinition, executionContext.getCurrentProcess(), actor);
+        }
         startProcessInternal(executionContext, startNode, transitionName);
         return executionContext.getCurrentProcess();
     }

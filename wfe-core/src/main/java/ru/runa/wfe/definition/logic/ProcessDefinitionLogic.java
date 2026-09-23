@@ -49,7 +49,11 @@ import ru.runa.wfe.execution.dao.ArchivedSwimlaneDao;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.ProcessDefinitionInfoVisitor;
+import ru.runa.wfe.job.StartProcessTimerJob;
+import ru.runa.wfe.job.dao.TimerJobDao;
+import ru.runa.wfe.job.impl.TimerJobFactory;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
@@ -68,6 +72,10 @@ import ru.runa.wfe.var.dao.ArchivedVariableDao;
 public class ProcessDefinitionLogic extends WfCommonLogic {
     @Autowired
     private ProcessDefinitionUpdateManager processDefinitionUpdateManager;
+    @Autowired
+    private TimerJobDao timerJobDao;
+    @Autowired
+    private TimerJobFactory timerJobFactory;
     @Autowired
     protected ArchivedProcessDao archivedProcessDao;
     @Autowired
@@ -120,6 +128,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         Preconditions.checkNotNull(ld, "last definition is null (see #3264)");
         p.setLatest(ld);
         permissionDao.setPermissions(user.getActor(), ApplicablePermissions.listVisible(SecuredObjectType.DEFINITION), p);
+        updateStartProcessTimerJob(null, d.getId(), parsed);
         log.debug("Deployed process definition " + parsed);
         return new WfDefinition(p, d);
     }
@@ -180,6 +189,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         ProcessDefinition ld = processDefinitionDao.get(d.getId());
         Preconditions.checkNotNull(ld, "last definition is null (see #3264)");
         p.setLatest(ld);
+        updateStartProcessTimerJob(oldDefinition.getId(), d.getId(), parsed);
         log.debug("Process definition " + oldDefinition + " was successfully redeployed");
         return new WfDefinition(p, d);
     }
@@ -203,6 +213,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         d.setSubVersion(d.getSubVersion() + 1);
         processDefinitionWithContentDao.update(d);
         addUpdatedDefinitionInProcessLog(user, d.getPack().getName(), d.getVersion());
+        updateStartProcessTimerJob(d.getId(), d.getId(), parsed);
         processDefinitionUpdateManager.after(parsed, affectedProcesses);
         log.debug("Process definition " + d + " was successfully updated");
         return new WfDefinition(d.getPack(), d);
@@ -353,10 +364,12 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         archivedProcessDao.flushPendingChanges();
 
         if (removePack) {
+            timerJobDao.deleteByPack(p);
             processDefinitionDao.deleteAll(p);
             permissionDao.deleteAllPermissions(p);
             processDefinitionPackDao.delete(p);
         } else {
+            timerJobDao.deleteByDefinitionId(d.getId());
             processDefinitionDao.delete(d);
         }
         systemLogDao.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), p.getName(), d == null ? null : d.getVersion()));
@@ -559,6 +572,30 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
                 val p = (ProcessDefinitionPack) securedObject;
                 result.add(new WfDefinition(p, p.getLatest()));
             }
+        }
+    }
+
+    private void updateStartProcessTimerJob(Long oldDefinitionId, @NonNull Long newDefinitionId,
+            @NonNull ParsedProcessDefinition newParsed
+    ) {
+        Preconditions.checkArgument(newDefinitionId != null);
+
+        if (oldDefinitionId != null) {
+            timerJobDao.deleteByDefinitionId(oldDefinitionId);
+        }
+
+        for (StartNode startNode : newParsed.getEventStartNodes()) {
+            val def = startNode.getTimerEventDefinition();
+            if (def == null) {
+                continue;
+            }
+            StartProcessTimerJob job = timerJobFactory.createTimerJobFromTimerEventDefinition(def, newDefinitionId);
+            if (job == null) {
+                return;
+            }
+            timerJobDao.create(job);
+            // now supported only one timer start node, see TimerJobExecutor.processStartProcessTimerJob(..)
+            break;
         }
     }
 }

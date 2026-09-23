@@ -328,7 +328,11 @@ public class BpmnXmlReader {
         if (node instanceof StartNode) {
             StartNode startNode = (StartNode) node;
             if (startNode.isStartByEvent()) {
-                readTimer(startNode, element);
+                if (startNode.getEventTrigger().getEventType() == MessageEventType.conditional) {
+                    startNode.setDelegation(readDelegation(element, properties, true));
+                } else if (startNode.getEventTrigger().getEventType() == MessageEventType.timer) {
+                    readTimer(startNode, element);
+                }
             } else {
                 readTask(parsedProcessDefinition, element, properties, startNode);
             }

@@ -272,6 +272,37 @@ public class JbpmDuration implements Serializable {
         }
     }
 
+    public String toIsoDuration() {
+        Preconditions.checkArgument(!businessTime, "Business duration cannot be represented as ISO-8601 duration");
+        StringBuilder sb = new StringBuilder();
+        switch (field) {
+            case Calendar.SECOND:
+                sb.append("PT").append(amount).append('S');
+                break;
+            case Calendar.MINUTE:
+                sb.append("PT").append(amount).append('M');
+                break;
+            case Calendar.HOUR:
+                sb.append("PT").append(amount).append('H');
+                break;
+            case Calendar.DAY_OF_MONTH:
+                sb.append('P').append(amount).append('D');
+                break;
+            case Calendar.WEEK_OF_MONTH:
+                sb.append('P').append(amount).append('W');
+                break;
+            case Calendar.MONTH:
+                sb.append('P').append(amount).append('M');
+                break;
+            case Calendar.YEAR:
+                sb.append('P').append(amount).append('Y');
+                break;
+            default:
+                throw new UnsupportedOperationException("Calendar field '" + field + "' cannot be represented as ISO-8601 duration");
+        }
+        return sb.toString();
+    }
+
     public boolean isBusinessTime() {
         return businessTime;
     }

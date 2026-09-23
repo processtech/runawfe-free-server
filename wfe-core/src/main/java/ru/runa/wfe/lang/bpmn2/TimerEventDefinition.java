@@ -20,6 +20,7 @@ import org.joda.time.Interval;
 import org.joda.time.Period;
 import org.joda.time.format.ISOPeriodFormat;
 import ru.runa.wfe.commons.bc.BusinessDuration;
+import ru.runa.wfe.commons.bc.legacy.JbpmDuration;
 import ru.runa.wfe.job.StartProcessTimerJob;
 import ru.runa.wfe.util.JodaTimeUtils;
 import ru.runa.wfe.util.Pair;
@@ -379,5 +380,15 @@ public abstract class TimerEventDefinition {
         public Date addDurationToDate(Date date) {
             return new DateTime(date).plus(duration).toDate();
         }
+    }
+
+    /**
+     * Creates unbounded {@link TimeCycle} from {@link JbpmDuration}.
+     *
+     * @param duration duration.
+     * @return unbounded timer cycle.
+     */
+    public static TimeCycle createTimeCycle(JbpmDuration duration) {
+        return new TimeCycle("R/" + duration.toIsoDuration());
     }
 }
