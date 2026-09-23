@@ -4,6 +4,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.lang.StartNode;
+import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.task.Task;
 
 /**
@@ -34,7 +35,10 @@ public abstract class CurrentTaskLog extends CurrentProcessLog implements TaskLo
         setNodeId(startNode.getNodeId());
         setTaskId(-1 * process.getId());
         if (!startNode.getTasks().isEmpty()) {
-            setSwimlaneName(startNode.getFirstTaskNotNull().getSwimlane().getName());
+            SwimlaneDefinition swimlane = startNode.getFirstTaskNotNull().getSwimlane();
+            if (swimlane != null) {
+                setSwimlaneName(swimlane.getName());
+            }
         }
         setNodeName(startNode.getName());
         addAttribute(ATTR_TASK_NAME, startNode.getName());

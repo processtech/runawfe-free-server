@@ -76,7 +76,10 @@ public class BaseReceiveMessageNode extends BaseMessageNode implements BoundaryE
         boolean setSwimlaneValue = true;
         if (this instanceof BoundaryEvent && getParentElement() instanceof BaseTaskNode) {
             TaskDefinition taskDefinition = ((BaseTaskNode) getParentElement()).getFirstTaskNotNull();
-            swimlaneName = taskDefinition.getSwimlane().getName();
+            SwimlaneDefinition swimlane = taskDefinition.getSwimlane();
+            if (swimlane != null) {
+                swimlaneName = swimlane.getName();
+            }
             setSwimlaneValue = taskDefinition.isReassignSwimlaneToTaskPerformer();
         }
         for (VariableMapping variableMapping : getVariableMappings()) {

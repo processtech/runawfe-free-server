@@ -41,14 +41,16 @@ public class AsyncTaskChecker {
                 processLogDao.addLog(new CurrentTaskCancelledByProcessEndLog(task, TaskCompletionInfo.createForProcessEnd(task.getProcess().getId())),
                         task.getProcess(), task.getToken());
                 task.delete();
-                List<Task> swimlaneTasks = ApplicationContextFactory.getTaskDao().findByProcessAndSwimlane(task.getProcess(), task.getSwimlane());
-                if (swimlaneTasks.isEmpty()) {
-                    if (task.getSwimlane().getExecutor() instanceof TemporaryGroup) {
-                        task.getSwimlane().setExecutor(null);
-                        log.debug("Cleared swimlane temporary group");
+                if (task.getSwimlane() != null) {
+                    List<Task> swimlaneTasks = ApplicationContextFactory.getTaskDao().findByProcessAndSwimlane(task.getProcess(), task.getSwimlane());
+                    if (swimlaneTasks.isEmpty()) {
+                        if (task.getSwimlane().getExecutor() instanceof TemporaryGroup) {
+                            task.getSwimlane().setExecutor(null);
+                            log.debug("Cleared swimlane temporary group");
+                        }
+                    } else {
+                        log.debug("Swimlane temporary group is used in " + swimlaneTasks);
                     }
-                } else {
-                    log.debug("Swimlane temporary group is used in " + swimlaneTasks);
                 }
             }
         }
