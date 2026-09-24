@@ -6,6 +6,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.lang.BaseReceiveMessageNode;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.BoundaryEvent;
+import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.VariableMapping;
@@ -30,17 +31,17 @@ public class CatchEventNode extends BaseReceiveMessageNode implements BoundaryEv
 
     @Override
     public TaskCompletionInfo getTaskCompletionInfoIfInterrupting(ExecutionContext executionContext) {
+        String transitionName = getLeavingTransitions().get(0).getName();
         if (getParentElement() instanceof BaseTaskNode) {
-            String swimlaneName = ((BaseTaskNode) getParentElement()).getFirstTaskNotNull().getSwimlane().getName();
-            for (VariableMapping variableMapping : getVariableMappings()) {
-                if (!variableMapping.isPropertySelector()) {
-                    if (Objects.equals(swimlaneName, variableMapping.getName())) {
-                        return TaskCompletionInfo.createForSignal((Executor) executionContext.getVariableValue(swimlaneName),
-                                getLeavingTransitions().get(0).getName());
+            SwimlaneDefinition swimlane = ((BaseTaskNode) getParentElement()).getFirstTaskNotNull().getSwimlane();
+            if (swimlane != null && swimlane.getName() != null) {
+                for (VariableMapping variableMapping : getVariableMappings()) {
+                    if (!variableMapping.isPropertySelector() && Objects.equals(swimlane.getName(), variableMapping.getName())) {
+                        return TaskCompletionInfo.createForSignal((Executor) executionContext.getVariableValue(swimlane.getName()), transitionName);
                     }
                 }
             }
         }
-        return TaskCompletionInfo.createForSignal(null, getLeavingTransitions().get(0).getName());
+        return TaskCompletionInfo.createForSignal(null, transitionName);
     }
 }

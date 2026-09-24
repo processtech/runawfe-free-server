@@ -22,7 +22,7 @@ public class StartNodeGraphElement extends NodeGraphElement {
     public void initialize(Node node, int[] graphConstraints) {
         super.initialize(node, graphConstraints);
         List<TaskDefinition> taskDefinitions = ((InteractionNode) node).getTasks();
-        if (taskDefinitions.size() > 0) {
+        if (taskDefinitions.size() > 0 && taskDefinitions.get(0).getSwimlane() != null) {
             // none for EmbeddedSubprocessStartNode
             swimlaneName = taskDefinitions.get(0).getSwimlane().getName();
         }
