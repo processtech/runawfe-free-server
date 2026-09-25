@@ -1,4 +1,4 @@
-package ru.runa.wfe.office.storage;
+package ru.runa.wfe.commons.condition;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;

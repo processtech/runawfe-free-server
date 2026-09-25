@@ -4,12 +4,16 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.LocalizationDao;
@@ -18,6 +22,8 @@ import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableStorageKind;
+import ru.runa.wfe.var.logic.InternalStorageReferenceService;
 import ru.runa.wfe.var.VariableStoreType;
 import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.format.FileFormat;
@@ -39,6 +45,11 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     private static final String DESCRIPTION = "description";
     private static final String STORE_TYPE = "storeType";
     private static final String GLOBAL = "global";
+    private static final String BY_REFERENCE = "byReference";
+    private static final String REFERENCE_STORAGE = "referenceStorage";
+    private static final String REDMINE_FIELD_NAME = "redmineFieldName";
+    private static final String STORE_IN_EXTERNAL_STORAGE = "storeInExternalStorage";
+    private static final String REFERENCE_STORAGE_TYPE_PREFIX = "Reference-storage type '";
 
     @Autowired
     private LocalizationDao localizationDao;
@@ -58,15 +69,19 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         Document document = XmlUtils.parseWithoutValidation(xml);
         Element root = document.getRootElement();
         List<Element> typeElements = document.getRootElement().elements(USER_TYPE);
+        Map<String, Element> typeElementByName = new HashMap<>();
         for (Element typeElement : typeElements) {
-            UserType type = new UserType(typeElement.attributeValue(NAME));
+            String typeName = typeElement.attributeValue(NAME);
+            VariableStorageKind storageType = parseStorageType(typeElement);
+            UserType type = new UserType(typeName, storageType != null, storageType);
             parsedProcessDefinition.addUserType(type);
+            typeElementByName.put(typeName, typeElement);
         }
         for (Element typeElement : typeElements) {
             UserType type = parsedProcessDefinition.getUserTypeNotNull(typeElement.attributeValue(NAME));
             List<Element> attributeElements = typeElement.elements(VARIABLE);
             for (Element element : attributeElements) {
-                VariableDefinition variableDefinition = parse(parsedProcessDefinition, element);
+                VariableDefinition variableDefinition = parse(parsedProcessDefinition, element, typeElementByName);
                 type.addAttribute(variableDefinition);
             }
         }
@@ -74,6 +89,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
             for (VariableDefinition variableDefinition : userType.getAttributes()) {
                 parseDefaultValue(parsedProcessDefinition, variableDefinition);
             }
+            validateReferenceStorageConsistency(userType);
         }
         List<Element> variableElements = root.elements(VARIABLE);
         for (Element element : variableElements) {
@@ -83,14 +99,14 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 String scriptingName = element.attributeValue(SCRIPTING_NAME, name);
                 parsedProcessDefinition.setSwimlaneScriptingName(name, scriptingName);
             } else {
-                VariableDefinition variableDefinition = parse(parsedProcessDefinition, element);
+                VariableDefinition variableDefinition = parse(parsedProcessDefinition, element, typeElementByName);
                 parseDefaultValue(parsedProcessDefinition, variableDefinition);
                 parsedProcessDefinition.addVariable(variableDefinition);
             }
         }
     }
 
-    private VariableDefinition parse(ParsedProcessDefinition parsedProcessDefinition, Element element) {
+    private VariableDefinition parse(ParsedProcessDefinition parsedProcessDefinition, Element element, Map<String, Element> typeElementByName) {
         String name = element.attributeValue(NAME);
         String scriptingName = element.attributeValue(SCRIPTING_NAME, name);
         String global = element.attributeValue(GLOBAL);
@@ -128,11 +144,95 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         variableDefinition.setPublicAccess(Boolean.parseBoolean(element.attributeValue(PUBLIC, "false")));
         variableDefinition.setEditableInChat(Boolean.parseBoolean(element.attributeValue(EDITABLE_IN_CHAT, "false")));
         variableDefinition.setDefaultValue(element.attributeValue(DEFAULT_VALUE));
+        variableDefinition.setRedmineFieldName(element.attributeValue(REDMINE_FIELD_NAME));
         String storeTypeString = element.attributeValue(STORE_TYPE);
-        if (!Strings.isNullOrEmpty(storeTypeString)) {
+        boolean forceDefaultStoreType = false;
+        if (variableDefinition.getUserType() != null) {
+            Element userTypeElement = typeElementByName.get(variableDefinition.getUserType().getName());
+            if (userTypeElement != null) {
+                forceDefaultStoreType = Boolean.parseBoolean(userTypeElement.attributeValue(STORE_IN_EXTERNAL_STORAGE, "false"));
+            }
+        }
+        if (forceDefaultStoreType) {
+            variableDefinition.setStoreType(VariableStoreType.DEFAULT);
+        } else if (!Strings.isNullOrEmpty(storeTypeString)) {
             variableDefinition.setStoreType(VariableStoreType.valueOf(storeTypeString.toUpperCase()));
         }
         return variableDefinition;
+    }
+
+    VariableStorageKind parseStorageType(Element typeElement) {
+        String referenceStorageAttr = typeElement.attributeValue(REFERENCE_STORAGE);
+        if (referenceStorageAttr != null) {
+            if ("none".equalsIgnoreCase(referenceStorageAttr)) {
+                return null;
+            }
+            try {
+                return VariableStorageKind.valueOf(referenceStorageAttr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new InternalApplicationException("Unknown referenceStorage value '" + referenceStorageAttr
+                        + "' on user type '" + typeElement.attributeValue(NAME) + "'. Expected one of: none, "
+                        + Arrays.toString(VariableStorageKind.values()).toLowerCase()
+                        + " (or legacy byReference=\"true\")");
+            }
+        }
+        if (Boolean.parseBoolean(typeElement.attributeValue(BY_REFERENCE))) {
+            return VariableStorageKind.EXCEL;
+        }
+        return null;
+    }
+
+    private void validateReferenceStorageConsistency(UserType userType) {
+        if (userType.isByReference()) {
+            validateReferenceStorageIdAttribute(userType);
+            validateAllAttributesShareStorageType(userType);
+        } else {
+            validateNoReferenceAttributes(userType);
+        }
+    }
+
+    private void validateReferenceStorageIdAttribute(UserType userType) {
+        List<VariableDefinition> attrs = userType.getAttributes();
+        int idIndex = -1;
+        for (int i = 0; i < attrs.size(); i++) {
+            if (InternalStorageReferenceService.ID_ATTRIBUTE_NAME.equals(attrs.get(i).getName())) {
+                idIndex = i;
+                break;
+            }
+        }
+        if (idIndex == -1) {
+            log.warn(REFERENCE_STORAGE_TYPE_PREFIX + userType.getName()
+                    + "' does not have required 'id' attribute. Reference-storage operations will fail at runtime.");
+        } else if (idIndex != 0) {
+            log.warn(REFERENCE_STORAGE_TYPE_PREFIX + userType.getName()
+                    + "' has 'id' attribute but it is not the first attribute. Expected 'id' as the first attribute by convention.");
+        }
+    }
+
+    private void validateAllAttributesShareStorageType(UserType userType) {
+        VariableStorageKind parentKind = userType.getStorageType();
+        for (VariableDefinition attr : userType.getAttributes()) {
+            if (attr.getUserType() != null && attr.getUserType().getStorageType() != parentKind) {
+                throw new InternalApplicationException(REFERENCE_STORAGE_TYPE_PREFIX + userType.getName()
+                        + "' (storageType=" + parentKind + ") contains attribute '" + attr.getName()
+                        + "' of user type '" + attr.getUserType().getName()
+                        + "' with storageType=" + attr.getUserType().getStorageType()
+                        + ". Mixed reference-storage configurations are not supported.");
+            }
+        }
+    }
+
+    private void validateNoReferenceAttributes(UserType userType) {
+        for (VariableDefinition attr : userType.getAttributes()) {
+            if (attr.getUserType() != null && attr.getUserType().isByReference()) {
+                log.warn("Non-reference-storage type '" + userType.getName()
+                        + "' contains attribute '" + attr.getName()
+                        + "' of reference-storage user type '" + attr.getUserType().getName()
+                        + "' (storageType=" + attr.getUserType().getStorageType()
+                        + "). Mixed reference-storage configurations are not officially supported"
+                        + " and may behave unpredictably at runtime.");
+            }
+        }
     }
 
     private void parseDefaultValue(ParsedProcessDefinition parsedProcessDefinition, VariableDefinition variableDefinition) {

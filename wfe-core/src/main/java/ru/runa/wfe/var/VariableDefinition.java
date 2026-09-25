@@ -3,10 +3,12 @@ package ru.runa.wfe.var;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+
 import java.io.Serializable;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.format.FormatCommons;
@@ -32,6 +34,7 @@ public class VariableDefinition implements Serializable {
     private boolean publicAccess;
     private boolean editableInChat;
     private Object defaultValue;
+    private String redmineFieldName;
     private VariableStoreType storeType = VariableStoreType.DEFAULT;
     private transient VariableFormat variableFormat;
 
@@ -164,6 +167,14 @@ public class VariableDefinition implements Serializable {
         this.defaultValue = defaultValue;
     }
 
+    public String getRedmineFieldName() {
+        return redmineFieldName;
+    }
+
+    public void setRedmineFieldName(String redmineFieldName) {
+        this.redmineFieldName = redmineFieldName == null ? null : redmineFieldName.intern();
+    }
+
     public String getFormatLabel() {
         if (formatLabel != null) {
             return formatLabel;
@@ -203,7 +214,7 @@ public class VariableDefinition implements Serializable {
     }
 
     private List<VariableDefinition> expandUserType(VariableDefinition superVariableDefinition, VariableDefinition variableDefinition,
-            boolean preserveUserTypeVariables) {
+                                                    boolean preserveUserTypeVariables) {
         List<VariableDefinition> result = Lists.newArrayList();
         for (VariableDefinition attributeDefinition : variableDefinition.getUserType().getAttributes()) {
             String name = superVariableDefinition.getName() + UserType.DELIM + attributeDefinition.getName();

@@ -12,6 +12,7 @@
 		<module>../wfe-service</module>
 		<module>../wfe-bots</module>
 		<module>../wfe-office</module>
+        <module>../wfe-redmine</module>
 		<module>../wfe-web</module>
 		<module>../wfe-ear</module>
 		<module>../wfe-restapi</module>

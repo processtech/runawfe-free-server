@@ -29,6 +29,7 @@ import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.commons.condition.ConditionProcessor;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.VariableFormat;

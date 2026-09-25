@@ -44,6 +44,7 @@ import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.task.logic.TaskNotifier;
 import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.user.logic.ExecutorLogic;
+import ru.runa.wfe.var.logic.InternalStorageReferenceService;
 import ru.runa.wfe.var.logic.VariableLogic;
 
 @Component

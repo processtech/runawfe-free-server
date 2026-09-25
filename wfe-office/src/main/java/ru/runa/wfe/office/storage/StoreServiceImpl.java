@@ -41,6 +41,7 @@ import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.commons.condition.ConditionProcessor;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.ListFormat;
@@ -176,7 +177,10 @@ public class StoreServiceImpl implements StoreService {
         final DataSource dataSource = DataSourceStorage.parseDataSource(fullPath, variableProvider);
         if (dataSource instanceof ExcelDataSource) {
             final ExcelDataSource eds = (ExcelDataSource) dataSource;
-            fullPath = eds.getFilePath() + "/" + tableName() + XLSX_SUFFIX;
+            String resolvedTableName = tableName();
+            fullPath = eds.getFilePath() + "/" + resolvedTableName + XLSX_SUFFIX;
+            log.info("StoreServiceImpl.initParams: tableName='" + resolvedTableName
+                    + "', fullPath='" + fullPath + "', format=" + (format != null ? format.getClass().getSimpleName() : "null"));
         }
         createFileIfNotExist(fullPath, tableName());
     }

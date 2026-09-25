@@ -2,6 +2,7 @@ package ru.runa.common.web.action;
 
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -29,6 +31,7 @@ import ru.runa.wfe.datasource.DataSource;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.datasource.DataSourceStuff;
 import ru.runa.wfe.datasource.ExcelDataSource;
+import ru.runa.wfe.var.logic.InternalStorageReferenceService;
 
 /**
  * @struts:action path="/viewInternalStorage" name="viewInternalStorageForm" validate="false"
@@ -71,7 +74,7 @@ public class ViewInternalStorageAction extends ActionBase {
                     } else {
                         throw new IllegalArgumentException("excel file extension is incorrect");
                     }
-                    Sheet sheet = wb.getSheet(FilenameUtils.removeExtension(workbookName));
+                    Sheet sheet = wb.getSheet(resolveSheetName(workbookName));
                     List<List<Cell>> data = new ArrayList<>();
                     int columnNumber = getSheetContent(sheet, data);
                     StringBuffer sheetContent = new StringBuffer();
@@ -124,7 +127,18 @@ public class ViewInternalStorageAction extends ActionBase {
         return value;
     }
 
+    private static String resolveSheetName(String workbookName) {
+        String name = FilenameUtils.removeExtension(workbookName);
+        if (name.endsWith(InternalStorageReferenceService.BY_REFERENCE_FILE_SUFFIX)) {
+            name = name.substring(0, name.length() - InternalStorageReferenceService.BY_REFERENCE_FILE_SUFFIX.length());
+        }
+        return name;
+    }
+
     private int getSheetContent(Sheet sheet, List<List<Cell>> data) {
+        if (sheet == null) {
+            return 0;
+        }
         int columnNumber = 0;
         for (int r = 0; r <= sheet.getLastRowNum(); r++) {
             List<Cell> cells = new ArrayList<>();

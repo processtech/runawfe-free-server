@@ -12,6 +12,7 @@ class DataSourceCreator {
         DATA_SOURCE_TYPES.put(DataSourceType.Excel, ExcelDataSource.class);
         DATA_SOURCE_TYPES.put(DataSourceType.JDBC, JdbcDataSource.class);
         DATA_SOURCE_TYPES.put(DataSourceType.JNDI, JndiDataSource.class);
+        DATA_SOURCE_TYPES.put(DataSourceType.Redmine, RedmineDataSource.class);
     }
 
     static DataSource create(DataSourceType type) {

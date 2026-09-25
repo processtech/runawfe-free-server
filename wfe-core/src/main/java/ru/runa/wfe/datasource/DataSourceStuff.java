@@ -19,6 +19,7 @@ public interface DataSourceStuff {
     String ELEMENT_DB_NAME = "dbName";
     String ELEMENT_USER_NAME = "userName";
     String ELEMENT_PASSWORD = "password";
+    String ELEMENT_PROJECT_IDENTIFIER = "projectIdentifier";
 
     String ATTR_NAME = "name";
     String ATTR_TYPE = "type";

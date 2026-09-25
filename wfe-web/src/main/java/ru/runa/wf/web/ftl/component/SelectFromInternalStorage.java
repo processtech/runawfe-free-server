@@ -18,6 +18,7 @@ import ru.runa.wfe.datasource.DataSource;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.datasource.DataSourceStuff;
 import ru.runa.wfe.form.Interaction;
+import ru.runa.wfe.office.storage.InternalStorageDispatcher;
 import ru.runa.wfe.office.storage.StoreHelper;
 import ru.runa.wfe.office.storage.StoreService;
 import ru.runa.wfe.office.storage.binding.DataBinding;
@@ -85,17 +86,23 @@ public class SelectFromInternalStorage extends AbstractUserTypeList implements F
 
     private ExecutionResult execute(Iterable<ProjectionModel> projections) throws InternalApplicationException {
         final String predicates = XmlUtils.unwrapCdata(getParameterAsString(2));
-
         final DataSource internalStorage = DataSourceStorage.getDataSource(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME);
-        final StoreService storeService = StoreServiceFactory.create(internalStorage, variableProvider);
+        final WfVariable outputVariable = variableProvider.getVariableNotNull(getVariableNameForSubmissionProcessing());
+        final UserType userType = variableProvider.getUserType(getParameterAsString(0));
 
         try {
             final DataBindings bindings = new StorageBindingsParser().parse(predicates);
             final DataBinding binding = Iterables.getOnlyElement(bindings.getBindings());
 
-            final StoreHelper storeHelper = new StoreHelperImpl(bindings, variableProvider, storeService);
-            storeHelper.setVariableFormat(variableProvider.getVariableNotNull(getVariableNameForSubmissionProcessing()).getDefinition().getFormatNotNull());
-            return storeHelper.execute(binding, variableProvider.getUserType(getParameterAsString(0)), projections);
+            return InternalStorageDispatcher.getInstance().findByFilter(
+                    outputVariable, userType, bindings.getCondition(), variableProvider,
+                    () -> {
+                        final StoreService storeService = StoreServiceFactory.create(internalStorage, variableProvider);
+                        final StoreHelper storeHelper = new StoreHelperImpl(bindings, variableProvider, storeService);
+                        storeHelper.setVariableFormat(outputVariable.getDefinition().getFormatNotNull());
+                        return storeHelper.execute(binding, userType, projections);
+                    }
+            );
         } catch (Exception e) {
             log.error("Error executing command on DataStore " + internalStorage.getName(), e);
             throw new InternalApplicationException(e);

@@ -37,6 +37,12 @@
 			<artifactId>poi-ooxml-schemas</artifactId>
 			<type>jar</type>
 		</dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>wfe-redmine</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>wfe-web</artifactId>
@@ -125,6 +131,10 @@
 							<groupId>${project.groupId}</groupId>
 							<artifactId>wfe-office</artifactId>
 						</jarModule>
+                        <jarModule>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>wfe-redmine</artifactId>
+                        </jarModule>
 						<ejbModule>
 							<groupId>${project.groupId}</groupId>
 							<artifactId>wfe-service</artifactId>

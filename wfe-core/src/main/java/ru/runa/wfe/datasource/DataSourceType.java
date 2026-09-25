@@ -4,6 +4,7 @@ public enum DataSourceType {
 
     Excel,
     JDBC,
-    JNDI
+    JNDI,
+    Redmine
 
 }
