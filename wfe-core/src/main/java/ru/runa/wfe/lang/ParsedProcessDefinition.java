@@ -41,7 +41,7 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
     private final Actor updateActor;
     private final Date subprocessBindingDate;
     private final Integer secondsBeforeArchiving;
-    private final SecuredObject securedObject = new SecuredObject();;
+    private final SecuredObject securedObject = new SecuredObject();
     private final Map<String, byte[]> processFiles = new HashMap<>();
     private StartNode manualStartNode;
     private final List<StartNode> eventStartNodes = new ArrayList<>();

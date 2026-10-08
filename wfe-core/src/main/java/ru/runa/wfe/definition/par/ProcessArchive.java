@@ -25,6 +25,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.FileDataProvider;
+import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.ParsedSubprocessDefinition;
@@ -94,7 +95,7 @@ public class ProcessArchive {
                 subprocessDefinitions.put(subprocessDefinition.getName(), subprocessDefinition);
             }
         }
-        Set<ParsedSubprocessDefinition> usedSubprocessDefinitions = getOnlyUsedSubprocessDefinitions(parsedProcessDefinition, subprocessDefinitions);
+        Set<ParsedSubprocessDefinition> usedSubprocessDefinitions = getOnlyUsedSubprocessDefinitionsAndCheckCycles(parsedProcessDefinition, subprocessDefinitions);
         for (ParsedSubprocessDefinition usedSubprocessDefinition : usedSubprocessDefinitions) {
             parsedProcessDefinition.addEmbeddedSubprocess(usedSubprocessDefinition);
         }
@@ -111,7 +112,7 @@ public class ProcessArchive {
         return fileData;
     }
 
-    private Set<ParsedSubprocessDefinition> getOnlyUsedSubprocessDefinitions(ParsedProcessDefinition rootProcessDefinition,
+    private Set<ParsedSubprocessDefinition> getOnlyUsedSubprocessDefinitionsAndCheckCycles(ParsedProcessDefinition rootProcessDefinition,
             Map<String, ParsedSubprocessDefinition> subprocessDefinitions) {
         MutableGraph<ParsedProcessDefinition> graph = GraphBuilder.directed().build();
         graph.addNode(rootProcessDefinition);
@@ -123,6 +124,9 @@ public class ProcessArchive {
                 .filter(n -> n.isEmbedded())
                 .transform(n -> n.getSubProcessName())
                 .forEach(nodeName -> graph.putEdge(processDefinition, subprocessDefinitions.get(nodeName)));
+        }
+        if (Graphs.hasCycle(graph)) {
+            throw new InvalidDefinitionException(rootProcessDefinition.getName(), "Cyclically nested compositions are not allowed");
         }
         return Graphs.reachableNodes(graph, rootProcessDefinition).stream()
                 .filter(d -> d instanceof ParsedSubprocessDefinition)
